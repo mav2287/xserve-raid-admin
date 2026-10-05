@@ -5,7 +5,7 @@ import json
 import platform
 import socket
 from pathlib import Path
-from baseline import sha, tree, tree_hash
+from baseline import VERSION, tree, tree_hash
 
 
 def safe_event(event):
@@ -24,7 +24,7 @@ def diagnose(output):
     files = tree(output / 'RAID Admin.app')
     # Do not relay arbitrary strings from manifests, environment, or preference stores.
     return {
-        'apple_version': '1.5.1', 'compatibility_version': '1.5.1-modern.audit.1',
+        'apple_version': '1.5.1', 'compatibility_version': VERSION,
         'source_commit': provenance['source_commit'] if len(provenance.get('source_commit', '')) == 40 and all(c in '0123456789abcdef' for c in provenance['source_commit']) else 'unknown',
         'architecture': platform.machine(), 'macos': platform.mac_ver()[0],
         'bundle_tree_sha256': tree_hash(files), 'matches_build_manifest': files == provenance['files'],
