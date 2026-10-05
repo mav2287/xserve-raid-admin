@@ -6,7 +6,7 @@ A modernized version of Apple's original RAID Admin application for managing Xse
 
 The original RAID Admin was a Java application bundled with Mac OS X for managing Apple Xserve RAID hardware. It was compiled for Java 1.3 and relied on Apple-specific APIs that no longer exist in modern JVMs, making it unable to run on current macOS versions.
 
-This project patches the original application to work with Java 8+ while preserving all original functionality, UI, and protocol compatibility.
+This project contains compatibility patches for the original application. Full functionality, UI behavior, protocol parity, and supported runtime/firmware combinations are not yet qualified. See [AUDIT-BASELINE.md](AUDIT-BASELINE.md) for measured results and limitations.
 
 ## Patches Applied
 
@@ -56,10 +56,14 @@ Launch **RAID Admin** from Applications (or the build directory). Click the **+*
 
 ## Hardware Compatibility
 
-- Apple Xserve RAID (all firmware versions)
+- Apple Xserve RAID (firmware compatibility remains to be qualified)
 - Communicates via the ACPX protocol over HTTP to the Xserve RAID coprocessor
 - Supports Bonjour/mDNS discovery (`_xserveraid._tcp`)
 
 ## Original Software
 
 The `original/` directory contains the unmodified JAR and icon assets from Apple's RAID Admin 1.5.1. The `patches/` directory contains the Java source files for all modifications.
+
+## Audit tooling
+
+The original build command remains unchanged for comparison. Use the separate [hash-locked audit build](AUDIT-BASELINE.md#build-reproducibility) for deterministic local artifacts, and consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md), and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.
