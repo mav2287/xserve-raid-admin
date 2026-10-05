@@ -4,7 +4,7 @@ Local issue IDs are stable evidence references; no remote issues were filed.
 
 ## G01 — Original provenance and installed/source divergence
 
-Repository original is hash-verified but not authenticated to an Apple download. Installed patches differ from source, including extra MRJ helpers/native FileManager. Resolve source chain before release. See AUDIT-BASELINE.md and entry-diff JSON.
+Repository original is hash-verified but not authenticated to an Apple download. Installed patches differ from source, including extra MRJ helpers/native FileManager. The starting EVIDENCE.md JAR digest is only 62 hex characters and cannot authenticate a historical artifact; the launcher hash does match. A transcription error is inferred, not proven. Resolve source chain before release. See AUDIT-BASELINE.md and entry-diff JSON.
 
 ## G02 — Runtime and classloading
 

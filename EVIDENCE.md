@@ -165,8 +165,14 @@ The initial entries above are retained as the historical record. The following
 new evidence supersedes conflicting assumptions; see
 [xserve-raid-admin/AUDIT-BASELINE.md](AUDIT-BASELINE.md).
 
-- Both recorded installed launcher/JAR hashes match exactly. The installed JAR
-  is **already patched**, not the original reference. The repository candidate
+- The installed launcher hash matches. The historical JAR digest contains only
+  62 hexadecimal characters, so it is invalid as SHA-256 and does not match. The
+  measured JAR hash is
+  `aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236`.
+  A missing `ac` suggests a transcription error (inference), but historical
+  artifact identity remains unresolved. Both strings are retained. An earlier
+  conversational statement that both hashes matched was incorrect. The installed
+  JAR is **already patched**, not the original reference. The repository candidate
   original hash is `5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449`;
   its manifest main class is `com.apple.xsr.Main`, not `Launcher`. Its official
   Apple acquisition provenance is unresolved.

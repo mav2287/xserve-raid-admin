@@ -105,5 +105,13 @@
     "payloads_equal": true,
     "entry_order_equal": true,
     "timestamp_different_entries": 11
+  },
+  "historical_digest_check": {
+    "launcher_matches": true,
+    "jar_matches": false,
+    "recorded_jar_digest": "aa5de223d524e9a518b4a8a6a1adcac066bfe5bc2b96e964ded7716f9b7236",
+    "recorded_jar_digest_length": 62,
+    "actual_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+    "conclusion": "Historical JAR digest malformed; transcription error inferred, historical identity unresolved"
   }
 }
