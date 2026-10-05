@@ -22,7 +22,7 @@ No native helper/source, native password library, entitlement file, bundled JRE,
 
 ## Application structure inside the immutable JAR
 
-The static inventory covers all 656 `com.apple` and `com.chaotic` classes, 4,335 declared methods, and all 3,043 non-directory JAR entries. The core `com.apple.xsr` namespace has 558 classes. [UI-INVENTORY.md](audit/UI-INVENTORY.md) lists every core class, named action, request-factory call site and 1,207 global resource keys. [static-inventory.json](audit/static-inventory.json) supplies signatures, calls and hashes. This includes inner/anonymous classes so hidden and CLI paths are not dropped.
+The static inventory covers all 656 `com.apple` and `com.chaotic` classes, 4,317 declared methods, and all 3,043 non-directory JAR entries. The core `com.apple.xsr` namespace has 558 classes. [UI-INVENTORY.md](audit/UI-INVENTORY.md) lists every core class, named action, 350 request construction/factory/transport call sites and 1,207 global resource keys; initiation/confirmation classification remains open. [static-inventory.json](audit/static-inventory.json) supplies signatures, calls and hashes. This includes inner/anonymous classes so hidden and CLI paths are not dropped.
 
 ```mermaid
 flowchart TD
@@ -64,3 +64,23 @@ The repository graph in the parent `graphify-out/` describes the six intake sour
 [Java 8](audit/class-origin-java8.txt) and [Java 11](audit/class-origin-java11.txt) probes load classes without initializing the GUI. On both installed Corretto runtimes, `com.apple.eio.FileManager` is bootstrap-loaded, so the application-JAR replacement is shadowed. Launcher, MRJApplicationUtils, MalformedInputException and AcpxMessageFactory load from the application classpath. JAXP selects `org.apache.xerces.jaxp.SAXParserFactoryImpl`.
 
 **Fact:** the FileManager patch is packaged but does not take effect on these tested runtimes. **Inference:** ordinary patch-JAR-first classpaths will not defeat bootstrap delegation; affected callers need a narrowly scoped bridge/call-site solution, or another explicitly qualified loading strategy. Do not silently inject boot-classpath overrides. This is why an overlay was not adopted merely on architectural preference.
+
+## Review corrections implemented
+
+`javap -classpath` had substituted the JDK FileManager for the archive class. The
+inventory now disassembles explicit extracted `.class` files and flags 127
+platform-name collisions. Earlier FileManager instruction/API conclusions from
+that dump are withdrawn. `audit/os-boundary-original.txt` shows the original
+FileManager is a stub, and `audit/installed-os-boundary.txt` describes the actual
+installed replacement (not native JDK methods).
+
+The request-site generator now includes MessageFactory interface calls, concrete
+factory calls, RequestMessage constructor inheritance and transport sinks; the
+previous empty table was a defect. Tests cover both invocation forms and reject
+empty output. The 350 sites are structural evidence, not completed UI/automatic
+path classifications.
+
+`audit/folder-probe-before.json` establishes that runtime FileManager finds the
+expected user preferences folder, while MRJFileUtils Desktop lookup returns null.
+Runtime shadowing does not prove a broken boundary or favor transformation over
+an overlay; both use the same parent-first loading rules.

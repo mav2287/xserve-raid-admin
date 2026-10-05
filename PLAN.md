@@ -420,3 +420,15 @@ Refinements supported by source/runtime evidence:
 No restricted operations are preauthorized by these refinements. No packet capture,
 firmware, controller mutation, production-volume test or installed-app change was
 performed. The user must confirm restricted operations immediately before each one.
+
+## Current execution constraints and reviewed order
+
+Both Apple silicon and Intel are required. The available RAID has production or
+mounted volumes: hardware testing remains deferred. Offline builds and fixtures
+continue autonomously. The GitHub JAR remains the accepted immutable baseline.
+
+First correct extraction/class-origin evidence and strengthen input/output gates;
+then exercise the ACP/logging/retry paths in isolation. Pin the evaluated runtime
+before menu/lifecycle fixes. Test the confirmed MRJ folder-null issue separately.
+The ordinary overlay remains a viable candidate: runtime shadowing also affects
+the existing transformation and does not by itself favor either strategy.

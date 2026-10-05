@@ -670,225 +670,58 @@
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static int OSTypeToInt(java.lang.String);",
-      "calls": [
-        "Method java/lang/String.length:()I",
-        "Method java/lang/String.getBytes:(II[BI)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "public static void setFileTypeAndCreator(java.lang.String, int, int) throws java.io.IOException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkWrite:(Ljava/lang/String;)V",
-        "Method _setFileTypeAndCreator:(Ljava/lang/String;II)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native void _setFileTypeAndCreator(java.lang.String, int, int) throws java.io.IOException;",
+      "signature": "public static java.lang.String findFolder(int);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static void setFileType(java.lang.String, int) throws java.io.IOException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkWrite:(Ljava/lang/String;)V",
-        "Method _setFileType:(Ljava/lang/String;I)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native void _setFileType(java.lang.String, int) throws java.io.IOException;",
+      "signature": "public static java.lang.String findFolder(short, int);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static void setFileCreator(java.lang.String, int) throws java.io.IOException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkWrite:(Ljava/lang/String;)V",
-        "Method _setFileCreator:(Ljava/lang/String;I)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native void _setFileCreator(java.lang.String, int) throws java.io.IOException;",
+      "signature": "public static java.lang.String findFolder(short, int, boolean);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static int getFileType(java.lang.String) throws java.io.IOException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkRead:(Ljava/lang/String;)V",
-        "Method _getFileType:(Ljava/lang/String;)I"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native int _getFileType(java.lang.String) throws java.io.IOException;",
+      "signature": "public static int getFileCreator(java.lang.String);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static int getFileCreator(java.lang.String) throws java.io.IOException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkRead:(Ljava/lang/String;)V",
-        "Method _getFileCreator:(Ljava/lang/String;)I"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native int _getFileCreator(java.lang.String) throws java.io.IOException;",
+      "signature": "public static int getFileType(java.lang.String);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String findFolder(int) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method findFolder:(SI)Ljava/lang/String;"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String findFolder(short, int) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method findFolder:(SIZ)Ljava/lang/String;"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String findFolder(short, int, boolean) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/RuntimePermission.\"<init>\":(Ljava/lang/String;)V",
-        "Method java/lang/SecurityManager.checkPermission:(Ljava/security/Permission;)V",
-        "Method _findFolder:(SIZ)Ljava/lang/String;",
-        "Method java/lang/StringBuilder.\"<init>\":()V",
-        "Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;",
-        "Method java/lang/Integer.toHexString:(I)Ljava/lang/String;",
-        "Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;",
-        "Method java/lang/StringBuilder.toString:()Ljava/lang/String;",
-        "Method java/io/FileNotFoundException.\"<init>\":(Ljava/lang/String;)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native java.lang.String _findFolder(short, int, boolean);",
+      "signature": "public static java.lang.String getResource(java.lang.String);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static void openURL(java.lang.String) throws java.io.IOException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/RuntimePermission.\"<init>\":(Ljava/lang/String;)V",
-        "Method java/lang/SecurityManager.checkPermission:(Ljava/security/Permission;)V",
-        "Method _openURL:(Ljava/lang/String;)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native void _openURL(java.lang.String) throws java.io.IOException;",
+      "signature": "public static java.lang.String getResource(java.lang.String, java.lang.String);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String getResource(java.lang.String) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method getResourceFromBundle:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String getResource(java.lang.String, java.lang.String) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method getResourceFromBundle:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String getResource(java.lang.String, java.lang.String, java.lang.String) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method getResourceFromBundle:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native java.lang.String getNativeResourceFromBundle(java.lang.String, java.lang.String, java.lang.String) throws java.io.FileNotFoundException;",
+      "signature": "public static void openURL(java.lang.String);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "private static java.lang.String getResourceFromBundle(java.lang.String, java.lang.String, java.lang.String) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/RuntimePermission.\"<init>\":(Ljava/lang/String;)V",
-        "Method java/lang/SecurityManager.checkPermission:(Ljava/security/Permission;)V",
-        "Method getNativeResourceFromBundle:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
-        "Method java/io/FileNotFoundException.\"<init>\":(Ljava/lang/String;)V"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "public static java.lang.String getPathToApplicationBundle();",
-      "calls": [
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/RuntimePermission.\"<init>\":(Ljava/lang/String;)V",
-        "Method java/lang/SecurityManager.checkPermission:(Ljava/security/Permission;)V",
-        "Method getNativePathToApplicationBundle:()Ljava/lang/String;"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native java.lang.String getNativePathToApplicationBundle();",
+      "signature": "public static void setFileCreator(java.lang.String, int);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static boolean moveToTrash(java.io.File) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method java/io/File.exists:()Z",
-        "Method java/io/FileNotFoundException.\"<init>\":()V",
-        "Method java/io/File.getAbsolutePath:()Ljava/lang/String;",
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkWrite:(Ljava/lang/String;)V",
-        "Method _moveToTrash:(Ljava/lang/String;)Z"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native boolean _moveToTrash(java.lang.String);",
+      "signature": "public static void setFileType(java.lang.String, int);",
       "calls": []
     },
     {
       "class": "com.apple.eio.FileManager",
-      "signature": "public static boolean revealInFinder(java.io.File) throws java.io.FileNotFoundException;",
-      "calls": [
-        "Method java/io/File.exists:()Z",
-        "Method java/io/FileNotFoundException.\"<init>\":()V",
-        "Method java/io/File.getAbsolutePath:()Ljava/lang/String;",
-        "Method java/lang/System.getSecurityManager:()Ljava/lang/SecurityManager;",
-        "Method java/lang/SecurityManager.checkRead:(Ljava/lang/String;)V",
-        "Method _revealInFinder:(Ljava/lang/String;)Z"
-      ]
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "private static native boolean _revealInFinder(java.lang.String);",
+      "signature": "public static void setFileCreatorAndType(java.lang.String, int, int);",
       "calls": []
-    },
-    {
-      "class": "com.apple.eio.FileManager",
-      "signature": "static {};",
-      "calls": [
-        "Method com/apple/eio/FileManager$1.\"<init>\":()V",
-        "Method java/security/AccessController.doPrivileged:(Ljava/security/PrivilegedAction;)Ljava/lang/Object;"
-      ]
     },
     {
       "class": "com.apple.gui.AlternatingTable",
@@ -54383,5 +54216,135 @@
     "regexp.jar": "9c7af278c4abb7021c3cc9e544ae6503d57b9e4474c4296671e173c9ab1a9e58",
     "runtime.LICENSE.txt": "2da28848df411d9e2e767ffd73d8a2ffabb03d5f7dca0152ab3cd6ef62c5cb0b",
     "runtime.README.txt": "df6cfcab0381a41dae93664a9669a337ae51a479fd6ce134f1ef2f4c33130697"
-  }
+  },
+  "disassembly_source": "explicit extracted class-file bytes",
+  "platform_name_collisions": [
+    "com/apple/eio/FileManager.class",
+    "javax/xml/parsers/DocumentBuilder.class",
+    "javax/xml/parsers/DocumentBuilderFactory.class",
+    "javax/xml/parsers/FactoryConfigurationError.class",
+    "javax/xml/parsers/FactoryFinder$1.class",
+    "javax/xml/parsers/FactoryFinder.class",
+    "javax/xml/parsers/ParserConfigurationException.class",
+    "javax/xml/parsers/SAXParser.class",
+    "javax/xml/parsers/SAXParserFactory.class",
+    "javax/xml/transform/ErrorListener.class",
+    "javax/xml/transform/FactoryFinder$1.class",
+    "javax/xml/transform/FactoryFinder.class",
+    "javax/xml/transform/OutputKeys.class",
+    "javax/xml/transform/Result.class",
+    "javax/xml/transform/Source.class",
+    "javax/xml/transform/SourceLocator.class",
+    "javax/xml/transform/Templates.class",
+    "javax/xml/transform/Transformer.class",
+    "javax/xml/transform/TransformerConfigurationException.class",
+    "javax/xml/transform/TransformerException.class",
+    "javax/xml/transform/TransformerFactory.class",
+    "javax/xml/transform/TransformerFactoryConfigurationError.class",
+    "javax/xml/transform/URIResolver.class",
+    "javax/xml/transform/dom/DOMLocator.class",
+    "javax/xml/transform/dom/DOMResult.class",
+    "javax/xml/transform/dom/DOMSource.class",
+    "javax/xml/transform/sax/SAXResult.class",
+    "javax/xml/transform/sax/SAXSource.class",
+    "javax/xml/transform/sax/SAXTransformerFactory.class",
+    "javax/xml/transform/sax/TemplatesHandler.class",
+    "javax/xml/transform/sax/TransformerHandler.class",
+    "javax/xml/transform/stream/StreamResult.class",
+    "javax/xml/transform/stream/StreamSource.class",
+    "org/w3c/dom/Attr.class",
+    "org/w3c/dom/CDATASection.class",
+    "org/w3c/dom/CharacterData.class",
+    "org/w3c/dom/Comment.class",
+    "org/w3c/dom/DOMException.class",
+    "org/w3c/dom/DOMImplementation.class",
+    "org/w3c/dom/Document.class",
+    "org/w3c/dom/DocumentFragment.class",
+    "org/w3c/dom/DocumentType.class",
+    "org/w3c/dom/Element.class",
+    "org/w3c/dom/Entity.class",
+    "org/w3c/dom/EntityReference.class",
+    "org/w3c/dom/NamedNodeMap.class",
+    "org/w3c/dom/Node.class",
+    "org/w3c/dom/NodeList.class",
+    "org/w3c/dom/Notation.class",
+    "org/w3c/dom/ProcessingInstruction.class",
+    "org/w3c/dom/Text.class",
+    "org/w3c/dom/css/CSS2Properties.class",
+    "org/w3c/dom/css/CSSCharsetRule.class",
+    "org/w3c/dom/css/CSSFontFaceRule.class",
+    "org/w3c/dom/css/CSSImportRule.class",
+    "org/w3c/dom/css/CSSMediaRule.class",
+    "org/w3c/dom/css/CSSPageRule.class",
+    "org/w3c/dom/css/CSSPrimitiveValue.class",
+    "org/w3c/dom/css/CSSRule.class",
+    "org/w3c/dom/css/CSSRuleList.class",
+    "org/w3c/dom/css/CSSStyleDeclaration.class",
+    "org/w3c/dom/css/CSSStyleRule.class",
+    "org/w3c/dom/css/CSSStyleSheet.class",
+    "org/w3c/dom/css/CSSUnknownRule.class",
+    "org/w3c/dom/css/CSSValue.class",
+    "org/w3c/dom/css/CSSValueList.class",
+    "org/w3c/dom/css/Counter.class",
+    "org/w3c/dom/css/DOMImplementationCSS.class",
+    "org/w3c/dom/css/DocumentCSS.class",
+    "org/w3c/dom/css/ElementCSSInlineStyle.class",
+    "org/w3c/dom/css/RGBColor.class",
+    "org/w3c/dom/css/Rect.class",
+    "org/w3c/dom/css/ViewCSS.class",
+    "org/w3c/dom/events/DocumentEvent.class",
+    "org/w3c/dom/events/Event.class",
+    "org/w3c/dom/events/EventException.class",
+    "org/w3c/dom/events/EventListener.class",
+    "org/w3c/dom/events/EventTarget.class",
+    "org/w3c/dom/events/MouseEvent.class",
+    "org/w3c/dom/events/MutationEvent.class",
+    "org/w3c/dom/events/UIEvent.class",
+    "org/w3c/dom/ranges/DocumentRange.class",
+    "org/w3c/dom/ranges/Range.class",
+    "org/w3c/dom/ranges/RangeException.class",
+    "org/w3c/dom/stylesheets/DocumentStyle.class",
+    "org/w3c/dom/stylesheets/LinkStyle.class",
+    "org/w3c/dom/stylesheets/MediaList.class",
+    "org/w3c/dom/stylesheets/StyleSheet.class",
+    "org/w3c/dom/stylesheets/StyleSheetList.class",
+    "org/w3c/dom/traversal/DocumentTraversal.class",
+    "org/w3c/dom/traversal/NodeFilter.class",
+    "org/w3c/dom/traversal/NodeIterator.class",
+    "org/w3c/dom/traversal/TreeWalker.class",
+    "org/w3c/dom/views/AbstractView.class",
+    "org/w3c/dom/views/DocumentView.class",
+    "org/xml/sax/AttributeList.class",
+    "org/xml/sax/Attributes.class",
+    "org/xml/sax/ContentHandler.class",
+    "org/xml/sax/DTDHandler.class",
+    "org/xml/sax/DocumentHandler.class",
+    "org/xml/sax/EntityResolver.class",
+    "org/xml/sax/ErrorHandler.class",
+    "org/xml/sax/HandlerBase.class",
+    "org/xml/sax/InputSource.class",
+    "org/xml/sax/Locator.class",
+    "org/xml/sax/Parser.class",
+    "org/xml/sax/SAXException.class",
+    "org/xml/sax/SAXNotRecognizedException.class",
+    "org/xml/sax/SAXNotSupportedException.class",
+    "org/xml/sax/SAXParseException.class",
+    "org/xml/sax/XMLFilter.class",
+    "org/xml/sax/XMLReader.class",
+    "org/xml/sax/ext/DeclHandler.class",
+    "org/xml/sax/ext/LexicalHandler.class",
+    "org/xml/sax/helpers/AttributeListImpl.class",
+    "org/xml/sax/helpers/AttributesImpl.class",
+    "org/xml/sax/helpers/DefaultHandler.class",
+    "org/xml/sax/helpers/LocatorImpl.class",
+    "org/xml/sax/helpers/NamespaceSupport$Context.class",
+    "org/xml/sax/helpers/NamespaceSupport.class",
+    "org/xml/sax/helpers/ParserAdapter$AttributeListAdapter.class",
+    "org/xml/sax/helpers/ParserAdapter.class",
+    "org/xml/sax/helpers/ParserFactory.class",
+    "org/xml/sax/helpers/XMLFilterImpl.class",
+    "org/xml/sax/helpers/XMLReaderAdapter$AttributesAdapter.class",
+    "org/xml/sax/helpers/XMLReaderAdapter.class",
+    "org/xml/sax/helpers/XMLReaderFactory.class"
+  ]
 }

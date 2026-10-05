@@ -1,0 +1,324 @@
+Compiled from "FileManager.java"
+public class com.apple.eio.FileManager {
+  public static final int kDesktopFolderType = 1684370283;
+
+  public static final int kPreferencesFolderType = 1886545254;
+
+  public static final int kSystemFolderType = 1835098995;
+
+  public com.apple.eio.FileManager();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static java.lang.String findFolder(int);
+    Code:
+       0: ldc           #2                  // String user.home
+       2: invokestatic  #3                  // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+       5: astore_1
+       6: iload_0
+       7: lookupswitch  { // 2
+            1684370283: 32
+            1886545254: 52
+               default: 72
+          }
+      32: new           #4                  // class java/lang/StringBuilder
+      35: dup
+      36: invokespecial #5                  // Method java/lang/StringBuilder."<init>":()V
+      39: aload_1
+      40: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      43: ldc           #7                  // String /Desktop
+      45: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      48: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      51: areturn
+      52: new           #4                  // class java/lang/StringBuilder
+      55: dup
+      56: invokespecial #5                  // Method java/lang/StringBuilder."<init>":()V
+      59: aload_1
+      60: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      63: ldc           #9                  // String /Library/Preferences
+      65: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      68: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      71: areturn
+      72: aload_1
+      73: areturn
+
+  public static java.lang.String findFolder(short, int);
+    Code:
+       0: iload_1
+       1: invokestatic  #10                 // Method findFolder:(I)Ljava/lang/String;
+       4: areturn
+
+  public static java.lang.String findFolder(short, int, boolean);
+    Code:
+       0: iload_1
+       1: invokestatic  #10                 // Method findFolder:(I)Ljava/lang/String;
+       4: astore_3
+       5: iload_2
+       6: ifeq          25
+       9: aload_3
+      10: ifnull        25
+      13: new           #11                 // class java/io/File
+      16: dup
+      17: aload_3
+      18: invokespecial #12                 // Method java/io/File."<init>":(Ljava/lang/String;)V
+      21: invokevirtual #13                 // Method java/io/File.mkdirs:()Z
+      24: pop
+      25: aload_3
+      26: areturn
+
+  public static void openURL(java.lang.String) throws java.io.IOException;
+    Code:
+       0: invokestatic  #14                 // Method java/awt/Desktop.getDesktop:()Ljava/awt/Desktop;
+       3: new           #15                 // class java/net/URI
+       6: dup
+       7: aload_0
+       8: invokespecial #16                 // Method java/net/URI."<init>":(Ljava/lang/String;)V
+      11: invokevirtual #17                 // Method java/awt/Desktop.browse:(Ljava/net/URI;)V
+      14: goto          38
+      17: astore_1
+      18: invokestatic  #19                 // Method java/lang/Runtime.getRuntime:()Ljava/lang/Runtime;
+      21: iconst_2
+      22: anewarray     #20                 // class java/lang/String
+      25: dup
+      26: iconst_0
+      27: ldc           #21                 // String open
+      29: aastore
+      30: dup
+      31: iconst_1
+      32: aload_0
+      33: aastore
+      34: invokevirtual #22                 // Method java/lang/Runtime.exec:([Ljava/lang/String;)Ljava/lang/Process;
+      37: pop
+      38: return
+    Exception table:
+       from    to  target type
+           0    14    17   Class java/lang/Exception
+
+  public static int OSTypeToInt(java.lang.String);
+    Code:
+       0: aload_0
+       1: ifnull        12
+       4: aload_0
+       5: invokevirtual #23                 // Method java/lang/String.length:()I
+       8: iconst_4
+       9: if_icmpeq     14
+      12: iconst_0
+      13: ireturn
+      14: aload_0
+      15: iconst_0
+      16: invokevirtual #24                 // Method java/lang/String.charAt:(I)C
+      19: bipush        24
+      21: ishl
+      22: aload_0
+      23: iconst_1
+      24: invokevirtual #24                 // Method java/lang/String.charAt:(I)C
+      27: bipush        16
+      29: ishl
+      30: ior
+      31: aload_0
+      32: iconst_2
+      33: invokevirtual #24                 // Method java/lang/String.charAt:(I)C
+      36: bipush        8
+      38: ishl
+      39: ior
+      40: aload_0
+      41: iconst_3
+      42: invokevirtual #24                 // Method java/lang/String.charAt:(I)C
+      45: ior
+      46: ireturn
+
+  public static java.lang.String getResource(java.lang.String) throws java.io.IOException;
+    Code:
+       0: ldc           #25                 // class com/apple/eio/FileManager
+       2: invokevirtual #26                 // Method java/lang/Class.getClassLoader:()Ljava/lang/ClassLoader;
+       5: aload_0
+       6: invokevirtual #27                 // Method java/lang/ClassLoader.getResource:(Ljava/lang/String;)Ljava/net/URL;
+       9: astore_1
+      10: aload_1
+      11: ifnull        21
+      14: aload_1
+      15: invokevirtual #28                 // Method java/net/URL.getPath:()Ljava/lang/String;
+      18: goto          22
+      21: aconst_null
+      22: areturn
+
+  public static void setFileType(java.lang.String, int);
+    Code:
+       0: return
+
+  public static void setFileCreator(java.lang.String, int);
+    Code:
+       0: return
+
+  public static void setFileCreatorAndType(java.lang.String, int, int);
+    Code:
+       0: return
+
+  public static int getFileType(java.lang.String);
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public static int getFileCreator(java.lang.String);
+    Code:
+       0: iconst_0
+       1: ireturn
+}
+Compiled from "MRJApplicationUtils.java"
+public class com.apple.mrj.MRJApplicationUtils {
+  public com.apple.mrj.MRJApplicationUtils();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static boolean isMRJToolkitAvailable();
+    Code:
+       0: iconst_1
+       1: ireturn
+
+  public static void registerAboutHandler(com.apple.mrj.MRJAboutHandler);
+    Code:
+       0: invokestatic  #2                  // Method getDesktopOrEAWTApp:()Ljava/lang/Object;
+       3: astore_1
+       4: aload_1
+       5: ifnull        28
+       8: aload_0
+       9: ifnull        28
+      12: aload_1
+      13: ldc           #3                  // String setAboutHandler
+      15: ldc           #4                  // String java.awt.desktop.AboutHandler
+      17: new           #5                  // class com/apple/mrj/MRJApplicationUtils$1
+      20: dup
+      21: aload_0
+      22: invokespecial #6                  // Method com/apple/mrj/MRJApplicationUtils$1."<init>":(Lcom/apple/mrj/MRJAboutHandler;)V
+      25: invokestatic  #7                  // Method setHandler:(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/reflect/InvocationHandler;)V
+      28: goto          32
+      31: astore_1
+      32: return
+    Exception table:
+       from    to  target type
+           0    28    31   Class java/lang/Exception
+
+  public static void registerQuitHandler(com.apple.mrj.MRJQuitHandler);
+    Code:
+       0: return
+
+  public static void registerPrefsHandler(com.apple.mrj.MRJPrefsHandler);
+    Code:
+       0: invokestatic  #2                  // Method getDesktopOrEAWTApp:()Ljava/lang/Object;
+       3: astore_1
+       4: aload_1
+       5: ifnull        28
+       8: aload_0
+       9: ifnull        28
+      12: aload_1
+      13: ldc           #9                  // String setPreferencesHandler
+      15: ldc           #10                 // String java.awt.desktop.PreferencesHandler
+      17: new           #11                 // class com/apple/mrj/MRJApplicationUtils$2
+      20: dup
+      21: aload_0
+      22: invokespecial #12                 // Method com/apple/mrj/MRJApplicationUtils$2."<init>":(Lcom/apple/mrj/MRJPrefsHandler;)V
+      25: invokestatic  #7                  // Method setHandler:(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/reflect/InvocationHandler;)V
+      28: goto          32
+      31: astore_1
+      32: return
+    Exception table:
+       from    to  target type
+           0    28    31   Class java/lang/Exception
+
+  public static void registerOpenDocumentHandler(com.apple.mrj.MRJOpenDocumentHandler);
+    Code:
+       0: return
+
+  public static void registerOpenApplicationHandler(com.apple.mrj.MRJOpenApplicationHandler);
+    Code:
+       0: return
+
+  private static java.lang.Object getDesktopOrEAWTApp();
+    Code:
+       0: ldc           #13                 // String java.awt.Desktop
+       2: invokestatic  #14                 // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+       5: astore_0
+       6: aload_0
+       7: ldc           #15                 // String getDesktop
+       9: iconst_0
+      10: anewarray     #16                 // class java/lang/Class
+      13: invokevirtual #17                 // Method java/lang/Class.getMethod:(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+      16: astore_1
+      17: aload_1
+      18: aconst_null
+      19: iconst_0
+      20: anewarray     #18                 // class java/lang/Object
+      23: invokevirtual #19                 // Method java/lang/reflect/Method.invoke:(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+      26: areturn
+      27: astore_0
+      28: ldc           #20                 // String com.apple.eawt.Application
+      30: invokestatic  #14                 // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+      33: astore_1
+      34: aload_1
+      35: ldc           #21                 // String getApplication
+      37: iconst_0
+      38: anewarray     #16                 // class java/lang/Class
+      41: invokevirtual #17                 // Method java/lang/Class.getMethod:(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+      44: astore_2
+      45: aload_2
+      46: aconst_null
+      47: iconst_0
+      48: anewarray     #18                 // class java/lang/Object
+      51: invokevirtual #19                 // Method java/lang/reflect/Method.invoke:(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+      54: areturn
+      55: astore_1
+      56: aconst_null
+      57: areturn
+    Exception table:
+       from    to  target type
+           0    26    27   Class java/lang/Exception
+          28    54    55   Class java/lang/Exception
+
+  private static void setHandler(java.lang.Object, java.lang.String, java.lang.String, java.lang.reflect.InvocationHandler);
+    Code:
+       0: aload_2
+       1: invokestatic  #14                 // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+       4: astore        4
+       6: aload         4
+       8: invokevirtual #22                 // Method java/lang/Class.getClassLoader:()Ljava/lang/ClassLoader;
+      11: iconst_1
+      12: anewarray     #16                 // class java/lang/Class
+      15: dup
+      16: iconst_0
+      17: aload         4
+      19: aastore
+      20: aload_3
+      21: invokestatic  #23                 // Method java/lang/reflect/Proxy.newProxyInstance:(Ljava/lang/ClassLoader;[Ljava/lang/Class;Ljava/lang/reflect/InvocationHandler;)Ljava/lang/Object;
+      24: astore        5
+      26: aload_0
+      27: invokevirtual #24                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      30: aload_1
+      31: iconst_1
+      32: anewarray     #16                 // class java/lang/Class
+      35: dup
+      36: iconst_0
+      37: aload         4
+      39: aastore
+      40: invokevirtual #17                 // Method java/lang/Class.getMethod:(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+      43: astore        6
+      45: aload         6
+      47: aload_0
+      48: iconst_1
+      49: anewarray     #18                 // class java/lang/Object
+      52: dup
+      53: iconst_0
+      54: aload         5
+      56: aastore
+      57: invokevirtual #19                 // Method java/lang/reflect/Method.invoke:(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+      60: pop
+      61: goto          66
+      64: astore        4
+      66: return
+    Exception table:
+       from    to  target type
+           0    61    64   Class java/lang/Exception
+}

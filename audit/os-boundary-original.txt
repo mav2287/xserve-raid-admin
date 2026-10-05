@@ -1,0 +1,259 @@
+public class com.apple.eio.FileManager {
+  public com.apple.eio.FileManager();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static java.lang.String findFolder(int);
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.lang.String findFolder(short, int);
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.lang.String findFolder(short, int, boolean);
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static int getFileCreator(java.lang.String);
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public static int getFileType(java.lang.String);
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public static java.lang.String getResource(java.lang.String);
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.lang.String getResource(java.lang.String, java.lang.String);
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static void openURL(java.lang.String);
+    Code:
+       0: return
+
+  public static void setFileCreator(java.lang.String, int);
+    Code:
+       0: return
+
+  public static void setFileType(java.lang.String, int);
+    Code:
+       0: return
+
+  public static void setFileCreatorAndType(java.lang.String, int, int);
+    Code:
+       0: return
+}
+public class com.apple.mrj.MRJFileUtils {
+  public static final com.apple.mrj.MRJOSType kAppleMenuFolderType;
+
+  public static final com.apple.mrj.MRJOSType kCachedDataFolderType;
+
+  public static final com.apple.mrj.MRJOSType kChewableItemsFolderType;
+
+  public static final com.apple.mrj.MRJOSType kControlPanelFolderType;
+
+  public static final com.apple.mrj.MRJOSType kDesktopFolderType;
+
+  public static final com.apple.mrj.MRJOSType kExtensionFolderType;
+
+  public static final com.apple.mrj.MRJOSType kFontsFolderType;
+
+  public static final com.apple.mrj.MRJOSType kPreferencesFolderType;
+
+  public static final com.apple.mrj.MRJOSType kPrintMonitorDocsFolderType;
+
+  public static final com.apple.mrj.MRJOSType kShutdownFolderType;
+
+  public static final com.apple.mrj.MRJOSType kStartupFolderType;
+
+  public static final com.apple.mrj.MRJOSType kSystemFolderType;
+
+  public static final com.apple.mrj.MRJOSType kTemporaryFolderType;
+
+  public static final com.apple.mrj.MRJOSType kTrashFolderType;
+
+  public static final com.apple.mrj.MRJOSType kWhereToEmptyTrashFolderType;
+
+  public static final short kUserDomain = -32763;
+
+  public com.apple.mrj.MRJFileUtils();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static java.io.File findApplication(com.apple.mrj.MRJOSType) throws java.io.FileNotFoundException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.io.File findFolder(com.apple.mrj.MRJOSType) throws java.io.FileNotFoundException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.io.File findFolder(short, com.apple.mrj.MRJOSType) throws java.io.FileNotFoundException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.io.File findFolder(short, com.apple.mrj.MRJOSType, boolean) throws java.io.FileNotFoundException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static com.apple.mrj.MRJOSType getFileCreateor(java.io.File) throws java.io.IOException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static com.apple.mrj.MRJOSType getFileType(java.io.File) throws java.io.IOException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.io.File getResource(java.lang.String) throws java.io.FileNotFoundException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static java.io.File getResource(java.lang.String, java.lang.String) throws java.io.FileNotFoundException;
+    Code:
+       0: aconst_null
+       1: areturn
+
+  public static void openURL(java.lang.String) throws java.io.IOException;
+    Code:
+       0: return
+
+  public static void setDefaultFileCreator(com.apple.mrj.MRJOSType);
+    Code:
+       0: return
+
+  static void setDefaultFileType(com.apple.mrj.MRJOSType);
+    Code:
+       0: return
+
+  public static void setFileCreator(java.io.File, com.apple.mrj.MRJOSType) throws java.io.IOException;
+    Code:
+       0: return
+
+  public static void setFileLastModified(java.io.File, java.lang.Long);
+    Code:
+       0: return
+
+  public static void setFileType(java.io.File, com.apple.mrj.MRJOSType) throws java.io.IOException;
+    Code:
+       0: return
+
+  public static void setFileTypeAndCreator(java.io.File, com.apple.mrj.MRJOSType, com.apple.mrj.MRJOSType) throws java.io.IOException;
+    Code:
+       0: return
+
+  static {};
+    Code:
+       0: new           #2                  // class com/apple/mrj/MRJOSType
+       3: dup
+       4: ldc           #3                  // int 1634561653
+       6: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+       9: putstatic     #5                  // Field kAppleMenuFolderType:Lcom/apple/mrj/MRJOSType;
+      12: new           #2                  // class com/apple/mrj/MRJOSType
+      15: dup
+      16: ldc           #6                  // int 1667326824
+      18: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      21: putstatic     #7                  // Field kCachedDataFolderType:Lcom/apple/mrj/MRJOSType;
+      24: new           #2                  // class com/apple/mrj/MRJOSType
+      27: dup
+      28: ldc           #8                  // int 1718382196
+      30: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      33: putstatic     #9                  // Field kChewableItemsFolderType:Lcom/apple/mrj/MRJOSType;
+      36: new           #2                  // class com/apple/mrj/MRJOSType
+      39: dup
+      40: ldc           #10                 // int 1668575852
+      42: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      45: putstatic     #11                 // Field kControlPanelFolderType:Lcom/apple/mrj/MRJOSType;
+      48: new           #2                  // class com/apple/mrj/MRJOSType
+      51: dup
+      52: ldc           #12                 // int 1684370283
+      54: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      57: putstatic     #13                 // Field kDesktopFolderType:Lcom/apple/mrj/MRJOSType;
+      60: new           #2                  // class com/apple/mrj/MRJOSType
+      63: dup
+      64: ldc           #14                 // int 1702392942
+      66: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      69: putstatic     #15                 // Field kExtensionFolderType:Lcom/apple/mrj/MRJOSType;
+      72: new           #2                  // class com/apple/mrj/MRJOSType
+      75: dup
+      76: ldc           #16                 // int 1718578804
+      78: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      81: putstatic     #17                 // Field kFontsFolderType:Lcom/apple/mrj/MRJOSType;
+      84: new           #2                  // class com/apple/mrj/MRJOSType
+      87: dup
+      88: ldc           #18                 // int 1886545254
+      90: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+      93: putstatic     #19                 // Field kPreferencesFolderType:Lcom/apple/mrj/MRJOSType;
+      96: new           #2                  // class com/apple/mrj/MRJOSType
+      99: dup
+     100: ldc           #20                 // int 1886547572
+     102: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     105: putstatic     #21                 // Field kPrintMonitorDocsFolderType:Lcom/apple/mrj/MRJOSType;
+     108: new           #2                  // class com/apple/mrj/MRJOSType
+     111: dup
+     112: ldc           #22                 // int 1936221286
+     114: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     117: putstatic     #23                 // Field kShutdownFolderType:Lcom/apple/mrj/MRJOSType;
+     120: new           #2                  // class com/apple/mrj/MRJOSType
+     123: dup
+     124: ldc           #24                 // int 1937011316
+     126: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     129: putstatic     #25                 // Field kStartupFolderType:Lcom/apple/mrj/MRJOSType;
+     132: new           #2                  // class com/apple/mrj/MRJOSType
+     135: dup
+     136: ldc           #26                 // int 1835098995
+     138: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     141: putstatic     #27                 // Field kSystemFolderType:Lcom/apple/mrj/MRJOSType;
+     144: new           #2                  // class com/apple/mrj/MRJOSType
+     147: dup
+     148: ldc           #28                 // int 1952804208
+     150: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     153: putstatic     #29                 // Field kTemporaryFolderType:Lcom/apple/mrj/MRJOSType;
+     156: new           #2                  // class com/apple/mrj/MRJOSType
+     159: dup
+     160: ldc           #30                 // int 1953657704
+     162: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     165: putstatic     #31                 // Field kTrashFolderType:Lcom/apple/mrj/MRJOSType;
+     168: new           #2                  // class com/apple/mrj/MRJOSType
+     171: dup
+     172: ldc           #32                 // int 1701671028
+     174: invokespecial #4                  // Method com/apple/mrj/MRJOSType."<init>":(I)V
+     177: putstatic     #33                 // Field kWhereToEmptyTrashFolderType:Lcom/apple/mrj/MRJOSType;
+     180: return
+}
+public interface com.apple.mrj.MRJAboutHandler {
+  public abstract void handleAbout();
+}
+public interface com.apple.mrj.MRJQuitHandler {
+  public abstract void handleQuit();
+}
+public interface com.apple.mrj.MRJPrefsHandler {
+  public abstract void handlePrefs();
+}
+public interface com.apple.mrj.MRJOpenDocumentHandler {
+  public abstract void handleOpenFile(java.io.File);
+}
+public interface com.apple.mrj.MRJOpenApplicationHandler {
+  public abstract void handleOpenApplication();
+}

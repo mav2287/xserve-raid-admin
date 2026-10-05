@@ -1,0 +1,157 @@
+# Addendum to the independent review of Phase-0 (`audit/phase-0`)
+
+This is a consultation addendum. I made no changes and ran no commands. For this round I read the `CommunicationsManager` run/doConnect and `HttpRequest` bytecode, `AcpxConnection.send`, `UpdateFirmwareRequest`, both final provenance files, the `FileManager` patch source, the `built-patches.txt` FileManager disassembly, `baseline.py:15-89`, the `build.sh` icon guard and `.gitignore`.
+
+## Corrections
+
+### F1: automatic retry (corrected)
+
+**Verified in bytecode:**
+- **The handler is not lost.** A non-parse `IOException` puts the same `Transaction` back at the head of the queue (`CommunicationsManager.txt:404-417`). It then reconnects and nulls only the local handler variable (`:452-458`). On the next dequeue, the handler and context are reloaded from the transaction (`:205-209`). "The caller is never told" was wrong.
+- **What the caller actually sees:**
+  - The failed attempt itself produces no callback.
+  - `doConnect(handler)` may send a `-101` connect-failure callback, with a null context (`:578-596`, `:401-409`). This only happens if reconnecting fails.
+  - The final outcome of a retried attempt is delivered normally (`:489-509`).
+  - On shutdown, a `-102` response is delivered (`:273-302`).
+- **The retry count is unbounded.** No attempt counter exists. Only the reconnect backoff paces it: 5–10 s at first, growing ×1.5 per retry and capped once it passes 1 h (`:504-510`, `:653-679`). The requeued transaction also blocks everything queued behind it.
+- **`HttpRequest.send` adds no resend of its own.** Its retry count is 1 (`HttpRequest.txt:127-183`).
+
+**Inferred:**
+- **Ordinary writes and destructive commands can execute twice.** The body is re-serialised from memory and sent again. If the controller processed the first attempt, the command runs twice. This remains **Critical**.
+- **The retry may go to the other controller address.** `doConnect` tries the address the connection was *not* using first (`:110-137`). What that means depends on dual-controller target routing.
+
+**Firmware (narrowed; downgraded to High):**
+- **Verified ordering:** `writeTo` copies the whole stream into `HttpRequest`'s in-memory buffer and closes it (`original.txt:97503-97507`). Only `close()` triggers the network send: header with `Content-Length` = buffer size, then the body (`HttpRequest.txt:242-301`).
+- **On a retry (Inferred):** reading from the closed source stream should throw `IOException` *before any byte of the second request is written*. This depends on the stream type, which per F14 is a `jar:` URL stream, and on the JDK throwing on read-after-close. If so, no second firmware request reaches hardware, and the empty or truncated upload I claimed earlier is **not established**.
+- **Expected failure mode instead:**
+  - The first attempt's outcome is unknown and never reported.
+  - Then an endless local "Stream closed" → requeue → reconnect loop, which blocks that system's queue.
+  - At most a `-101` callback, plus `-102` on shutdown.
+- **The fixture must test the edge case:** a stream that returns `-1` after close would produce a zero-length POST to the firmware endpoint.
+- Nothing above has been run.
+
+### F3: what "complete" requires
+- **Structurally sufficient** means matching all of the following:
+  - `Method` and `InterfaceMethod` calls to `(Acpx)?MessageFactory.new*`;
+  - `new` of any class implementing `RequestMessage` (not only `UpdateFirmwareRequest`);
+  - calls to the sinks: `RaidSystem.postMessage`, the `CommunicationsManager` post methods, and `AcpxConnection.send` (which covers the CLI).
+- **Still manual:** call sites inside the model layer need call-graph hops to reach a UI action. Classifying each as automatic, user-initiated or confirmation-gated is trace work.
+- **Minimum regression fixture:**
+  - A synthetic javap snippet with one `invokeinterface …MessageFactory.newX` line and one `invokevirtual …AcpxMessageFactory.newY` line. Assert that both are parsed. This alone catches the actual bug.
+  - The generator exits with an error if the table is empty.
+  - Optionally, a JAR cross-check: rows must equal an independent count of the factory references, and the `handleSystemSetup → newSetTimeRequest` row must be present.
+
+### F5: refined
+"Cannot fail" was too categorical. The `com.apple.xsr` classes are byte-identical and run on one pinned JDK, so today's three-way agreement holds **by construction**. It is weak, redundant parity evidence.
+- **What it is:** a useful tripwire for future changes to a serialiser, the classpath or class shadowing.
+- **What it is not:** request or replay parity. It never exercises `AcpxConnection.send`, `addHeaders`, response parsing via `PropertyList(InputStream)`, error routing or handlers.
+- **Blind spot:** anything shadowed at the JVM level affects all three JARs equally, so it is invisible to the test.
+
+### F7 and F15: a new inventory defect, and two retractions
+- **Direct evidence (Verified):** the patch source has `int` constants, no native methods and no static initializer (`patches/com/apple/eio/FileManager.java`). But the "FileManager" disassembled in `built-patches.txt:60-424` has `short` constants, native methods and `static {}` creating `FileManager$1`. **That dump is the JDK's own class, not the patch.** `inventory.py:23` runs `javap -classpath <jar>`, which resolves platform classes first.
+- **Consequences:**
+  - The 30 `com.apple.eio` entries in `static-inventory.json` describe the JDK class.
+  - The `FileManager` sections of `installed-patches.txt` are affected the same way.
+  - **Retracted:** "the original JAR's FileManager is a copy of a Java 5+ runtime class" (F7).
+  - **Retracted:** "orphan `FileManager$1`" (F15). `FileManager$1` belongs to the JDK class. Your entry-hash inventory, with only `FileManager.class`, stands.
+- **New tooling defect:** for any JAR class whose name collides with a platform class, the inventory describes the wrong class. Fix: disassemble from the bytes extracted from the JAR, and flag colliding names.
+- **Still valid:**
+  - The class-origin result: the platform class is loaded on Corretto 8 and 11.
+  - The `MacPreferences` call site.
+  - Overlay and transform are equally affected, so this is not an argument against the overlay.
+- **Untested:**
+  - Whether the JDK's native `findFolder` returns the expected path.
+  - All Java 17+ behaviour, including `IllegalAccessError` and `--add-exports`. These are hypotheses for a probe, not established failures.
+- **F2 is unchanged (Inferred).** `MRJFileUtils` has no JDK collision. The only caveat is an MRJ JAR in the extension directories, and the origin probe resolves that.
+
+### F9: provenance (adjusted)
+- **Clean builds exist.** `final-1` and `final-2` both record:
+  - commit `49bef222…`, `source_dirty:false`;
+  - identical `bundle_tree_sha256 849f1217…`;
+  - identical JAR `e8177fa1…`.
+  "Rebuild from a clean commit" is **done**.
+- **What remains:**
+  - `build/` is gitignored, so this evidence is local only.
+  - Committed docs still cite the dirty `ed171c7` manifests.
+  - File modes are excluded from the hash, so the launcher's executable bit is still uncovered.
+- **Proposal:**
+  - Commit `audit/expected-build.json`, containing `input_hashes`, the JDK tree hash, the original JAR hash, the per-file hashes, the bundle hash and the launcher mode. Record `source_commit` for information only and keep it out of the gate. No self-referential hashes.
+  - `verify_builds.py` compares both builds to each other *and* to this file.
+- **Baseline update process:**
+  - A patch changes inputs, so verification fails with a diff of inputs and outputs.
+  - An explicit `--update-expected` rewrites the file and records the reason and the previous values.
+  - The patch and the expected-file change land together and are reviewed together.
+  - A test asserts that the recorded `input_hashes` equal the current inputs. Updating one without the other fails.
+
+### F6, F8, F13, F16: external claims, now labelled unverified
+These have no local evidence; I relied on general knowledge:
+- the macOS JDK 8 `java.ext.dirs` default list;
+- the Python 3.13 `rglob` symlink change;
+- the SecurityManager timeline for Java 18 and 24;
+- macOS local-network permission behaviour.
+
+Safety-guard coverage is established for pinned Java 8 only. The `rglob` fix doesn't depend on which Python behaviour is correct: use `os.walk(followlinks=False)` and explicitly reject or record symlinks.
+
+**Isolating ambient Java variables without exposing secrets:**
+- Launch tools with an allowlisted environment: `env -i` plus explicit `PATH`, `HOME`, `LANG`, `TMPDIR`, and the absolute JDK path.
+- Record only a "was set in the parent" boolean for `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS`, `JDK_JAVA_OPTIONS` (only read by Java 9+), `CLASSPATH`, `JAVA_HOME` and `JAVA_OPTS`. Record no value, hash or length: a hash of a low-entropy secret can be brute-forced.
+- Scrubbing before launch matters because the JVM itself echoes `Picked up JAVA_TOOL_OPTIONS: <value>` to stderr, and the fixtures capture stderr.
+- Inside the JVM, compare the input arguments against the expected list and print only whether they match. Print `java.ext.dirs` and `file.encoding`.
+- Use `javac -extdirs ""` and `-Djava.ext.dirs=`.
+
+### F17: narrowed
+`build.sh:156` is guarded by `[ ! -f "$ICON_PNG" ]`, and `-f` follows symlinks. A symlink to an existing regular file therefore skips `sips`, so overwriting an existing file is **not** shown.
+- **Remaining risk:** a *dangling* symlink lets `sips` create a file at another location with the user's permissions, and the gap between the check and the write is a race.
+- **Also:** a planted regular file there becomes the app icon (spoofing). Severity stays Low.
+
+### Operator scope
+Accepted:
+- Read-only inspection, local builds and offline tests run autonomously.
+- Immediate confirmation is required only for the enumerated dangerous operations and for tests on mounted production volumes.
+- Hardware stays deferred while the production context is unknown.
+
+One clarification, not a new approval rule: launching any GUI build under an account that has saved systems polls controllers. That counts as hardware contact and falls under the hardware deferral.
+
+## Calibrated verdict
+- **Preservation baseline:** sound, and now reproducible from a clean commit.
+- **Not yet a safety baseline for hardware.** Outstanding:
+  - the retry semantics (F1);
+  - the call-site mapping (F3);
+  - the javap shadowing defect in the inventory;
+  - no test of the real ACP request path or of the app's real logger (F5, F6);
+  - the MRJFileUtils issue (F2, still inferred);
+  - runtime selection and isolation.
+- Application changes stay paused, and hardware stays deferred.
+
+## Revised immediate milestone (tooling only)
+1. **Inventory correctness:**
+   - the F3 matcher plus the sink-based matching;
+   - the synthetic regression fixture;
+   - disassembly from JAR bytes, with platform-collision flags;
+   - regenerate the inventory;
+   - correct the F7/F15 statements and `ARCHITECTURE.md:25`.
+2. **Evidence identity and isolation:**
+   - commit `expected-build.json` from `final-1`/`final-2` and enforce it, including the launcher mode;
+   - the update process above;
+   - the JDK lock enforced in every tool;
+   - the environment allowlist, extension-dir scrub and symlink policy.
+3. **Offline probes on pinned Java 8** (Java 11, 17 and 21 optional, labelled exploratory). No GUI, network or preference writes. Record:
+   - which JAR or code source supplied `FileManager`, `MRJFileUtils`, `MRJApplicationUtils` and `Launcher`;
+   - the `MRJFileUtils.findFolder` result for the desktop folder;
+   - the JDK `FileManager` preferences-folder result;
+   - `file.encoding` and `ext.dirs`.
+4. **Loopback ACP-path fixture:**
+   - a request transcript through `AcpxConnection.send` with sentinel credentials;
+   - full log capture at the most verbose level, asserting the sentinel never appears;
+   - fault injection after the full body is received, for a property write, a restart and firmware.
+   
+   Record attempt count, body lengths, the target address and the handler callbacks.
+
+**Gate:**
+- the table is non-empty and the synthetic fixture passes;
+- the inventory comes from JAR bytes;
+- both builds match the committed expected file;
+- probe results are recorded per runtime;
+- F1 has a measured attempt-count and callback trace on loopback.
+
+After that: pin the runtime in the launcher, then the OS-integration bridge, as in my original order.

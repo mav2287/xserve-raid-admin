@@ -1,0 +1,30 @@
+CLAUDE CONSULTATION — FINAL DISPOSITION
+
+Read CLAUDE-ADDENDUM.txt together with CLAUDE-REVIEW.txt. The addendum corrects and supersedes several initial findings. Neither review is an independent test execution: Claude read requirements, code and recorded evidence, but ran no commands or tests.
+
+Verdict: the preservation strategy is sound. Correct and strengthen the audit tooling before application-code changes or hardware qualification.
+
+Accepted defects and gaps:
+1. UI-to-request table is empty because the generator misses interface calls. Claims of a complete call-site mapping are withdrawn. Include factory interfaces, concrete calls, direct RequestMessage implementations and transport sinks, with a regression fixture and an empty-table failure.
+2. javap resolves platform classes before the supplied classpath. FileManager disassembly attributed to the original/installed/built JAR actually described the JDK class. Hash-based JAR entry differences remain valid, but those instruction/API interpretations need replacement with direct class-byte disassembly.
+3. Generic non-parse IO failures requeue transactions without a bounded attempt count. Possible duplicate writes after ambiguous outcomes need synthetic fault-injection tests; do not silently change original retry semantics.
+4. MRJFileUtils.findFolder may return null and break firmware/event-log dialogs. This is a hypothesis requiring a no-UI offline probe.
+5. Current request serializer/HTTP parser fixtures are limited regression tripwires, not full ACP, logging, retry, callback or hardware parity. Extend to the actual ACP path and sentinel credential logging checks.
+6. Tighten environment/extension-directory isolation, JDK enforcement, evidence identities and executable-mode verification. Publish the existing clean-build records rather than treating clean reproduction as absent.
+7. Runtime class shadowing does not prove functional failure or favor transformation over overlay. Measure folder lookup and exact code sources before choosing the boundary fix. Pin the evaluated runtime before menu/lifecycle implementation.
+8. GUI testing needs an isolated preferences context so saved targets cannot be contacted unintentionally.
+
+Corrections to Claude's initial review:
+- Transaction callbacks are retained; only the current iteration's local handler is cleared.
+- Empty/truncated firmware resend is not established. The stream can fail before a second network request; test exact stream and transport behavior offline.
+- Serializer tests can fail on future regressions, despite today's matching protocol classes.
+- No orphan FileManager$1 was established in the JAR; the apparent class came from JDK disassembly.
+- Final clean builds already exist at commit 49bef222f292d7aaebbb2263fe00a9952cd52bf9.
+- Java17+ behavior, version-specific SecurityManager rules, Python symlink-version changes and macOS permission attribution were not locally verified.
+- The icon-file guard prevents the simple existing-file symlink overwrite claim; dangling-symlink/race concerns remain.
+- No blanket new approval rule for all read-only tests. The user's existing restricted-operation requirements remain unchanged.
+
+Immediate next milestone, agreed direction:
+Correct inventory extraction and its tests; establish exact class-byte/code-source evidence; improve reproducibility and test-input controls; add offline folder probes; then isolate and observe ACP request/logging/retry behavior with synthetic data. No hardware qualification from this work. Application fixes follow those gates and explicit runtime selection.
+
+During this consultation no repository source, tests, requirements, build artifacts or installed application were changed. Review artifacts alone were written under the parent audit/claude-review directory. Existing reports have not yet been revised to incorporate this review; use this disposition as their correction notice.

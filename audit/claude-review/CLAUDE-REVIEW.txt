@@ -1,0 +1,314 @@
+# Independent review: RAID Admin Phase-0 audit (branch `audit/phase-0`)
+
+## Verdict
+
+**Fix a few things before the next milestone.** The preservation approach is sound: all original protocol, model and UI classes are byte-identical, and no unjustified redesign was introduced. The audit is honest about its limits in most places. But I found:
+
+- **Two serious original-application behaviours the audit missed.** One is an automatic retry/replay of requests, including firmware. The other is a likely crash in the firmware file chooser.
+- **One inventory defect.** The table mapping UI actions to controller requests is empty.
+- **Several overclaims** in the test and reproducibility wording.
+- **A flaw in the reasoning for the next milestone.** The FileManager finding is used as an argument against the patch-overlay approach, but it doesn't support that.
+
+None of this needs app code changes yet. Most fixes are tooling and probes.
+
+## What I read, and what I could not verify
+
+**Read in full:**
+- The four original requirement records.
+- The updated `PLAN`, `EVIDENCE`, `ACCEPTANCE-MATRIX`, `AUDIT-BASELINE`, `ARCHITECTURE`, `PROTOCOL-INVENTORY`, `DEPENDENCIES`, `GAPS`, `RELEASE-CHECKLIST`, `HARDWARE-TEST-REPORT` and `CAPTURE-PROCEDURE`.
+- Every file in `tools/` and `tests/`, the four patches, `build.sh` and `.gitignore`.
+- All recorded fixture and probe outputs.
+
+**Read in focused sections:**
+- Parts of `jdk-lock.json`, `deterministic-build-1.json`, `intake-provenance.json` and `installed-build1.json`.
+- The relevant parts of `static-inventory.json`, `UI-INVENTORY.md` and `CONTROLLER-OPERATIONS.md`.
+- Bytecode for `AcpxConnection`, `AbstractRequestMessage`, `HttpMessage`, `HttpRequest`, `HttpConnection`, `CommunicationsManager`, `UpdateFirmwareRequest`, `FirmwareUpdater`, `RaidAdmin` and its `QuitHandler`, `EventLogPane`, `PropertyListUtilities$Handler` and `MacPreferences`. These are in the parent `audit/bytecode`.
+
+**Not verified:**
+- I ran nothing and used no git commands, so I did not re-run any recorded result.
+- The `MRJFileUtils` method bodies: they aren't disassembled anywhere.
+- Whether any logging call formats a request with `toString()`.
+- Behaviour on Java 17 and later.
+- What is in the JDK 8 extension directories.
+- Whether macOS's preferences daemon interferes with the app's preferences file.
+- JmDNS internals and CLI behaviour.
+- `graphify-out`.
+
+I deliberately did not read `audit/claude-review/response.json`, to stay independent of the earlier review. I did not encounter any secrets.
+
+---
+
+## Findings, highest severity first
+
+Status labels: **Verified** = read in source or bytecode. **Inferred** = a strong conclusion from bytecode, not run. **Unresolved** = not established.
+
+### F1 — Critical (safety; original Apple behaviour, missed by the audit): failed requests are automatically resent, including firmware
+- **Evidence:**
+  - In `CommunicationsManager.run`, a generic `IOException` (exception table, `CommunicationsManager.txt:482`) that isn't a parse error sets `connected=false`. It then puts the *same* transaction back at the front of the queue (`LinkedList.addFirst`, `:404-417`), reconnects (`:430`) and drops the response handler (`:431-432`). That handler is what tells the UI the result.
+  - Firmware goes through the same path: `FirmwareUpdater` → `RaidSystem.postMessage` (`original.txt:130952`).
+  - `UpdateFirmwareRequest.writeTo` reads a one-shot input stream to the end and closes it (`UpdateFirmwareRequest.txt:97-131`). The request clone is shallow (`:137-144`) and the timeout is 180 s (`:211`).
+- **Impact:** if a write, restart or firmware request times out or the connection drops *after* the controller received it, the request is resent automatically after reconnect. With the backoff ceiling of up to 1 hour, that could be hours later. A firmware resend would use an already-closed stream. That means either an empty or truncated firmware upload, or a tight loop of reconnects to the controller. The caller waiting for the result is never told. This bears directly on your rules about duplicate destructive actions and firmware.
+- **Status:** Inferred (from bytecode); not runtime-tested.
+- **Fix/test:** before *any* write or firmware test on hardware, build fault injection into the emulator: drop the connection after the full request body has arrived. Do this for a property write, a restart, and a firmware upload. Record how many requests arrive, their body lengths, and the final UI state. Whether to keep this behaviour is your decision: changing it is a protocol-behaviour change that has to be documented as a correction. Add this to G07 and to the acceptance matrix.
+
+### F2 — High (likely real app bug, not flagged): the firmware chooser and event-log Save probably crash before the dialog opens
+- **Evidence:**
+  - `FirmwareUpdater.createFileDialog` calls `MRJFileUtils.findFolder(kDesktopFolderType).getPath()` but only catches `FileNotFoundException` (`original.txt:130438-130444`, exception table `130475-130477`).
+  - `EventLogPane` does the same (`original.txt:90397-90404`, table `90462-90464`).
+  - The `MRJFileUtils` in the JAR is an unpatched Apple placeholder whose `findFolder` makes no calls (`static-inventory.json:3674-3686`). That fits a body that just returns `null`, which would make `getPath()` throw a NullPointerException.
+- **Impact:** on macOS, "Update Firmware…" and "Save event log" would fail before any dialog appears. Logging is off, so the failure would be silent.
+- **Status:** Inferred (high confidence).
+- **Fix/test:** a no-UI, no-network probe that calls `MRJFileUtils.findFolder(MRJFileUtils.kDesktopFolderType)` on each candidate Java version. If it returns `null`, add `MRJFileUtils` to the OS-integration milestone.
+
+### F3 — High (inventory defect and overclaim): the UI-to-request table is empty
+- **Evidence:** app code calls the request factory through its interface: `InterfaceMethod com/apple/xsr/net/MessageFactory.new…` (for example `original.txt:21389`, `22476`, `25797`, `64718`). But `tools/inventory.py:53` only matches `'AcpxMessageFactory.new'`. As a result, `audit/UI-INVENTORY.md:45-46` has a table header and no rows. Despite this, `ARCHITECTURE.md:25` says the file lists every request-factory call site.
+- **Impact:** there is no mapping from user action to controller command. Nobody has checked which requests the app can send *without* a user action (on connect, during polling, during discovery). That check is needed before even "read-only" hardware sessions. The ones I sampled (set time, NVRAM flush/reset, restart, LUN repair) come from user actions with confirmation dialogs, but the full check is undone.
+- **Status:** Verified.
+- **Fix:** match `MessageFactory.new` as well. Also include the direct `UpdateFirmwareRequest` construction and the CLI's own `AcpxConnection` (`original.txt:80843`). Add a regression test that checks known entries are present, for example `ManagementController.handleSystemSetup` → `newSetTimeRequest`. Then classify each request as automatic, user-initiated, or confirmation-gated.
+
+### F4 — High (wire-comparison method): header order and header bytes depend on the Java runtime
+- **Evidence:**
+  - Headers are stored in a `HashMap` and written out in `keySet()` order (`original.txt:102413`, `102478-102511`). So header order depends on the JDK's `HashMap` implementation.
+  - `sendHeader` uses `String.getBytes()`, i.e. the platform default character set (`HttpRequest.txt:257`, `263`).
+  - The User-Agent claim checks out. `HttpRequest` sets 1.5.1 (`HttpRequest.txt:75-77`), `addHeaders` puts 1.6.0 under the same key (`original.txt:97686-97689`), so exactly one header, `1.6.0`, is sent.
+- **Impact:** the "original" wire output is really "the original JAR on a particular runtime, launched a particular way" (Finder vs Terminal can change the default character set). Non-ASCII passwords, system names or email fields may be encoded differently. The parity hashes are only stable within one JDK and one locale.
+- **Status:** Verified in code; real-world impact unresolved.
+- **Fix:** measure the default character set when launched from Finder, then pin it and record it. Add a non-ASCII test case. In the wire comparator, classify header order as an "unavoidable runtime difference".
+
+### F5 — High (overclaim / test validity): the offline parity test cannot fail as written
+- **Evidence:**
+  - The test compares the original, installed and audit JARs. But every `com.apple.xsr` class is byte-identical across those three (`AUDIT-BASELINE.md:39`), so they cannot produce different output.
+  - The "10 replays" feed the same synthetic `"OK"` response into `HttpResponse` ten times (`OfflineParity.java:52-54`). They never exercise `AcpxConnection.send` or `addHeaders`, the response parse (`original.txt:97552-97559`), including its `available()==0 → null` branch, the error routing in `CommunicationsManager`, or the response handlers.
+  - There is no committed expected output ("golden") to compare against.
+  - `check_parity.py` does not enforce the JDK lock; only `baseline.py:63-65` does.
+- **Fix:** drive `AcpxConnection.send` through a fake connection using placeholder ("sentinel") credentials. Commit readable request transcripts per pinned runtime. Feed real plist responses through `PropertyList(InputStream)`. Add failure cases: empty body, malformed, truncated, oversized, and parse-error vs I/O-error routing (error code `-103` vs resend).
+
+### F6 — High (logging requirement not met): the password-in-logs claim is half-tested
+- **Evidence:**
+  - Verified: a request's `toString()` includes the password (`original.txt:97345-97349`).
+  - But the logging calls I found do not use it. `send` logs the command and target (`97508-97534`). The communications manager logs path, command and target (`CommunicationsManager.txt:265-303`). `addHeaders` logs request-property *values* at INFO (`97763-97784`). The firmware updater logs the whole response at INFO (`130965-130971`).
+  - Phase 0 item 4 asks for log-redaction tests. The only redaction test (`tests/test_baseline.py:38-45`) checks the harness's own allowlist, not the app's logs.
+- **Status:** Exposure through `toString` is Unresolved.
+- **Fix:** run the F5 fixture with a log appender that captures everything at the most verbose level, using placeholder credentials. Assert the placeholder never appears in the captured log text or exception messages. This has to pass before any logging is enabled.
+
+### F7 — Medium-High (overclaim, plus a gap the audit missed): what the FileManager finding actually means
+- **Verified:**
+  - On Corretto 8 and 11, the Java runtime's own built-in `com.apple.eio.FileManager` is loaded in preference to the patched one.
+  - Its only caller is `MacPreferences.<init>` → `findFolder(int)`, which locates the preferences folder (`static-inventory.json:6731-6745`).
+  - The `FileManager` inside the "original" JAR uses `StringBuilder` and native methods (`static-inventory.json:764-777`). So it is a copy of a runtime class compiled with Java 5 or later, not RAID Admin code. This only affects how the class is classified; it does **not** reopen provenance.
+- **Inferred:**
+  - On Java 8 and 11 the patch is dead code. The runtime's native version is the genuine Apple API and very likely returns the same path. So "high-priority gap" (`AUDIT-BASELINE.md:88`, G02) overstates the risk on 8 and 11.
+  - The real risk is on Java 17 and later. `com.apple.eio` is a package Java no longer exposes to applications, so loading preferences would fail with an `IllegalAccessError` unless the launcher adds `--add-exports java.desktop/com.apple.eio=ALL-UNNAMED`.
+- **Disagreement:** `ARCHITECTURE.md:66` and `PLAN.md:404-406` use this finding as a reason not to use an overlay. But it affects the in-JAR transformation in exactly the same way. It is not evidence against an overlay.
+- **Fix:**
+  - Add a read-only probe of `findFolder(kPreferencesFolderType)` on each runtime, including 17 and 21.
+  - Decide to retire the FileManager patch or keep it as documented dead code.
+  - Re-evaluate the overlay with a class-origin probe that reports *which JAR* supplied each class (via `getProtectionDomain().getCodeSource()`).
+
+### F8 — Medium-High: build and test inputs that the lock does not cover
+- **Inferred from OpenJDK 8 macOS defaults; check by printing `java.ext.dirs`:**
+  - On macOS, JDK 8 also loads classes from extension folders: `~/Library/Java/Extensions`, `/Library/Java/Extensions`, `/Network/…`, `/System/Library/Java/Extensions` and `/usr/lib/java`. The JDK lock does not cover these. Both the compiler and the fixtures see them. An old `MRJToolkit.jar` in one of them would override the MRJ patch.
+  - The `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS` and `JDK_JAVA_OPTIONS` environment variables can change what the JVM does, and are not scrubbed.
+- **Python version sensitivity:** `baseline.py:31-32` walks directories with `rglob`. Whether that follows directory symlinks changed in Python 3.13, so the set of hashed files depends on the Python version. `zipfile` and `plistlib` output bytes can also vary by version.
+- **Fix:**
+  - Compile with `javac -extdirs "" -endorseddirs ""`.
+  - Run fixtures with `-Djava.ext.dirs=` set to empty.
+  - Clear those environment variables inside the tools.
+  - Record `ext.dirs` and `file.encoding` in probe output.
+  - Set an explicit symlink policy for the directory walk.
+  - Pin the Python version, or gate on it.
+
+### F9 — Medium: gaps in provenance and gate identity
+- **Builds recorded from a dirty tree:** the recorded builds say commit `ed171c7` with uncommitted changes (`audit/deterministic-build-1.json:50-51`). They were made before the tooling was committed at `e466399`.
+- **Builds are only checked against each other:** `verify_builds.py:34-36` compares two builds to each other, never to a committed expected digest. A mistake that reproduces identically would pass.
+- **Fixture outputs lack identity:** the outputs don't record the JAR hash, JDK or commit that produced them.
+- **Executable bit not hashed:** the bundle digest excludes file modes (`baseline.py:119`), so a launcher that lost its executable bit would still match.
+- **Diagnostic constant:** `diagnose.py:32` hard-codes the build JDK rather than reading it from the build record.
+- **Fix:**
+  - Rebuild from a clean commit.
+  - Commit the expected digests and enforce them.
+  - Put an identity header in every fixture output.
+  - Include the launcher's mode in the digest.
+
+### F10 — Medium (identity, and test isolation for safety): every build shares the Apple app's preferences
+- **Shared preferences file:** the app writes `com.apple.RAIDAdmin.plist` (`original.txt:46264`). On Java 8 and 11 it finds the folder through the runtime's native FileManager, so the location is the real `~/Library/Preferences` no matter what the bundle ID is. It also ignores `-Duser.home`.
+- **Consequences:**
+  - The audit build shares saved systems with the installed reference app. Launching it would load your saved controllers and start polling them, and it would write the file back on quit.
+  - **Possible preferences-daemon conflict (Inferred):** under bundle ID `com.apple.RAIDAdmin`, macOS's preferences daemon may write a binary plist into that same file (for example, file-dialog keys). The Java code parses that file as XML.
+  - **Identity box ticked too early:** `RELEASE-CHECKLIST.md:8` ticks "separate identity". But the display name and About box are still Apple's, and the preferences file is shared.
+- **Fix:**
+  - Run GUI tests under a separate macOS user account, or back up and restore the preferences file with your approval.
+  - Test loading a binary-plist copy of the file.
+  - Decide explicitly whether the compatibility build keeps Apple's preferences name. No silent migration.
+
+### F11 — Medium (audit finding confirmed, with specifics): menu and quit bridge
+- **Java 8 About/Preferences:** on Java 8, `Desktop` exists, so `getDesktopOrEAWTApp` returns it (`patches/com/apple/mrj/MRJApplicationUtils.java:61-66`). The Java 9 handler class is then not found, and the error is swallowed with no fallback to the older Apple API (`:77-88`). So About and Preferences are not wired on Java 8.
+- **Quit:** quit is a no-op (`:33-36`). Cmd-Q therefore skips `RaidAdmin$QuitHandler`, which calls `updatePreferences` and then `System.exit` (`original.txt:46175-46187`).
+- **Open document is low-risk to restore:** `RaidAdmin.handleOpenFile` (`original.txt:46510+`) only records the folder path and shows an informational alert. It does not start a transfer.
+- **Extra bridge risks:**
+  - The bridge's proxy returns `null` for `hashCode` and `equals` (`:23-28`). That causes a NullPointerException if the runtime ever hashes or compares the handler.
+  - `com.apple.eawt` is not accessible on Java 17 and later.
+
+### F12 — Medium: XML handling (audit finding confirmed; coverage incomplete)
+- **Verified:**
+  - The app resolves DTDs whose ID starts with the prefix `http://www.apple.com/DTDs/PropertyList` to an embedded copy. For anything else it returns `null`, which lets the parser fetch it normally (`plist.txt:1796-1811`).
+  - It builds a validating JAXP parser (`:1368-1377`). JAXP picks the bundled Xerces 2.0.0 through `META-INF/services`.
+- **Not tested:**
+  - Parameter-entity out-of-band data exfiltration.
+  - Entity-expansion denial of service. Bundled Xerces 2.0.0 predates the JDK's built-in limits (Inferred).
+  - The production path `PropertyList(InputStream)` (`original.txt:97558`). The fixture tests the `Reader` path instead.
+  - The preferences file, which goes through the same parser (`static-inventory.json:6716`).
+
+### F13 — Medium: the network guard won't work on newer Java versions
+The fixture network guards use Java's SecurityManager (`OfflineParity.java:27-32`, `XmlObservation.java:11-17`). It only covers Java code and can be switched off by the code it is guarding. It needs a special flag (`-Djava.security.manager=allow`) on Java 18–23 and cannot be used at all from Java 24. If you evaluate Java 21 or 25, add OS-level isolation as well: a no-network sandbox profile or an offline VM.
+
+### F14 — Medium (firmware preflight design inputs)
+- **Unsafe file paths:** the firmware file is opened as `jar:file:` + the raw path + `!/raid-controller/updateROM.bin` (`original.txt:130864-130877`). The path isn't encoded, so names containing `#`, `%` or `!/` break.
+- **Caching and timing:** Java caches the opened archive, and the file can change between inspection and transfer.
+- **Version header:** `X-Apple-RAID-Firmware-Version` is only sent when the current controller firmware is 1.2.0 or later (`:130906-130919`).
+- **Preflight requirements:** preflight must hash the exact bytes that get sent. It must also deal with the single-use stream (F1).
+
+### F15 — Low-Medium: how the deterministic build differs beyond the manifest
+- **Archive differences:** the builder drops every directory entry (`baseline.py:82`) and stores files uncompressed instead of compressed. It also leaves the original `FileManager$1.class` behind as an orphan. So "only the manifest payload differs" (`AUDIT-BASELINE.md:53`) is true only of file contents. The risk looks low: resources are only looked up by file name (`original.txt:72904`).
+- **Templates extracted from `build.sh`:** the plist and launcher are pulled out of `build.sh` with a regular expression (`baseline.py:93-101`). Any upstream edit to `build.sh` would silently change the output unless an expected hash is enforced.
+
+### F16 — Low-Medium (before hardware): macOS local-network permission
+- **The permission:** macOS 15 and later (including 26) ask the user before an app may reach devices on the local network. An app whose ad-hoc or unsigned identity changes with every build may lose that approval.
+- **The symptom:** a denied connection looks like "controller unreachable".
+- **Required tests:** approve and deny the permission explicitly, and confirm the denied case shows a visible error.
+
+### F17 — Low (already in G02): launcher problems
+- **Already known:**
+  - The fixed path `/tmp/RAIDAdmin_icon.png` can be abused: a symlink placed there makes `sips` overwrite another file.
+  - The launcher falls back to whatever `java` is on `PATH`.
+- **Not mentioned:** the launcher does not clear Java-related environment variables.
+
+### F18 — Low: gaps in the Python tool tests
+There are no tests for:
+- `verify_builds.py` rejecting an unexpected change.
+- A JDK lock mismatch.
+- The output directory already existing.
+- An allowlist mismatch.
+- JAR entry names starting with `/`.
+- `diagnose()` output.
+
+---
+
+## Rechecks you asked for (goal 4)
+
+| Claim | My result |
+|---|---|
+| Runtime FileManager is loaded instead of the patch | **Verified fact.** Impact overstated for Java 8/11 and understated for 17+ (F7). |
+| Java 8 MRJ fallback is broken; quit is a no-op | **Verified** from source and bytecode (F11). |
+| Embedded resolver exists; other entities fall through | **Verified** (F12). |
+| Original-JAR provenance | Accepted as the baseline. The only note is a classification one: that JAR's FileManager is a copy of a runtime class. |
+| Installed vs built differences | Consistent with the evidence. The extra installed classes are confirmed. |
+| User-Agent 1.6.0 overrides 1.5.1 | **Verified**: same header key, so only one header is sent. |
+| Timeouts 5 s / 30 s | **Verified** (`HttpConnection.txt:4`, `128`). |
+| The `MalformedInputException` patch is needed | **Plausible**: the type appears in the communications loop's error handling (`CommunicationsManager.txt:481`). |
+| Protocol inventory complete | **Partly.** The 59-entry factory catalog is fine, and so is the firmware request. Missing: resend semantics (F1), the null-response branch, the CLI's separate transport, JmDNS responder behaviour, and the call-site mapping (F3). |
+
+## Overclaims vs real application bugs
+
+**Overclaims (wording or test design; nothing broken in the app):**
+- `ARCHITECTURE.md:25` — says the call-site table is complete; it is empty.
+- `ACCEPTANCE-MATRIX.md:99-100` — the "10 serializers / 10 replays" cannot fail as written (F5).
+- G02 — "high-priority" FileManager framing (F7).
+- `ARCHITECTURE.md:66` — uses FileManager loading as a reason against the overlay.
+- `RELEASE-CHECKLIST.md:6,8` — two boxes ticked that are only partly done.
+- `AUDIT-BASELINE.md:53` — "only the manifest differs."
+- `diagnose.py` — reports a hard-coded JDK as if measured.
+
+**Real application bugs** (they predate the audit and are not caused by it):
+- F1: automatic resend of requests, including firmware. Inferred.
+- F2: firmware chooser and event-log Save likely crash. Inferred.
+- F11: Java 8 menus and Cmd-Q skip the original handlers.
+- F12: XML external resolution.
+- The password in request `toString` (whether it reaches logs is unresolved).
+- F10: shared preferences file.
+- F4: header bytes depend on the default character set.
+- The launcher choosing an arbitrary Java.
+
+## Next milestone (goal 5)
+
+The OS-integration boundary (menus, quit, lifecycle) is the right *area*. It is the wrong *first step*: the bridge code is different for Java 8 and for Java 9+, and the launcher still picks whatever Java is installed. Recommended order:
+
+**0. Immediate next change — tooling only, no change to app behaviour.**
+- Fix the inventory matching (F3) and add its regression test.
+- Extend the class-origin probe to report:
+  - which JAR each class came from;
+  - `ext.dirs` and `file.encoding`;
+  - the `MRJFileUtils` result (F2);
+  - the runtime FileManager's preferences-folder result;
+  - whether `com.apple.eawt` is accessible.
+- Run the probe on Java 8 and 11, and optionally on 17 and 21 with the `--add-exports` flag.
+- Enforce the JDK lock in all tools, scrub the extension dirs and environment variables, rebuild from a clean commit, and commit the expected digests.
+- *Gate:* the call-site table is non-empty and contains the known entries; probe results are recorded per runtime; both builds match the committed digests.
+
+**1. Pick the runtime and pin it in the launcher.** For now, an explicit external Java path: no `PATH` fallback and a clear error if it's missing. Bundling the runtime can come later.
+- *Gate:* the launcher refuses any other Java, and the missing-runtime error is tested.
+
+**2. OS-integration bridge for the chosen runtime only.** About, Preferences, Quit (calling the original `QuitHandler`), open-document, and the `MRJFileUtils` folder lookup. Prefer an overlay launched with `-cp patch.jar:original.jar Launcher` if the JAR-aware probe confirms it takes precedence. That keeps the original JAR byte-identical. Otherwise, use the allowlisted transform.
+- *Gates:*
+  - unit tests with fake `Desktop`/EAWT objects;
+  - failures are reported, not swallowed;
+  - a GUI smoke test on a separate user account with no saved systems and no controllers on that network segment.
+
+**3. Credential-safe logging test (F6),** then visible error reporting.
+
+**4. Emulator with fault injection (F1).** This is required before any write or firmware hardware test. Read-only hardware capture, with your approval each time, can start after step 1.
+
+**5. XML hardening** using real sanitized response fixtures.
+
+**6. Offline firmware preflight** with no transmission (F14, F1).
+
+**7. Bundled runtime, signing, notarization.**
+
+## Scope compliance (goal 6)
+
+**What the audit reports:** no controller contact, no firmware or destructive operations, no changes to the installed app, and no credentials read. I could not check this independently.
+
+**What the tools show:** the tools as written don't open sockets. `diagnose.py` only lists interface names. The fixtures only reach a synthetic temporary file and loopback.
+
+**Capture procedure:** acceptable for packet metadata, but it can't establish wire parity. For real wire comparison, use an in-process tap on the connection's output stream that sanitizes before anything is saved; F5's fake connection shows how. Also:
+- Add "launching any build while the shared preferences file exists" to the stop conditions, because it will poll saved controllers.
+- Include the client host in the Bonjour capture filter.
+
+## Missing audit areas
+
+**Must fix before any implementation:**
+- F3: call-site inventory and automatic-path classification.
+- F8: toolchain isolation.
+- F9: committed digests and clean-commit rebuild.
+- F2 and F7: run the probes.
+- Decide the target runtime.
+- F10: plan for preferences isolation.
+
+**Before hardware qualification:**
+- F1: fault-injection emulator.
+- F6: log-capture test.
+- F16: local-network permission behaviour.
+- F10: isolated test account.
+- A real request-path fixture through `AcpxConnection.send` (F5).
+- Automatic-path review for polling and connect.
+- F4: character-set and header-order baseline.
+- An in-process sanitized capture tap.
+
+**Before release:**
+- XML hardening, including the expansion limits from F12.
+- Firmware preflight.
+- Keychain integration.
+- Bundled runtime with the `--add-exports` decision if it is Java 17 or later.
+- Signing and notarization.
+- License and redistribution review.
+- Standard SBOM.
+- Intel decision.
+- Fix the visible identity: display name and About box.
+- Reproduction on a second machine.
+- Behaviour of the CLI and JmDNS.
+
+## Where I disagree with the audit
+1. Runtime FileManager loading is not a reason against the overlay. On Java 8 and 11 it is not a functional problem; the real problem is Java 17 and later.
+2. The next milestone should come *after* the runtime is pinned, not before.
+3. The parity and replay tests are presented as evidence, but as written they cannot fail.
+4. The app's automatic resend behaviour (F1) is missing entirely from the protocol inventory and the gap list. It is the most important safety finding in this review.

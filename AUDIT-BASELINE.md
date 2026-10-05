@@ -38,7 +38,7 @@ The full comparison is in [installed-build1.json](audit/installed-build1.json) a
 - JAR entries: candidate 3,043; installed 3,049; source-built 3,047 (non-directory entries).
 - All original `com.apple.xsr` application/controller classes are byte-identical among these artifacts. Changes are confined to compatibility classes and manifest.
 - Installed-only classes: `MRJApplicationUtils$3` and `$4`. Installed `MRJApplicationUtils` includes separate EAWT fallback logic absent from checked-in source. Both skip quit/open-document handling.
-- Launcher, FileManager, MRJ bridge and exception-shim class bytes all differ between installed and built. For Launcher and shim, disassembly suggests equivalent instructions; class metadata/compiler differences are a plausible explanation, not authenticated source provenance. FileManager is materially different: installed bytecode retains native methods and a broader API; source replacement uses Java filesystem/URL behavior and omits several overloads.
+- Launcher, FileManager, MRJ bridge and exception-shim class bytes all differ between installed and built. For Launcher and shim, disassembly suggests equivalent instructions; class metadata/compiler differences are a plausible explanation, not authenticated source provenance. FileManager entry bytes differ, but the initial native-method interpretation was wrong: javap had selected the runtime class. Direct archive-byte disassembly now shows the installed replacement also uses Java folder mappings and includes extra folder constants.
 - Manifest: installed retains Ant/Apple creation metadata with patched `Main-Class: Launcher`; rebuilt manifest replaces it with Corretto creation metadata. Therefore the installed manifest is not evidence of an unmodified JAR.
 - Shell launcher differs in comments, formatting, PATH fallback implementation and missing-Java dialog text. Java selection order, JVM flags and fixed icon path remain substantially the same.
 - Plist differences: `CFBundleVersion` 1 → 2, and installed `NSSupportsAutomaticTermination=false` is absent from source build. Other parsed values match.
@@ -125,3 +125,31 @@ issue is retained only as an audit note and does not block implementation or
 require further investigation. Keep the repository JAR immutable and hash-checked.
 This records the chosen project reference; it does not assert an independently
 verified Apple signature.
+
+## Reviewed tooling correction milestone
+
+The Claude consultation and corrective addendum are preserved under
+`audit/claude-review/`. The empty request-call table and platform-class javap
+substitution are fixed. Original protocol classes remain untouched.
+
+Builds now use an allowlisted subprocess environment, empty Java 8 extension and
+endorsed directories, UTF-8/US/UTC settings, an exact Python version lock, and a
+no-symlink file traversal policy. JVM option values are never logged. The JDK lock
+is enforced by the builder, inventory, probe and serialization commands.
+
+Schema-2 provenance records file modes. The new app digest includes file hashes
+and integer permission modes; the earlier content-only digest remains separately
+recorded. `tools/verify_builds.py` checks both artifacts against
+`audit/expected-build.json` and the current recorded inputs. Intentional updates
+require `--update-expected --reason 'reviewable explanation'`; the previous record
+hash is retained, and Git preserves the full prior record. Fourteen unit tests
+cover interface extraction, isolation, symlinks, toolchain mismatch, mode loss,
+self-consistent-but-unexpected artifacts, non-allowlisted changes and diagnostics.
+
+The original request serializer is still only a limited smoke/regression fixture.
+Real ACP header/logging/response/queue failure tests remain the next gate.
+
+User constraints: both Apple silicon and Intel are required. Available hardware
+has production or mounted volumes, so no hardware testing or GUI startup with
+saved targets is performed. Offline work continues without changing controller
+commands, polling or retries.

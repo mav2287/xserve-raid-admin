@@ -4,11 +4,11 @@ Local issue IDs are stable evidence references; no remote issues were filed.
 
 ## G01 — Original provenance and installed/source divergence
 
-Repository original is hash-verified but not authenticated to an Apple download. Installed patches differ from source, including extra MRJ helpers/native FileManager. The starting EVIDENCE.md JAR digest is only 62 hex characters and cannot authenticate a historical artifact; the launcher hash does match. A transcription error is inferred, not proven. The user has accepted the GitHub JAR as the project baseline: historical digest investigation is closed for this work. Installed/source behavioral divergence remains relevant. See AUDIT-BASELINE.md and entry-diff JSON.
+Repository original is hash-verified but not authenticated to an Apple download. Installed patches differ from source, including extra MRJ helpers and a different FileManager replacement. The starting EVIDENCE.md JAR digest is only 62 hex characters and cannot authenticate a historical artifact; the launcher hash does match. A transcription error is inferred, not proven. The user has accepted the GitHub JAR as the project baseline: historical digest investigation is closed for this work. Installed/source behavioral divergence remains relevant. See AUDIT-BASELINE.md and entry-diff JSON.
 
 ## G02 — Runtime and classloading
 
-No bundled JRE. Launcher selects arbitrary external Java and uses a predictable icon path. Runtime FileManager shadows the packaged replacement on tested Corretto 8/11. Supported OS/CPU/JRE combinations are unqualified. Baseline builder pins an old observed compiler only, not a release runtime.
+No bundled JRE. Launcher selects arbitrary external Java and uses a predictable icon path. Runtime FileManager shadows the packaged replacement on tested Corretto 8/11, but the guarded probe confirms its preferences-folder result works. This is a loading fact, not itself a functional defect. Supported OS/CPU/JRE combinations are unqualified. Baseline builder pins an old observed compiler only, not a release runtime.
 
 ## G03 — OS lifecycle and menus
 
@@ -37,3 +37,19 @@ Upstream ZIP timestamps prevent exact rebuilds; signing failures are swallowed. 
 ## G09 — Native credentials and integration fidelity
 
 No bundled JNI PasswordManager library, no modern Keychain helper. Menus, chooser, Finder document opening, Retina/accessibility/help, metadata behavior, notification and event export/printing are unqualified.
+
+## G10 — Ambiguous writes and queue retry semantics
+
+Source requeues the same transaction on non-parse IO failure, without a bounded
+attempt count. The callback is retained in the transaction; the failed iteration
+suppresses an immediate result and later attempts can notify it. A command may
+have reached the controller before a connection failure, making a repeat unsafe.
+Firmware uses a single-use stream; a retry may fail before sending anything.
+Actual duplicate counts, stream behavior and callback states require synthetic
+fault injection. No retry behavior has been changed.
+
+## G11 — MRJ folder lookup
+
+Confirmed offline: the unpatched MRJFileUtils returns null for Desktop. Firmware
+and event-log Save call getPath() on that result. Repair only the used OS boundary
+and verify with a fixture; no firmware transmission is needed.

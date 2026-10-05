@@ -1,0 +1,2452 @@
+[
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void populateSystemSetup(com.apple.xsr.ManagementSystemModel);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertyRequest:(Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleCreateJbod(com.apple.xsr.CreateArrayModel);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newJbodMaskEnableRequest:(Ljava/lang/Boolean;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleCreateJbod(com.apple.xsr.CreateArrayModel);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRecalculateCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newDeleteArrayRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartRaidControllerRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteJbod(com.apple.xsr.DeleteArrayModel);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newJbodMaskEnableRequest:(Ljava/lang/Boolean;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleDeleteJbod(com.apple.xsr.DeleteArrayModel);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleNotifications();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleNotifications();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleNotifications();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleNotifications();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleNotifications();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleNotifications();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleTestEmail(com.apple.xsr.TestEmail);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSendEmailRequest:(Lcom/apple/xsr/TestEmail;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleTestEmail(com.apple.xsr.TestEmail);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetTimeRequest:(Ljava/util/Date;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleSystemSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleNetworkSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleNetworkSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelSpeedRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelTopologyRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelHardLoopIDEnableRequest:(Z)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelHardLoopIDRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handleFibreChannelSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetRAIDCacheControlRequest:(Z)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetSynchronizeCacheRequest:(I)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSlowReadBypassModeControlRequest:(Z)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetRAIDPrefetchSizeRequest:(I)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private int handlePerformanceSetup(int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private boolean setDriveCacheForController(int, boolean);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private boolean setDriveCacheForController(int, boolean);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private boolean setDriveCacheForController(int, boolean);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetDriveCacheControlRequest:(IZ)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private boolean setDriveCacheForController(int, boolean);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newVerifyCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRecalculateCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetBackgroundReadWriteScanThresholdRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newBackgroundReadWriteScanRequest:(II)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newBackgroundReadWriteScanRequest:(II)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newBackgroundReadWriteScanRequest:(II)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newBackgroundReadWriteScanRequest:(II)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newDeleteBrokenRaidMemberRequest:(I)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleFirstAid();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleExpansion();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newExpandArrayRequest:(Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleExpansion();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleMasking();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelLUNMaskEnableRequest:(Z)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleMasking();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleMasking();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelLUNMaskRequest:(Ljava/util/ArrayList;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void handleMasking();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void setDriveCacheForRaidSet(com.apple.xsr.som.RaidSet, boolean);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetDriveCacheControlRequest:(IZ)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController",
+    "signature": "private void setDriveCacheForRaidSet(com.apple.xsr.som.RaidSet, boolean);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$LunMapper",
+    "signature": "public static int map(com.apple.xsr.som.Slice, int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newLUNAssignmentRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$LunMapper",
+    "signature": "public static int map(com.apple.xsr.som.Slice, int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$LunMapper",
+    "signature": "public static int unmap(com.apple.xsr.som.RaidController, int);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newLUNAssignmentRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$LunMapper",
+    "signature": "public static int unmap(com.apple.xsr.som.RaidController, int);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newCreateArrayRequest:(Ljava/lang/Integer;Ljava/lang/String;[Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartRaidControllerRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newLUNAssignmentRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newFlushRaidControllerNvramRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartRaidControllerRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+    "signature": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RecognizeArrayAction",
+    "signature": "private void changeRaidSetID(com.apple.xsr.som.Disk);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newChangeBrokenRaidIdRequest:(II)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$RecognizeArrayAction",
+    "signature": "private void changeRaidSetID(com.apple.xsr.som.Disk);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newFlushRaidControllerNvramRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newFlushRaidControllerNvramRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartRaidControllerRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartRaidControllerRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertiesRequest:(Ljava/util/Map;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartSystemRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartSystemRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartSystemRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartSystemRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Restarter",
+    "signature": "public void restart();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Slicer",
+    "signature": "public void slice();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetSliceSizeRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Slicer",
+    "signature": "public void slice();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetSliceSizeRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Slicer",
+    "signature": "public void slice();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetSliceSizeRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Slicer",
+    "signature": "public void slice();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetSliceSizeRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Slicer",
+    "signature": "public void slice();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ManagementController$Slicer",
+    "signature": "public void slice();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ShutdownAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newPowerRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ShutdownAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.ShutdownAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ClearErrorAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSystemMonitorResetRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ClearErrorAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ClearErrorAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ClearEventLogAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newClearEventLogRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ClearEventLogAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ClearEventLogAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ResetRaidAction$ResetThread",
+    "signature": "public void run();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newResetControllerNvramRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ResetRaidAction$ResetThread",
+    "signature": "public void run();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ServiceIDAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newIlluminateRequest:(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ServiceIDAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newIlluminateRequest:(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.SystemMonitorController$ServiceIDAction",
+    "signature": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$1",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$10",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetTimeRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$11",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetTemperatureRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$12",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$13",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetStatusRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$14",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPostResultsRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$15",
+    "signature": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertyRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$15",
+    "signature": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+    "call": "Method com/apple/xsr/net/AcpxConnection.send:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$15",
+    "signature": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$15",
+    "signature": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+    "call": "Method com/apple/xsr/net/AcpxConnection.send:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$16",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetSliceSizeRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$17",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$18",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newIlluminateRequest:(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$19",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetTimeRequest:(Ljava/util/Date;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$2",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$20",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelSpeedRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$21",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetFibreChannelTopologyRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$22",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newJbodMaskEnableRequest:(Ljava/lang/Boolean;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$23",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$24",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newCreateArrayRequest:(Ljava/lang/Integer;Ljava/lang/String;[Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$25",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newDeleteArrayRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$26",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newExpandArrayRequest:(Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$27",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRecalculateCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$28",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newVerifyCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$29",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newLUNAssignmentRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$3",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$30",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newClearEventLogRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$30",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newClearRaidControllerEventLogRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$30",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newClearRaidControllerEventLogRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$31",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newPowerRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$32",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartSystemRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$33",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartRaidControllerRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$34",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newFlushRaidControllerNvramRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$35",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newResetControllerNvramRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$36",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newMorseCodeRequest:(Ljava/lang/String;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$37",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newLedDiagnosticRequest:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$38",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newIlluminateRequest:(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$39",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newControllerCacheDiagnosticRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$4",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$40",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newFibreChannelDiagnosticRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$41",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSerialInterfaceDiagnosticRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$42",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newDiskDiagnosticRequest:(Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$43",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newWriteSignatureRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$44",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newReadSignatureRequest:(Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$45",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newUpdateFirmwareRequest:(IILjava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$46",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRecalculateCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$47",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newVerifyCheckDataRequest:(Ljava/lang/Integer;Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$48",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newLedDiagnosticRequest:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$49",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newFibreChannelDiagnosticRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$5",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$50",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSerialInterfaceDiagnosticRequest:(Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$51",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newDiskDiagnosticRequest:(Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$6",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$7",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$8",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$9",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$DefaultHandler",
+    "signature": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+    "call": "Method com/apple/xsr/net/AcpxConnection.send:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$GetPropertyHandler",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertyRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.cli.CommandDispatcher$SetPropertyHandler",
+    "signature": "public com.apple.xsr.net.RequestMessage createRequestMessage(java.lang.String[]) throws com.apple.xsr.cli.OptionException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AbstractRequestMessage",
+    "signature": "public com.apple.xsr.net.AbstractRequestMessage(com.apple.xsr.net.RequestMessage$Target, int, java.lang.String);",
+    "call": "Method \"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newNoOpRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$1.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetPropertyRequest(java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Lcom/apple/util/plist/PropertyList;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetPropertyRequest(com.apple.net.acp.AcpPropertyCode);",
+    "call": "Method newGetPropertyRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetPropertiesRequest(java.lang.String[]);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Lcom/apple/util/plist/PropertyList;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetPropertiesRequest(com.apple.net.acp.AcpPropertyCode[]);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Lcom/apple/util/plist/PropertyList;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetPropertyRequest(java.lang.String, java.lang.Object);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Lcom/apple/util/plist/PropertyList;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetPropertiesRequest(java.util.Map);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Lcom/apple/util/plist/PropertyList;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetStatusRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetControllerPageRequest(java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetEventLogRequest(java.util.Date);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newClearEventLogRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetTimeRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetTimeRequest(java.util.Date);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetTemperatureRequest(java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetDevicePropertiesRequest(java.lang.String, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newIlluminateRequest(java.lang.String, java.lang.Integer, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSystemMonitorResetRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetDriveCacheControlRequest(int, boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetRAIDCacheControlRequest(boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetSynchronizeCacheRequest(int);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSlowReadBypassModeControlRequest(boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetRAIDPrefetchSizeRequest(int);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetFibreChannelSpeedRequest(java.lang.Integer, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetFibreChannelTopologyRequest(java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetFibreChannelHardLoopIDEnableRequest(boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetFibreChannelHardLoopIDRequest(java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetFibreChannelLUNMaskEnableRequest(boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetFibreChannelLUNMaskRequest(java.util.ArrayList);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newLUNAssignmentRequest(java.lang.Integer, java.lang.Integer, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSendEmailRequest(com.apple.xsr.TestEmail);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newJbodMaskEnableRequest(java.lang.Boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newFlushRaidControllerNvramRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newResetControllerNvramRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newCreateArrayRequest(java.lang.Integer, java.lang.String, java.lang.Integer[], java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newCreateArrayAcpxRequest(java.lang.Integer, java.lang.String, java.lang.Integer, java.lang.Integer[], java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newDeleteArrayRequest(java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newExpandArrayRequest(java.lang.Integer, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetSliceSizeRequest(java.lang.Integer, java.lang.Integer, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newVerifyCheckDataRequest(java.lang.Integer, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newRecalculateCheckDataRequest(java.lang.Integer, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newBackgroundReadWriteScanRequest(int, int);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSetBackgroundReadWriteScanThresholdRequest(java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newDeleteBrokenRaidMemberRequest(int);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newChangeBrokenRaidIdRequest(int, int);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$RpcRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newPowerRequest(java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetPowerStateRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newRestartSystemRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newRestartRaidControllerRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newClearRaidControllerEventLogRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newMorseCodeRequest(java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newUpdateFirmwareRequest(int, int, java.lang.String) throws java.io.FileNotFoundException;",
+    "call": "Method com/apple/xsr/net/UpdateFirmwareRequest.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;IILjava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newLedDiagnosticRequest(java.lang.String, java.lang.String, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newDiskDiagnosticRequest(java.lang.Integer, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newControllerCacheDiagnosticRequest(java.lang.String, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newFibreChannelDiagnosticRequest(java.lang.String, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newSerialInterfaceDiagnosticRequest(java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newGetPostResultsRequest();",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newWriteSignatureRequest(java.lang.Integer, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory",
+    "signature": "public com.apple.xsr.net.RequestMessage newReadSignatureRequest(java.lang.Integer, java.lang.Integer);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestMessage.\"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$1",
+    "signature": "com.apple.xsr.net.AcpxMessageFactory$1(com.apple.xsr.net.AcpxMessageFactory, com.apple.xsr.net.RequestMessage$Target, int, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AbstractRequestMessage.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestMessage",
+    "signature": "public com.apple.xsr.net.AcpxMessageFactory$AcpxRequestMessage(com.apple.xsr.net.AcpxMessageFactory, java.lang.String, java.lang.String);",
+    "call": "Method \"<init>\":(Lcom/apple/xsr/net/AcpxMessageFactory;Ljava/lang/String;Ljava/lang/String;Z)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestMessage",
+    "signature": "public com.apple.xsr.net.AcpxMessageFactory$AcpxRequestMessage(com.apple.xsr.net.AcpxMessageFactory, java.lang.String, java.lang.String, boolean);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestMessage",
+    "signature": "public com.apple.xsr.net.AcpxMessageFactory$AcpxRequestMessage(com.apple.xsr.net.AcpxMessageFactory, com.apple.util.plist.PropertyList, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate",
+    "signature": "public com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate(com.apple.xsr.net.RequestMessage$Target, int, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AbstractRequestMessage.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate",
+    "signature": "public com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate(com.apple.xsr.net.RequestMessage$Target, int, java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AbstractRequestMessage.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.AcpxMessageFactory$RpcRequestMessage",
+    "signature": "public com.apple.xsr.net.AcpxMessageFactory$RpcRequestMessage(com.apple.xsr.net.AcpxMessageFactory, java.lang.String);",
+    "call": "Method com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;ILjava/lang/String;Ljava/lang/String;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.CommunicationsManager",
+    "signature": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage);",
+    "call": "Method postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.CommunicationsManager",
+    "signature": "public void run();",
+    "call": "Method com/apple/xsr/net/AcpxConnection.send:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.CommunicationsManager$SyncSender",
+    "signature": "public com.apple.xsr.net.CommunicationsManager$SyncSender(com.apple.xsr.net.CommunicationsManager, com.apple.xsr.net.RequestMessage);",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.UpdateFirmwareRequest",
+    "signature": "public com.apple.xsr.net.UpdateFirmwareRequest(com.apple.xsr.net.RequestMessage$Target, int, int, java.io.InputStream);",
+    "call": "Method com/apple/xsr/net/AbstractRequestMessage.\"<init>\":()V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.net.UpdateFirmwareRequest",
+    "signature": "public com.apple.xsr.net.UpdateFirmwareRequest(com.apple.xsr.net.RequestMessage$Target, int, int, java.lang.String) throws java.io.FileNotFoundException;",
+    "call": "Method com/apple/xsr/net/AbstractRequestMessage.\"<init>\":()V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public java.lang.String getNtpServerAddress();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetPropertyRequest:(Ljava/lang/String;Ljava/lang/Object;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public java.lang.String getNtpServerAddress();",
+    "call": "Method postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public java.lang.String getNtpServerAddress();",
+    "call": "Method postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public int getDriveCacheFlags();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertyRequest:(Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public int getDriveCacheFlags();",
+    "call": "Method postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public boolean supportsGlobalDriveCacheFeature();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertyRequest:(Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public boolean supportsGlobalDriveCacheFeature();",
+    "call": "Method postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public boolean[] getDiskCacheSettings(int) throws java.io.IOException, com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public boolean[] getDiskCacheSettings(int) throws java.io.IOException, com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+    "call": "Method postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public boolean getRaidControllerCacheEnabled(int) throws java.io.IOException, com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public boolean getRaidControllerCacheEnabled(int) throws java.io.IOException, com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+    "call": "Method postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage) throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage, int) throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage);",
+    "call": "Method postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage, int, java.lang.Object);",
+    "call": "Method postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage, java.lang.Object);",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public void pollForRaidControllerOnline(int) throws java.lang.InterruptedException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystem",
+    "signature": "public void pollForRaidControllerOnline(int) throws java.lang.InterruptedException;",
+    "call": "Method postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "public synchronized void connect(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertiesRequest:([Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "public synchronized void connect(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "public synchronized void authenticate(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertiesRequest:([Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "public synchronized void authenticate(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String);",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void completeClientRequest(com.apple.xsr.net.CommunicationHandler);",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPowerStateRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void completeClientRequest(com.apple.xsr.net.CommunicationHandler);",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doPowerStateUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPowerStateRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doPowerStateUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doStandbyUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertiesRequest:([Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doStandbyUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doSystemControllerUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertiesRequest:([Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doSystemControllerUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doSystemControllerUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doSystemControllerUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetStatusRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doSystemControllerUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doSystemControllerUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doTimeUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetTimeRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doTimeUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doEventLogUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetEventLogRequest:(Ljava/util/Date;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doEventLogUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doEventLogUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetEventLogRequest:(Ljava/util/Date;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doEventLogUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetDevicePropertiesRequest:(Ljava/lang/String;Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doDeviceUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doThermalUpdate() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetTemperatureRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doThermalUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void doThermalUpdate() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void sendNoOpMessage() throws java.io.IOException;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newNoOpRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.som.RaidSystemAgent",
+    "signature": "private void sendNoOpMessage() throws java.io.IOException;",
+    "call": "Method com/apple/xsr/net/CommunicationsManager.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private int updateRaidController(com.apple.xsr.net.RequestMessage$Target) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+    "call": "Method com/apple/xsr/net/UpdateFirmwareRequest.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;IILjava/io/InputStream;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private int updateRaidController(com.apple.xsr.net.RequestMessage$Target) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private int updateCoprocessor(com.apple.xsr.net.RequestMessage$Target) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+    "call": "Method com/apple/xsr/net/UpdateFirmwareRequest.\"<init>\":(Lcom/apple/xsr/net/RequestMessage$Target;IILjava/io/InputStream;)V",
+    "kind": "request-constructor",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private int updateCoprocessor(com.apple.xsr.net.RequestMessage$Target) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void disableDiskCaches(int) throws java.lang.Exception;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetDriveCacheControlRequest:(IZ)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void disableDiskCaches(int) throws java.lang.Exception;",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void reenableDiskCaches(int) throws java.lang.Exception;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetDriveCacheControlRequest:(IZ)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void reenableDiskCaches(int) throws java.lang.Exception;",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void disableControllerCache(int) throws java.lang.Exception;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetRAIDCacheControlRequest:(Z)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void disableControllerCache(int) throws java.lang.Exception;",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void reenableControllerCache(int) throws java.lang.Exception;",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newSetRAIDCacheControlRequest:(Z)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void reenableControllerCache(int) throws java.lang.Exception;",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void debugCurrentVersions();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetPropertyRequest:(Lcom/apple/net/acp/AcpPropertyCode;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void debugCurrentVersions();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void debugCurrentVersions();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void debugCurrentVersions();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newGetControllerPageRequest:(Ljava/lang/Integer;)Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void debugCurrentVersions();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater",
+    "signature": "private void debugCurrentVersions();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater$UpdateThread",
+    "signature": "public void run();",
+    "call": "InterfaceMethod com/apple/xsr/net/MessageFactory.newRestartSystemRequest:()Lcom/apple/xsr/net/RequestMessage;",
+    "kind": "factory",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater$UpdateThread",
+    "signature": "public void run();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  },
+  {
+    "class": "com.apple.xsr.update.FirmwareUpdater$UpdateThread",
+    "signature": "public void run();",
+    "call": "Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+    "kind": "transport-sink",
+    "initiation": "unreviewed"
+  }
+]

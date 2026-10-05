@@ -1,0 +1,21 @@
+{
+  "source_commit": "e46639996916ff81a0948a947f5e06443de03309",
+  "fixture_sha256": "f4fc1080ae77e01bd0eca3599dcf877b4dbcf088d79f8b8cabd5ba2f4dc3778f",
+  "jar_sha256": "e8177fa17ccaf48cebc077e30cc8240abb0ef489dce62fe6f5b796a923375c5f",
+  "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "isolation": "Java8 socket guard; no GUI; ambient JVM variables excluded",
+  "result": [
+    "Launcher=classpath:RAID_Admin.jar",
+    "com.apple.eio.FileManager=runtime:rt.jar",
+    "com.apple.mrj.MRJFileUtils=classpath:RAID_Admin.jar",
+    "com.apple.mrj.MRJApplicationUtils=classpath:RAID_Admin.jar",
+    "sun.io.MalformedInputException=classpath:RAID_Admin.jar",
+    "com.apple.xsr.net.AcpxMessageFactory=classpath:RAID_Admin.jar",
+    "mrj_desktop_nonnull=false",
+    "mrj_desktop_matches_home=false",
+    "runtime_preferences_matches_home=true",
+    "file_encoding=UTF-8",
+    "extension_dirs_empty=true",
+    "sax_factory=org.apache.xerces.jaxp.SAXParserFactoryImpl"
+  ]
+}

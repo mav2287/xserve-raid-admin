@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 import zipfile
 from datetime import datetime, timezone
+from audit_support import sha, tree, modes, digest, verify_jdk, verify_python, run_jdk
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL_SHA256 = '5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449'
@@ -24,16 +25,8 @@ PATCH_CLASSES = {
 VERSION = '1.5.1-modern.audit.1'
 
 
-def sha(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def tree(path):
-    return {str(p.relative_to(path)): sha(p) for p in sorted(Path(path).rglob('*')) if p.is_file()}
-
-
 def tree_hash(files):
-    return hashlib.sha256(json.dumps(files, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+    return digest(files)
 
 
 def verify_original(path):
@@ -57,21 +50,20 @@ def main():
     parser.add_argument('--jdk', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path, help='New directory; must not exist')
     args = parser.parse_args()
+    verify_python()
     original = ROOT / 'original/RAID_Admin_original.jar'
     verify_original(original)
-    jdk = args.jdk.resolve()
-    lock = json.loads((ROOT / 'audit/jdk-lock.json').read_text())
-    if tree(jdk) != lock['files']:
-        raise ValueError('JDK differs from audit/jdk-lock.json; explicit toolchain review required')
-    output = args.output.resolve()
-    if output.exists():
+    jdk = args.jdk.absolute()
+    lock = verify_jdk(jdk)
+    output = args.output.absolute()
+    if output.exists() or output.is_symlink():
         raise ValueError('Output exists; choose a new directory')
     with tempfile.TemporaryDirectory(prefix='raid-baseline-') as tmp:
         classes = Path(tmp) / 'classes'
         classes.mkdir()
         sources = sorted((ROOT / 'patches').rglob('*.java'))
-        subprocess.run([str(jdk / 'bin/javac'), '-source', '8', '-target', '8', '-encoding', 'UTF-8',
-                        '-cp', str(original), '-d', str(classes)] + [str(p) for p in sources], check=True)
+        run_jdk(jdk, 'javac', ['-source', '8', '-target', '8', '-cp', str(original),
+                             '-d', str(classes)] + [str(p) for p in sources])
         patches = {str(p.relative_to(classes)): p.read_bytes() for p in classes.rglob('*.class')}
         if set(patches) != PATCH_CLASSES:
             raise ValueError('Compiled patch class allowlist mismatch')
@@ -102,11 +94,15 @@ def main():
         launchpath.chmod(0o755)
         for src, dst in [('RAIDAdmin.icns', 'AppIcon.icns'), ('RAIDAdminFirmware.icns', 'RAIDAdminFirmware.icns')]:
             (resources / dst).write_bytes((ROOT / 'original' / src).read_bytes())
+        for file in app.rglob('*'):
+            if file.is_file():
+                file.chmod(0o755 if file == launchpath else 0o644)
         files = tree(app)
+        file_modes = modes(app)
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
-        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json'] + sources}
+        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
         provenance = {
-            'schema': 1, 'purpose': 'unsigned offline audit build; not a qualified release',
+            'schema': 2, 'purpose': 'unsigned offline audit build; not a qualified release',
             'apple_version': '1.5.1', 'compatibility_version': VERSION,
             'source_commit': commit,
             'source_dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)),
@@ -115,8 +111,10 @@ def main():
             'input_hashes': inputs, 'original_jar_sha256': ORIGINAL_SHA256,
             'jdk': {k: v for k, v in lock.items() if k != 'files'},
             'bundled_jre': None, 'native_helpers': [], 'signing_identity': None, 'notarization': 'not performed',
-            'files': files, 'bundle_tree_sha256': tree_hash(files),
-            'hash_definition': 'SHA256 of canonical JSON relative-file-path to SHA256; excludes timestamps, modes and xattrs',
+            'files': files, 'file_modes': file_modes,
+            'content_tree_sha256': tree_hash(files),
+            'bundle_tree_sha256': digest({'files': files, 'file_modes': file_modes}),
+            'hash_definition': 'SHA256 of canonical JSON {files: relative-path to SHA256, file_modes: relative-path to integer mode}; excludes timestamps and xattrs',
             'entry_changes': sorted(n for n, v in entries.items() if before.get(n) != hashlib.sha256(v).hexdigest()),
         }
         (output / 'provenance.json').write_text(json.dumps(provenance, indent=2, sort_keys=True) + '\n')
