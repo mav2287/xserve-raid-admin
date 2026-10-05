@@ -41,9 +41,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "1620f57e23104dcb7a5360c17043d2d5e859094fd95a9b5f20fef05139db40f7",
-  "reason": "Reviewed single-method MRJ Desktop lookup bridge; unchanged other MRJ instructions and ABI, original entries guarded, offline transport characterization unchanged",
+  "previous_record_sha256": "8f7afc2ac60d7eec2a35b6d43be0e1d5efb0d7d7ad1996f1ef31152dfd1161a9",
+  "reason": "Same reviewed artifact reproduced twice from clean implementation commit c7f9bab; provenance refreshed after source commit",
   "schema": 1,
-  "source_commit": "40870914a083b76d3b3ea78e3829bc988f4614cc",
-  "source_dirty": true
+  "source_commit": "c7f9bab9c20e40305075a55c17dc6ea20d37016c",
+  "source_dirty": false
 }
