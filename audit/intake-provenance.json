@@ -1,0 +1,109 @@
+{
+  "source_commit": "ed171c734f98706fd02524306941625603e1a751",
+  "source_branch": "main",
+  "initial_worktree": "clean",
+  "remote": "https://github.com/mav2287/xserve-raid-admin.git",
+  "tags": [
+    "v1.5.1-modern (lightweight)"
+  ],
+  "submodules": [],
+  "host": {
+    "macos": "26.6.2",
+    "build": "25G83",
+    "architecture": "arm64"
+  },
+  "bundle_file_hashes": {
+    "installed": {
+      "Contents/Info.plist": "6ca38f4654337cbd1c2634a0347f992499c5466281f3371fed669b6cd6213c1b",
+      "Contents/MacOS/RAIDAdmin": "71c0a6f20fb54a227c70a1234891aece5e7a141c2b286cc91364d3f5c4b28ea1",
+      "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
+      "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
+      "Contents/Resources/RAID_Admin.jar": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+      "Contents/_CodeSignature/CodeDirectory": "bb0b675af86fae432ecf915cce2d37afab56f3ed7243a641fe0d119004afa10f",
+      "Contents/_CodeSignature/CodeRequirements": "02e6c4464deafb7c799e83eb767eb6298eecdac40d80f16eb5994f63431aba76",
+      "Contents/_CodeSignature/CodeResources": "2b347633f53b5cc637b02ec63923c610ec85c543f28e23707538140e14089ffa",
+      "Contents/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preserved": {
+      "Contents/Info.plist": "6ca38f4654337cbd1c2634a0347f992499c5466281f3371fed669b6cd6213c1b",
+      "Contents/MacOS/RAIDAdmin": "71c0a6f20fb54a227c70a1234891aece5e7a141c2b286cc91364d3f5c4b28ea1",
+      "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
+      "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
+      "Contents/Resources/RAID_Admin.jar": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+      "Contents/_CodeSignature/CodeDirectory": "bb0b675af86fae432ecf915cce2d37afab56f3ed7243a641fe0d119004afa10f",
+      "Contents/_CodeSignature/CodeRequirements": "02e6c4464deafb7c799e83eb767eb6298eecdac40d80f16eb5994f63431aba76",
+      "Contents/_CodeSignature/CodeResources": "2b347633f53b5cc637b02ec63923c610ec85c543f28e23707538140e14089ffa",
+      "Contents/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline1": {
+      "Contents/Info.plist": "9541012113c97bae55c4b735c34d2f838e352e4ccb4754f59824de21e284d538",
+      "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
+      "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
+      "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
+      "Contents/Resources/RAID_Admin.jar": "d218c9ac2182f818056fad0c3168aefc9646ac3e51bab82b102552c158945157",
+      "Contents/_CodeSignature/CodeDirectory": "21269923bf62a16feed45ecfc459e9ea2bd468b00572595d6dbb12be9572537e",
+      "Contents/_CodeSignature/CodeRequirements": "02e6c4464deafb7c799e83eb767eb6298eecdac40d80f16eb5994f63431aba76",
+      "Contents/_CodeSignature/CodeResources": "623c7ba6a90bc793ac5f9e6066c72dc4bef0a4e63acd325c9220daa6a6fbe389",
+      "Contents/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline2": {
+      "Contents/Info.plist": "9541012113c97bae55c4b735c34d2f838e352e4ccb4754f59824de21e284d538",
+      "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
+      "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
+      "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
+      "Contents/Resources/RAID_Admin.jar": "e046192e80cd7764ba6b1318ae5ba5b0aa2e6b31d1f2e8866b0b5738e14348b5",
+      "Contents/_CodeSignature/CodeDirectory": "c025760ea5e990181c34a26659138df324b9c27b853c9d8b59a03d215713b169",
+      "Contents/_CodeSignature/CodeRequirements": "02e6c4464deafb7c799e83eb767eb6298eecdac40d80f16eb5994f63431aba76",
+      "Contents/_CodeSignature/CodeResources": "a4042e631bac1fb16b12c9e3e4c6cdce067ad787ff37fe1ac921e36655d2497b",
+      "Contents/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "bundle_tree_hashes": {
+    "installed": "192c2d06bce9b514580f44621aef938a10171fe0c21b246b5d2f3d233751d3c3",
+    "preserved": "192c2d06bce9b514580f44621aef938a10171fe0c21b246b5d2f3d233751d3c3",
+    "baseline1": "30ec19902bce584d777cf17a48d557cd4a1c427dfcf88f5f769c10eb11401647",
+    "baseline2": "643fa6b5ca3bf6af1d92435fcc8730f62d2e129ffe2f01c8196e9b6b2d6bb15e"
+  },
+  "originals": {
+    "RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
+    "RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
+    "RAID_Admin_original.jar": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
+  },
+  "installed_vs_baseline1": {
+    "Contents/Info.plist": {
+      "installed": "6ca38f4654337cbd1c2634a0347f992499c5466281f3371fed669b6cd6213c1b",
+      "baseline1": "9541012113c97bae55c4b735c34d2f838e352e4ccb4754f59824de21e284d538"
+    },
+    "Contents/MacOS/RAIDAdmin": {
+      "installed": "71c0a6f20fb54a227c70a1234891aece5e7a141c2b286cc91364d3f5c4b28ea1",
+      "baseline1": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8"
+    },
+    "Contents/Resources/RAID_Admin.jar": {
+      "installed": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+      "baseline1": "d218c9ac2182f818056fad0c3168aefc9646ac3e51bab82b102552c158945157"
+    },
+    "Contents/_CodeSignature/CodeDirectory": {
+      "installed": "bb0b675af86fae432ecf915cce2d37afab56f3ed7243a641fe0d119004afa10f",
+      "baseline1": "21269923bf62a16feed45ecfc459e9ea2bd468b00572595d6dbb12be9572537e"
+    },
+    "Contents/_CodeSignature/CodeResources": {
+      "installed": "2b347633f53b5cc637b02ec63923c610ec85c543f28e23707538140e14089ffa",
+      "baseline1": "623c7ba6a90bc793ac5f9e6066c72dc4bef0a4e63acd325c9220daa6a6fbe389"
+    }
+  },
+  "plist_semantic_differences": {
+    "CFBundleVersion": {
+      "installed": "1",
+      "baseline1": "2"
+    },
+    "NSSupportsAutomaticTermination": {
+      "installed": false,
+      "baseline1": null
+    }
+  },
+  "rebuild_zip_differences": {
+    "payloads_equal": true,
+    "entry_order_equal": true,
+    "timestamp_different_entries": 11
+  }
+}

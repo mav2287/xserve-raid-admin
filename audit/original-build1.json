@@ -1,0 +1,14 @@
+{
+  "added": [
+    "Launcher.class",
+    "com/apple/mrj/MRJApplicationUtils$1.class",
+    "com/apple/mrj/MRJApplicationUtils$2.class",
+    "sun/io/MalformedInputException.class"
+  ],
+  "removed": [],
+  "changed": [
+    "META-INF/MANIFEST.MF",
+    "com/apple/eio/FileManager.class",
+    "com/apple/mrj/MRJApplicationUtils.class"
+  ]
+}

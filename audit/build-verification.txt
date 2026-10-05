@@ -1,0 +1,1 @@
+PASS: both manifests match, bundle content matches, original non-allowlisted bytes preserved

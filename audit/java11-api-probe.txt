@@ -1,0 +1,3 @@
+desktop_class_present=true
+java_awt_desktop_about_handler_present=true
+jdk=11.0.18

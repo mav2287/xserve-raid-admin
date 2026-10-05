@@ -1,0 +1,3 @@
+known_apple_dtd_resolved_locally=true
+external_file_entity_expanded=true
+unknown_external_dtd_network_attempt=true

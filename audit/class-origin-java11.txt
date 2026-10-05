@@ -1,0 +1,6 @@
+Launcher=application-classpath
+com.apple.eio.FileManager=bootstrap-runtime
+com.apple.mrj.MRJApplicationUtils=application-classpath
+sun.io.MalformedInputException=application-classpath
+com.apple.xsr.net.AcpxMessageFactory=application-classpath
+sax_factory=org.apache.xerces.jaxp.SAXParserFactoryImpl
