@@ -1,0 +1,61 @@
+I've read everything I could reach and am writing up the review now. I couldn't open `../audit/bytecode/CommunicationsManager.txt` because file access is limited to this repo. So the CommunicationsManager points below rely on the line references in `audit/claude-review/CLAUDE-ADDENDUM.txt`, and your claims about the "type0" callback and null addresses are **not verified by me**.
+
+# Review: scoped design (read-only, nothing run)
+
+## 1. Offline CommunicationsManager fixture
+
+**Verdict:** the scope is right, and so is the decision to exclude timing and TCP. It needs these fixes to count as evidence for G10.
+
+- **Don't let the guard change the path under test.** A `SecurityException` is a `RuntimeException`. If `run()` or `doConnect` catches it through a broad handler, the guard itself changes which path runs and can still produce a callback. Record every connect, exec, write and preferences attempt in the guard as well as throwing. Then assert the counts are zero at the end, so a swallowed denial still fails the test.
+- **Constructor-free objects carry hidden risk.** `Unsafe.allocateInstance(FakeRaidSystem)` still runs the static initializers of `RaidSystem` and its superclasses. Check them for timers or preference reads before relying on "no polling".
+  - Any `RaidSystem` field that `CommunicationsManager` reads (name for logging, monitors, listener lists) will be null.
+  - A resulting NPE caught as `Exception` would pass for a "connect failure".
+  - Any `final` method you planned to override won't be overridden.
+  - Confirm from bytecode that null primary/secondary addresses reach the intended failure branch, not an NPE.
+- **The AcpxConnection injection order needs settling.** If `AcpxConnection.<init>` opens a socket, reflection after construction is too late. Either allocate it without a constructor too and set every field `send`/`addHeaders` reads, or show from bytecode that the constructor doesn't connect. Reuse the existing `MemoryConnection` pattern (`tests/java/com/apple/xsr/net/OfflineParity.java:10-19`) rather than a new one.
+- **The callback injection is a manufactured transition.** Restoring `connected` and the connection from the callback makes the fixture drive the state machine. Pin down two things:
+  - **Thread:** does the callback run synchronously on the `run()` thread? If not, there's a data race on `connected` and the queue.
+  - **Backoff:** does the failed `doConnect` path enter the random 5–10 s backoff sleep (addendum `:504-510`, `:653-679`) before the re-check? If so, the test is slow and its timing varies. Record that rather than hiding it.
+- **Assert an exact trace, not "eventual callback":**
+  - the number of `send` invocations;
+  - that the request bodies of the failed and retried attempts are byte-identical (this is the duplicate-write evidence G10 needs);
+  - no callback for the failed attempt;
+  - the exact `doConnect` callback code(s), with a null context;
+  - exactly one final callback, carrying the original handler and context;
+  - a second queued transaction stays blocked behind the requeued one;
+  - a parse-error variant does **not** requeue.
+- **Fault placement:** throw the non-parse `IOException` on the read side, after the full body has been written. That is the ambiguous-write case that matters. Add the firmware single-use-stream case, both throw-after-close and `-1`-after-close (the zero-length POST edge case).
+- **Shutdown:** `run()` loops forever. Use a daemon thread, the real shutdown path (assert `-102`), and a join with a timeout. Otherwise a regression hangs CI instead of failing it.
+- **"Original vs candidate" proves little here.** The candidate doesn't change CommunicationsManager, so the two agree by construction (same weakness as F5). Label this a characterization of the original. The one real variable is the `sun.io.MalformedInputException` shim: this IOException path is where that catch type gets resolved.
+  - Define the original classpath explicitly, with or without the shim.
+  - The no-shim run on Java 8 may throw `NoClassDefFoundError`. That is worth recording, not hiding.
+- Use sentinel credentials and capture logs at the most verbose level. This path logs headers (G04), so the fixture is also a cheap logging check.
+
+## 2. MRJFileUtils narrow replacement
+
+**Recommendation: bridge on the singleton only. Don't patch MRJOSType.**
+
+- `equals` always returns false and `toInt()` returns 0, so object identity is the only reliable way to tell the Desktop constant apart. Both callers read the same `kDesktopFolderType` field, which MRJFileUtils's own `<clinit>` creates, so `type == kDesktopFolderType` is exact.
+- Patching MRJOSType would change a shared type (including what `getFileType`/`getFileCreateor` return) and would amount to the OS emulation you're trying to avoid. Keep `MRJOSType.class` byte-identical; its hash is already in `audit/sbom.json:53`.
+
+**Preservation details for the replacement source:**
+- Keep `<clinit>` building all 15 constants via `new MRJOSType(int)` with the same literals. The values are discarded, but this keeps construction order and field identity faithful.
+- Keep `kUserDomain` as a compile-time `short` constant equal to -32763.
+- Keep the misspelled `getFileCreateor`, the package-private `setDefaultFileType`, and every `throws` clause.
+
+**Gate:** a `javap -p -c -constants` diff of the candidate against the original, run on bytes extracted from the JAR (the shadowing lesson from F7). The only difference allowed is the `findFolder(MRJOSType)` code. An ASM single-method patch would be narrower still, but adds tooling it doesn't need; a source replacement plus this diff gate is enough.
+
+**Behaviour:**
+- Return `new File(System.getProperty("user.home"), "Desktop")`.
+- No `exists()` check, no `mkdirs`, and no delegation to `com.apple.eio.FileManager`, because the JDK class shadows it and differs per runtime.
+- Don't throw `FileNotFoundException` for a missing Desktop either. The callers probably don't expect it, and today they get null.
+
+**Tests to add beyond yours:**
+- A freshly constructed `new MRJOSType(0x6465736B)` still returns null. This proves the match is identity-based, not value-based.
+- The other 14 constants, and null, return null.
+- The `(short, …)` and `(short, …, boolean)` overloads still return null.
+- A JAR-byte scan shows no `invokestatic MRJFileUtils.findFolder` with any other descriptor, which proves "only the used overload".
+- `ClassOriginProbe` expectations flip (`tests/java/ClassOriginProbe.java:31-33`). Update them deliberately and record the change in `expected-build.json` through the update process.
+- State in GAPS G11 that the caller paths (FirmwareUpdater, EventLogPane Save) are covered statically, not run. Save is GUI and firmware is out of scope.
+
+**Separate issue, same family:** the existing `patches/com/apple/eio/FileManager.java` is the broad version of this change. Its `default: return home` maps every type to home, its `createIfNeeded` path runs `mkdirs`, and `openURL` falls back to `exec`. It's shadowed at runtime today, so it's dormant. Don't use it as the model, and consider flagging it in G02.

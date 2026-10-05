@@ -1,0 +1,36 @@
+I reviewed all of it without running or editing anything. The core claims hold up: the folder change touches only `findFolder(MRJOSType)` and matches by identity, the transport fixture asserts exact traces, and the guard's denials are counted and checked at the end. There are five things to fix before the evidence fully supports what's claimed.
+
+One note first: `audit/transport-observation.json` changed while I was reading it. The candidate hash went from `e8177fa…` to `bfd58355…`. The version I reviewed now matches `expected-build.json` and `folder-fix-results.json`.
+
+## Must-fix
+
+1. **"ABI preserved" says more than `check_folders.py` checks.** The pattern at `tools/check_folders.py:17` only matches lines indented by exactly two spaces. That means the class declaration line (`public class com.apple.mrj.MRJFileUtils {`) is never compared, and neither are the "Exception table:" sections, which have no `N:` prefix. The fields, method signatures, `throws` clauses and the `kUserDomain = -32763` constant are compared, because `-constants` is passed. Either compare the header line and the exception tables, or say "member signatures and instructions". The class file version isn't compared either: the candidate is built with `-target 8`. If that's intended, say so.
+
+2. **"no header values emitted" is misleading.** `TransportObservation.java:129` turns the log4j root logger OFF before the line at `:143` is printed. That line only means the fixture itself didn't print the headers. Since you aren't making a logging claim (G04), reword it to something like "fixture prints no header values; application logging OFF".
+
+3. **The firmware test never checks that the first send carried the body.** `firmwareStream` only checks that the second send has `Content-Length: 0` (`:121-124`). In the throw-after-close case, the IOException proves the stream was closed. In the `-1` case, nothing shows the first request actually sent the 4 bytes. Assert `Content-Length: 4\r\n` and the trailing bytes `{1,2,3,4}` on `state.sent.get(0)`. Also, this test calls `AcpxConnection.send` twice directly, not through the queue's requeue path. Don't describe it as dispatch or requeue evidence.
+
+4. **The candidate run uses the fixture's shim, not the one shipped in the JAR.** In `check_transport.py:25` the temporary directory comes before the JAR on the classpath. So the candidate's own `sun/io/MalformedInputException.class` is never loaded. The limits text ("supplied to every artifact") is accurate for the original but hides this for the candidate. Either assert the compiled bytes match the JAR entry, or state the shadowing explicitly.
+
+5. **The candidate can't be rebuilt from the recorded commit.** `expected-build.json:47-48` records commit `4087091` with `source_dirty: true`, and `patches/com/apple/mrj/MRJFileUtils.java` is untracked. Commit the files, rebuild, and re-record before claiming the `bfd58355…` build is reproducible.
+
+**Smaller wording fix:** `check_folders.py:54` says the callers were "verified statically", but the tool doesn't check that. The evidence is in `audit/static-inventory.json:35110,49469`: two call sites, both with the `(MRJOSType)` signature. Cite those lines, or add the scan to the tool.
+
+## Verified as claimed
+
+- The fixture's callback runs on the same thread: the invalid-address branch at `communications-manager-bytecode.txt:401-414` calls the handler and returns before reaching the backoff sleep.
+- Fixture `AssertionError`s are not swallowed. The callback invocations at bytecode 409, 454 and 509 are outside the `Exception` handler's range (215–304).
+- A swallowed guard denial would still fail. It would arrive as a `-102` result and fail the result-code check, and the guard's count would also catch it.
+- The parse-error case doesn't requeue, and retried requests are byte-identical on the wire.
+- The process is bounded: `run_jdk` passes `timeout=20`, and the resulting `TimeoutExpired` isn't caught.
+- `FolderProbe` tests identity with a fresh `new MRJOSType(0x6465736b)`, all 15 constants, null, and both overloads. The guard counts any `mkdirs` or write.
+
+## Optional coverage (separate from the above)
+
+- **Original without the shim:** run it to record the JDK 8 behaviour, probably `NoClassDefFoundError` killing the dispatcher. The previous review asked for this.
+- **Firmware through the queue:** in the throw-after-close case the non-parse IOException probably requeues forever. A bounded callback count would show it.
+- **Guard gaps:** `OfflineGuard.checkPermission` ignores `SocketPermission` and `FilePermission`. That leaves out the three-argument `checkConnect`, direct permission checks and `checkLink`. Count those too, or narrow "forbidden attempts=0" to the categories that are guarded.
+- **Logger level:** setting the root logger OFF doesn't override any logger levels set in a bundled log4j config. Pin the `CommunicationsManager` and `AcpxConnection` loggers explicitly, or wait until you add the logging-at-ALL check.
+- **`RaidSystem` static initialiser:** check it for timers or preference reads, since `Unsafe.allocateInstance(FakeSystem)` still runs it. The previous review asked for this too.
+
+Disposition: header/exception-table preservation checks added; Java 8 class target explicit; logging wording corrected and transport logger levels pinned OFF; first firmware body asserted; candidate shim byte equality enforced. Clean-commit rebuild recorded separately after implementation commit. Optional queue ordering, full firmware queue behavior and verbose application logging remain open.
