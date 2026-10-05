@@ -113,5 +113,12 @@
     "recorded_jar_digest_length": 62,
     "actual_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
     "conclusion": "Historical JAR digest malformed; transcription error inferred, historical identity unresolved"
+  },
+  "baseline_decision": {
+    "authority": "explicit user direction",
+    "reference": "original/RAID_Admin_original.jar",
+    "source_commit": "ed171c734f98706fd02524306941625603e1a751",
+    "sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+    "historical_digest_discrepancy_blocks_work": false
   }
 }

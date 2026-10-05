@@ -201,3 +201,14 @@ new evidence supersedes conflicting assumptions; see
   content hashes under a locked local JDK. It is not a qualified release.
 - No controller was contacted and no GUI app launched during this audit. Initial
   historical hardware observations were not reproduced or converted to diagnoses.
+
+## Accepted project baseline — user direction
+
+Use `original/RAID_Admin_original.jar` from GitHub source commit
+`ed171c734f98706fd02524306941625603e1a751` as the authoritative project baseline,
+SHA-256 `5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449`.
+The user explicitly accepted this repository artifact. The historical digest
+issue is retained only as an audit note and does not block implementation or
+require further investigation. Keep the repository JAR immutable and hash-checked.
+This records the chosen project reference; it does not assert an independently
+verified Apple signature.

@@ -23,4 +23,8 @@
 
 The deterministic builder hashes its own script, source patches, template build script and JDK lock in provenance. It avoids dependency downloads. The launcher and icons are hashed individually. There is no native helper to hash and no bundled-JRE hash to report; these fields are explicitly absent, not invented.
 
-Do not replace bundled libraries wholesale without classloading, XML compatibility and wire regression tests. Known gaps include permissive external XML resolution, credential-bearing object formatting, old discovery APIs and unqualified runtime behavior. No current vulnerability-database audit or legal redistribution determination was performed. Before distribution, resolve all NOASSERTION licenses, obtain the authoritative Apple artifact chain, generate a standard release SBOM, and qualify a maintained runtime independently.
+Do not replace bundled libraries wholesale without classloading, XML compatibility and wire regression tests. Known gaps include permissive external XML resolution, credential-bearing object formatting, old discovery APIs and unqualified runtime behavior. No current vulnerability-database audit or legal redistribution determination was performed. Before distribution, resolve all NOASSERTION licenses, generate a standard release SBOM, and qualify a maintained runtime independently.
+
+The user accepts the GitHub repository JAR as the authoritative project baseline.
+Historical digest discrepancies and independent Apple acquisition evidence do
+not block the authorized compatibility work.

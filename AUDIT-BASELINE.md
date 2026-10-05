@@ -29,7 +29,7 @@ Evidence labels in these reports: **Fact** means directly inspected source/artif
 
 The launcher hash in the starting EVIDENCE.md matches. The recorded JAR value has only **62 hexadecimal characters** (`aa5de223d524e9a518b4a8a6a1adcac066bfe5bc2b96e964ded7716f9b7236`) and is not a valid SHA-256; it differs from the measured 64-character hash above. **Inference:** the missing `ac` suggests a transcription error. **Unresolved:** the malformed historical digest cannot authenticate the historical JAR. Both strings are preserved; no historical artifact corresponding to a valid alternate digest was supplied. An earlier conversational statement that both matched was incorrect. The installed bundle was copied with `ditto` to the parent workspace's `audit/reference/RAID Admin.app`; all regular-file hashes match the installed source. Original-build copies are in parent `audit/baseline-1` and `audit/baseline-2`. [intake-provenance.json](audit/intake-provenance.json) records every file hash, original icon hashes, directory hash definitions and differences. No credential stores were copied.
 
-**Unresolved:** the repository asserts Apple origin, but supplies no original Apple download, installer hash, acquisition chain, release signature, or redistribution grant. The candidate is verified against its recorded repository hash, not authenticated as an official Apple distribution. Its manifest says Ant 1.6.2, Apple Java 1.4.2-50, main class `com.apple.xsr.Main`; app resources say 1.5.1 / 1.5.1GMc5. Preserve it unchanged and obtain independent official provenance before release.
+**Unresolved:** the repository asserts Apple origin, but supplies no original Apple download, installer hash, acquisition chain, release signature, or redistribution grant. The candidate is verified against its recorded repository hash, not authenticated as an official Apple distribution. Its manifest says Ant 1.6.2, Apple Java 1.4.2-50, main class `com.apple.xsr.Main`; app resources say 1.5.1 / 1.5.1GMc5. Preserve it unchanged. The user has accepted this repository artifact as the project baseline; independent Apple provenance is not a prerequisite for the authorized work.
 
 ## Installed versus source-built application
 
@@ -114,3 +114,14 @@ mkdir -p build/fixture-classes
 ```
 
 Repeat XmlObservation with the preserved installed/audit JAR on the classpath to compare them. Repeat ApiProbe/ClassOriginProbe with the explicitly observed Java 11 path to reproduce the second runtime finding. The expected baseline XML result is unsafe external resolution; this observation is not a passing security test.
+
+## Accepted project baseline — user direction
+
+Use `original/RAID_Admin_original.jar` from GitHub source commit
+`ed171c734f98706fd02524306941625603e1a751` as the authoritative project baseline,
+SHA-256 `5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449`.
+The user explicitly accepted this repository artifact. The historical digest
+issue is retained only as an audit note and does not block implementation or
+require further investigation. Keep the repository JAR immutable and hash-checked.
+This records the chosen project reference; it does not assert an independently
+verified Apple signature.

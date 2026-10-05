@@ -7,7 +7,8 @@ The current artifact is an unsigned audit build, not a qualified release.
 - [x] Demonstrate deterministic unsigned app content on this host.
 - [x] Separate compatibility identity in audit bundle and diagnostic report.
 - [x] Record file-complete dependency inventory with explicit provenance/license unknowns.
-- [ ] Authenticate original Apple distribution and resolve redistribution rights/notices.
+- [x] Accept GitHub repository JAR as the project baseline per user direction.
+- [ ] Resolve redistribution rights/notices.
 - [ ] Independently reproduce on a second machine with a documented obtainable toolchain.
 - [ ] Select, bundle and qualify a maintained runtime; remove release PATH fallback.
 - [ ] Resolve runtime-shadowed FileManager, menu/quit/open-document behavior and Keychain boundary.

@@ -397,9 +397,10 @@ host reproduction and a distributable pinned runtime remain open.
 
 Refinements supported by source/runtime evidence:
 
-1. Keep three distinct artifacts: hash-locked original candidate, installed
-   patched reference, and rebuilt compatibility output. Obtain independent Apple
-   provenance; repository assertions alone are insufficient.
+1. Keep three distinct artifacts: the user-accepted, hash-locked repository JAR,
+   installed patched reference, and rebuilt compatibility output. Use the GitHub
+   repository artifact as the authoritative project baseline. The historical
+   digest discrepancy is an audit note, not a blocker.
 2. A simple overlay cannot override bootstrap FileManager on observed Corretto
    8/11. Test class origin before choosing a thin caller bridge or another narrow
    strategy. The audit uses the permitted deterministic transformation instead.
