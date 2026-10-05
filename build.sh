@@ -40,6 +40,10 @@ echo "Compiling patches..."
     -d "$SCRIPT_DIR/build/classes"
 
 "$JAVAC" -source 8 -target 8 -cp "$SCRIPT_DIR/build/classes" \
+    "$PATCHES/com/apple/mrj/MRJFileUtils.java" \
+    -d "$SCRIPT_DIR/build/classes"
+
+"$JAVAC" -source 8 -target 8 -cp "$SCRIPT_DIR/build/classes" \
     "$PATCHES/com/apple/mrj/MRJApplicationUtils.java" \
     -d "$SCRIPT_DIR/build/classes"
 

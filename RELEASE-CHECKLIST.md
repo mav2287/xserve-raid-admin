@@ -11,13 +11,13 @@ The current artifact is an unsigned audit build, not a qualified release.
 - [ ] Resolve redistribution rights/notices.
 - [ ] Independently reproduce on a second machine with a documented obtainable toolchain.
 - [ ] Select, bundle and qualify a maintained runtime; remove release PATH fallback.
-- [ ] Resolve runtime-shadowed FileManager, menu/quit/open-document behavior and Keychain boundary.
+- [ ] Qualify runtime FileManager behavior; repair menu/quit/open-document integration and Keychain boundary.
 - [ ] Provide visible failures and credential-safe application logging.
 - [ ] Harden XML while retaining legitimate local plist DTD behavior.
 - [ ] Validate firmware preflight without transmission, then qualify transfer only with immediate approval.
 - [ ] Complete every acceptance row with observable results or evidence-based unsupported status.
 - [ ] Obtain safe real response fixtures and full sanitized wire parity, including timing/reuse.
-- [ ] Qualify Intel separately if supported; otherwise document exclusion.
+- [ ] Preserve existing Intel and Apple silicon support; qualify physical machines separately.
 - [ ] Minimize entitlements; sign with Developer ID, notarize/staple, and validate clean-install Gatekeeper behavior.
 - [ ] Generate standard release SBOM/provenance and deterministic distributable archive hashes.
 - [ ] Publish compatibility matrix, rollback procedure, Apple credit and remaining limitations.

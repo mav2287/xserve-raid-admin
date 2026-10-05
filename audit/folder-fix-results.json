@@ -1,0 +1,17 @@
+{
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "bfd58355316a16472a7b030412435f47e3e646de0f52291bebc4a1bf5b0c2d8f",
+  "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "fixture_sources": {
+    "tests/java/FolderProbe.java": "2141de90b22ef3194a0ebd8098faa887a58caf8f2bb936269d14f6c04e71c182",
+    "tests/java/fixture/OfflineGuard.java": "743245c6a67fb789ebb666c5867d905d880a4d44c7c3603a20e9720c932d7121"
+  },
+  "changed_methods": [
+    "public static java.io.File findFolder(com.apple.mrj.MRJOSType) throws java.io.FileNotFoundException;"
+  ],
+  "results": [
+    "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+    "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+  ],
+  "limits": "Used folder lookup only. Callers catalogued separately in audit/static-inventory.json. Java class-file target intentionally raised to Java 8; GUI workflows not qualified."
+}

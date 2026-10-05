@@ -18,6 +18,8 @@ This project contains compatibility patches for the original application. Full f
 
 4. **`Launcher` wrapper** — Applies Swing UIManager fixes for the Aqua Look & Feel tab text rendering on modern macOS before delegating to the original entry point.
 
+5. **`com.apple.mrj.MRJFileUtils` Desktop bridge** — Repairs the null folder lookup used by firmware selection and event-log export. Other stubs remain unchanged. Offline regression and method-preservation checks pass; dialog workflows remain to be qualified.
+
 ## Requirements
 
 - macOS 10.15 (Catalina) or later
@@ -66,4 +68,4 @@ The `original/` directory contains the unmodified JAR and icon assets from Apple
 
 ## Audit tooling
 
-The original build command remains unchanged for comparison. Use the separate [hash-locked audit build](AUDIT-BASELINE.md#build-reproducibility) for deterministic local artifacts, and consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md), and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.
+The upstream build entry point remains available and includes the Desktop bridge. Its original version remains in Git history; it is not the reproducible audit builder. Use the separate [hash-locked audit build](AUDIT-BASELINE.md#build-reproducibility) for deterministic local artifacts, and consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md), and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.

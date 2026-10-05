@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--compiler', required=True, type=Path)
     parser.add_argument('--jar', required=True, type=Path)
     parser.add_argument('--runtime', required=True, action='append', type=Path)
+    parser.add_argument('--folders', action='store_true', help='Also require the candidate Desktop bridge regression to pass')
     args = parser.parse_args()
     verify_python()
     compiler = verify_jdk(args.compiler)
@@ -26,6 +27,8 @@ def main():
         raise ValueError('Candidate must be a regular file, not a symlink')
     candidate_sha = sha(args.jar)
     sources = [ROOT / 'tests/java/ApiProbe.java', ROOT / 'tests/java/com/apple/xsr/net/OfflineParity.java']
+    if args.folders:
+        sources += [ROOT / 'tests/java/FolderProbe.java', ROOT / 'tests/java/fixture/OfflineGuard.java']
     observations = []
     with tempfile.TemporaryDirectory(prefix='raid-architecture-') as tmp:
         run_jdk(args.compiler, 'javac', ['-source', '8', '-target', '8', '-cp', str(original),
@@ -43,12 +46,12 @@ def main():
             if version is None or not version[1].startswith(('1.8.', '11.')):
                 raise ValueError('This observation supports Java 8 and 11 only')
             extension_flags = ['-Djava.ext.dirs=', '-Djava.endorsed.dirs='] if version[1].startswith('1.8.') else []
-            def run(jar, entry):
+            def run(jar, entry, *arguments):
                 # These flags work on both Java 8 and 11. This is a runtime observation,
                 # separate from the Java-8-only reproducible build environment.
                 command = [str(runtime / 'bin/java')] + extension_flags + ['-Djava.awt.headless=true', '-Duser.home=' + tmp,
                            '-Dfile.encoding=UTF-8', '-Duser.language=en', '-Duser.country=US',
-                           '-Duser.timezone=UTC', '-cp', tmp + ':' + str(jar.resolve()), entry]
+                           '-Duser.timezone=UTC', '-cp', tmp + ':' + str(jar.resolve()), entry] + list(arguments)
                 try:
                     result = subprocess.run(command, env=isolated_env(), capture_output=True, timeout=30)
                 except subprocess.TimeoutExpired:
@@ -64,6 +67,9 @@ def main():
                 raise RuntimeError('Serializer/HTTP-parser parity differs across runtimes or artifacts')
             observations.append({'runtime_tree_sha256': runtime_identity, 'api': api,
                                  'parity': 'PASS', 'fixture_output_sha256': digest(results[0])})
+            if args.folders:
+                observations[-1]['folder_regression'] = [run(original, 'FolderProbe', 'false').strip(),
+                                                        run(args.jar, 'FolderProbe', 'true').strip()]
             if digest(tree(runtime)) != runtime_identity:
                 raise RuntimeError('Runtime changed during observation')
     if sha(args.jar) != candidate_sha:

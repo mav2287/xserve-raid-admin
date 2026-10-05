@@ -153,3 +153,16 @@ User constraints: both Apple silicon and Intel are required. Available hardware
 has production or mounted volumes, so no hardware testing or GUI startup with
 saved targets is performed. Offline work continues without changing controller
 commands, polling or retries.
+
+## audit.2 — Desktop lookup repair and transport characterization
+
+The first application repair replaces only the used MRJFileUtils Desktop lookup.
+Two deterministic builds (`build/folder-1` and `build/folder-2`) match with JAR
+SHA-256 `bfd58355316a16472a7b030412435f47e3e646de0f52291bebc4a1bf5b0c2d8f`
+and mode-inclusive bundle hash
+`17cf76a350650b6ac76cefeb57ecfbd07d53bbc9463b1f5fa2b79f5251e348e0`.
+All nonallowlisted original entries remain unchanged. The exception shim is
+supplied explicitly when characterizing the original dispatch code on modern Java.
+See `audit/folder-fix-results.json`, `audit/transport-observation.json`, and the
+Claude design/implementation reviews for exact scope and limits. No installed
+app, controller, production volume, credential store or GUI was accessed.

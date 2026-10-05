@@ -13,24 +13,25 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "6575b8815d3199d2d4e73785eb0424a7773ed87ac699d8a3059c80b0b17cf0e1",
+      "Contents/Info.plist": "79058b0d66f16c8c577f2ca4acff98d74351a3179cb30b7aee3a4608eb12974d",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "e8177fa17ccaf48cebc077e30cc8240abb0ef489dce62fe6f5b796a923375c5f"
+      "Contents/Resources/RAID_Admin.jar": "bfd58355316a16472a7b030412435f47e3e646de0f52291bebc4a1bf5b0c2d8f"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "build.sh": "fd0f6ef3808d5fac731f1ada3d402890a52176b031f34da7551885ad1b9ea0b5",
+      "build.sh": "7bd247a7393a16618280c8ec5a5c672de184ea322da2f3bde44991b6d45daef6",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
       "patches/Launcher.java": "eaa4f84e272d36f3d62e88464c1f041e6fdcfd28c1b928fc9bafe95d98198b45",
       "patches/com/apple/eio/FileManager.java": "ef3d0b2eef8301256781c1c53b3067ffc12e8661f97f4f69dd0d3a72278e72d9",
       "patches/com/apple/mrj/MRJApplicationUtils.java": "135300041fabf495d4fb782ed6fdced65c5354ae10f3b24a79ffe6d74d8e88ac",
+      "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "2936645796a389c64305f8456fc0e1e2ffb7280e0e0d126f1188f4883d1e8847"
+      "tools/baseline.py": "432ac195e96c5ddbe7a56898bc09cb7e22465ff1f7e09a61bd75c0b071657ccc"
     },
     "jdk": {
       "architecture": "arm64",
@@ -40,9 +41,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": null,
-  "reason": "Initial reviewed baseline after Java isolation and executable-mode verification; original protocol unchanged",
+  "previous_record_sha256": "1620f57e23104dcb7a5360c17043d2d5e859094fd95a9b5f20fef05139db40f7",
+  "reason": "Reviewed single-method MRJ Desktop lookup bridge; unchanged other MRJ instructions and ABI, original entries guarded, offline transport characterization unchanged",
   "schema": 1,
-  "source_commit": "e46639996916ff81a0948a947f5e06443de03309",
+  "source_commit": "40870914a083b76d3b3ea78e3829bc988f4614cc",
   "source_dirty": true
 }

@@ -9,6 +9,7 @@
 | `patches/Launcher.java` | Modernization: Aqua/Swing color defaults, then calls original `com.apple.xsr.Main` | Catches and suppresses LAF exceptions |
 | `patches/com/apple/eio/FileManager.java` | Modernization: folder mapping, Desktop/open URL bridge, file metadata no-ops | Ignores folder domain, missing original overloads, silent mkdir failure, metadata is not preserved |
 | `patches/com/apple/mrj/MRJApplicationUtils.java` | Modernization: reflective Desktop/EAWT menu registration | Desktop exists on Java 8, but Java 9 handler classes do not; catches failures; quit/open-document/open-application are no-ops |
+| `patches/com/apple/mrj/MRJFileUtils.java` | audit.2 single-method Desktop folder bridge | Other original stubs preserved; GUI callers not yet qualified |
 | `patches/sun/io/MalformedInputException.java` | Modernization: restores exception type required by legacy communications bytecode | Message constructor discards message; no controller implementation |
 | `build.sh` | Modernization: compiler selection, destructive cleanup of local `build/`, JAR rewrite, plist, shell launcher, ad-hoc signature | Compiler/runtime fallback, ZIP timestamps, no lock/allowlist, signing failure hidden |
 | `.gitignore` | Ignores generated builds/classes | New audit tooling also ignores Python caches |

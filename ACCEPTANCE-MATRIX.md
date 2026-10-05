@@ -102,7 +102,7 @@ queried. Failures/open issues use local stable [gap IDs](GAPS.md).
 | Protocol | Ten in-memory HTTP responses replay | Pass: synthetic OK responses; not controller fixtures |
 | Harness | Network sockets prohibited in parity fixture | Pass: guard denial verified |
 | XML | Known Apple plist DTD remains local | Pass: all three JARs on locked JDK |
-| Classloading | FileManager shim actually selected | Fail on Corretto 8/11: bootstrap shadowing; [G02](GAPS.md#g02--runtime-and-classloading) |
+| Classloading | FileManager origin and preferences lookup | Runtime shadows shim on Corretto 8/11; guarded Java 8 preferences lookup passes. Shadowing alone is not a defect; [G02](GAPS.md#g02--runtime-and-classloading) |
 | Menus | Java 8 About/Preferences fallback | API mismatch observed; GUI not run; [G03](GAPS.md#g03--os-lifecycle-and-menus) |
 | Lifecycle | Quit saves state; open-document/open-application hooks | Not run; source no-ops require repair |
 | UI | License, About, Help, preferences and Finder document open | Not run |
@@ -123,3 +123,13 @@ queried. Failures/open issues use local stable [gap IDs](GAPS.md).
 | CLI | Complete dispatcher/option behavior matches original | Static inventory only; not run |
 | HTTP | ACP headers, target, retries, ordering and persistence | Not run; serializer fixture does not cover these |
 | Malformed replies | Authentication failure, delay/drop, truncation/oversize | Not run; real-fixture emulator remains open |
+
+## audit.2 offline compatibility evidence
+
+| Area | Test | Result / limitation |
+|---|---|---|
+| Folder lookup | Desktop singleton, null/custom types and unused overloads | Pass: `audit/folder-fix-results.json`; GUI workflows remain unrun |
+| Preservation | MRJFileUtils ABI and all other method instructions | Pass: `tools/check_folders.py` |
+| ACP | Synthetic auth/target/user-agent and plist response through original send | Pass in memory: `audit/transport-observation.json`; no actual authentication or TCP |
+| Retry characterization | Dropped response, repeated loss, parse-error callback | Original behavior reproduced; duplicate sends are a risk finding, not a safety pass |
+| Firmware stream | Closed/exhausted synthetic stream reuse | Throw-before-send and empty-body retry distinguished; no firmware or network transmission |

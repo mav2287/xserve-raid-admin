@@ -21,8 +21,9 @@ PATCH_CLASSES = {
     'com/apple/mrj/MRJApplicationUtils.class',
     'com/apple/mrj/MRJApplicationUtils$1.class',
     'com/apple/mrj/MRJApplicationUtils$2.class', 'sun/io/MalformedInputException.class',
+    'com/apple/mrj/MRJFileUtils.class',
 }
-VERSION = '1.5.1-modern.audit.1'
+VERSION = '1.5.1-modern.audit.2'
 
 
 def tree_hash(files):

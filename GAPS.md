@@ -45,11 +45,20 @@ attempt count. The callback is retained in the transaction; the failed iteration
 suppresses an immediate result and later attempts can notify it. A command may
 have reached the controller before a connection failure, making a repeat unsafe.
 Firmware uses a single-use stream; a retry may fail before sending anything.
-Actual duplicate counts, stream behavior and callback states require synthetic
-fault injection. No retry behavior has been changed.
+The memory-only fixture now observes two identical sends after one dropped response,
+five after four drops, and one eventual callback with retained context. Parse errors
+produce -103 without requeue. Synthetic single-use firmware streams either throw
+before a second send or produce a zero-length second body, depending on stream
+behavior. See `audit/transport-observation.json`. Real reconnect/backoff, queue
+ordering and actual firmware archive streams remain unqualified. No retry behavior
+has been changed.
 
 ## G11 — MRJ folder lookup
 
 Confirmed offline: the unpatched MRJFileUtils returns null for Desktop. Firmware
-and event-log Save call getPath() on that result. Repair only the used OS boundary
-and verify with a fixture; no firmware transmission is needed.
+and event-log Save call getPath() on that result. Fixed in audit.2: the used
+single-argument overload returns the user Desktop for its singleton constant.
+`tools/check_folders.py` verifies unchanged ABI and instructions for every other
+method, plus null/custom-type/unused-overload behavior. No directories are created.
+The two dialog callers are statically verified; GUI workflows remain unqualified.
+See `audit/folder-fix-results.json`.
