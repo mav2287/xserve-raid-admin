@@ -18,7 +18,15 @@
 | `tools/inventory.py` | New bytecode, resource-key, operation and dependency inventory | Static coverage, not runtime reachability proof |
 | `tools/check_parity.py`, `tests/` | New network-denied serializer/replay, XML/API observations and unit tests | Limited synthetic coverage |
 
-No native helper/source, native password library, entitlement file, bundled JRE, CI, release automation, notarization script, package installer or dependency manager existed at intake. The shell launcher is architecture-independent; native runtime support and Intel qualification are separate questions. Plist Bonjour/network/ATS declarations are metadata, not proof that macOS permission handling or Java sockets work.
+No native helper/source, native password library, entitlement file, bundled JRE, CI, release automation, notarization script, package installer or dependency manager existed at intake. The shell launcher and Java bytecode already accommodate Intel and Apple silicon through the installed runtime; preserve that support. Plist Bonjour/network/ATS declarations are metadata, not proof that macOS permission handling or Java sockets work.
+
+Observed architecture coverage: the original and audit-built JARs produce identical
+results in the ten-request serializer/HTTP-parser fixture on Corretto 8 arm64,
+Corretto 11 arm64, and Corretto 11 x86_64 (Rosetta on this Apple silicon host).
+Exact runtime and fixture hashes are in `audit/architecture-fixtures.json`;
+`tools/check_architectures.py` repeats the observation with explicit runtime paths.
+This does not qualify a physical Intel Mac, GUI integration, ACP transport,
+controller behavior, or these old installed runtimes for release.
 
 ## Application structure inside the immutable JAR
 

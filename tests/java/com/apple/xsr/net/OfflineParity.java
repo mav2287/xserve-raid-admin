@@ -25,7 +25,19 @@ public final class OfflineParity {
     }
     public static void main(String[] args) throws Exception {
         System.setSecurityManager(new SecurityManager() {
-            @Override public void checkPermission(Permission permission) { }
+            @Override public void checkPermission(Permission permission) {
+                if (permission instanceof RuntimePermission &&
+                    (permission.getName().equals("setSecurityManager") || permission.getName().equals("preferences")))
+                    throw new SecurityException("Profile access and guard replacement prohibited");
+            }
+            @Override public void checkRead(String path) {
+                String normalized = new File(path).getAbsolutePath();
+                if (normalized.contains("/Library/Preferences/") || normalized.endsWith("/Library/Preferences"))
+                    throw new SecurityException("Preference reads prohibited");
+            }
+            @Override public void checkWrite(String path) { throw new SecurityException("Writes prohibited"); }
+            @Override public void checkDelete(String path) { throw new SecurityException("Deletes prohibited"); }
+            @Override public void checkExec(String command) { throw new SecurityException("Subprocesses prohibited"); }
             @Override public void checkConnect(String host, int port) { throw new SecurityException("Network prohibited"); }
             @Override public void checkListen(int port) { throw new SecurityException("Network prohibited"); }
             @Override public void checkMulticast(InetAddress address) { throw new SecurityException("Network prohibited"); }
@@ -56,6 +68,17 @@ public final class OfflineParity {
         }
         // Verify the fixture cannot open a connection, even if transport code regresses.
         try { new Socket("127.0.0.1", 1); throw new AssertionError("Socket guard failed"); }
+        catch (SecurityException expected) { }
+        SecurityManager guard = System.getSecurityManager();
+        try { guard.checkWrite("fixture"); throw new AssertionError("Write guard failed"); }
+        catch (SecurityException expected) { }
+        try { guard.checkRead("/synthetic/Library/Preferences/fixture.plist"); throw new AssertionError("Read guard failed"); }
+        catch (SecurityException expected) { }
+        try { guard.checkExec("fixture"); throw new AssertionError("Exec guard failed"); }
+        catch (SecurityException expected) { }
+        try { guard.checkPermission(new RuntimePermission("preferences")); throw new AssertionError("Preferences guard failed"); }
+        catch (SecurityException expected) { }
+        try { System.setSecurityManager(null); throw new AssertionError("Replacement guard failed"); }
         catch (SecurityException expected) { }
         System.out.println("PASS 10 request serializers, 10 HTTP replay responses, socket guard");
     }

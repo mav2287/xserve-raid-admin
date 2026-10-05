@@ -6,6 +6,8 @@ observable expected result, not the absence of an error dialog.
 | Area | Test | Original reference | Compatibility build | Wire parity | Hardware evidence | Status |
 |---|---|---|---|---|---|---|
 | Startup | Launch from Finder on Apple silicon |  |  | N/A |  | Not run |
+| Startup | Launch from Finder on Intel; preserve existing support |  |  | N/A |  | Not run |
+| Offline parity | Original and candidate serializer/HTTP-parser fixture on arm64 Java 8/11 and x86_64 Java 11 under Rosetta | `audit/architecture-fixtures.json` |  | N/A | No sockets or GUI | Pass; physical Intel and full functionality not qualified |
 | Startup | Launch with no system Java installed |  |  | N/A |  | Not run |
 | Startup | Damaged/missing bundled runtime gives useful error | N/A |  | N/A |  | Not run |
 | Identity | About/diagnostics show Apple baseline and modern build | Original About unchanged | Diagnostics implemented; About not qualified | N/A | None | Partial — [baseline](AUDIT-BASELINE.md) |

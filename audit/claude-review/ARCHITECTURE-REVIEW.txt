@@ -1,0 +1,42 @@
+No real network access is possible in what these files show. Preference and file access are not blocked, though: that's the main omission. The fixture also doesn't overclaim, as long as it's described as "pure-Java code runs the same way on aarch64 and x86_64 JVMs." It can back up the support you say already exists, but it doesn't prove it.
+
+## Network
+- **Blocked:** `OfflineParity` installs its SecurityManager before any jar class is set up, and it overrides `checkConnect`, `checkListen` and `checkMulticast`. That covers `Socket`, NIO, `HttpURLConnection`, datagrams and DNS lookups (`InetAddress` also calls `checkConnect`). The in-memory `connect()` throws, and `new URL(...)` doesn't resolve anything.
+- **Not blocked:** `ApiProbe` has no guard, but it only loads classes with `initialize=false`, so it can't touch the network.
+- **Gaps in the guard** (`OfflineParity.java:28`): `checkPermission` allows everything else. Jar code could:
+  - call `System.setSecurityManager(null)`, or
+  - start a subprocess (`Runtime.exec`), which isn't covered by the guard.
+
+  This isn't a likely problem with Apple's code, but it matters because the same guard also runs the candidate jar. Fix: deny `RuntimePermission("setSecurityManager")` and `FilePermission` with the "execute" action.
+
+## Preferences and files (critical omission)
+- `RuntimePermission("preferences")` is allowed, and so are all file writes.
+- `isolated_env()` and the `java` command don't redirect the home directory. On macOS, Java reads the home directory from the account record, not `$HOME`, and `java.util.prefs` writes to the real `~/Library/Preferences/com.apple.java.util.prefs.plist` regardless of `user.home`.
+- If the message factory or HTTP classes touch preferences, logs or settings, they hit your real profile. The JSON's `limits` text says preferences weren't *tested*; nothing makes sure they weren't *touched*.
+- Fix: deny `RuntimePermission("preferences")` and file write/delete outside the temp directory, and pass `-Duser.home=<tmp>` as extra protection.
+
+## Bugs and isolation gaps in `check_architectures.py`
+- **Ambient jars on Java 8 (`:35-37`):** the runtime command leaves out `-Djava.ext.dirs=`, because Java 11 rejects it. On the Java 8 runtime, `/Library/Java/Extensions` and `~/Library/Java/Extensions` therefore load. Add the flag only when the runtime is Java 8.
+- **Hash timing:** the runtime's file hashes are taken before it runs, and the candidate jar is hashed only after it runs (`:51`). Hash the candidate up front and check it's a regular file, not a symlink, as `verify_original` presumably does for the original.
+- **Path leak on timeout:** a timeout raises `TimeoutExpired`, whose message includes the command and its paths. That goes against the "output withheld" policy.
+- **No version gate:** Java 18+ rejects `setSecurityManager` by default. That fails safely (non-zero exit), but the flags comment implies only Java 8 and 11 are supported, and nothing checks that.
+
+## Overclaim risk
+- **Weak evidence:** the serializer and HTTP-parser code is pure bytecode, and Java defines byte order the same on every platform. Identical output across runtimes is expected and says little about architecture support.
+- **Missing from `limits`:** the parts that actually depend on the platform are native libraries (JNI) in the jar, the `.app` launcher stub and Info.plist architectures, and Swing/Aqua. Name them in `limits` alongside GUI and preferences.
+- **x86_64 means the JVM, not the hardware:** `os.arch` reports the JVM's architecture. On this host the x86_64 run was probably under Rosetta, but nothing records that. Record the host hardware and whether the process was translated (`sysctl.proc_translated`). "No physical Intel Mac" partly covers this already.
+- **`ApiProbe` checks the wrong API:** it checks for `java.awt.desktop.AboutHandler` (Java 9+), not the classes the jar actually references. If the app uses `com.apple.eawt`, as apps from that era usually do, the probe doesn't show the macOS integration would load on 11. I couldn't confirm what the jar uses within the files you scoped.
+- **Always true:** `desktop != null` (`ApiProbe.java:8`) can't be false, because `Class.forName` throws instead of returning null. Drop it, or describe it as "class loadable."
+
+## Minor
+- **Thin replay:** it covers one response, a 200 with a Content-Length body. It doesn't cover chunked bodies, errors, or decoding the ACP message payload. Describing it as an "HTTP-parser" check slightly overstates it.
+- **Uncommitted hash source:** `ApiProbe.java` has uncommitted changes. Make sure the recorded hash `6a9dd0e7…` matches the version you commit.
+
+**Verdict:** this is fine as an offline observation once preferences and file access are blocked, the guard can't be removed, and `limits` names native code, the launcher and Rosetta.
+
+Disposition:
+- Tightened fixture guards against preference access, writes, deletes, subprocesses and guard replacement; self-checks pass.
+- Java 8 extension directories excluded; Java 8/11 version gate, timeout redaction, temporary user.home and before/after artifact checks added.
+- Recorded host architecture; explicitly labeled Rosetta inference and omitted GUI/JNI/launcher/native Intel qualification.
+- ApiProbe is only an API-presence observation for the previously established About-handler gap, not proof of menu operation.
+- All three runtime configurations rerun after these changes.

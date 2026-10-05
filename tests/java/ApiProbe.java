@@ -8,5 +8,6 @@ public final class ApiProbe {
         System.out.println("desktop_class_present=" + (desktop != null));
         System.out.println("java_awt_desktop_about_handler_present=" + about);
         System.out.println("jdk=" + System.getProperty("java.version"));
+        System.out.println("architecture=" + System.getProperty("os.arch"));
     }
 }

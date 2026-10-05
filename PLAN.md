@@ -117,9 +117,9 @@ Start by evaluating a maintained Java 8 runtime for behavioral fidelity, then
 test Java 11 as a separate supported configuration. Choose based on the full
 acceptance matrix, not launch success alone.
 
-The distribution should support Apple silicon directly. If Intel Macs remain in
-scope, provide a universal launcher and suitable runtime strategy, then test
-both architectures.
+Preserve the repository's existing Intel and Apple silicon support. The shell
+launcher and Java bytecode do not require a new architecture port. A bundled
+runtime strategy must retain both architectures; qualify each independently.
 
 ## 4. Work phases
 
@@ -426,6 +426,12 @@ performed. The user must confirm restricted operations immediately before each o
 Both Apple silicon and Intel are required. The available RAID has production or
 mounted volumes: hardware testing remains deferred. Offline builds and fixtures
 continue autonomously. The GitHub JAR remains the accepted immutable baseline.
+
+User clarification: both architectures are existing support to preserve, not new
+features to add. The same original and audit-built JARs pass the limited offline
+serializer/HTTP-parser fixture on arm64 Java 8, arm64 Java 11, and x86_64 Java 11
+under Rosetta. See `audit/architecture-fixtures.json`. Native Intel GUI and hardware
+qualification remain unperformed.
 
 First correct extraction/class-origin evidence and strengthen input/output gates;
 then exercise the ACP/logging/retry paths in isolation. Pin the evaluated runtime
