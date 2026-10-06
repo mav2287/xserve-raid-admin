@@ -713,3 +713,12 @@ new boundary signals free of arbitrary throwable data. Exceptional callback
 thread/order changes must be documented and tested. The current
 [audit.20 baseline](AUDIT-BASELINE.md) remains qualified; the
 [ownership experiment](audit/SYNC-OWNERSHIP-EXPERIMENT.md) is not acceptance.
+
+
+2026-10-06 security continuation: combined audit.21 ownership and worker-exit guards
+are integrated locally and under verification. Exact predecessor reconstruction,
+independent bytecode checks, paired deterministic builds and 133 unit tests pass.
+Do not promote as release-qualified until the current runtime fixtures and clean
+source evidence are complete. audit.20 qualification records remain immutable.
+Startup prepare propagation and the AddSystemAction counter effect are documented
+in audit/WORKER-EXIT-DESIGN.md; no real profile or production-volume test was run.

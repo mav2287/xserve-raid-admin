@@ -1,0 +1,41 @@
+I found one concrete blocker, and it's in the fixture rather than the patch. The bytecode, classification and synthetic-class allowlist hold up. I didn't run, build or write anything; this is all from reading the files and `tests/fixtures/guarded-worker-candidate-manager.javap`.
+
+## Blocker: the fixed `nohost` connect vectors will fail the logging check
+
+In the no-valid-host path of `doConnect`, the worker logs at ERROR level before the callback runs (javap 718–732): it sets `connectionFailureSent`, calls `retire`, then logs the string from local 11 (`No valid host address for system "fixture"`, built at 342–365). That's original code, outside the B1 tails.
+
+In `WorkerConnectCallbackObservation.java:18-22`, any WARN-or-higher message other than the probe or the worker-exit signal sets `unexpected=true`. Line 51 then fails for every fixed `nohost` vector: 8 failure modes × `-Xint`/`-Xcomp` × 2 architectures.
+
+You can't avoid this through log4j configuration. The signal goes through the same logger, `Logger.getLogger(CommunicationsManager.class)` (pool #38). So any setup that hides the ERROR line also stops `signals==1` from being counted.
+
+The `single` path is fine: the 498 handler doesn't log, `retire` doesn't log, and the 609 warning is skipped because the manager is already stopped.
+
+**Fix (fixture only):** in `nohost` mode, expect exactly one copy of that original message with no attached Throwable. Fold it into the expected count rather than loosening `unexpected`.
+
+## Verified (static)
+- **Stack depth:** in `doConnect`, the four arguments plus the `aload_0`/`aconst_null` before `putfield` reach depth 6, which equals `stack=6`. The dispatch tail at 660 also peaks at 6.
+- **Offsets:** each tail is 15 bytes (754→769→784), and `goto_w` sits at start+10.
+- **No new handlers or stack maps:** the class is major version 47, so there's no StackMapTable. No handler covers 401–414, 583–591 or 754–784, so the "same rows" check is real.
+- **Constant pool:** the order 429→432 in `Pool.member` (name, then descriptor, then NameAndType, then Methodref) matches the independent `POOL` list in `worker_exit_structure.py`. `normalize` restores both `CALL` windows and round-trips through `plan`.
+- **Ordering:** `RejectionRecovery.retire` → `shutdown()` sets `stopped` before both connect callbacks. So after a reported connect failure nothing can be transmitted, and the dispatch tail's `active==null` suppression can't swallow a real reply. I checked this because clearing `workerActiveTxn` in `doConnect` would otherwise have hidden a later real response.
+- **Arguments:** the callback receives the original handler, the -101 `BasicResponse` built in place, a `null` context, and runs on the worker thread.
+- **ThreadDeath:** rethrown, it passes the 215–304 handlers (they only catch Exception subclasses) and reaches the wrapper with `active` already null, so there's no double completion.
+
+## Classification
+- Catching Throwable except ThreadDeath is correct at this boundary: the manager is already stopped, so swallowing a failure can only reach the 591/414 → stop → drain path.
+- **InterruptedException:** when the callback throws one, it's swallowed and the thread's interrupt flag isn't restored. That's harmless here: 599 sees the manager stopped and returns without sleeping. The sleep handler at 653–681 is unchanged, so your "interrupt untouched" claim holds for `doConnect`. A callback that throws InterruptedException now drains follow-on transactions instead of jumping to 525, which is the intended `follow=1`.
+- **VirtualMachineError:** `connectCallback` continues the drain after a VME, while `CallbackBatch` stops (`return`). That's consistent with VME being unqualified, but the inconsistency is worth a line in the limits.
+
+## Synthetic-class allowlist
+No gaps that matter:
+- The manager's InnerClasses list only `SyncSender`, `Transaction` and `RequestMessage$Target`. There's no `$1` access-tag class.
+- `WorkerExit$Entry` and `WorkerExit$CallbackBatch` have package-private constructors, so javac generates synthetic accessor methods but no extra class files.
+- Fixture nested classes either have non-private constructors or, like `FakeSystem`'s private one, are never constructed (`allocateInstance` is used). Lambdas don't produce class files.
+- `Transaction` isn't hash-bound in the manifest, but `prepare()` requires it to come from the same loader as the manager, and the jar itself is pinned.
+- **Residual:** if the pinned runtimes are JDK 8 on macOS, `java.ext.dirs` still includes `/Library/Java/Extensions`. Classes loaded from there that aren't in the manifest (log4j, for example) wouldn't be caught. Passing `-Djava.ext.dirs=` closes that.
+
+## Non-blocking notes
+- **`duplicate=0` covers the first-connect path only (229).** In the reconnect path (337→380→417→452), the transaction is put back on the queue, then gets -101, then -102 when it's dequeued again, because 701 resets `connectionFailureSent`. That's original retry behaviour, but the limits shouldn't imply no duplicates on that path.
+- **The batch test's EDT lock check proves nothing:** `holdsLock` only looks at the current thread, so it's always true on the EDT. The real evidence is the EDT-thread check plus the 5-second joins catching a deadlock.
+- **The constructor vector can't see stray signals:** it sets the log threshold to `OFF`. A Capture expecting zero signals would make it meaningful.
+- **`exit` failure path:** if the "queue changed after stop" check or `Entry` construction throws, every caller in the snapshot is left uncompleted, and sync callers could wait forever. With the stopped-post patch this looks unreachable, so treat it as a known residual rather than a qualified behaviour.

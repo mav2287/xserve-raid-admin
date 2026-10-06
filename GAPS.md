@@ -296,3 +296,21 @@ caller. Original queue-wait interruption also exits the worker without setting
 exception table. These are local terminal-completion gaps, not evidence of a
 controller failure. See [experiment and controls](audit/SYNC-OWNERSHIP-EXPERIMENT.md)
 and [worker-exit design under review](audit/WORKER-EXIT-DESIGN.md).
+
+
+### Audit.21 combined worker security guards (qualification pending)
+
+Development now includes preclaim cancellation, claim-once/first-reply ownership,
+stopped terminal worker cleanup, explicit unsent versus unconfirmed completion,
+and nonrendering connect callback containment. Original JAR remains immutable.
+Mixed synchronous/asynchronous cleanup releases callers before Manager-lock
+cleanup and defers async exit callbacks to EDT. Callback-failure semantics and
+logger stack location are deliberate documented changes. See
+[audit/WORKER-EXIT-DESIGN.md](audit/WORKER-EXIT-DESIGN.md) and archived Claude reviews.
+The latest complete unit suite passes 133 tests; final clean runtime qualification
+is pending. Do not infer feature completeness or production safety from launch.
+Remaining: stop-versus-active-send, explicit connect/write/overall deadlines,
+VM/ThreadDeath completion limits, native GUI/disposed AppContext, outbound mutable
+body/headers, status/empty-ack ambiguity, GUI firmware-file binding, discovery,
+physical Intel execution, release signing/notarization and hardware acceptance.
+Only production/mounted RAID is available; no hardware test has been initiated.

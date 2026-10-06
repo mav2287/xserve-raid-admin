@@ -1,0 +1,34 @@
+I found no concrete blockers. Under ordinary conditions the helper doesn't strand callers, and it doesn't report a started command as cancelled. I checked it against the ownership manager and sender javap fixtures, the pinned `Transaction` javap (`build/worker-transaction-source.javap`), `RejectionRecovery` and `StoppedDelivery`.
+
+## Checks that pass
+
+- **Exact metadata matches the source.**
+  - `Transaction` is `private static`. It has three package-private fields with flags 0 and three public getters, so the `getDeclaredMethods` count of 3 is correct.
+  - The ownership `SyncSender` is `private`. It has four fields, including `private boolean claimed`. Its declared methods are `handleResponse` (public synchronized), `getResponse` and `claim` (synchronized), which gives 3.
+  - In the ownership manager, `stopped` is `private volatile` and `connected` is `private`.
+  - `ready` is volatile and written last inside the synchronized `prepare()`, so the static fields are safely published to `exit`.
+  - If `prepare()` fails at constructor PCs 30..35, it throws before the `Thread` is created, so no thread starts and `this` is never handed to one.
+- **Admission barrier holds.** `postMessageAsync` tests `stopped` under the queue monitor (PC56–73). The wrapper writes the volatile `stopped` before the helper locks the queue, so every post either lands in the snapshot or gets the `StoppedDelivery` refusal. Nothing the helper runs on the worker posts anything, so the worker-thread exemption can't add entries behind the snapshot.
+- **Locks are never nested.** The helper takes the queue lock, then each sender's monitor (via `handleResponse`), then the manager lock, one at a time.
+  - Sync-first is the safe order. Anyone holding the Manager monitor while waiting on a sender gets released before `synchronized(manager)`.
+  - The EDT blocked inside a synchronous `postMessage` is released inline, before the batch is queued on the EDT. So deferring the async callbacks can't deadlock against it.
+  - `SyncSender` checks `handled` before it waits, so a completion that arrives before the caller waits isn't lost.
+- **Started vs. cancelled is classified correctly.**
+  - doConnect's callbacks at 409 and 586 are always preceded by `RejectionRecovery.retire`, which stops the manager. So a connect-failure callback is terminal, and the run loop never goes on to send a transaction whose `active` was already cleared. The 509 test-and-clear therefore can't suppress the response to a command that was really sent.
+  - A claimed sender gets `UntrustedResponseException`. `postMessage` turns that into `IOException("...unconfirmed")`, not `CommShutdownException`.
+  - Work before the claim (doConnect, the 273 path, claim rejection) correctly reports shutdown.
+  - If `report`/`shutdownRequired` throws at PC 467, the error leaves `run` while `active` and `started` are still set, so the outcome is reported as unconfirmed.
+- **Close and logging.** The close runs only on an abnormal exit, after the sync completions and after the batch is queued. Every log call writes a fixed string, and the cause is never rendered.
+
+## Non-blocking findings (in priority order)
+
+1. **The queue is cleared before the entries are built** (`WorkerExit.java:115-118`). Each `Entry` allocates a new exception with a stack trace. Any throw (realistically only OOM, or a later shape bug) after `queue.clear()` drops every snapshotted `SyncSender`, skips `connected=false`, and strands callers. A safer order is to build the entries first and clear second, or to contain each entry separately. This is outside ordinary conditions, but it's an ordering hazard the fixtures won't catch.
+2. **The sync completion loop isn't contained per entry** (`:120-125`). One throwing `handleResponse` aborts all the later sync completions. Today `SyncSender.handleResponse` can't realistically throw, so this is low risk, but per-entry containment costs almost nothing.
+3. **`CallbackBatch` treats `StackOverflowError` as a VM error** (`:100`). One deeply recursive GUI handler abandons every async entry after it on the EDT. That matches the stated policy for VM errors, but `StackOverflowError` is the one you'd normally expect to recover from. Consider containing it like an ordinary `Error`.
+4. **The design doc doesn't match the code.** `WORKER-EXIT-DESIGN.md` lines 5 and 9 say "reflection only private Transaction getters". The getters are actually public on a private class, and the helper reads the package-private fields directly. The code is correct against the pinned class, so the doc should be updated to say that.
+5. **Marker coverage is inconsistent.**
+   - A `ThreadDeath` cause still logs `RAID_ADMIN_WORKER_EXIT_FAILED` before the silent rethrow. That's fine if "silent" just means nothing is printed through the uncaught-exception handler.
+   - A stray `InterruptedException` while a claimed send is active goes through the normal epilogue (`cause==null`). The helper still completes it as unconfirmed, but no marker is logged.
+6. **Brief window after sync completion.** A released sync caller can still see `isConnected()==true` until the helper takes the manager lock. Because `stopped` is already volatile-true, any repost is refused, so this is cosmetic.
+
+These still need fixture proof, not just review: the exact PCs where `activeStarted` is set and reset, the 509 test-and-clear and the 514 clear trampolines, and whether the startup callers propagate a failure from the 30..35 constructor seam.

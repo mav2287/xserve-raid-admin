@@ -1,0 +1,23 @@
+I've read all three files and checked them against each other. I found no concrete blockers. I ran nothing and wrote nothing.
+
+**Verified**
+- **Wrapper matches the patch byte for byte** (`javap:1530-1571`). It calls `ensurePrepared`, then `invokespecial dispatchLoop`, with `cause` set to null on the normal path and caught at 12 otherwise. The exception table is exactly `0 7 12 any`, and stack 7 / locals 4 is right for the 7-argument `exit` call. The constant pool references are correct: #11 `stopped`, #10 `queue`, #14 `system`, #41 `connection`. Class version 47 needs no StackMapTable.
+- **`stopped=true` is still written before the active fields are captured, cleared and passed to `exit`.** The constructor still calls `prepare` (64) before `system` is stored and before the thread is created or started (35–63). `prepare` failing still means no thread starts.
+- **Fixture with a cold prepare failure:** `ensurePrepared` throws an ISE, which becomes `cause`. Then `exit` sees `!ready`, which only signals. Nothing is completed or cleared and the queue is stranded, so this still isn't a valid production state, as you intended.
+- **Memory visibility is fine.** The static fields are written before the volatile `ready=true` and are only read after `exit` reads `ready`.
+- **The queue snapshot can't race posters.** The volatile `stopped` is written before `exit` takes the queue lock, and `postMessageAsync` checks it under the same lock. So any post from another thread either lands before the snapshot or is refused. The "queue changed" ISE can only fire if the worker thread itself posts between the two locked sections, and nothing on the worker runs user code there except `SyncSender`.
+- **Duplicate check:** when `active` is still in `pending`, the active entry keeps its `started` flag, so the result is Untrusted, which is the conservative answer.
+- **No double delivery:** the callback and connect tails null `workerActiveTxn` before `CALL`. So a callback that throws out of `dispatchLoop` isn't delivered again by `exit`.
+- **Interrupt during `doConnect`:** this takes the original epilogue at 525 without the reset, so `active` and `started` survive. The wrapper delivers Untrusted and the epilogue has already closed the connection, which is correct.
+- **The requeue/`addFirst` path at 380–458 is unreachable** now that `RejectionRecovery` sends both IOException branches to 464 or 352. So there's no hole where an already-sent transaction gets marked as not started.
+- **`normalize` round-trips:** constructor 64+13=77; handlers 24→16 via `table[2:-66]`; field and method counts 12 and 14; flags and name of the renamed `dispatchLoop` back to `0001`/#177; the wrapper method is removed; and `plan(restored)==data` is checked.
+- **Metadata failures fail closed:** both the `prepare` reflection checks and the class/identity checks in `exit`.
+
+**Refinements (not blockers)**
+1. **Socket leak when the helper aborts after an abnormal cause.** If entry building, queue validation or a `ThreadDeath` aborts `exit` before the close step, `connection.close()` is skipped and `connected` stays true. `stopped` blocks any further use, but the socket only closes on GC. You could close in the outer catch when `cause!=null`.
+2. **Any failure during entry preparation aborts the whole batch.** This includes an OOM while allocating a `BasicResponse` or exception: every `SyncSender` stays blocked and no async callback runs. That's the intended "prepare all first" trade-off, but it's worth stating in the archive as a known gap where nothing completes.
+3. **Most VM errors in `CallbackBatch` drop the rest of the batch with one signal.** Only `StackOverflowError` lets it continue. That's deliberate, but no test covers it directly.
+4. **`UntrustedResponseException` lives in `patches/compat/`, not `worker-exit-source/compat/`.** Check that the build's compile classpath includes it.
+5. **`TransportObservation.ImmediateManager` subclasses `CommunicationsManager`** (`tests/java/com/apple/xsr/net/TransportObservation.java:737`). If it ever reaches `exit`, the exact-class check fails closed. That's harmless now because it never runs the worker.
+
+As you said, the reruns are still pending: the 8 worker-fault, 16 ownership and 72 callback-throw tests haven't been run against this prefix and ordering update.

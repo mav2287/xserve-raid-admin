@@ -49,3 +49,92 @@ been extracted into local ignored build source records with original-class and
 bytecode hashes. No constructor or profile loader was executed. Original registry
 and add-system callers need fail-closed propagation review before a constructor
 hook is accepted; no assertion about that behavior is made here yet.
+
+
+2026-10-06 implementation update (supersedes design-only statements above):
+The combined guard is integrated in development audit.21. Actual constructor seam
+30..35 invokes prepare before Thread creation. Metadata reads exact private/package
+Transaction fields, not getters. The wrapper directly invokes private dispatchLoop,
+sets volatile stopped before cleanup, and clears active immediately before actual
+run and doConnect callbacks. Ordinary exits complete synchronous waiters before
+acquiring the Manager monitor, then defer asynchronous terminal responses to EDT.
+The abnormal close is in finally, including entry-preparation failures. Whole-class
+reverse reconstruction and an independent javap check pass. Both build copies have
+identical bytes/modes; 133 unit tests passed in development. Runtime gates are pending;
+audit.20 remains the last fully qualified baseline.
+
+Startup source facts: NetworkInterface(int,SystemController) initializes only local
+fields and obtains its controller ID; RaidSystem.addFan performs only a local map
+insert. Earlier extracted SystemController/RaidController/Fan/base constructors
+establish child/back references. The inspected construction path contains no global
+registry publication before Manager creation. DefaultSystemRegistry constructs
+RaidSystem before applying loaded credentials, connecting, and adding it. Failure
+at the new prepare hook propagates and can abort the remaining registry load.
+AddSystemAction constructs before registry add/connect but increments systemsAdded
+before construction. A prepare failure can therefore affect that UI counter. These
+are bytecode findings, not native GUI or profile-loader runtime qualification; no
+profiles, saved credentials, registry constructors or original Main were executed.
+
+Claude correction: the CODE-FOLLOWUP review's statement that an interrupt during
+all doConnect paths necessarily reaches run PC525 with activeStarted=true is not
+established. doConnect has its own InterruptedException handler, and an Exception
+from a connect callback can be intercepted by the run generic handler. Before the
+claim/exposure seam activeStarted is false. Only the actual tracked value governs
+unsent versus unconfirmed classification; the mistaken review inference is not
+accepted evidence. The actual callback509 guard suppresses second attempts after
+doConnect409/586 for runtime, prefix/plain/null IOException, shim malformed and
+ordinary Error paths in the memory fixture. New clean qualification remains pending.
+
+Limit: virtual-machine exhaustion, ThreadDeath, metadata/allocation failures,
+blocked close/read/write, disposed AppContext, native GUI behavior and production
+transport are not terminal-completion guarantees. The normal original epilogue may
+block before helper cleanup starts. stop-versus-active-send is still open.
+
+
+Claude integrated review found and required a further security boundary: connect
+callback exceptions must not enter original transport classifiers, which call
+getMessage and pass throwable payloads to logging. Both original doConnect
+callback tails now invoke WorkerExit.connectCallback with the original four
+stack arguments (same worker, response and context), catch non-ThreadDeath
+throwables, and emit only the fixed signal. ThreadDeath escapes to the terminal
+wrapper without rendering. This supersedes the earlier direct connect callback
+invocations and reliance on the application log appender. The original ordinary
+command callback remains direct and is guarded against repeat delivery.
+
+Latest bytecode: Manager pool433, run wrapper58, dispatchLoop709, doConnect784,
+constructor77; exact predecessor reconstruction still required. Current Manager
+SHA bc6ff5078249e584dd81f102799b0c10870d8e37b194b48c3e39dd722c45eda6.
+Independent complete dispatch CFG proves no reachable legacy requeue and only the
+three added dead padding offsets68,246,617. Fixture changes include positive WARN
+observers, hostile callback IOException getMessage/toString traps, sneaky callback
+interrupt, actual sender wait-lock identity, and mixed async/sync exit drain where
+a queued caller holds the Manager monitor. New clean evidence remains pending.
+
+Prior reported-connect continuation negative control now restores the exact
+reviewed audit.20 Manager and Sender before bypassing the reported-stop window.
+Restoring that window alone on audit.21 no longer sends: the ownership/first-reply
+guard independently cancels the completed Sender. No-host and late-stop controls
+retain current worker edits and remain positive unsafe stop-order observations.
+
+
+Claude boundary followup verifies callback argument/stack/pool preservation and
+requires the positive WARN fixture to account for the original no-host ERROR
+message. The fixture now accepts exactly that known synthetic message without a
+Throwable (one in nohost, zero in single), plus exactly one fixed failure signal.
+This is not permission to render arbitrary payloads. Followup limitations are
+recorded with corrections: the cited legacy reconnect/requeue range is proven
+unreachable by the expanded CFG; it is not a reachable audit.21 duplicate path.
+Every run_jdk invocation already clears java.ext.dirs and endorsed.dirs; the
+architecture gate's explicit vendor-extension mode includes only the pinned
+runtime vendor directory, never ambient /Library/Java/Extensions.
+
+A batch caller must acquire the Manager lock after the active send has begun;
+holding it before dispatch blocks the original synchronized isConnected getter.
+The corrected fixture positively observes active onSend, then queues the caller
+holding Manager, observes its wait, and releases the synthetic send fault. It
+proves synchronous release before cleanup takes Manager; the earlier fixture
+setup failed and is excluded. Async EDT checks plus source show helper callbacks
+hold neither lock; Thread.holdsLock on EDT alone is not cross-thread lock proof.
+Native GUI/runtime-exhaustion guarantees remain excluded. Constructor preparation
+placement is locked independently by bytecode; runtime constructor success alone
+would not distinguish its prepare call from ensurePrepared in run.

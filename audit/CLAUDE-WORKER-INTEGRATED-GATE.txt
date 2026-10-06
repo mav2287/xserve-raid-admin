@@ -1,0 +1,74 @@
+I've finished the review. **Short version:** on the paths you asked about, ownership tracking, the at-most-once callback guards and lock order hold up in the bytecode. There is one real blocker: exceptions thrown by connection-failure callbacks get handled as transport failures. Several fixtures are weaker than their output suggests. Nothing here supports a production or VM-exhaustion qualification claim. Also, the working tree is dirty, so any run right now could only be a `--development` run, not qualification.
+
+Bytecode offsets below refer to `tests/fixtures/guarded-worker-candidate-manager.javap` (abbreviated `javap:`).
+
+## Your interrupt question: the earlier inference is wrong (confirmed)
+
+**Facts from the exception tables:**
+1. **Interrupt during the retry sleep:** `doConnect` catches it itself (row `653 681 684 InterruptedException`, `javap:1459`). It jumps to 692, logs "Stopped while attempting…", and returns normally at 717. `Thread.sleep` clears the interrupt flag when it throws, and nothing sets it again. So the dispatch loop just continues at 234 and never reaches 525.
+2. **InterruptedException escaping `doConnect`** (possible only via a sneaky throw from the connect callback at 759/774, or from a called method): it lands in the dispatch loop's 215–304 range. The JVM uses the first matching row in table order. `215 304 462 Class java/lang/Exception` (`javap:1067`) comes before `0 522 525 InterruptedException` (`javap:1068`), so it goes to 462 (`RejectionRecovery.report`), not 525.
+3. **Same applies to every connect-callback exception:**
+   - IOException → 337 → 553, which calls `getMessage()` on the handler's exception. With the `PropertyListException` prefix it goes to `retire`, then `logger.error(e,e)` at 367–374. Otherwise it is replaced by `nullMessage()`.
+   - RuntimeException or MalformedInput → 462, which calls `report` → `log(failure,failure)`.
+   - The 660 guard prevents a second delivery, because `workerActiveTxn` was cleared at 756/771.
+4. **The command callback at 672 is different:** only `660 689 525 InterruptedException` covers it (`worker_exit_patch.py:58`). Other exceptions leave the dispatch loop and reach the `run()` wrapper. A sneaky InterruptedException goes to 525, the normal exit path (`cause==null`).
+5. **What does reach 525:** an interrupt during `queue.wait()` at 28. It goes through the `any` handler at 72, and the `athrow` at 76 falls outside `72–75` but inside `0–522`.
+
+**Inference (not verified):** an interrupt that arrives during `doConnect` outside the sleep (for example during a socket connect) leaves the flag set, so the next sleep returns early. If nothing has stopped the manager, the dispatch loop then goes 234 → 595 → claim → send at 255 on a connection that is null or not connected. That behaviour is inherited from the original code, not introduced by this patch, and no fixture covers it. I didn't find out who, if anyone, interrupts the worker in production.
+
+## Blocker
+
+**B1. Connect-callback exceptions are processed as transport or controller failures.** *Fact:* see items 2–3 above. Handler code exceptions reach `RejectionRecovery.report` (which logs the exception object), `IOException.getMessage()` (which runs handler-supplied code), and `logger.error(e,e)`. Whether log4j then renders them depends on the installed appender. `SafeLogAppender` doesn't render, but I didn't verify it is the only appender in production. As it stands, the "no arbitrary exception rendering" claim does not hold for this path.
+
+*Bounded fix:*
+- Send both connect-callback tails (754, 769) through a static helper, e.g. `WorkerExit.connectCallback(h, system, response)`. It should catch everything except `ThreadDeath`, call `signal()`, and return.
+- `retire` has already stopped the manager before either callback, so the loop then follows its existing stopped path: 273 (`connectionFailureSent` is true) → reset → follow-on items drain with `CommShutdown`.
+- Update `worker_exit_structure.py` TAIL/connect expectations and the patch byte layout to match.
+- Add connect fixture modes for a sneaky `InterruptedException` and for an exception whose `getMessage`/`toString` throws.
+
+## Checked and correct (facts)
+
+- **Ownership:**
+  - The dequeue (60) and recording `workerActiveTxn` / `started=false` (623–634) happen before the `monitorexit` at 638, under the queue lock.
+  - `started=true` is set at 646, after a successful `claim` and before `getMessage`/send. Every path back to 0 goes through the 689 reset.
+  - The added rows mirror the original row order. The `644–660 → 525` row is dead because the Exception row before it catches first, same as the original 215–304 range.
+- **At most once:**
+  - Both callback sites clear `active` before `invokeinterface`. The 660 guard drops the second attempt (`pop2 pop2` balances the 4-slot stack).
+  - `exit` delivers only to the still-recorded active entry or to never-dequeued pending entries. The `SyncSender` keeps the first reply, so a repeat delivery does nothing.
+  - What's left is async-exception windows only: between `removeFirst` and the `putfield` at 629, and between 669 and 672.
+- **Outcome labels:** not started → `CommShutdownException`. Started → `UntrustedResponseException`, which `postMessage` turns into `IOException("Worker stopped; operation outcome is unconfirmed")`.
+- **Lock order:**
+  - `exit` never nests locks: queue snapshot, then a second queue lock to verify and clear. Sender callbacks run with no lock held, then `synchronized(manager)` is taken briefly.
+  - `shutdown` nests manager → queue, and the worker never takes them the other way round.
+  - The queue can't change between the snapshot and the clear. The volatile `stopped` write comes before the snapshot lock, so `postMessageAsync` (which reads `stopped` under the queue lock) goes to `StoppedDelivery` instead. The only exception is the worker thread itself, which runs no callbacks in that window.
+- **Close:** the outer `finally` runs after the sync completions, `connected=false`, and posting the async batch, but only when `cause!=null`. On the normal or 525 path, the original epilogue closes the connection at 545 *before* `exit`'s completions. Async completions on the EDT can run either side of the close. Neither order sends anything.
+- **Class identities and constructor:**
+  - The handler test uses exact `getClass()` matches against classes from the Manager's loader. `ready` is volatile and written last.
+  - The constructor calls `prepare` before storing `system` and before creating or starting the thread. Failure throws a fixed `IllegalStateException` with no cause attached.
+- **No dangerous operations:** `WorkerExit` does reflection reads, callbacks, one `connected` write, `close()`, and fixed-string logging. The patch adds no send or connect sites, and the old requeue/reconnect block at 380–459 is unreachable (nothing jumps to 380).
+- **No rendering in `WorkerExit` itself:** `signal()` logs only a fixed string, and `cause` is never read except to rethrow `ThreadDeath`.
+
+## Non-blocking issues (document or bound)
+
+- **Callers can be stranded on the failure path.** If an `Entry` fails to build (realistically only VM exhaustion), the queue is left as is and never answered, so sync callers wait indefinitely. A `ThreadDeath` during sender delivery happens after `queue.clear()`, so the remaining entries are lost. `CallbackBatch` stops at the first `VirtualMachineError`. All of these fit "best-effort, not guaranteed".
+- **Subclass check (inference):** `manager.getClass()!=CommunicationsManager.class` rejects subclasses, and that rejection would strand callers. The class isn't final. I didn't check whether any subclass exists.
+- **Double close:** a `close()` Error thrown at 545 becomes `cause`, so `finally` calls `close()` again. Harmless.
+- **`connected` is cleared after the sync callers wake.** They can briefly see `isConnected()==true`, but `isStopped()` is already true.
+
+## Test weaknesses
+
+1. **The lock-identity check never runs.** `GuardedWorkerExitObservation.waiting()` (`:29-31`) is never called, so `queuedSender` only checks `Thread.State.WAITING`. Fix: call `waiting(caller, sender)` after `queuedSender`.
+2. **Rendering traps can't fire.** All three fixtures set the log4j threshold to `OFF`. log4j then returns before building any event, so the `SyntheticFault` `toString`/`getMessage` traps can't trigger through logging, and `signal()` emissions aren't counted. Fix: use a capture appender at `ALL` that forces `getRenderedMessage()` and `getThrowableStrRep()`, and assert the exact count of `RAID_ADMIN_WORKER_EXIT_FAILED` events and no other events.
+3. **Untested paths:**
+   - an async active entry with an unconfirmed outcome going to the EDT;
+   - mixed async and sync entries pending at abnormal exit;
+   - `Entry` or metadata failure;
+   - the queue-mutation check;
+   - the interrupted paths (sleep interrupt; sneaky interrupt from the connect callback → 462; from the command callback → 525);
+   - which thread follow-on callbacks run on.
+4. **`WorkerConstructorObservation` can't tell the two `prepare` calls apart.** `run()` calls `ensurePrepared()` anyway, so the test would pass without the constructor change. Only the javap gate (`worker_exit_structure.py:53-54`) locks that change.
+5. **Runtime identity coverage is partial.** `FixtureIdentity` checks only `compat/WorkerExit*`, the Manager and the Sender. `UntrustedResponseException`, `RejectionRecovery` and `StoppedDelivery` are covered only indirectly, through the candidate JAR's SHA and the no-shadowing allowlist. That's acceptable, but worth stating.
+
+## Not claimed
+
+None of this supports a production qualification, a guarantee under VM exhaustion or `ThreadDeath`, the race between a stop and an active send, or behaviour under a native GUI or disposed AppContext. The checker's own limits text says the same.

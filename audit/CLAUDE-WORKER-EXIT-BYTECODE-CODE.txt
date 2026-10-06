@@ -1,0 +1,60 @@
+I found no concrete blockers. I only read files; I ran no commands and made no edits. Besides the two files you named, I also read `build/worker-exit-source/compat/WorkerExit.java` and `patches/compat/RejectionRecovery.java`, because the guards only make sense alongside the helpers.
+
+## Verified
+
+**Constructor**
+- `30: goto_w 64` is +34. The added block is `prepare` (3 bytes), then `aload_0; aload_1; putfield #14`, then `72: goto_w 35` (−37). That gives 77 bytes, and the method ends on a `goto_w`.
+- `this` is already initialized at offset 1, so the backward branch carries no uninitialized types.
+- `max_stack=4` is unchanged and enough.
+- If `prepare` throws, the constructor fails before the thread is created.
+
+**Branch arithmetic in dispatchLoop (709 bytes) and doConnect (784 bytes)**
+
+| Patch | Exit | Tail | Return |
+|---|---|---|---|
+| dequeue | 63→623 (+560), 68 nop, `69 goto 77` kept | 21 bytes | `639→69` |
+| claim | 612→644, 617 nop, `618 goto_w 247` kept | 16 bytes | `655→618` |
+| callback | 509→660 | `664 ifnull +18`→682 | `677→514`, `684→514` |
+| reset | 514→689 | 20 bytes, `connectionFailureSent=0` kept | `704→519` |
+| doConnect | 409→754, 586→769 | `aload_0; aconst_null; putfield; invokeinterface` | `764→414`, `779→591` |
+
+All 709/784 byte layouts are consistent.
+
+**Operand stack**
+- At 509, 409 and 586 the stack holds 4 category-1 values (handler, RaidSystem, Response, context/null).
+- `getfield` takes it to 5 and `aconst_null` to 6, which matches the declared `max_stack=6` in both methods.
+- `pop2; pop2` clears exactly those 4 category-1 values.
+- Wrapper peak is 7 (at the `aload_1` before `invokestatic`), matching `stack=7`. Locals are 0 this, 1 cause, 2 txn, 3 started, matching `locals=4`.
+- The wrapper's handler merges `null` with `Throwable` into local 1.
+- The constant-pool indexes hard-coded in the wrapper are correct: #10 queue, #11 stopped, #14 system, #41 connection.
+
+**Exception tables (16→24 rows)**
+- The 16 original rows are kept in order and the 8 new rows go after them. No older row overlaps 623–709, so appending doesn't change priority.
+- 623–644 gets `any→72`, then `IE→525`, the same order as the original 56–69 range inside 0–522 IE.
+- 644–660 copies the 595–623 order exactly: MIE→462, IOE→337, Exception→462, IE→525. Exception comes before IE, as in the original.
+- 660–689 and 689–709 get only `IE→525`, which matches 509 and 514 originally being covered only by 0–522 IE.
+- The doConnect call sites at 409 and 586 had no covering handler, so their tails don't need one.
+- At the handlers, locals 2 (queue/handler) and 5 (`astore` before read) are compatible.
+
+**Members, constant pool and rename**
+- Constant pool 408→428. Existing `Z`, `()V` and `exit` entries are reused.
+- Fields 12→14, both private, and the field metadata matches what `prepare()` checks reflectively.
+- Methods 14→15. The old `run` becomes `private dispatchLoop` (flags 0x0002), called with `invokespecial` (valid for version 47 with ACC_SUPER). The new `run` is public `()V`.
+- The `exit` descriptor matches `WorkerExit.exit`.
+
+**Normalizer**
+- It restores all four windows, the ctor bytes, both doConnect calls and the table (strips 64 bytes of rows plus the count; this relies on the run Code having 0 attributes, which the roundtrip enforces).
+- It also restores the counts, the rename and the pool boundary.
+- It checks the result against the PIN, and checks `plan(restored)==data`. Together these prove every added byte is accounted for.
+
+**Exactly-once**
+- Every write to `workerActiveTxn`/`workerActiveStarted` happens on the worker thread (dispatchLoop, doConnect, the wrapper). So a test-and-clear without a lock is sound, and the fields don't need to be volatile.
+- The slot is cleared before every real callback (`667`, `754`, `769`). So if a handler throws, the wrapper doesn't deliver to it again.
+- Each normal iteration goes through 689 before `goto 0`, so the slot is null at `wait()` and on both normal returns (53→522 and the IE path at 525).
+
+## Non-blocking notes
+
+1. **Dormant requeue window, 380–459.** `addFirst(txn)` at 417 runs while `workerActiveTxn` still points to the same transaction. If an error escaped between there and 689, `exit` would build one entry from `active` and another from the queue for the same transaction, and both would get a callback. The queue identity check (lines 121–124) wouldn't catch this. The code is unreachable today: 349 and 583 branch to 563, and nothing targets 380 (`377 goto 459` only reaches the `goto 489`). Cheap insurance would be skipping `pending[i]==active` in `exit`, or making the normalizer assert that the region is unreachable.
+2. **Worker-thread re-post after stop.** `postMessageAsync` 63–73 still adds to the queue when the caller is the worker thread. During `exit`, the synchronous SyncSender callbacks (line 131) run on the worker thread after `queue.clear()`. Anything they posted would be stranded. `SyncSender.handleResponse` presumably doesn't post, so the risk is low.
+3. **`started` stays true after 667.** This is harmless, because `exit` ignores `started` when `active==null`.
+4. **Exactly-once means per active slot, not per transaction.** The doConnect paths deliver a ConnectException with a null context in place of the transaction's context. This matches the predecessor's visible behaviour, because `retire` stops the manager, so 509 never fired after it anyway. The 401 path still has no null check on the handler; that was already the case before this patch, and an NPE there is caught by the 462 handler.
