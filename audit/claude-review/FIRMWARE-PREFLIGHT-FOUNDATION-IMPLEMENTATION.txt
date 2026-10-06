@@ -1,0 +1,58 @@
+I found no blockers. The runtime gate does what the known-hash design asked for. There are two medium gaps: the checker doesn't verify some of the frozen provenance metadata, and the static AST test proves less than its name says. Both fixes are small.
+
+I only read files; I didn't run, edit, or open anything else. I didn't open hardware, profile, credential, or installed-app files.
+
+## Confirmed correct
+
+- **Exact type and bounds:** `type(snapshot) is bytes` runs before anything else. The size cap is checked before hashing, and exact size plus SHA-256 are checked before any interpretation (`tools/firmware_preflight.py:85-90`). Unknown input never reaches `zipfile`, `zlib` or a socket, because the module doesn't import any of them.
+- **Read path:**
+  - `lstat` rejects symlinks, FIFOs, directories and device nodes before `open`. `O_NOFOLLOW` and `fstat` then check the file type and that it's the same file (dev/inode).
+  - The size is checked on `lstat` and again on `fstat`.
+  - The read loop asks for at most `PACKAGE_SIZE+1` bytes in total and handles short reads.
+  - Growth beyond the cap gives `SIZE_REJECTED`; shrinking, or growth below the cap, gives `READ_FAILED` because `len != st_size`. The result is converted to `bytes`.
+  - `PreflightError` is re-raised before the broad `ValueError` catch, so codes aren't rewritten. `from None` drops the chained traceback.
+- **Redaction:** rejections print only `{result, code}`. The argparse override covers unknown options. Success output is built only from constants, with no path and no digest of the input.
+- **Fresh output:** each call builds new dicts, so a caller can't change the module's tables.
+- **Provenance scope:** consistent with your note. `validate_snapshot` doesn't depend on where the file is. The checker's marker check (`check_firmware_preflight.py:52`) binds the opt-in run to cache2 (`27b667…`), and a cache1 path would fail there, as intended.
+- **Frozen table vs package:** member order, sizes, method 8, digests and manifest blocks are checked against the snapshot that passed the hash gate. They're also checked against `official_fixture` rows. Parsing happens only after the hash gate and outside the guarded block, which is correct for a fixture.
+
+## Medium: fix before regenerating evidence
+
+**1. Some frozen provenance fields are never checked.**
+- `CONTAINER_SHA256` is imported but never used (`check_firmware_preflight.py:16`).
+- `CONTAINER_MEMBER` and the literal `container_size: 8052021` (`firmware_preflight.py:95`) aren't checked against anything.
+- `official_fixture` checks the container against its own copies of the values (`check_firmware_archives.py:18-19,29`), not the module's constants.
+- So the checker can print `acquisition` values that differ from the acquired package without failing.
+- Without `--official-firmware`, none of the module constants are checked at all.
+
+Narrow fix:
+- **Always (no cache needed):** load `audit/official-firmware-fixtures.json` and assert that `official_package.sha256 == PACKAGE_SHA256`, `container_sha256 == CONTAINER_SHA256`, `acquisition_marker_sha256 == ACQUISITION_MARKER_SHA256`, and that `entries` equals the dict form of `MEMBERS`. Also assert `PACKAGE_SHA256 == OFFICIAL_SHA256` and `CONTAINER_SHA256 == OFFICIAL_ARCHIVE_SHA256`.
+- **Opt-in:** read the marker bytes once, then hash and parse those same bytes. That also removes the gap between parsing at `check_firmware_archives.py:31` and hashing at `:52`. Then assert `archive_sha256 == CONTAINER_SHA256` and `selected[CONTAINER_MEMBER]['sha256'] == PACKAGE_SHA256`.
+- Add a `CONTAINER_SIZE` constant, and assert that `accepted['acquisition']['container_size']` equals the container's size from `stat`.
+- Compare the whole `accepted` dict to an expected value built from verified sources, not just `result` and `sha256`.
+
+**2. The AST allowlist test can be bypassed** (`tests/test_firmware_preflight.py:77-87`).
+- It only checks calls of the form `os.X(...)`.
+- `from os import system` would still pass, because `'os'` is already in the import set.
+- So would aliasing (`f = os.system; f()`), `getattr(os, 'system')`, and the builtin `open`.
+
+Narrow fix:
+- Check every `ast.Attribute` whose base is `os` against an allowlist: `{lstat, open, fstat, read, close, O_RDONLY, O_NOFOLLOW, O_NONBLOCK, O_CLOEXEC}`.
+- Require that the only `ImportFrom` is `dataclasses.dataclass`.
+- Reject the names `getattr`, `open`, `compile`, `globals`, `vars` and `breakpoint`, in addition to `eval`, `exec` and `__import__`.
+
+## Low: optional
+
+3. **Mutation offsets:** positions `218`, `342` and `657677` (`check_firmware_preflight.py:41`) aren't explained. The design asked for an image body, the central directory and the end-of-central-directory record. Either compute them from the parsed fixture (`header_offset`, central directory offset, `len-22`) or call them arbitrary positions. The hash gate doesn't care where the change is, so this only affects how the evidence is labelled.
+4. **Missing read-path tests** (use mocks, no real devices needed):
+   - `os.read` returns more than `st_size` but stays under the cap → `READ_FAILED`.
+   - `os.read` goes past the cap → `SIZE_REJECTED`.
+   - `lstat`/`fstat` report a different inode → `NOT_REGULAR_FILE`.
+   - The largest single `os.read` request is ≤ `PACKAGE_SIZE+1`.
+   - `/dev/null` → `NOT_REGULAR_FILE`. This only calls `lstat`, so nothing is opened.
+5. **Mock coverage:** also patch `zlib.decompress` alongside `decompressobj`, in both the test and the checker.
+6. **Output naming:** the `acquisition` key could be read as describing where this input came from. Consider renaming it `reference_acquisition`, or extend `scope` to say "provenance of the identical reference bytes, not of this input's source".
+7. **Checker errors:** uncaught exceptions in the checker can print cache paths in tracebacks. That's acceptable for a developer-run opt-in tool, but say so in `limits`, or wrap it the way `check_firmware_archives.py` withholds raw output.
+8. **Evidence:** `build/firmware-preflight-foundation-results.json` shows `fixture_dirty: true`, as you expected. When you regenerate, consider adding `audit/python-lock.json` to `sources` and recording the unit-test run, since the checker doesn't run the tests itself.
+
+As agreed, these stay deferred and aren't affected by any of the above: the generic ZIP parser and manual inflate, Java snapshot binding at send time, raw `jar:` URL escaping, confirmation, transmission, hardware compatibility, and any changes to app bytes.

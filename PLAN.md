@@ -219,6 +219,13 @@ macOS releases without altering controller semantics.
 
 #### Firmware preflight
 
+A strict known-package offline foundation now exists. Unknown packages reject
+before any ZIP/manifest interpretation; structural properties are inherited only
+from exact identity with the checked Apple reference. This is not general ZIP
+validation or completed application preflight. Java snapshot binding and the
+summary/confirmation UI remain required. See
+[foundation scope](audit/FIRMWARE-PREFLIGHT-FOUNDATION.md).
+
 Before the client sends firmware data, validate:
 
 1. Readability and maximum size.

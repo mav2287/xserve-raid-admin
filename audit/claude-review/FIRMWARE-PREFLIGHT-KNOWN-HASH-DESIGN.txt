@@ -1,0 +1,40 @@
+**Verdict: yes, with the changes below.** A strict known-hash gate is a sound, narrow foundation for checking one known package. If SHA-256 runs over the exact immutable bytes before any parsing, untrusted ZIP bytes can only reach `zipfile` by producing a SHA-256 second preimage, which isn't practical. You don't need a generic ZIP parser, and rejecting unknown packages removes the gap between this checker's ZIP handling and the legacy wrapper's. One caveat up front: I couldn't read `../audit/claude-review/FIRMWARE-PREFLIGHT-FOUNDATION-DESIGN.json`. It's outside the working directory and the file tools are restricted to it. So this review doesn't reconcile with that file; please check for conflicts.
+
+## Changes I'd make
+
+1. **Don't parse the ZIP at runtime; emit a frozen table.** Once the hash matches, every member, size, CRC, method, flag and manifest byte is fixed. Parsing again at runtime only adds code. Instead:
+   - At runtime: read → hash matches → return the frozen allowlist table.
+   - In a test: parse the pinned package (when available) and assert it equals the frozen table, the way `official_fixture()` does in `tools/check_firmware_archives.py:22-46`.
+   - If you do keep a runtime parse, a mismatch after a hash match should be a fixed `INTERNAL_TABLE_MISMATCH` failure, not `UNRECOGNIZED_PACKAGE`. It means the code is wrong, not the input.
+
+2. **Build the frozen table only from reviewed evidence.** `audit/official-firmware-fixtures.json:128-158` records size, compression and SHA for each member, plus the manifest SHA (`76486a…`). It does **not** record CRC32 or flag bits. Either record those through the same reviewed fixture tool first, or leave them out; don't hand-type them. Also:
+   - Pin member order as `check_firmware_archives.py:36` sees it: MANIFEST, `coprocessor/`, `raid-controller/`, then the two images. The JSON is key-sorted and doesn't show order.
+   - Keep the two directory entries as deflated with size 0 (method 8), as observed. Don't normalize them to stored.
+   - Matching the manifest's SHA already covers the update paths, versions `1.5.1`/`1.51c`, date `12/08/2006` and the missing full-image key (`OfficialFirmwareProbe.java:21-29`). Store those values as metadata to output; they don't need parsing.
+
+3. **Record provenance in the table.** Each allowlist row should cite the package SHA `32c077…`, the container `21cf7a…` (8052021 bytes), the path `RAID Admin 1.5.1/firmware-1.5.1-1.51.xfb` and the acquisition marker hash. Adding a version should be a reviewed code change (PLAN.md:352 requires two-person review for firmware), not an editable config file.
+
+4. **Tighten the read path:**
+   - Open with `O_RDONLY|O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC`, then `fstat` and require a regular file **before** any read. A FIFO opens immediately with `O_NONBLOCK`, so the type check is what rejects it.
+   - Reject on `st_size` before reading, against the largest allowlisted size. Today that is exactly 929851, which is stronger than the general 4 MiB cap.
+   - Read in a loop until EOF or the size limit plus one byte. A single `os.read` can legitimately return fewer bytes. Require the total to equal `st_size`, then convert to `bytes`.
+   - `O_NOFOLLOW` only covers the last path component. Don't claim path containment; macOS `O_NOFOLLOW_ANY` is an option if you want it.
+   - Opening a device node can have side effects before `fstat` runs. An `lstat` precheck reduces this but is racy. Accept that and document it.
+
+5. **Use a small fixed set of result codes rather than one.** For example: `NOT_REGULAR_FILE`, `SIZE_REJECTED`, `READ_FAILED`, `UNRECOGNIZED_PACKAGE`, `KNOWN_PACKAGE`. Never include `OSError` text, tracebacks or paths, since `OSError` messages include the filename. Also note that argparse echoes bad arguments to stderr, so either handle that or document it.
+
+6. **Check the exact type** with `type(snapshot) is bytes`, which rejects `bytearray`, `memoryview` and subclasses.
+
+## Tests to add or reword
+
+- Byte-level variants of the real package must all return `UNRECOGNIZED_PACKAGE` without `ZipFile` or `zlib.decompressobj` ever being called. Prove that by patching both to raise. Variants: one bit flipped in an image body, one in the central directory, one in the end-of-central-directory record, trailing bytes appended, bytes prepended, and truncation by one byte.
+- The malformed, traversal, duplicate and zip-bomb fixtures don't test ZIP handling under this design; they only show the gate runs first. Label them that way.
+- When the public package isn't cached, report the known-package test as `not-run`, never as passed. That matches `check_firmware_archives.py:143`.
+- Prove "no network/updater/Java send" with a static AST import allowlist plus a runtime socket guard, similar to `OfflineGuard`.
+
+## Limits to state explicitly
+
+- **The check doesn't cover what gets sent.** The legacy path re-opens the file through a `jar:` URL (`OfficialFirmwareProbe.java:11-13`), and `JarURLConnection` caching can serve a stale `JarFile`. A passing check therefore says nothing about the bytes later transmitted. Integration must send from the validated snapshot or re-hash at send time. That work is deferred and can't be inferred from this check.
+- **Authenticity is bounded by acquisition.** The hash proves the file matches what was acquired from Apple's server. It's not a signature, and it doesn't show the package suits a particular controller. Hardware revision, current firmware and downgrade risk stay "unconfirmed" (PLAN.md:228-240).
+- **PLAN.md wording.** Items 2–4 in PLAN.md:222-231 (ZIP integrity, safe paths, manifest keys, image sizes) are met only because the package is identical to the pinned one; no general validation happens. Item 5 is unmet. Update PLAN.md to name the strict-allowlist policy so nobody later reads it as general validation.
+- **Still deferred:** the native chooser, the summary and confirmation screen, app integration, adding future versions, and any hardware work. Everything else on your deferred list stays out of scope.

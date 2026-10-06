@@ -183,3 +183,14 @@ measured association gap, status handling and malformed ordinary IO remain
 legacy behavior, and no firmware capture proves single-length compatibility.
 The HTTP protocol is plaintext. Native UI, physical Intel, hardware, signing and
 release acceptance remain open. See [reviewed scope](audit/RESPONSE-FRAMING-POLICY.md).
+
+
+## Offline firmware known-package foundation
+
+A standalone bounded immutable-snapshot validator accepts only the checked Apple
+1.5.1 XFB digest and emits reviewed public metadata. Unknown input never reaches
+ZIP parsing/inflation; CLI/read errors use fixed codes. No application bytes,
+updater calls, controller/cache operation or transmission change. This is partial
+preflight groundwork: generic validation, Java send-time binding, confirmation
+UI and hardware/version qualification remain open. See
+[scope and review](audit/FIRMWARE-PREFLIGHT-FOUNDATION.md).

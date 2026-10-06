@@ -1,0 +1,105 @@
+I read only the files you listed. I didn't execute or edit anything, and I proposed no operations on real firmware, caches, controllers or production volumes.
+
+# Firmware preflight foundation: design review
+
+**Verdict:** The overall shape is sound: a stdlib-only validator over an immutable snapshot, fixed rejection codes, the official package hash-pinned, and the coprocessor full image optional. But the bytecode shows three problems that change what the validator must check. Without fixing them, a "pass" would not describe what the original updater actually sends.
+
+## Bytecode findings that change the design
+
+1. **The bytes that get sent are chosen by fixed paths, not by the manifest.** `updateRaidController` and `updateCoprocessor` open `jar:file:<bundlePath>!/raid-controller/updateROM.bin` and `!/coprocessor/updateROM.bin` directly (`build/firmware-updater-bytecode.txt:835`, `:966`). The manifest key values are only used to find the `Name:` section that supplies `firmware-version` and `firmware-date` (`:611-713`). The RAID version string then goes into the `X-Apple-RAID-Firmware-Version` request header (`:877-880`).
+   - **Rule:** each update-image key's value must exactly equal its fixed path. Otherwise the version shown and sent describes one entry while a different entry is transmitted. A "references exist" check alone would pass that mismatch.
+   - The current synthetic fixtures (`raid.bin`, `update.bin`, `tools/check_firmware_archives.py:50-58`) would be rejected under this rule, correctly. The new tool needs fixtures that use the real paths.
+2. **The optional full image is read but never sent.** `xserveraid-coprocessor-full-image` is stored in a local (`:586-592`), and none of the strings in this file is a send path for it. The inner classes that decide which updates run are outside the files I read, so this is the extent of what I can confirm. If the key is absent, accept. If present, validate it and report a fixed code such as `FULL_IMAGE_PRESENT_NOT_TRANSMITTED`. Don't treat it as known-good.
+3. **A missing `Name:` section crashes the original.** `Manifest.getAttributes(name)` returns null and `.getValue` is called right away. The only exception caught there is `ParseException` (`:815-817`). So every referenced image needs a section with a non-empty `firmware-version` and `firmware-date`.
+
+For future integration only: `bundlePath` is the raw `FileDialog` directory plus filename (`:345-375`), pasted straight after `jar:file:` with no encoding. Paths containing `!/`, `#`, `%`, `?` or non-ASCII characters can resolve to a different archive or entry. Record this now as a constraint on the Java side.
+
+## The biggest correctness risk: Python and Java reading the ZIP differently
+
+A Python pass only counts if Java would read the same bytes. Known gaps:
+
+- **CRC and declared size.** `ZipExtFile` stops at the central directory's `file_size` and checks the CRC over that prefix. Java 8's `ZipFile` stream (via `JarURLConnection`) inflates until the deflate stream ends and, as I understand it, doesn't check the CRC. A crafted entry with a small declared size and a CRC of the prefix would pass Python while Java sends more data.
+  - **Fix:** don't rely on `ZipExtFile` for the image bytes. Slice the raw compressed span using the central directory's offset and `compress_size` and inflate it yourself with `zlib.decompressobj(-15)`, using `max_length` to cap output. Require `eof` exactly at the end of the span, empty `unused_data`, output length equal to `file_size`, and a matching CRC. Hash that output.
+  - For STORED entries, require `compress_size == file_size`.
+- **Local header vs central directory.** Python compares only the filenames. Compare method, flags, CRC and sizes yourself. If flag bit 3 (data descriptor) is set, the local fields may be zero, and the descriptor must match the central directory. The JDK `jar` tool normally writes descriptors, so check what the official package uses before deciding whether to support them.
+- **Layout.** Python tolerates data before the archive and, depending on version, overlapping entries. Require:
+  - the first local header at offset 0;
+  - entries that are contiguous and don't overlap;
+  - central directory offset plus size equal to the EOCD offset;
+  - the EOCD at the exact end, with a zero-length comment;
+  - EOCD entry counts matching;
+  - no ZIP64 or multi-disk fields.
+- **Duplicates.** Java picked the second copy of a duplicate entry (`duplicate_entry_selected=2`), and Python's name map also keeps the last. Reject duplicates, comparing case-insensitively. Java 8's `JarFile` can fall back to a case-insensitive lookup for `META-INF/MANIFEST.MF`, which covers that case too.
+- **Manifest parsing.** Accept only a strict subset where Java and Python can't disagree:
+  - ASCII only, no NUL or control characters, no bare CR, one consistent line-ending style (match the official package's).
+  - The final line must end with a newline. `java.util.jar.Manifest` silently drops an unterminated last line.
+  - Physical lines ≤72 bytes; Java rejects lines over 512.
+  - Continuation lines only directly after a header line, never first in a section or after a blank line.
+  - Header names unique, compared case-insensitively. Required keys must match case exactly, and any case-variant is rejected.
+  - No duplicate `Name:` sections (Java merges them). No unreferenced sections, which rejects the current `ghost.bin` orphan pattern.
+
+**Recommendation:** have two passing outcomes.
+- `KNOWN_GOOD`: the whole snapshot's SHA equals `32c077ea…` and every structural check also passes.
+- `STRUCTURE_OK_UNRECOGNIZED`: structurally valid but not in the allowlist. This must not be described as acceptable until a Java comparison shows both readers agree.
+
+That comparison is a cheap optional follow-up using the existing harness (`FirmwareArchiveProbe`): run the same fixtures through the unchanged wrapper and check that the bytes Java returns for the two fixed paths hash the same as Python's.
+
+## API and snapshot
+
+- **Reading the file:** `os.open(path, O_RDONLY|O_NOFOLLOW|O_NONBLOCK)`, then `fstat`, require a regular file within the size cap, and read cap+1 bytes. Reject if more arrives (the file grew) or if `fstat` size and bytes read disagree. `O_NONBLOCK` stops a FIFO from hanging the read.
+- **Validator input:** `validate(snapshot: bytes)`. Reject `bytearray` and `memoryview` so the caller can't change the data during validation. Use `zipfile` only for enumeration if at all; the layout and inflate checks above do the real work.
+- **Allowlist:** a frozen table of archive SHA → expected entry names, sizes, image SHAs, and the version/date strings (`1.5.1` / `1.51c` / `12/08/2006`, from `tests/java/OfficialFirmwareProbe.java:23,29`). Output metadata comes only from this table, never from the parsed manifest.
+- **Output:** `{result, code, snapshot_sha256, [allowlisted metadata]}`. A digest is fixed-format hex, and the future updater needs it to tie validation to what it reopens, so I'd include it even for unknown archives. That is your call.
+- **Error handling:**
+  - Checks run in a fixed order and the first failure wins, so each fixture maps to exactly one code.
+  - Catch `BadZipFile`, `zlib.error`, `struct.error`, `EOFError`, `NotImplementedError`, `ValueError` and `OverflowError` and map them to `MALFORMED`. Never output `str(e)`.
+- **Official package:** reuse the acquisition-chain checks in `official_fixture` (`tools/check_firmware_archives.py:22-46`), but against the snapshot. That function currently hashes the path and then reopens it with `ZipFile(path)`, which is a check-then-use race of its own.
+- **Path checks:** run generic unsafe-path checks (absolute paths, `\`, `..`, `.`, empty components, NUL, drive letters, directory entries with nonzero size) before the exact-name allowlist. That way traversal fixtures fail with `UNSAFE_PATH` rather than `UNEXPECTED_ENTRY`. Allowed names: `META-INF/`, `META-INF/MANIFEST.MF`, `coprocessor/`, `raid-controller/`, the two `updateROM.bin` paths, and, if present, the full-image path, which only needs to be safe, inside `coprocessor/`, and referenced.
+
+## Caps
+
+| Cap | Proposed | Official package | Comment |
+|---|---|---|---|
+| Archive | 4 MiB | 929,851 B | Fine |
+| Entries | 128 | 5 | Lower to 16; at most 7 names are allowed |
+| Manifest | 64 KiB | 362 B | Fine; add the ≤72 B line rule |
+| Per image | 16 MiB | 1,572,900 B max | Enforce on actual inflate output, not declared size |
+| Total | 32 MiB | ~2.48 MiB | Same: actual output |
+
+Because the caps apply to real output via `max_length`, a separate compression-ratio cap isn't needed.
+
+## Minimal fixtures (generated in a temp dir, hashes pinned like `audit/official-firmware-fixtures.json`)
+
+| Fixture | Expected code |
+|---|---|
+| Valid synthetic package with real paths, full image absent | `STRUCTURE_OK_UNRECOGNIZED` |
+| Same, full image present and valid | `STRUCTURE_OK_UNRECOGNIZED` + `FULL_IMAGE_PRESENT_NOT_TRANSMITTED` |
+| Official package (opt-in, pinned) | `KNOWN_GOOD` |
+| Official package with one byte flipped in its data and the CRC recomputed | `ALLOWLIST_MISMATCH` |
+| Central directory CRC tampered (STORED entry) | `CRC_MISMATCH` |
+| Local-header CRC/method differs from central directory | `LOCAL_CD_MISMATCH` |
+| Deflate stream longer than declared size, CRC of the prefix | `INFLATE_LENGTH_MISMATCH` (most important one) |
+| Junk after the deflate end, inside `compress_size` | `INFLATE_TRAILING_DATA` |
+| 16 MiB+1 of zeros in one image | `IMAGE_TOO_LARGE` |
+| Declared size small, actual output large | `INFLATE_LENGTH_MISMATCH` |
+| Three images of 12 MiB each | `TOTAL_TOO_LARGE` |
+| Overlapping entries / data before the archive / trailing data / archive comment | `LAYOUT` |
+| `../x`, `/x`, `a\b`, NUL in name | `UNSAFE_PATH` |
+| Exact duplicate; case-variant duplicate (including the manifest name) | `DUPLICATE_ENTRY` |
+| Encrypted flag; method 12/14 | `UNSUPPORTED_ENTRY` |
+| Manifest: unterminated last line, orphan continuation, bare CR, line over 72 B, duplicate header in different case, duplicate `Name:` | `MANIFEST_SYNTAX` |
+| Update key pointing to a path other than the fixed one | `REFERENCE_PATH_MISMATCH` |
+| Referenced section missing / no `firmware-version` | `MANIFEST_SECTION_MISSING` |
+| Required update key missing | `MANIFEST_KEY_MISSING` |
+| Referenced entry missing / zero size | `IMAGE_MISSING` / `IMAGE_EMPTY` |
+| FIFO, symlink, oversized file | `READ_REJECTED` |
+| Snapshot mutation: snapshot, overwrite the file in place, validate | Result and SHA unchanged; `bytearray` input → `TYPE_REJECTED` |
+
+## Limits to record with the tool
+
+- `KNOWN_GOOD` means byte-identical to the one acquired 1.5.1 package. It says nothing about signatures, hardware compatibility, or whether the controller verifies the image.
+- `STRUCTURE_OK_UNRECOGNIZED` makes no claim about what Java will send until the Java comparison exists.
+- The snapshot only prevents a race inside this standalone tool. The updater reopens the archive by path through cached `JarURLConnection`s, so the future integration must bind to `snapshot_sha256` (for example, a private copy in per-process secure temp storage, or a re-hash before each open). It must also keep the original closed-stream retry behaviour. Design that separately.
+- This is not the completed application preflight described at `PLAN.md:220-240`. There is no UI, confirmation, transmission or progress reporting.
+
+Python's ZIP and manifest quirks and Java 8 not checking CRCs are from my knowledge, not tested here. The fixtures above, especially the over-long deflate stream, are what would confirm them.
