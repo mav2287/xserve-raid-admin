@@ -1,0 +1,31 @@
+I found one bug that will likely break the run, one gap in the module-hash claim, and a few smaller points. I only read `tools/inspect_apple_archive.py`, so anything about `audit_support` and `baseline` is inferred from how this file uses them.
+
+## The TLS setup is correct
+- **Hostname and certificate checks:** `SSLContext(PROTOCOL_TLS_CLIENT)` turns on both `check_hostname=True` and `CERT_REQUIRED` by default. `HTTPSHandler` passes the request host as SNI and checks the certificate against it. On Python 3.10+ the minimum version is TLS 1.2. I see no gap here.
+- **No `SSL_CERT_*` lookup:** the context never calls `load_default_certs` or `set_default_verify_paths`, so OpenSSL never reads the `SSL_CERT_FILE` or `SSL_CERT_DIR` variables. `openssl_cafile` is the path compiled into OpenSSL, not the environment-resolved `cafile`. Both are correct.
+- **No `SSLKEYLOGFILE`:** CPython only reads this variable in `create_default_context()` and the unverified-context helper, so a plain `SSLContext()` ignores it.
+- **No proxy:** `ProxyHandler({})` disables both environment and macOS system proxies.
+- **Redirects:** `AppleRedirect` subclasses `HTTPRedirectHandler`, so `build_opener` drops the default handler. Every redirect hop and the final URL go through `approved_url`, and that blocks moves to plain HTTP or other ports.
+
+## Flaws
+
+1. **The CA bundle decode will probably fail (line 94).** `ca_data.decode('ascii')` breaks on many real bundles. Mozilla- and certifi-based PEM files have UTF-8 in their comment labels, such as `Főtanúsítvány`. The python.org macOS `cert.pem` is a symlink to certifi, and Homebrew's bundle comes from Mozilla too, so this is likely. It fails safely with `UnicodeDecodeError`, but the run won't get past it. Use `.decode('utf-8')` or `'latin-1'`; for a PEM string, `cadata` only cares about the base64 blocks.
+
+2. **The module hashes don't prove what was imported (line 118).** They hash fixed paths under `ROOT/tools` at the end of the run, not the modules that were actually loaded. If `sys.path` resolves `audit_support` or `baseline` somewhere else, or a file changes during the run, the record is wrong. Also, from this file I can't tell that `class_patch.py` is imported at all. To fix it, hash `sys.modules[name].__file__` (and check that it sits under `ROOT/tools`) right after import. Hash `__file__` for `tool_sha256` at startup too, and take `source_commit`/`source_dirty` before fetching, then compare them again at the end. A stale `.pyc` can also be loaded instead of the source file in rare cases (same mtime and size), so consider running with `-B`, or check that `verify_python` already forces it.
+
+3. **"No environment hooks" is overstated (line 120).** `environment_proxy_ca_and_keylog_hooks: False` doesn't cover everything:
+   - `OPENSSL_CONF` and `OPENSSL_MODULES` are read when OpenSSL starts up inside this Python process. They can change providers, cipher policy or the security level. `isolated_env()` only applies to the git subprocesses, not to this process.
+   - OpenSSL 3.5+ built with `enable-sslkeylog` honors `SSLKEYLOGFILE` at the library level, whatever Python does. Default builds don't have this.
+
+   Either clear or reject these variables at startup, or narrow the claim. Recording `ssl.OPENSSL_VERSION` helps but doesn't catch the config variable.
+
+4. **Truncated downloads aren't caught by the HTTP layer (lines 99–102).** `response.read(amt)` returns a short body without raising `IncompleteRead`. `Content-Length` is recorded but never compared with `len(data)`. In practice, gzip's end-of-stream and CRC check at line 42 would catch the truncation, but an explicit length check is cheap and gives a clearer error.
+
+## Minor points
+- `timeout=30` applies to each socket operation, not the whole download, so a slow server can stretch the fetch out (the size is still capped at 16 MiB).
+- `output.mkdir` runs before the fetch, so a failure leaves an empty directory and the next run needs a new path.
+- `retrieved_utc` is taken after the full body is read and before inspection starts, which matches what you described.
+
+The tar handling and cache look sound. Absolute paths, `..`, links, sparse and pax members are rejected, duplicate names are caught after NFC/casefold normalization, and sizes are bounded. Cache names come only from the hash and are opened with `open('xb')`, and reused files must be regular, not a symlink, and match the same SHA-256. They can't collide with `archive.tar.gz` or `acquisition.json`.
+
+Disposition: extract only ASCII PEM certificate blocks from the compiled CA bundle, preserving certificate content despite Unicode comments. Reject OPENSSL_CONF/OPENSSL_MODULES/SSLKEYLOGFILE before TLS imports; explicit SSLContext enforces certificate/hostname validation without proxy or SSL_CERT_* hooks. Snapshot actual imported module source paths/hashes and Git state before acquisition and check afterward; this is source provenance, not loaded-bytecode/interpreter attestation. Content-Length is checked when supplied. A clean committed follow-up acquisition will exercise the revised TLS path.

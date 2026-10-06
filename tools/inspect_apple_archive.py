@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Opt-in bounded acquisition and read-only inspection of Apple's legacy distribution."""
 import argparse
+import os
+# Fail before importing TLS modules; host interpreter/OpenSSL remain trusted prerequisites.
+if any(name in os.environ for name in ('OPENSSL_CONF','OPENSSL_MODULES','SSLKEYLOGFILE')):
+    raise ValueError('Unsupported TLS environment override')
 from datetime import datetime, timezone
 import gzip
 import hashlib
@@ -8,7 +12,10 @@ import io
 import json
 from pathlib import Path, PurePosixPath
 import platform
+import re
+import ssl
 import subprocess
+import sys
 import tarfile
 import unicodedata
 import urllib.parse
@@ -62,8 +69,12 @@ def inspect(data, cache):
                     # Flat hash-derived names; never write an archive-supplied filesystem path.
                     name = record['sha256'] + path.suffix.lower()
                     target = cache/name
-                    with target.open('xb') as output: output.write(payload)
-                    target.chmod(0o444)
+                    if target.exists() or target.is_symlink():
+                        if target.is_symlink() or not target.is_file() or sha(target) != record['sha256']:
+                            raise ValueError('Cached member collision')
+                    else:
+                        with target.open('xb') as output: output.write(payload)
+                        target.chmod(0o444)
                     selected[member.name] = {'cache_file':name,'sha256':record['sha256'],'size':len(payload)}
             entries.append(record)
     return entries,selected
@@ -74,6 +85,16 @@ def main():
     parser.add_argument('--fetch',action='store_true',help='Explicitly download the public Apple archive')
     parser.add_argument('--output',required=True,type=Path,help='New directory under ignored build/')
     args=parser.parse_args(); verify_python()
+    dependencies={}
+    for name in ('audit_support','baseline','class_patch'):
+        loaded=Path(sys.modules[name].__file__).resolve()
+        if loaded != ROOT/'tools'/ (name+'.py'): raise ValueError('Unexpected imported module location')
+        dependencies[str(loaded.relative_to(ROOT))]=sha(loaded)
+    tool_hash=sha(Path(__file__))
+    def source_state():
+        return (subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip(),
+                bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env())))
+    commit,dirty=source_state()
     if not args.fetch: raise ValueError('Network acquisition requires --fetch')
     output=args.output.absolute()
     build=(ROOT/'build').resolve()
@@ -81,12 +102,24 @@ def main():
         raise ValueError('Choose a new ignored build directory')
     subprocess.run(['/usr/bin/git','check-ignore','--quiet',str(output/'archive.tar.gz')],cwd=ROOT,env=isolated_env(),check=True)
     approved_url(URL)
-    opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),AppleRedirect())
+    # Use the compiled OpenSSL CA bundle explicitly: no SSL_CERT_* or key-log environment hooks.
+    ca_path=Path(ssl.get_default_verify_paths().openssl_cafile)
+    with ca_path.open('rb') as stream: ca_data=stream.read(4*1024*1024+1)
+    if len(ca_data) > 4*1024*1024: raise ValueError('CA bundle exceeds bound')
+    context=ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    certificates=re.findall(rb'-----BEGIN CERTIFICATE-----\s+[A-Za-z0-9+/=\r\n]+-----END CERTIFICATE-----',ca_data)
+    if not certificates: raise ValueError('CA bundle has no supported certificate blocks')
+    context.load_verify_locations(cadata=b'\n'.join(certificates).decode('ascii'))
+    opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),AppleRedirect(),urllib.request.HTTPSHandler(context=context))
     output.mkdir(parents=True)
     with opener.open(urllib.request.Request(URL),timeout=30) as response:
         approved_url(response.url)
         data=response.read(DOWNLOAD_LIMIT+1)
+        retrieved_utc=datetime.now(timezone.utc).isoformat()
         if len(data) > DOWNLOAD_LIMIT: raise ValueError('Download exceeds bound')
+        length=response.headers.get('Content-Length')
+        if length is not None and (not length.isdecimal() or int(length) != len(data)):
+            raise ValueError('Download length differs from server declaration')
         response_metadata={k:response.headers[k] for k in ('Content-Length','ETag','Last-Modified') if k in response.headers}
         final_url=response.url
     archive=output/'archive.tar.gz'; partial=output/'archive.part'
@@ -96,10 +129,17 @@ def main():
     if sha(archive) != digest: raise ValueError('Cached archive changed')
     entries,selected=inspect(data,output)
     original=ROOT/'original/RAID_Admin_original.jar'; verify_original(original)
-    record={'url':URL,'final_url':final_url,'retrieved_utc':datetime.now(timezone.utc).isoformat(),
+    if (source_state() != (commit,dirty) or sha(Path(__file__)) != tool_hash or
+            any(sha(ROOT/name) != expected for name,expected in dependencies.items())):
+        raise ValueError('Acquisition source changed during run')
+    record={'url':URL,'final_url':final_url,'retrieved_utc':retrieved_utc,
+        'inspection_completed_utc':datetime.now(timezone.utc).isoformat(),
         'response_headers':response_metadata,'archive_size':len(data),
         'archive_sha256':digest,'archive_sha1':hashlib.sha1(data).hexdigest(),'archive_md5':hashlib.md5(data).hexdigest(),
-        'python':platform.python_version(),'tool_sha256':sha(Path(__file__)),
+        'python':platform.python_version(),'tool_sha256':tool_hash,
+        'source_commit':commit,'source_dirty':dirty,'dependency_hashes':dependencies,
+        'tls':{'openssl':ssl.OPENSSL_VERSION,'ca_bundle_sha256':hashlib.sha256(ca_data).hexdigest(),
+               'host_trust_prerequisite':True,'explicit_ca_and_no_proxy':True,'openssl_config_module_and_keylog_overrides':'rejected'},
         'reference_jar_sha256':sha(original),
         'matching_reference_entries':[name for name,row in selected.items() if row['sha256']==sha(original)],
         'entries':entries,'selected':selected,
