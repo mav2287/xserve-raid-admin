@@ -14,7 +14,7 @@
   "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
   "verifier_sources": {
     "tools/check_security.py": "8d2b493392a410521ba73099589e020adb07da6000617b043eade306d31e40da",
-    "tools/inventory.py": "bcdba9138868c97040172c0d6e2289087c118b6b38a7c11f25cdad9fce2b829f",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
     "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6"
   },
   "fixture_sources": {

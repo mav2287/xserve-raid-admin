@@ -30,7 +30,7 @@ Discovery, roles/authentication, polling, timing, persistence, reconnect, sleep/
 
 ## G07 — Firmware and mutation safety
 
-The Apple-served 1.5.1 package is now acquired and pinned for offline inspection. No hardware maintenance context is available. Guarded wrapper tests read its metadata and both image hashes identically on both pinned runtimes. Preflight UI, visible errors, confirmation, transfer, acknowledgement, restart and final-version validation remain unqualified. Original updater bytecode also disables/restores disk and controller caches; firmware approval must explicitly cover these ancillary restricted actions. Array/cache/network/power/diagnostic mutations are not authorized for execution without immediate confirmation.
+The Apple-served 1.5.1 package is now acquired and pinned for offline inspection. No hardware maintenance context is available. Guarded wrapper tests read its metadata and both image hashes identically on both pinned runtimes. Preflight UI, visible errors, confirmation, transfer, acknowledgement, restart and final-version validation remain unqualified. Original updater bytecode also disables/restores disk and controller caches; firmware approval must explicitly cover these ancillary restricted actions. Inference/open risk: an interruption or failed restoration could leave caches disabled; the cache state after failure has not been qualified. Array/cache/network/power/diagnostic mutations are not authorized for execution without immediate confirmation.
 
 ## G08 — Release engineering
 
@@ -51,8 +51,8 @@ The memory-only fixture now observes two identical sends after one dropped respo
 five after four drops, and one eventual callback with retained context. Parse errors
 produce -103 without requeue. Synthetic single-use firmware streams either throw
 before a second send or produce a zero-length second body, depending on stream
-behavior. See `audit/transport-observation.json`. The synthetic archive fixture now observes stored-entry streams returning EOF after close, while deflated-entry streams throw I/O errors. Real reconnect/backoff, queue
-ordering and actual firmware packages remain unqualified. No retry behavior
+behavior. See `audit/transport-observation.json`. The synthetic archive fixture now observes stored-entry streams returning EOF after close, while deflated-entry streams throw I/O errors. Real reconnect/backoff and queue
+ordering remain unqualified; transmission of real firmware packages is untested. No retry behavior
 has been changed.
 
 ## G11 — MRJ folder lookup

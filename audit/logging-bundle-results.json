@@ -17,6 +17,16 @@
       "runtime_signature": "not-evaluated"
     },
     "packager_commit": "b0c1c181c95c1431e4107496b1f9589675d783b1",
+    "qualification": {
+      "application_bundle_signed": false,
+      "application_notarized": false,
+      "controller_contact": false,
+      "gui_launched": false,
+      "host_machine": "arm64",
+      "qualified_release": false,
+      "runtime_execution": "native arm64",
+      "signature_scope": "verify_bundles verified the embedded vendor runtime; diagnose did not evaluate signatures"
+    },
     "source_commit": "13ac37083b01418afb5c5acac2bf69ce00ac3c4a"
   },
   "x64": {
@@ -37,6 +47,16 @@
       "runtime_signature": "not-evaluated"
     },
     "packager_commit": "b0c1c181c95c1431e4107496b1f9589675d783b1",
+    "qualification": {
+      "application_bundle_signed": false,
+      "application_notarized": false,
+      "controller_contact": false,
+      "gui_launched": false,
+      "host_machine": "arm64",
+      "qualified_release": false,
+      "runtime_execution": "x64 under Rosetta inferred on arm64; no physical Intel qualification",
+      "signature_scope": "verify_bundles verified the embedded vendor runtime; diagnose did not evaluate signatures"
+    },
     "source_commit": "13ac37083b01418afb5c5acac2bf69ce00ac3c4a"
   }
 }

@@ -8,7 +8,7 @@
 | JmDNS | 0.2 | JmDNS static VERSION initializer; license not established from this intake |
 | Xerces | 2.0.0 | `org.apache.xerces.impl.Version` literal; exact distribution/license provenance unresolved |
 | Xalan | 2.3.0 | XSLProcessorVersion initializer; XML/XPath helpers bundled; exact distribution/license provenance unresolved |
-| Log4j | 1.x, exact release unresolved | Legacy namespace/API and root OFF configuration; do not assert a precise version/CVE from package names |
+| Log4j | 1.x, exact release unresolved | Legacy namespace/API; original root OFF, audit.5 fixed-code adapter; do not assert a precise version/CVE from package names |
 | BCEL | Unresolved | Bundled BCEL.LICENSE.txt states Apache Software License 1.1 |
 | Apache regexp | Unresolved | regexp.LICENSE.txt states Apache Software License 1.1 |
 | JLex | Unresolved | Bundled custom permissive notice; retain full text |
@@ -50,3 +50,8 @@ Its JAR matches the immutable repository reference. Firmware binaries remain
 in ignored local cache; only metadata and hashes enter Git. This narrows original
 acquisition uncertainty without asserting redistribution rights or a historical
 package signature.
+
+The clean follow-up acquisition in `audit/apple-distribution-confirmation.json`
+records the explicit CA bundle hash, OpenSSL version and loaded module source
+hashes, and returns exactly the same archive bytes. The first tool version is
+traceable to commit `41ecbde`; its recorded hash matches that Git version.

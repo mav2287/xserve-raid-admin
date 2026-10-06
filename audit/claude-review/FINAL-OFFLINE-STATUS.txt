@@ -1,0 +1,46 @@
+Most claims hold up. The offline, Rosetta and vendor-signature boundaries are mostly stated well. The concrete problems are below, most important first.
+
+## Misleading claims
+
+1. **README presents untested behaviour as working.**
+   - Line 3: "for managing Xserve RAID storage systems on modern macOS (Apple Silicon and Intel)". No controller has been contacted and no physical Intel machine has been used.
+   - Line 51 (Usage): "Click the **+** button to discover Xserve RAID systems… via Bonjour". This describes a GUI and discovery flow that hasn't been run.
+   - Line 57: "Supports Bonjour/mDNS discovery". G06 says discovery is untested.
+   - Line 13: the shim "prevents the communications thread from crashing" is stated as fact, but it has never been tested against a real controller.
+
+   Line 9 and the "Hardware Compatibility" note hedge, but these sentences read as working features. Suggest saying "intended to" or adding a "not yet qualified" banner before Usage.
+
+2. **`logging-bundle-results.json` looks self-contradictory.** In each architecture, `bundled_runtime.signature_verification` says "vendor signature verified…" while `diagnostic.runtime_signature` says `"not-evaluated"`. A reader can't tell which applies to this artifact. The file also has no explicit field saying:
+   - the app bundle is unsigned and not a release;
+   - x64 was only exercised under Rosetta;
+   - no GUI launch or hardware contact happened.
+
+   A vendor-signed runtime inside an unsigned bundle is easy to misread as a signed artifact. Add an explicit `qualification` / `app_bundle_signed: false` / `x64_execution: "Rosetta only"` block.
+
+3. **SESSION-RESULTS line 6, "Completed and reviewed with the actual Claude CLI".** This can read as independent verification. It's model consultation, not human review or qualification. Say that, or drop it.
+
+4. **SESSION-RESULTS line 25, "Original/candidate transport observations match…"** These came from synthetic, memory-only fixtures (G10). Without that qualifier it can read as real wire parity.
+
+## Missing high-risk boundary
+
+5. **The retry hazard isn't visible enough where it matters.** G10 is explicit, but:
+   - **README never mentions it**, and README is the document a user who reaches Usage will act on. Add a short warning: retry is unbounded, ambiguous writes may repeat, and firmware and other mutation workflows are unqualified.
+   - **SESSION-RESULTS line 36** lists the risk only as "preserved and documented". The concrete consequences aren't stated:
+     - a non-idempotent command may be sent again after a dropped response;
+     - a firmware retry may send a **zero-length second body**;
+     - none of this has a bound.
+   - **The cache interaction isn't stated anywhere.** G07 says the updater disables and later restores disk and controller caches. G10 says an update can be retried or fail partway. Nothing addresses the controller being left with **caches disabled** after a failed or retried update. Add that interaction to G07 or G10 as an explicit open risk.
+
+6. **Minor staleness in G10 (line 55).** "actual firmware packages remain unqualified" is now ambiguous, because the real package *has* been hash-read. Say "transmission of the real package is untested".
+
+## Checked and fine
+
+- **Rosetta** is stated explicitly (SESSION line 23).
+- **Apple acquisition** is clearly HTTPS evidence, not a historical signature (G01).
+- **The firmware work** is limited to hash reads with no updater construction (SESSION line 16, G07).
+- **The macOS 11 floor** is clearly a vendor-binary floor, not an OS qualification (README lines 78–79).
+- **Keeping the original semantics** is clear ("No retry behavior has been changed").
+- **Rule for restricted operations:** they still need immediate confirmation.
+- **Exit gate:** the Phase 0 gate is explicitly still open.
+
+Disposition: README now labels discovery/GUI/shim claims by their actual validation scope, and exposes the original retry hazard. Bundle report explicitly distinguishes vendor-runtime signature verification from unsigned app and no-signature diagnostic checks; Rosetta/GUI/controller scope is explicit. Model consultation is not described as independent human verification. Potential cache-restoration failure is labeled an unqualified inference, not an observed hardware result.

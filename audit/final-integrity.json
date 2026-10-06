@@ -1,0 +1,10 @@
+{
+  "application_source_commit": "13ac37083b01418afb5c5acac2bf69ce00ac3c4a",
+  "hardware_operations": "not performed",
+  "installed_application_modifications": "not performed",
+  "installed_matches_preserved_reference": true,
+  "original_reference_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "python_test_count": 35,
+  "source_intake_commit": "ed171c734f98706fd02524306941625603e1a751",
+  "upstream_reference_git_blob": "0d342a9144d92ac86e5c3269657019642345c69b"
+}

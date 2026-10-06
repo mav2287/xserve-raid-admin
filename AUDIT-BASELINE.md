@@ -1,5 +1,12 @@
 # Phase 0 baseline audit — 2026-10-05
 
+Current candidate: **audit.5**, clean application source `13ac370`, clean runtime
+packager `b0c1c18`. Both architecture bundles reproduce and pass the recorded
+offline fixtures. See `audit/logging-bundle-results.json`,
+`audit/official-firmware-fixtures.json`, and `audit/apple-distribution-confirmation.json`.
+The earlier intake/audit.1 sections below are retained historical observations.
+This remains an unsigned, operationally unqualified candidate.
+
 ## Result and scope
 
 **Fact:** repository intake and an offline observation harness are complete. The unchanged upstream build succeeds but is not byte-reproducible. A separate hash-locked audit builder now produces identical unsigned app contents on this machine. **Phase 0 is not closed:** no representative hardware session or packet capture has been taken. No controller was contacted, GUI app launched, production volume tested, firmware transmitted, or installed app modified.

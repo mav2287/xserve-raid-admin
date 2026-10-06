@@ -1,6 +1,6 @@
 # Xserve RAID Admin
 
-A modernized version of Apple's original RAID Admin application for managing Xserve RAID storage systems on modern macOS (Apple Silicon and Intel).
+Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS, retaining its existing Apple silicon and Intel runtime support. This audit candidate is not yet operationally qualified.
 
 ## About
 
@@ -10,7 +10,7 @@ This project contains compatibility patches for the original application. Full f
 
 ## Patches Applied
 
-1. **`sun.io.MalformedInputException` shim** — The original `CommunicationsManager` catches this exception class which was removed from modern JDKs. A compatibility shim extending `java.nio.charset.CharacterCodingException` prevents the communications thread from crashing.
+1. **`sun.io.MalformedInputException` shim** — The original `CommunicationsManager` catches this exception class which was removed from modern JDKs. A compatibility shim extending `java.nio.charset.CharacterCodingException` supplies the required catch type. Isolated dispatch fixtures pass; controller operation remains unqualified.
 
 2. **`com.apple.mrj.MRJApplicationUtils` replacement** — Selects `com.apple.eawt` on Java 8 and `java.awt.Desktop` handlers on Java 9+; forwards original About, Preferences, Quit and file-open callbacks. Headless bridge tests pass; native menu/event qualification remains open.
 
@@ -48,13 +48,20 @@ Installation and hardware qualification remain separate acceptance work.
 
 ## Usage
 
-Launch **RAID Admin** from Applications (or the build directory). Click the **+** button to discover Xserve RAID systems on your network via Bonjour, or enter an IP address manually.
+The original application offers a **+** workflow for discovery or manual IP entry.
+That GUI/network workflow has not been qualified in this audit. Hardware testing
+of these candidates requires an approved test context.
+
+Original retry behavior is preserved: a dropped response can cause a mutation to
+be sent again without a fixed retry limit; exhausted firmware streams can produce
+an empty retry body. Firmware and other mutation workflows remain unqualified.
+See [G10](GAPS.md#g10--ambiguous-writes-and-queue-retry-semantics).
 
 ## Hardware Compatibility
 
 - Apple Xserve RAID (firmware compatibility remains to be qualified)
 - Communicates via the ACPX protocol over HTTP to the Xserve RAID coprocessor
-- Supports Bonjour/mDNS discovery (`_xserveraid._tcp`)
+- Contains Bonjour/mDNS discovery implementation (`_xserveraid._tcp`); operation unqualified
 
 ## Original Software
 
