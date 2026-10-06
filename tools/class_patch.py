@@ -101,6 +101,35 @@ def transform(entry, data):
     return result
 
 
+
+def transform_current(entry, data):
+    """Current candidate; transform() remains the immutable audit.20 predecessor."""
+    result=transform(entry,data)
+    if entry=='com/apple/xsr/net/CommunicationsManager.class':
+        from sync_ownership_patch import transform_manager
+        from worker_exit_patch import plan
+        result=plan(transform_manager(result))
+    elif entry=='com/apple/xsr/net/CommunicationsManager$SyncSender.class':
+        from sync_ownership_patch import transform_sender
+        result=transform_sender(result)
+    return result
+
+
+def normalize_current_extensions(data):
+    """Strip only exact new worker/ownership edits before historical feature gates."""
+    cls=ClassFile(data)
+    if any(m['name']=='dispatchLoop' for m in cls.methods):
+        from worker_exit_patch import normalize
+        data=normalize(data);cls=ClassFile(data)
+    if cls.pool_count==408 and any(m['name']=='run' for m in cls.methods):
+        from sync_ownership_patch import normalize_manager
+        return normalize_manager(data)
+    if cls.pool_count==78 and any(m['name']=='claim' for m in cls.methods):
+        from sync_ownership_patch import normalize_sender
+        return normalize_sender(data)
+    return data
+
+
 def _transform_reference(entry, data):
     expected, name, descriptor = TARGETS[entry]
     if hashlib.sha256(data).hexdigest() != expected:
@@ -303,6 +332,7 @@ def _transform_reference(entry, data):
 
 
 def assert_preserved(before, after, name, descriptor):
+    if name in ('run','<init>'):after=normalize_current_extensions(after)
     if name=='run':after=normalize_stopped_admission(after)
     if name=='run':after=assert_stop_lock_order(before,after)
     old, new = ClassFile(before), ClassFile(after)
@@ -451,6 +481,7 @@ def assert_recovery_edit(before,after,name):
 
 
 def assert_sync_preenqueue(before,after):
+    after=normalize_current_extensions(after)
     old,new=ClassFile(before),ClassFile(after)
     if before[:old.pool_end]!=after[:new.pool_end]:raise ValueError('Sync original pool changed')
     def body(cls):
@@ -500,6 +531,7 @@ def stop_is_volatile(data):
 
 
 def assert_stop_lock_order(before,after):
+    after=normalize_current_extensions(after)
     """Restore two reads and one field flag to reconstruct the entire audit.18 class."""
     if hashlib.sha256(before).hexdigest()!=TARGETS['com/apple/xsr/net/CommunicationsManager.class'][0]:raise ValueError('Original Manager reference differs')
     after=normalize_stopped_admission(after)

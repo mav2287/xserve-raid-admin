@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 from audit_support import ROOT,sha,verify_jdk,verify_python,run_jdk,isolated_env
 from baseline import verify_original,write_jar
-from class_patch import normalize_stopped_admission,AUDIT19_MANAGER_SHA256
+from class_patch import normalize_stopped_admission,normalize_current_extensions,AUDIT19_MANAGER_SHA256
 from inventory import disassemble_entries
 from stopped_post_structure import normalize_admission
 from runtime import runtime_manifest,verify_runtime
@@ -42,9 +42,11 @@ def main():
  if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=reviewed['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed artifact')
  if not a.development and manifest['source_dirty']:raise ValueError('Clean application required')
  with zipfile.ZipFile(a.candidate) as z:entries={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
- restored=normalize_stopped_admission(entries[ENTRY]);reference=json.loads((ROOT/'audit/stop-lock-final-integrity.json').read_text())
+ restored=normalize_stopped_admission(normalize_current_extensions(entries[ENTRY]));reference=json.loads((ROOT/'audit/stop-lock-final-integrity.json').read_text())
  if hashlib.sha256(restored).hexdigest()!=AUDIT19_MANAGER_SHA256 or reference['changed_entry_sha256_from_audit18'][ENTRY]['after']!=AUDIT19_MANAGER_SHA256:raise ValueError('Audit.19 reconstruction/ledger differs')
- before,after=[disassemble_entries(a.jdk,jar,[ENTRY],verbose=True) for jar in (original,a.candidate)];normalize_admission(before,after,True)
+ before,after=[disassemble_entries(a.jdk,jar,[ENTRY],verbose=True) for jar in (original,a.candidate)];
+ from worker_exit_structure import normalize_extensions
+ normalize_admission(before,normalize_extensions(after),True)
  names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StoppedPostObservation.java','tools/check_stopped_post.py','tools/stopped_post_structure.py','tools/class_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','tools/inventory.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json','audit/stop-lock-final-integrity.json','patches/compat/StoppedDelivery.java')
  hashes={n:sha(ROOT/n) for n in names};runtimes=[];seen=set();lock=runtime_manifest()
  for root in a.runtime:
@@ -89,6 +91,6 @@ def main():
    verify_runtime(root,lock['architectures'][arch])
  if any(sha(ROOT/n)!=value for n,value in hashes.items()) or sha(a.candidate)!=a.candidate_sha256:raise ValueError('Qualification input changed')
  if not a.development and subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()):raise ValueError('Clean fixture changed')
- print(json.dumps({'qualification':not a.development,'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'fixture_commit':commit,'fixture_dirty':dirty,'candidate_sha256':sha(a.candidate),'original_sha256':sha(original),'compiler_tree_sha256':compiler['tree_sha256'],'source_hashes':hashes,'fixture_class_hashes':classes,'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'observations':observations,'limits':'Real locally stopped Manager admission, worker drain and SyncSender; Unsafe bypasses constructor and no connection exists. EventQueue is headless, native GUI and third-party handlers unqualified. Async refused handlers run on EDT, may precede earlier queued callbacks and non-EDT poster return. Scheduling errors propagate; disposed AppContext can silently drop delivery. Worker exemption inherits unbounded repost loops; external -102 callbacks can cycle through EDT events, and original handlers may now show errors/update model state after stop. Production stderr emits only existing RAID_ADMIN_ERROR, internal callback signal checked by capture appender. JVM stderr is required empty for every observation. Abnormal worker exit with stopped=false, interrupted waits and stop-vs-active-send remain open. x64 is Rosetta, not physical Intel.'},indent=2))
+ print(json.dumps({'qualification':not a.development,'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'fixture_commit':commit,'fixture_dirty':dirty,'candidate_sha256':sha(a.candidate),'original_sha256':sha(original),'compiler_tree_sha256':compiler['tree_sha256'],'source_hashes':hashes,'fixture_class_hashes':classes,'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'observations':observations,'limits':'Real locally stopped Manager admission, worker drain and SyncSender; Unsafe bypasses constructor and no connection exists. EventQueue is headless, native GUI and third-party handlers unqualified. Async refused handlers run on EDT, may precede earlier queued callbacks and non-EDT poster return. Scheduling errors propagate; disposed AppContext can silently drop delivery. Worker exemption inherits unbounded repost loops; external -102 callbacks can cycle through EDT events, and original handlers may now show errors/update model state after stop. Production stderr emits only existing RAID_ADMIN_ERROR, internal callback signal checked by capture appender. JVM stderr is required empty for every observation. This gate excludes ownership/abnormal worker completion, checked separately by check_guarded_worker; VM failure completion, transport deadlines and stop-vs-active-send remain open. x64 is Rosetta, not physical Intel.'},indent=2))
 
 if __name__=='__main__':main()

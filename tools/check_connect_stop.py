@@ -10,7 +10,7 @@ import struct
 import zipfile
 from audit_support import ROOT, sha, tree, modes, digest, verify_jdk, verify_python, run_jdk, isolated_env
 from baseline import verify_original, write_jar
-from class_patch import ClassFile, assert_connect_failure_stop, AUDIT17_MANAGER_SHA256
+from class_patch import ClassFile, assert_connect_failure_stop, normalize_current_extensions, AUDIT17_MANAGER_SHA256
 from verify_builds import check_artifact
 from runtime import runtime_manifest, verify_runtime
 
@@ -21,10 +21,10 @@ def expected(mode):
             'PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified']
 
 def terminal_expected(mode):
-    if '-async' in mode:return ['connect_failure '+mode+' stop_inside_callback=true constructors='+('2' if mode.startswith('dual-') else '1')+' sends=0 commands='+('2' if mode.endswith('-throw') else '1')+' exception_identity=true','PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified']
+    if '-async' in mode:return ['connect_failure '+mode+' stop_inside_callback=true constructors='+('2' if mode.startswith('dual-') else '1')+' sends=0 commands='+'1'+' exception_identity=true','PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified']
     if mode in ('single','dual'):
         return ['connect_failure '+mode+' reported=ConnectException then_sent=0 constructors='+('1' if mode=='single' else '2')+' stopped=true polling_enable_calls=0','PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified']
-    line='connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true' if mode=='single-null' else 'connect_failure '+mode+' constructors=0 sends=0 connects='+('0' if mode=='nohost-null' else '1')+' commands='+('2' if mode=='nohost-throw' else '1')+' stopped=true late_async_stranded=1'
+    line='connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true' if mode=='single-null' else 'connect_failure '+mode+' constructors=0 sends=0 connects='+('0' if mode=='nohost-null' else '1')+' commands='+'1'+' stopped=true late_async_stranded=1'
     return [line,'PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified']
 
 def main():
@@ -80,12 +80,16 @@ def main():
         ob=code_start(original_class);nb=code_start(patched_class)
         mutants=[]
         for label,start,end,mode,policy in (('nohost',393,401,'verify-nohost','terminal'),('reported',578,583,'single','legacy')):
-            changed=bytearray(entries[CM]);changed[nb+start:nb+end]=before[ob+start:ob+end]
-            mutant_entries=dict(entries);mutant_entries[CM]=bytes(changed);jar=Path(tmp)/(label+'-bypass.jar');write_jar(jar,mutant_entries);mutants.append((label,jar,mode,policy))
+            control=normalize_current_extensions(entries[CM]) if label=='reported' else entries[CM]
+            control_start=code_start(ClassFile(control))
+            changed=bytearray(control);changed[control_start+start:control_start+end]=before[ob+start:ob+end]
+            mutant_entries=dict(entries)
+            if label=='reported':mutant_entries['com/apple/xsr/net/CommunicationsManager$SyncSender.class']=normalize_current_extensions(entries['com/apple/xsr/net/CommunicationsManager$SyncSender.class'])
+            mutant_entries[CM]=bytes(changed);jar=Path(tmp)/(label+'-bypass.jar');write_jar(jar,mutant_entries);mutants.append((label,jar,mode,policy))
         _,cb,ce=next(a for m in patched_class.methods if m['name']=='doConnect' for a in m['attributes'] if a[0]=='Code')
-        original_code=entries[CM][cb+14:cb+14+754];reordered=bytearray(original_code);reordered[740:744]=b'\x00'*4;reordered[591:599]=bytes.fromhex('c8000000a3000000')
-        reordered.extend(original_code[740:744]+original_code[591:599]+bytes.fromhex('c8ffffff59'))
-        body=entries[CM][cb+6:cb+10]+struct.pack('>I',len(reordered))+reordered+entries[CM][cb+14+754:ce]
+        code_length=struct.unpack('>I',entries[CM][cb+10:cb+14])[0];original_code=entries[CM][cb+14:cb+14+code_length];reordered=bytearray(original_code);reordered[740:744]=b'\x00'*4;reordered[591:599]=b'\xc8'+struct.pack('>i',code_length-591)+bytes(3)
+        reordered.extend(original_code[740:744]+original_code[591:599]+b'\xc8'+struct.pack('>i',599-(code_length+12)))
+        body=entries[CM][cb+6:cb+10]+struct.pack('>I',len(reordered))+reordered+entries[CM][cb+14+code_length:ce]
         mutant_entries=dict(entries);mutant_entries[CM]=entries[CM][:cb]+entries[CM][cb:cb+2]+struct.pack('>I',len(body))+body+entries[CM][ce:]
         reordered_jar=Path(tmp)/'callback-before-stop.jar';write_jar(reordered_jar,mutant_entries);mutants.append(('late-stop',reordered_jar,'single-async','late-stop'))
         for root,arch in runtimes:
@@ -93,7 +97,8 @@ def main():
                 with zipfile.ZipFile(jar) as z:
                     manager_hash=hashlib.sha256(z.read(CM)).hexdigest();recovery_hash=hashlib.sha256(z.read('compat/RejectionRecovery.class')).hexdigest()
                 cp=str(stub)+':'+str(fixture)+':'+str(jar.resolve())
-                output=run_jdk(root/'Contents/Home','java',['-Xverify:all',execution,'-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',cp,'com.apple.xsr.net.ConnectFailureObservation',mode,str(stub),str(jar.resolve()),manager_hash,recovery_hash,policy],timeout=35)
+                try:output=run_jdk(root/'Contents/Home','java',['-Xverify:all',execution,'-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',cp,'com.apple.xsr.net.ConnectFailureObservation',mode,str(stub),str(jar.resolve()),manager_hash,recovery_hash,policy],timeout=35)
+                except RuntimeError:raise RuntimeError('Connection fixture failed: '+arch+' '+mode+' '+policy+' (child output withheld)') from None
                 return output.splitlines(),manager_hash,recovery_hash
             for execution in ('-Xint','-Xcomp'):
                 for mode in ('single','dual','nohost','nohost-null','nohost-throw','single-null','single-async','dual-async','single-async-throw'):
@@ -109,6 +114,6 @@ def main():
     if sha(a.candidate)!=a.candidate_sha256:raise ValueError('Reference JAR changed')
     if any(sha(ROOT/n)!=value for n,value in hashes.items()):raise ValueError('Fixture input changed')
     if not a.development and subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()):raise ValueError('Fixture changed during run')
-    print(json.dumps({'qualification':not a.development,'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'fixture_commit':commit,'fixture_dirty':dirty,'candidate_sha256':sha(a.candidate),'original_sha256':sha(original),'compiler_tree_sha256':lock['tree_sha256'],'source_hashes':hashes,'stub_class_hashes':stub_classes,'fixture_class_hashes':fixture_classes,'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'observations':observations,'limits':'Real Manager and SyncSender with strict test-only Acpx constructor/send shadow, CodeSource/resource hash assertions and class allowlists. No real transport/controller, app launch, profile or production volume. Fake polling setter counts do not prove agent behavior. Parent 35-second watchdog; worker shutdown uses preserved queue notification, no fixture interrupt. Two verifier-valid window bypasses and a callback-before-stop mutant must demonstrate unsafe semantics; verifier/errors/timeouts never count as rejection. Dual first silent failure and unpublished single-handler retry remain. Late async posts and a concurrent synchronous check/enqueue/worker-exit race can strand indefinitely; GUI reconnect recovery unqualified.'},indent=2))
+    print(json.dumps({'qualification':not a.development,'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'fixture_commit':commit,'fixture_dirty':dirty,'candidate_sha256':sha(a.candidate),'original_sha256':sha(original),'compiler_tree_sha256':lock['tree_sha256'],'source_hashes':hashes,'stub_class_hashes':stub_classes,'fixture_class_hashes':fixture_classes,'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'observations':observations,'limits':'Real Manager and SyncSender with strict test-only Acpx constructor/send shadow, CodeSource/resource hash assertions and class allowlists. No real transport/controller, app launch, profile or production volume. Fake polling setter counts do not prove agent behavior. Parent 35-second watchdog; worker shutdown uses preserved queue notification, no fixture interrupt. Positive no-host and callback-before-stop mutants demonstrate unsafe ordering. Reported-continuation control first restores exact audit.20 Manager and Sender, then bypasses reported-stop; current ownership independently blocks completed Sender continuation. Verifier/errors/timeouts never count as rejection. Dual first silent failure and unpublished single-handler retry remain. Late-post completion and ownership are qualified separately by admission/guarded-worker gates. VM failure completion, stop-versus-active-send and GUI reconnect recovery remain unqualified.'},indent=2))
 
 if __name__=='__main__':main()

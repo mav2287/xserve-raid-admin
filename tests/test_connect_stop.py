@@ -41,4 +41,4 @@ class ConnectStopTests(unittest.TestCase):
         for mode in ('single','dual'):
             self.assertNotEqual(terminal_expected(mode),expected(mode));self.assertIn('then_sent=0',terminal_expected(mode)[0]);self.assertIn('then_sent=1',expected(mode)[0])
         self.assertIn('retry_preserved=true',terminal_expected('single-null')[0])
-        self.assertIn('commands=2',terminal_expected('nohost-throw')[0])
+        self.assertIn('commands=1',terminal_expected('nohost-throw')[0])

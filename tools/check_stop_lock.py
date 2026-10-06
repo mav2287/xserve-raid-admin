@@ -64,7 +64,7 @@ def main():
         classes={str(x.relative_to(tmp)):sha(x) for x in Path(tmp).rglob('*.class')}
         if set(classes)!={'fixture/OfflineGuard.class','com/apple/xsr/net/StopLockObservation.class','com/apple/xsr/net/StopLockObservation$1.class','com/apple/xsr/net/StopLockObservation$2.class'}:raise ValueError('Fixture class allowlist differs')
         if set(classes)&set(entries):raise ValueError('Fixture shadows application class')
-        cls=ClassFile(entries[ENTRY]);_,b,e=next(x for m in cls.methods if m['name']=='run' for x in m['attributes'] if x[0]=='Code');mutants=[]
+        cls=ClassFile(entries[ENTRY]);_,b,e=next(x for m in cls.methods if m['name']==('dispatchLoop' if any(t['name']=='dispatchLoop' for t in cls.methods) else 'run') for x in m['attributes'] if x[0]=='Code');mutants=[]
         for label,pcs in (('pc18',(18,)),('pc45',(45,)),('both',(18,45))):
             changed=bytearray(assert_stop_lock_order(before,entries[ENTRY]) if label=='both' else entries[ENTRY])
             if label!='both':

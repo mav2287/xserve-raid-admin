@@ -22,6 +22,7 @@ public final class StopLockObservation {
         try{byte[] bytes=new byte[4096];for(int n;(n=in.read(bytes))!=-1;)digest.update(bytes,0,n);}finally{in.close();}
         StringBuilder hex=new StringBuilder();for(byte b:digest.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return hex.toString();
     }
+    private static boolean guarded(){try{CommunicationsManager.class.getDeclaredField("workerActiveTxn");return true;}catch(NoSuchFieldException absent){return false;}}
     public static void main(String[] args)throws Exception {
         check(args.length==4&&Arrays.asList("pc18","pc45").contains(args[0])&&Arrays.asList("safe","deadlock").contains(args[1]),"Unknown fixture mode");final boolean preStopped=args[0].equals("pc45"),deadlock=args[1].equals("deadlock");OfflineGuard.install();org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         check(new java.io.File(CommunicationsManager.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getCanonicalFile().equals(new java.io.File(args[2]).getCanonicalFile())&&classHash().equals(args[3]),"Worker CodeSource/hash differs");
@@ -35,7 +36,14 @@ public final class StopLockObservation {
             while(System.nanoTime()<end&&!witnessed){
                 ThreadInfo info=bean.getThreadInfo(worker.getId(),0);
                 if(deadlock)witnessed=info!=null&&info.getThreadState()==Thread.State.BLOCKED&&info.getLockOwnerId()==holder.getId()&&info.getLockInfo()!=null&&info.getLockInfo().getIdentityHashCode()==System.identityHashCode(manager);
-                else if(preStopped)witnessed=worker.getState()==Thread.State.TERMINATED;
+                else if(preStopped){
+                    if(!guarded())witnessed=worker.getState()==Thread.State.TERMINATED;
+                    else if(info!=null&&info.getThreadState()==Thread.State.BLOCKED&&info.getLockOwnerId()==holder.getId()&&info.getLockInfo()!=null&&info.getLockInfo().getIdentityHashCode()==System.identityHashCode(manager)){
+                        ThreadInfo detailed=bean.getThreadInfo(new long[]{worker.getId()},true,true)[0];
+                        boolean holdsQueue=false;for(java.lang.management.MonitorInfo monitor:detailed.getLockedMonitors())if(monitor.getIdentityHashCode()==System.identityHashCode(queue))holdsQueue=true;
+                        witnessed=!holdsQueue;
+                    }
+                }
                 else witnessed=info!=null&&info.getThreadState()==Thread.State.WAITING&&info.getLockOwnerId()==-1&&info.getLockInfo()!=null&&info.getLockInfo().getIdentityHashCode()==System.identityHashCode(queue);
                 if(!witnessed)Thread.sleep(2);
             }

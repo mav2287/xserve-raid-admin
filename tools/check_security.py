@@ -14,7 +14,7 @@ from verify_builds import check_artifact, EXPECTED
 from inventory import disassemble_entries
 
 
-def assert_retry_unreachable(text, worker_failures=False):
+def assert_retry_unreachable(text, worker_failures=False, additional_dead=()):
     instructions={int(pc):op.strip() for pc,op in re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)}
     if instructions.get(349) is None or instructions[349].split()!=['ifeq','563']:raise ValueError('Ambiguous IO does not enter the fixed marker block')
     offsets=sorted(instructions);following=dict(zip(offsets,offsets[1:]))
@@ -37,6 +37,7 @@ def assert_retry_unreachable(text, worker_failures=False):
     dead={pc for pc in instructions if 380<=pc<459 or worker_failures and (307<=pc<337 or 344<=pc<352)}
     if worker_failures:
         if instructions.get(573,'').split()!=['goto_w','578'] or instructions.get(583,'').split()!=['ifeq','563'] or instructions.get(590,'').split()!=['goto_w','352'] or (215,304,462) not in handlers:raise ValueError('Worker fault stop control flow differs')
+    dead.update(additional_dead)
     required={pc for pc in instructions if 352<=pc<380 or 534<=pc<548}|{6,28,60,231}
     if set(instructions)-reached!=dead or not required<=reached or any('java/util/LinkedList.add' in instructions[pc] for pc in reached):raise ValueError('Reachability differs outside the locked dead retry region')
     # The initial connection call and queue monitor remain valid; only retry-region calls are excluded.
@@ -105,6 +106,8 @@ def http_response_reference_inventory(original):
 
 def independent_preservation(jdk, original, candidate, entry, target, descriptor):
     before, after = [disassemble_entries(jdk, jar, [entry], verbose=True) for jar in (original,candidate)]
+    from worker_exit_structure import normalize_extensions
+    after=normalize_extensions(after)
     if target=='run':
         from stopped_post_structure import normalize_admission
         after=normalize_admission(before,after,required='compat/StoppedDelivery' in after)
@@ -328,7 +331,7 @@ def main():
         if name == '<init>':
             method=re.search(r'^  public com\.apple\.xsr\.net\.CommunicationsManager\$SyncSender\([^\n]*\n(.*?)(?=^  \S|^})',disassembly,re.M|re.S)
             if method is None or any(not re.search(pattern,method[1],re.M) for pattern in (r'^\s+14:\s+goto\s+109$',r'^\s+116:\s+if_acmpne\s+129$',r'^\s+135:\s+goto\s+20$')):raise ValueError('Sync constructor trampoline disassembly differs')
-            verified_methods[entry]='Exact hash-pinned constructor preenqueue guard and binary mask; constant pool, monitor/wait/interrupt code, handlers and other methods preserved'
+            verified_methods[entry]='Exact preenqueue guard retained; ownership claim, interrupt wait and first-reply guards independently normalized to reviewed predecessor'
             continue
         match = re.search(r'^  (?:public|protected) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
         if match is None: raise ValueError('javap did not find patched method')

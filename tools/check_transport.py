@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 from audit_support import ROOT, verify_jdk, verify_python, run_jdk, sha, isolated_env
 from baseline import verify_original
-from class_patch import ClassFile
+from class_patch import normalize_current_extensions, ClassFile
 from runtime import runtime_manifest, verify_runtime
 
 
@@ -171,7 +171,7 @@ def main():
                     if worker_feature!=args.worker_failure_stop or worker_feature and not args.operation_failure_characterization:raise ValueError('Worker fault qualification flag differs')
                     if terminal_feature!=args.terminal_io_policy:raise ValueError('Terminal IO qualification flag differs')
                     if terminal_feature:
-                        cls=ClassFile(archive.read('com/apple/xsr/net/CommunicationsManager.class'));method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
+                        cls=ClassFile(normalize_current_extensions(archive.read('com/apple/xsr/net/CommunicationsManager.class')));method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
                         if cls.data[begin+14+349:begin+14+352]!=bytes.fromhex('9900d6'):raise ValueError('Terminal IO branch differs')
                 if jar != original and archive.read('sun/io/MalformedInputException.class') != shim.read_bytes():
                     raise RuntimeError('Fixture shim differs from candidate shim')
@@ -224,7 +224,7 @@ def main():
                             for entry in archive.namelist():
                                 data=archive.read(entry)
                                 if entry=='com/apple/xsr/net/CommunicationsManager.class':
-                                    cls=ClassFile(data);method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code');data=bytearray(data)
+                                    data=normalize_current_extensions(data);cls=ClassFile(data);method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code');data=bytearray(data)
                                     if int.from_bytes(data[begin+10:begin+14],'big')!=595:raise ValueError('Worker code length differs')
                                     if label=='shim':
                                         if data[begin+14+595+30:begin+14+595+32]!=bytes.fromhex('01ce'):raise ValueError('Worker typed handler missing')
@@ -247,7 +247,7 @@ def main():
                         for entry in archive.namelist():
                             data=archive.read(entry)
                             if entry=='com/apple/xsr/net/CommunicationsManager.class':
-                                cls=ClassFile(data);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code');data=bytearray(data)
+                                data=normalize_current_extensions(data);cls=ClassFile(data);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code');data=bytearray(data)
                                 if data[begin+14+349:begin+14+352]!=bytes.fromhex('9900d6'):raise ValueError('Required terminal branch missing')
                                 if worker_feature:data[begin+14+584:begin+14+586]=bytes.fromhex('ff89')
                                 else:data[begin+14+350:begin+14+352]=bytes.fromhex('0073') # valid boundary 464: ordinary report, without marker/stop
@@ -263,7 +263,7 @@ def main():
                         for entry in archive.namelist():
                             data=archive.read(entry)
                             if entry=='com/apple/xsr/net/CommunicationsManager.class':
-                                cls=ClassFile(data);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code');data=bytearray(data)
+                                data=normalize_current_extensions(data);cls=ClassFile(data);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code');data=bytearray(data)
                                 if data[begin+14+339:begin+14+344]!=bytes.fromhex('c8000000d6'):raise ValueError('Required null IO trampoline missing')
                                 data[begin+14+340:begin+14+344]=bytes.fromhex('00000001')
                             bad.writestr(entry,data)

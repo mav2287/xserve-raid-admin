@@ -1,70 +1,61 @@
 {
   "com/apple/util/plist/PropertyListUtilities$Handler.class": {
-    "original_sha256": "29c3a81427b07fb9241df9560050dfddd72b231a6b6486686fb8414cbf79cb70",
-    "patched_sha256": "96aad9f04bc44c5a2134dbf3d02bf93882fd9b18b429b0375bf04f4bee579e5c",
     "method": [
       "resolveEntity",
       "(Ljava/lang/String;Ljava/lang/String;)Lorg/xml/sax/InputSource;"
     ],
     "original_major_version": 47,
-    "patched_major_version": 47
-  },
-  "com/apple/xsr/net/AbstractRequestMessage.class": {
-    "original_sha256": "609356596df9a6bcec557bc79407e440ff3633b0e1611f144faa4ce743689e44",
-    "patched_sha256": "6719802c1092e94eb99bde9dc8329b3f84f9ca014b370288691fdf70289caa39",
-    "method": [
-      "toString",
-      "()Ljava/lang/String;"
-    ],
-    "original_major_version": 47,
-    "patched_major_version": 47
-  },
-  "compat/PropertyList.dtd": {
-    "sha256": "c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
-    "size": 443,
-    "source": "Original Handler String constant, exact bytes"
-  },
-  "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class": {
-    "original_sha256": "8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37",
-    "patched_sha256": "7f4731a3170debe8083eb2009fd0b9006d4e8342072baab7bd484b26a35e934e",
-    "method": [
-      "toString",
-      "()Ljava/lang/String;"
-    ],
-    "original_major_version": 47,
-    "patched_major_version": 47
+    "original_sha256": "29c3a81427b07fb9241df9560050dfddd72b231a6b6486686fb8414cbf79cb70",
+    "patched_major_version": 47,
+    "patched_sha256": "96aad9f04bc44c5a2134dbf3d02bf93882fd9b18b429b0375bf04f4bee579e5c"
   },
   "com/apple/util/plist/PropertyListUtilities.class": {
-    "original_sha256": "b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a",
-    "patched_sha256": "9609667e0fa67237c9cee9ec7e2920ef2ea77b08ed2db3fb566064e8fb5100bb",
     "method": [
       "getParser",
       "()Ljavax/xml/parsers/SAXParser;"
     ],
     "original_major_version": 47,
-    "patched_major_version": 47
+    "original_sha256": "b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a",
+    "patched_major_version": 47,
+    "patched_sha256": "9609667e0fa67237c9cee9ec7e2920ef2ea77b08ed2db3fb566064e8fb5100bb"
   },
-  "com/apple/xsr/net/HttpResponse.class": {
-    "original_sha256": "e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75",
-    "patched_sha256": "c737f32c87a6a756bddab7e10b6d282d8161543b105b639038de41708fe01d82",
+  "com/apple/xsr/net/AbstractRequestMessage.class": {
     "method": [
-      "getBody",
-      "()[B"
+      "toString",
+      "()Ljava/lang/String;"
     ],
     "original_major_version": 47,
+    "original_sha256": "609356596df9a6bcec557bc79407e440ff3633b0e1611f144faa4ce743689e44",
     "patched_major_version": 47,
-    "scope": "getBody length lookup at 5, parse/allocation operands at 14/23/28, parseHeaders assignment at 93 and one constructor stream wrapper; all other Code unchanged; parseHeaders invalid-header block 130..156 fixed terminal marker"
+    "patched_sha256": "6719802c1092e94eb99bde9dc8329b3f84f9ca014b370288691fdf70289caa39"
+  },
+  "com/apple/xsr/net/AcpxConnection.class": {
+    "method": [
+      "send",
+      "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
+    ],
+    "original_major_version": 47,
+    "original_sha256": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",
+    "patched_major_version": 47,
+    "patched_sha256": "5506cd12209500212af4af4810a5a7ac0245939f89b4b0df1bc5950778f12a0e",
+    "scope": "Appended exact-marker handler; original instructions and handler entries preserved"
+  },
+  "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class": {
+    "method": [
+      "toString",
+      "()Ljava/lang/String;"
+    ],
+    "original_major_version": 47,
+    "original_sha256": "8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37",
+    "patched_major_version": 47,
+    "patched_sha256": "7f4731a3170debe8083eb2009fd0b9006d4e8342072baab7bd484b26a35e934e"
+  },
+  "com/apple/xsr/net/CommunicationsManager$SyncSender.class": {
+    "original_sha256": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "patched_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+    "scope": "Audit.21: audit.20 preenqueue guard retained; claim once, wait for actual outcome after claim, cancelled before claim prevents send, first response retained. Exact audit.20 predecessor reconstruction required."
   },
   "com/apple/xsr/net/CommunicationsManager.class": {
-    "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
-    "patched_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
-    "method": [
-      "run",
-      "()V"
-    ],
-    "original_major_version": 47,
-    "patched_major_version": 47,
-    "scope": "Audit.20: run and doConnect security edits retained; stopped postMessageAsync admission Code56->98 plus ten pool entries, reconstruct exact audit.19 Manager cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24, then existing audit.18/17 full class pins.",
     "additional_methods": [
       [
         "doConnect",
@@ -74,22 +65,31 @@
         "postMessageAsync",
         "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V"
       ]
-    ]
-  },
-  "com/apple/xsr/net/AcpxConnection.class": {
-    "original_sha256": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",
-    "patched_sha256": "5506cd12209500212af4af4810a5a7ac0245939f89b4b0df1bc5950778f12a0e",
+    ],
     "method": [
-      "send",
-      "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
+      "run",
+      "()V"
     ],
     "original_major_version": 47,
+    "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
     "patched_major_version": 47,
-    "scope": "Appended exact-marker handler; original instructions and handler entries preserved"
+    "patched_sha256": "bc6ff5078249e584dd81f102799b0c10870d8e37b194b48c3e39dd722c45eda6",
+    "scope": "Audit.21: exact audit.20 predecessor retained under ownership claim and guarded private dispatch loop; constructor preparation, tracking, at-most-once delivery, nonrendering connect callback boundary and terminal completion wrapper. Whole-class reconstruction to reviewed predecessors required."
   },
-  "com/apple/xsr/net/CommunicationsManager$SyncSender.class": {
-    "original_sha256": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
-    "patched_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
-    "scope": "SyncSender constructor only: preenqueue thread guard, original pool/handlers and other methods retained"
+  "com/apple/xsr/net/HttpResponse.class": {
+    "method": [
+      "getBody",
+      "()[B"
+    ],
+    "original_major_version": 47,
+    "original_sha256": "e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75",
+    "patched_major_version": 47,
+    "patched_sha256": "c737f32c87a6a756bddab7e10b6d282d8161543b105b639038de41708fe01d82",
+    "scope": "getBody length lookup at 5, parse/allocation operands at 14/23/28, parseHeaders assignment at 93 and one constructor stream wrapper; all other Code unchanged; parseHeaders invalid-header block 130..156 fixed terminal marker"
+  },
+  "compat/PropertyList.dtd": {
+    "sha256": "c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+    "size": 443,
+    "source": "Original Handler String constant, exact bytes"
   }
 }

@@ -11,6 +11,7 @@ import sun.misc.Unsafe;
 
 /** Source characterization only: real Manager, test-only constructor/transport stub. */
 public final class ConnectFailureObservation {
+    private static boolean guarded(){try{CommunicationsManager.class.getDeclaredField("workerActiveTxn");return true;}catch(NoSuchFieldException absent){return false;}}
     public static final class FakeSystem extends RaidSystem {
         boolean dual;
         boolean noHost;
@@ -89,7 +90,7 @@ public final class ConnectFailureObservation {
             check(connects[0]==0&&commands[0]==0&&AcpxConnection.constructors==2&&AcpxConnection.bodies.size()==1&&system.enabled==1,"Null-handler retry changed");
             System.out.println("connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true");
         }else{
-            check(manager.isStopped()&&AcpxConnection.constructors==0&&AcpxConnection.bodies.isEmpty()&&AcpxConnection.closes==0&&connects[0]==(mode.equals("nohost-null")?0:1)&&commands[0]==(mode.equals("nohost-throw")?2:1),"No-host continuation escaped");
+            check(manager.isStopped()&&AcpxConnection.constructors==0&&AcpxConnection.bodies.isEmpty()&&AcpxConnection.closes==0&&connects[0]==(mode.equals("nohost-null")?0:1)&&commands[0]==(mode.equals("nohost-throw")&&!guarded()?2:1),"No-host continuation escaped");
             manager.postMessageAsync(handler,factory.newRestartSystemRequest());Field q=CommunicationsManager.class.getDeclaredField("queue");q.setAccessible(true);check(((LinkedList)q.get(manager)).size()==1,"Late async residual changed");
             System.out.println("connect_failure "+mode+" constructors=0 sends=0 connects="+connects[0]+" commands="+commands[0]+" stopped=true late_async_stranded=1");
         }
@@ -123,7 +124,7 @@ public final class ConnectFailureObservation {
             }
         }};
         AcpxMessageFactory factory=new AcpxMessageFactory();manager.postMessageAsync(handler,factory.newRestartSystemRequest(),context);manager.postMessageAsync(handler,factory.newRestartSystemRequest(),new Object());manager.postMessageAsync(null,factory.newRestartSystemRequest());manager.run();
-        check(manager.isStopped()&&connects[0]==1&&commands[0]==(throwsCallback?2:1)&&AcpxConnection.constructors==AcpxConnection.failures&&AcpxConnection.bodies.isEmpty()&&AcpxConnection.requests.isEmpty()&&AcpxConnection.closes==0&&system.enabled==0,"Reported callback continuation escaped");OfflineGuard.assertUntouched();
+        check(manager.isStopped()&&connects[0]==1&&commands[0]==(throwsCallback&&!guarded()?2:1)&&AcpxConnection.constructors==AcpxConnection.failures&&AcpxConnection.bodies.isEmpty()&&AcpxConnection.requests.isEmpty()&&AcpxConnection.closes==0&&system.enabled==0,"Reported callback continuation escaped");OfflineGuard.assertUntouched();
         System.out.println("connect_failure "+mode+" stop_inside_callback="+!late+" constructors="+AcpxConnection.constructors+" sends=0 commands="+commands[0]+" exception_identity=true");
         System.out.println("PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified");
     }

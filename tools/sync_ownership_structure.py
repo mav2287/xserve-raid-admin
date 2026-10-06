@@ -13,6 +13,7 @@ def ops(text):return [(int(pc),' '.join(rest.split())) for pc,rest in re.findall
 def rows(text):return [(int(a),int(b),int(c),kind) for a,b,c,kind in re.findall(r'^\s+(\d+)\s+(\d+)\s+(\d+)\s+(any|Class \S+)\s*$',text,re.M)]
 def metadata(text):return '\n'.join(line for line in text.splitlines() if not re.match(r'^\s+\d+(?::|\s+\d+\s+\d+\s+)',line))
 def members(text):
+ text=text.split("\n{\n",1)[1] if "\n{\n" in text else text
  result={}
  for m in re.finditer(r'^  (\S[^\n]*;)\n.*?(?=^  \S|^})',text,re.M|re.S):
   if m[1] in result:raise ValueError('Duplicate javap member')

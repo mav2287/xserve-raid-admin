@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from audit_support import ROOT, sha, verify_jdk, verify_python, run_jdk, isolated_env
 from baseline import verify_original, write_jar
-from class_patch import assert_preserved, assert_sync_preenqueue
+from class_patch import assert_preserved, assert_sync_preenqueue, normalize_current_extensions
 from runtime import runtime_manifest, verify_runtime
 from verify_builds import check_artifact
 
@@ -62,7 +62,7 @@ def main():
     observations=[]
     with tempfile.TemporaryDirectory(prefix='raid-sync-posting-') as tmp:
         run_jdk(a.jdk,'javac',['-source','8','-target','8','-cp',str(a.candidate.resolve()),'-d',tmp]+[str(x) for x in sources if x.suffix=='.java'])
-        mutant=Path(tmp)/'restored-constructor.jar';entries[ENTRY]=before;write_jar(mutant,entries)
+        mutant=Path(tmp)/'restored-constructor.jar';entries['com/apple/xsr/net/CommunicationsManager.class']=normalize_current_extensions(entries['com/apple/xsr/net/CommunicationsManager.class']);entries[ENTRY]=before;write_jar(mutant,entries)
         for root,arch in runtimes:
             for execution in ('-Xint','-Xcomp'):
                 for fixed,jar in ((False,original),(True,a.candidate)):
@@ -76,6 +76,6 @@ def main():
     if any(sha(ROOT/name)!=value for name,value in hashes.items()):raise ValueError('Fixture input changed')
     final_dirty=bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()))
     if not a.development and final_dirty:raise ValueError('Clean fixture changed')
-    print(json.dumps({'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'fixture_commit':commit,'fixture_dirty':dirty,'qualification':not a.development,'candidate_sha256':sha(a.candidate),'original_sha256':sha(original),'compiler_tree_sha256':lock['tree_sha256'],'source_hashes':hashes,'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'observations':observations,'limits':'Defense in depth: live worker callback deliberately catches IllegalStateException. Stop on second scripted response bounds original continuation; exact second body compared internally. ImmediateManager is a synchronous callback seam, not a production subclass. Interrupted wait remains queued; Throwing callbacks at run PC509 can strand a worker; TYPE_CONNECT/exit/lock liveness, GUI reachability and controllers unqualified. No sockets, profiles, app launch or production volumes.'},indent=2))
+    print(json.dumps({'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'fixture_commit':commit,'fixture_dirty':dirty,'qualification':not a.development,'candidate_sha256':sha(a.candidate),'original_sha256':sha(original),'compiler_tree_sha256':lock['tree_sha256'],'source_hashes':hashes,'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'observations':observations,'limits':'Defense in depth: live worker callback deliberately catches IllegalStateException. Stop on second scripted response bounds original continuation; exact second body compared internally. ImmediateManager is a synchronous callback seam, not a production subclass. This gate checks preenqueue behavior; ownership cancellation and terminal worker completion are in check_guarded_worker. Its restored-constructor control also restores the reviewed audit.20 Manager because new Manager code requires the claim method. GUI reachability and controllers remain unqualified. No sockets, profiles, app launch or production volumes.'},indent=2))
 
 if __name__=='__main__':main()
