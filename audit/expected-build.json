@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "648a59a01878e4305c75ae71a68e36e52752578eb3bf78561311a76bcd1ca289",
-  "reason": "Development audit.17 preenqueue defense in depth; clean qualification pending",
+  "previous_record_sha256": "1cf63125a75b7bb532d688ee1c5c540d39b943c0b7557e7820f7b9663c884b00",
+  "reason": "Clean reproducible audit.17 constructor guard anchor; Claude-reviewed defense in depth; full clean qualification follows",
   "schema": 1,
-  "source_commit": "ec35cd5eda01e4ac65fff9fcf8b9998e632020c6",
-  "source_dirty": true
+  "source_commit": "54df93c4478a9822517f398f5eccfd11609f85a7",
+  "source_dirty": false
 }
