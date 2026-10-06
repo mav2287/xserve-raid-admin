@@ -90,3 +90,7 @@ Claude [follow-up review](claude-review/HTTP-HEADER-FOLLOWUP.txt) found no guard
 defect and prompted a strict Code-line allowlist, constant checks and valid
 Methodref target mutation tests. Long noncanonical line-ending boundary tests
 remain unmeasured; the exhaustive short corpus qualifies automaton tracking.
+
+[Follow-up independent verification](header-followup-security.json) records the
+strict constructor Code allowlist and pinned header constants against the same
+unchanged clean candidate. No application bytes changed during this refinement.
