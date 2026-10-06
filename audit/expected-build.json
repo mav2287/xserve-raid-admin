@@ -51,9 +51,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "c71ca2827e30762fc7491e77c3db3b9d2d7a9405186c9af09fcca64891ac7242",
-  "reason": "Development header wrapper: exact three-byte constructor insertion with preserved original parser/EOF automaton and per-response line/count/aggregate budgets; resource and queue fixtures in progress.",
+  "previous_record_sha256": "6d8a04ddcd30d157bcbe11e11c375ee810dda961410bc5b8490d9e67cea5145e",
+  "reason": "Clean audit.8 header ceilings after actual Claude implementation review; original parser automaton independently checked over 174762 constructor/EOF cases, exact boundaries and terminal queue failures. Recovery and framing remain separate.",
   "schema": 1,
-  "source_commit": "a5a7a122a63cb360cf74e736f7108821c1b70a25",
-  "source_dirty": true
+  "source_commit": "07d755143cfd7de1357145676441bdc3a755421e",
+  "source_dirty": false
 }
