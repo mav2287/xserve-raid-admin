@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -23,7 +24,7 @@ class VerificationTests(unittest.TestCase):
             app=output/'RAID Admin.app'; resources=app/'Contents/Resources'; resources.mkdir(parents=True)
             launch=app/'Contents/MacOS/RAIDAdmin'; launch.parent.mkdir(); launch.write_text('#!/bin/sh\n'); launch.chmod(0o755)
             baseline.write_jar(resources/'RAID_Admin.jar',reference)
-            manifest={'files':tree(app),'file_modes':modes(app),'input_hashes':{'build.sh':sha(baseline.ROOT/'build.sh')},'jdk':{k:v for k,v in lock.items() if k!='files'},'original_jar_sha256':baseline.ORIGINAL_SHA256,'builder':{},'source_commit':'0'*40,'source_dirty':False,'compatibility_version':baseline.VERSION}
+            manifest={'schema':2,'files':tree(app),'file_modes':modes(app),'input_hashes':{'build.sh':sha(baseline.ROOT/'build.sh')},'jdk':{k:v for k,v in lock.items() if k!='files'},'original_jar_sha256':baseline.ORIGINAL_SHA256,'builder':{},'source_commit':'0'*40,'source_dirty':False,'compatibility_version':baseline.VERSION}
             manifest['bundle_tree_sha256']=digest({k:manifest[k] for k in ['files','file_modes']})
             (output/'provenance.json').write_text(json.dumps(manifest))
         with contextlib.redirect_stdout(io.StringIO()): verify(self.a,self.b,expected_path=self.expected,update_reason='synthetic test baseline')
@@ -53,5 +54,32 @@ class VerificationTests(unittest.TestCase):
         p=self.a/'provenance.json'; m=json.loads(p.read_text()); m['jdk']['vendor']='synthetic-secret'; p.write_text(json.dumps(m))
         self.assertNotIn('synthetic-secret',json.dumps(diagnose(self.a)))
         self.assertEqual(diagnose(self.a)['build_jdk'],'unrecognized build JDK')
+
+    def test_diagnostics_reject_unknown_schema_without_echo(self):
+        for schema in [True, 4, 'synthetic-secret', None]:
+            p=self.a/'provenance.json'; m=json.loads(p.read_text()); m['schema']=schema; p.write_text(json.dumps(m))
+            result=diagnose(self.a)
+            self.assertFalse(result['matches_build_manifest'])
+            self.assertNotIn('synthetic-secret',json.dumps(result))
+
+    def test_diagnostics_commit_requires_string_and_correct_digest(self):
+        p=self.a/'provenance.json'; m=json.loads(p.read_text()); m['source_commit']=['a']*40
+        m['bundle_tree_sha256']='0'*64; p.write_text(json.dumps(m))
+        result=diagnose(self.a)
+        self.assertEqual(result['source_commit'],'unknown')
+        self.assertFalse(result['matches_build_manifest'])
+
+    def test_diagnostics_bound_and_malformed_manifest(self):
+        p=self.a/'provenance.json'
+        for data in [b'{"synthetic-secret":', b' '* (1024*1024+1), b'['*5000]:
+            p.write_bytes(data); result=diagnose(self.a)
+            self.assertFalse(result['matches_build_manifest'])
+            self.assertNotIn('synthetic-secret',json.dumps(result))
+
+    def test_diagnostics_reject_fifo_and_symlink(self):
+        p=self.a/'provenance.json'; p.unlink(); os.mkfifo(p)
+        self.assertFalse(diagnose(self.a)['matches_build_manifest'])
+        p.unlink(); p.symlink_to(self.b/'provenance.json')
+        self.assertFalse(diagnose(self.a)['matches_build_manifest'])
 
 if __name__ == '__main__': unittest.main()

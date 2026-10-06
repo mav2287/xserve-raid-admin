@@ -1,0 +1,34 @@
+{
+  "arm64": {
+    "bundle_tree_sha256": "4c070bcd184183e0da314bf916d99a38a55361e050b58bc184418e4b5f0ab829",
+    "bundled_jre": {
+      "architecture": "aarch64",
+      "tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "vendor": "Amazon Corretto",
+      "version": "8.504.04.1"
+    },
+    "event": {
+      "operation": "diagnose",
+      "result": "pass"
+    },
+    "matches_build_manifest": true,
+    "matches_reviewed_artifact": true,
+    "runtime_signature": "not-evaluated"
+  },
+  "x64": {
+    "bundle_tree_sha256": "d52b3231c0cca3d709f02afe45eac0f8744a1173880d127826a99dd32b23bf35",
+    "bundled_jre": {
+      "architecture": "x64",
+      "tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+      "vendor": "Amazon Corretto",
+      "version": "8.504.04.1"
+    },
+    "event": {
+      "operation": "diagnose",
+      "result": "pass"
+    },
+    "matches_build_manifest": true,
+    "matches_reviewed_artifact": true,
+    "runtime_signature": "not-evaluated"
+  }
+}

@@ -1,0 +1,28 @@
+I found one concrete bug in `tools/diagnose.py` and one smaller weakness. The tests also don't exercise any of the schema-3 logic. I read `bundle.py`, `verify_bundles.py`, `baseline.py` and the helpers only to check that the reconstruction matches how bundles are built. I did not open the lock or inventory files.
+
+## Bugs
+
+1. **A deeply nested manifest crashes the diagnostic** (`tools/diagnose.py:30`). A file under 1 MiB made of nothing but `[[[[…` makes `json.loads` raise `RecursionError`. That is a `RuntimeError`, which isn't in the list caught at `tools/diagnose.py:96`. So instead of returning the normal `fail` / `ARTIFACT_CHANGED` result, the script exits with a traceback. The traceback doesn't repeat the file contents, but the size limit alone doesn't stop this input from crashing it. Fix: add `RecursionError` to the caught exceptions (or catch `RuntimeError`), and add that input to `test_diagnostics_bound_and_malformed_manifest`.
+
+2. **`provenance.json` is opened without checking what it is** (`tools/diagnose.py:27`). If it is a FIFO, `open(...)` blocks forever before the size limit is ever applied. A symlink to a device is caught by the size limit, but a FIFO is not. Fix: check `lstat` and require a regular file before opening, or open with `O_NONBLOCK` and then `fstat`. This is low severity because it needs local write access to the build directory.
+
+## Checked and correct
+
+- **Schema 2/3 digests:** for schema 2 the digest covers `{files, file_modes}`, and for schema 3 it covers `{files, file_modes, directory_modes}`. Both match what the builders write (`baseline.py:132`, `bundle.py:124`). Booleans, floats, strings and `None` are rejected as schemas.
+- **`source_commit`:** it must be a `str` and fully match 40 lowercase hex characters, or the output says `unknown`. A list of 40 `'a'` items is rejected.
+- **No echo of untrusted metadata:** version, JDK, schema and commit values are either drawn from fixed lists or taken from the trusted lock files.
+- **Runtime selection:** a runtime is accepted only if its file bytes, file modes and directory modes (including `.` for the runtime root) all match one architecture in the lock. The trailing `/` on the path prefix stops `Runtime.jdkX/` from counting as the runtime.
+- **Exact additions:** the only allowed changes are the launcher, the plist, `AppIcon.png` at 0644, and the runtime tree, which matches `bundle.py:93-102`. Relabelling a schema-3 bundle as schema 2 still fails, because the runtime files show up as extra files.
+- **Plist reconstruction:** the template is first checked against the reviewed plist hash (line 64), and only then is `LSMinimumSystemVersion` changed. This matches `baseline.py:102-106` and `bundle.py:84`.
+
+## Weakness (not a bug under your current assumptions)
+
+- **Extra empty directories aren't detected** (`tools/diagnose.py:73`). Directories are only checked to be 0755; the list of directories outside the runtime isn't compared to anything. An extra empty directory at 0755 therefore still gives `matches_reviewed_artifact: true`. `verify_bundles.py:40` has the same gap. It's harmless for the bundle's contents but means the "exact artifact" check isn't strictly exact.
+
+## Test gaps (`tests/test_verification.py`)
+
+- Every fixture is schema 2, so none of the schema-3 logic is tested: runtime selection, directory-mode matching, the allowed additions, the plist check, and the schema-3 digest that includes `directory_modes`.
+- `test_diagnostics_commit_requires_string_and_correct_digest` breaks the commit and the digest at the same time. `matches_build_manifest == False` would pass on the digest failure alone, so the test doesn't show that each check works independently.
+- There is no test for the nested-JSON crash in bug 1.
+
+Disposition: added RecursionError handling, nonblocking/no-follow regular-file manifest reads, schema3 trust-boundary tests, and exact directory allowlists in diagnostic and bundle verification. Tests cover self-consistent altered launcher/runtime permissions, extra files/directories, invalid metadata, FIFO/symlink and deeply nested JSON. Real arm64/x64 bundle checks also pass.

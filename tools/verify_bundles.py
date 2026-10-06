@@ -37,7 +37,10 @@ def check_bundle(output, source):
         raise ValueError('Unexpected source/runtime/packaging content')
     permissions = dict(source_manifest['file_modes']); permissions['Contents/Resources/AppIcon.png'] = 0o644
     permissions.update({'Contents/PlugIns/Runtime.jdk/' + name:value for name,value in runtime['file_modes'].items()})
-    if measured['file_modes'] != permissions or any(m != 0o755 for m in measured['directory_modes'].values()):
+    directories = {str(p):0o755 for name in expected for p in Path(name).parents}
+    prefix = 'Contents/PlugIns/Runtime.jdk/'
+    directories.update({prefix[:-1] if k == '.' else prefix+k:v for k,v in runtime['directory_modes'].items()})
+    if measured['file_modes'] != permissions or measured['directory_modes'] != directories:
         raise ValueError('Unexpected bundle permissions')
     return measured
 

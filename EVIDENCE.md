@@ -212,3 +212,28 @@ issue is retained only as an audit note and does not block implementation or
 require further investigation. Keep the repository JAR immutable and hash-checked.
 This records the chosen project reference; it does not assert an independently
 verified Apple signature.
+
+## audit.4 verified implementation
+
+- Clean source `631b638` reproduces the security candidate twice; full provenance
+  is in `audit/security-clean-provenance.json`. The immutable original is unchanged.
+- Only the plist resolver and two request diagnostic method bodies are substituted
+  within the original protocol/parser classes. The original DTD is copied exactly.
+  Independent javap checks and guarded Reader/InputStream/password-change fixtures
+  pass; details and limits are in `audit/security-fixtures.json`.
+- Both pinned runtime bundle pairs reproduce with vendor signatures and exact
+  permissions preserved. `audit/security-bundle-results.json` records digests and
+  clean source/packager commits. Runtime fixtures include arm64 and x64 under
+  Rosetta, plus installed Java 11 observations; no native Intel-machine claim.
+- Original and candidate ACP serialization/retry fixture results still match.
+- No GUI launch, controller contact, firmware transmission, mounted-volume test,
+  or modification of the installed application occurred. App-wide logging and
+  operational acceptance remain open; successful fixtures are bounded evidence.
+
+Bundled diagnostics now recognizes schema 3 and checks runtime/content identity
+against repository locks instead of reporting Java absent. It validates the full
+file and directory allowlists independently of a self-consistent local manifest.
+`audit/bundled-diagnostics.json` records both architectures. Signature validation
+is explicitly not evaluated by this tool; the separate bundle verifier performed
+it. Malformed/deep/oversized manifests and non-regular files fail without echoing
+untrusted metadata. No application or controller is started.

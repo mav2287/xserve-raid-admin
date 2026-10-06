@@ -16,14 +16,14 @@
 | W3C DOM, SAX, JAXP and HTML/WML implementations | Mixed/unresolved | Vendored namespaces, some may be superseded by JDK parent loading |
 | Chaotic plist/preferences/rendezvous/Base64 support | Unresolved | Bundled classes; no independent release/notice provenance established |
 | Stanford BrowserLauncher | Unresolved | Bundled class; version/license unresolved |
-| Four modernization Java patches | Repository commit | No repository-wide license file found |
-| Build/runtime JDK used in audit | Amazon Corretto 8 1.8.0_362 arm64 | Exact 224-file lock and aggregate hash in jdk-lock.json; no runtime bundled; redistribution/support not qualified |
+| Compatibility Java sources and method transformer | Recorded source commit and per-file hashes | No repository-wide license file found; no new third-party library |
+| Build/runtime JDK used in audit | Amazon Corretto 8 1.8.0_362 arm64 | Exact 224-file lock and aggregate hash in jdk-lock.json; build compiler only; bundled release runtime listed below |
 | Python | Recorded per build manifest | Standard library only for audit tools; no pip dependency needed |
 | macOS tools | Host supplied | Upstream uses bash, java_home, jar/javac, codesign; launcher uses osascript, sips, and open via FileManager |
 
-The deterministic builder hashes its own script, source patches, template build script and JDK lock in provenance. It avoids dependency downloads. The launcher and icons are hashed individually. There is no native helper to hash and no bundled-JRE hash to report; these fields are explicitly absent, not invented.
+The deterministic builder hashes its own script, source patches, template build script and JDK lock in provenance. It avoids dependency downloads. The launcher and icons are hashed individually. No native helper is added. The audit-only bundle omits a runtime; pinned runtime package hashes and full file inventories are recorded separately below.
 
-Do not replace bundled libraries wholesale without classloading, XML compatibility and wire regression tests. Known gaps include permissive external XML resolution, credential-bearing object formatting, old discovery APIs and unqualified runtime behavior. No current vulnerability-database audit or legal redistribution determination was performed. Before distribution, resolve all NOASSERTION licenses, generate a standard release SBOM, and qualify a maintained runtime independently.
+Do not replace bundled libraries wholesale without classloading, XML compatibility and wire regression tests. audit.4 blocks external XML resolution and redacts the two request diagnostic methods. Remaining gaps include XML resource limits, application-wide error reporting, old discovery APIs and unqualified native runtime behavior. No current vulnerability-database audit or legal redistribution determination was performed. Before distribution, resolve all NOASSERTION licenses, generate a standard release SBOM, and qualify a maintained runtime independently.
 
 The user accepts the GitHub repository JAR as the authoritative project baseline.
 Historical digest discrepancies and independent Apple acquisition evidence do

@@ -10,10 +10,12 @@ The current artifact is an unsigned audit build, not a qualified release.
 - [x] Accept GitHub repository JAR as the project baseline per user direction.
 - [ ] Resolve redistribution rights/notices.
 - [ ] Independently reproduce on a second machine with a documented obtainable toolchain.
-- [ ] Select, bundle and qualify a maintained runtime; remove release PATH fallback.
+- [x] Pin and bundle Corretto 8 for both architectures; remove bundled-launcher PATH fallback.
+- [ ] Qualify that runtime with native GUI, controller workflows and physical Intel hardware.
 - [ ] Qualify runtime FileManager behavior; repair menu/quit/open-document integration and Keychain boundary.
 - [ ] Provide visible failures and credential-safe application logging.
-- [ ] Harden XML while retaining legitimate local plist DTD behavior.
+- [x] Block external entity resolution while preserving the original embedded plist DTD in offline fixtures.
+- [ ] Qualify real controller plist responses and XML resource limits.
 - [ ] Validate firmware preflight without transmission, then qualify transfer only with immediate approval.
 - [ ] Complete every acceptance row with observable results or evidence-based unsupported status.
 - [ ] Obtain safe real response fixtures and full sanitized wire parity, including timing/reuse.

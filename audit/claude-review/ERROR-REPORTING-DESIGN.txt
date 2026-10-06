@@ -1,0 +1,56 @@
+I've read the five files plus `audit_support.py`, `runtime-lock.json` and `static-inventory.json`. I didn't run anything. Both fixes are sound in direction. The points below are where they need tightening.
+
+## (1) diagnose.py for schema 3 bundles
+
+**What's wrong today.** On a schema 3 bundle, the `files` and `file_modes` checks pass, because the manifest covers the runtime subtree. But four outputs are wrong:
+- `bundled_jre: 'absent'` is hard-coded.
+- The digest leaves out `directory_modes`, so it never matches `bundle_tree_sha256` (`diagnose.py:35` vs `bundle.py:124`).
+- `jdk_matches` reads `provenance['jdk']`, which schema 3 doesn't have.
+- So `event.result` is always `fail` for schema 3 builds.
+
+**Recommendations:**
+1. **Pick the schema explicitly.** Accept only `type(schema) is int` with a value of 2 or 3. Anything else should report `unrecognized` and fail closed. Keep the schema 2 path as it is.
+2. **Don't treat the manifest as the trust anchor.** `provenance.json` sits next to the bundle, so matching the two only proves they agree with each other. Report that as `matches_build_manifest`, but base the pass/fail on anchors in the repo:
+   - **Runtime:** check `Contents/PlugIns/Runtime.jdk` against `audit/runtime-lock.json` (files, file modes, directory modes, `tree_sha256`). Choose the architecture by testing the subtree against each lock key (`aarch64` or `x64`) and report the matching key. Never echo the manifest's architecture string.
+   - **Launcher and icon:** their bytes should equal `packaging/RAIDAdmin` and `packaging/AppIcon.png`. A matching launcher is the only basis for saying the bundle selects its pinned runtime, and only statically. Say so; don't claim more.
+   - **JAR:** its SHA should equal the reviewed hash in `audit/expected-build.json`.
+   - **Info.plist:** parse it, check `CFBundleExecutable == 'RAIDAdmin'` and `LSMinimumSystemVersion == '11.0'`, and output only booleans.
+   - **Extra files:** apply the same rule as `bundle.py:96-99`.
+3. **Split `verify_runtime` into a content check and a signature check.** It currently runs `codesign` whenever `signature_team` is set. `codesign` doesn't launch Java, but diagnose should be predictable. Run the content check by default, put `codesign` behind an opt-in flag, and report the result as an enumerated value (`verified`, `failed`, `not-evaluated`).
+4. **Check the directory chmod in `bundle.py` first. This could break the plan.** `bundle.py:90-91` sets every directory, including the runtime subtree, to 0755 *after* `verify_runtime` at line 74. If any `directory_modes` value in the lock isn't 0755, the shipped bundle already differs from the lock, and a correct diagnose will report `fail`. Either skip `Runtime.jdk` in that chmod loop or confirm the lock is all 0755.
+5. **Call `tree()` before `directory_modes()`.** `regular_files` rejects symlinks, but `directory_modes` uses `rglob` and doesn't check for them itself.
+6. **Allow only enumerated output values:**
+   - Runtime identity should come from the lock (vendor, version, arch key, `tree_sha256`, team ID).
+   - Drop `archive_url`, `purpose` and `packager_commit` from the output, or validate `packager_commit` as hex. `packager_dirty` should only be printed if it is a real bool.
+   - **Fix a bug in the existing filter:** `source_commit` is checked with `len()` and `c in '0123456789abcdef'`. That accepts a list of 40 hex *substrings* and echoes the list. Use `isinstance(v, str) and re.fullmatch('[0-9a-f]{40}', v)`.
+   - Add `1.5.1-modern.audit.5` (or the next version) to the allowlist.
+   - Interface names and `mac_ver` aren't enumerated. Filter them with a regex such as `[a-z]+[0-9]*` or drop them.
+7. **Add new `error_code` values** such as `SCHEMA_UNRECOGNIZED`, `RUNTIME_MISMATCH` and `LAUNCHER_MISMATCH`. Map exceptions from malformed manifests to these codes instead of printing tracebacks, and cap the manifest size before calling `json.loads`.
+
+## (2) The SafeLogAppender
+
+The design is sound. Enabling ERROR has side effects, though, so the implementation needs to be narrower in these places:
+
+1. **The appender must enforce the threshold itself.** The root level doesn't filter events from child loggers that have their own level. If the original `log4j.properties` in the JAR sets any `log4j.logger.X=DEBUG/INFO`, those events will reach a root appender once one is attached. Hard-code `event.getLevel().isGreaterOrEqual(Level.ERROR)` in `append()`, and make the class final with `requiresLayout()` returning false.
+2. **The category code needs a decision.** You can't get a category without reading the logger name. Either emit only a severity code, or allow `getLoggerName()` solely for an exact-match lookup in a built-in table that maps to codes, with everything else becoming `OTHER`. Never print the name. First confirm from the bytecode inventory that every `Logger.getLogger` argument is a class literal or constant.
+3. **Audit the guarded call sites. This is the real side-effect risk.** Messages built by string concatenation are already evaluated while the level is OFF, so turning on ERROR doesn't add rendering if the appender never reads the message. What changes is code inside `isEnabledFor(ERROR/FATAL)`, `isErrorEnabled`-style or `getEffectiveLevel()` guards, which currently never runs. Inventory those blocks for stream reads, response-body consumption, extra `toString` calls or state changes. If any are unsafe, enable ERROR only on the reviewed categories rather than on root.
+4. **The appender must never throw.** log4j 1.2 `callAppenders` doesn't catch appender exceptions, so a throw would change application control flow. Wrap the write and swallow `RuntimeException`.
+5. **Close off log4j's own diagnostic output:**
+   - No `log4j.debug` or `log4j.threshold` in the config.
+   - No filters, because `StringMatchFilter` renders the message.
+   - Keep the root appender attached. Otherwise LogLog's "No appenders could be found for logger (name)" message prints the dynamic name.
+   - Check for `additivity=false` categories in the original config. They can produce the same message.
+   - Replace `OnlyOnceErrorHandler`, or make sure nothing ever calls it.
+6. **Cap the volume.** G10's unbounded requeue can cause an error storm, and a blocked stderr pipe could stall an app thread. Emit the first N codes, then a single "suppressed" line with a count.
+7. **Preserve the original config.** Change only the root line and add the appender lines in the JAR's `log4j.properties`. Record the new resource hash in `expected-build.json`. Make sure the launcher never passes `-Dlog4j.configuration`, and that no `log4j.xml` earlier on the classpath can take precedence.
+8. **Extend the tests:**
+   - Load the config from the patched JAR, not programmatically.
+   - Hostile objects whose `toString`, `getMessage` and `printStackTrace` record any call.
+   - Sentinels in the NDC, the MDC, the thread name and a dynamic logger name.
+   - A child category set to DEBUG, to prove the hard-coded threshold.
+   - Assert the exact bytes on stderr against a regex, assert nothing on stdout or from LogLog during initialisation, and enumerate every logger's appenders to show no `ConsoleAppender` or `FileAppender` exists.
+9. **Update GAPS.md G04.** stderr is only visible when the app is launched from a terminal. Finder-launched GUI apps usually discard it. Say this explicitly, keep the visible-error and app-wide confidentiality items open, and note that ACP headers still carry plaintext credentials.
+
+`SafePlistResolver` is a good pattern to copy for the appender: a final class, fixed exception strings, and bounded input. Its prefix check accepts anything starting with `…/PropertyList`, but it always returns the embedded DTD, so it can't trigger a fetch and needs no change.
+
+Disposition: implement schema-aware local diagnostics first. Runtime signature verification stays in the separate bundle verifier; diagnostics reports not-evaluated. All locked runtime directory modes are 0755, checked by bundle verifier. Enabling application logging is deferred until every level-dependent branch is audited; no logging configuration change in this milestone.
