@@ -1,0 +1,74 @@
+**Verdict:** Yes, this terminal-all change is safe to implement as an interim fail-closed fix, and it doesn't need read or idempotency qualification first. That qualification is only needed to turn retries back on, and this design never retries. I found no source blocker to the "no automatic second send" property in the transport files. Two HTTP-side dumps are still missing, though, and the compatibility cost is wider than your list. Some of the extra failures happen even when nothing was sent. Nothing was run or edited.
+
+## Why it closes the replay hole
+- **One resend path.** The only re-enqueue in `run` is `addFirst` at PC 417 (`audit/communications-manager-bytecode.txt:411`), and the only way in is the `ifeq 380` at PC 349. The only other enqueue is `postMessageAsync` (`:88`). Redirecting 380 makes the 385–458 block dead code, including the reconnect at 452.
+- **No retry in the HTTP layer I could see.** `HttpConnection` has no loops (`build/http-connection-bytecode.txt`). `AcpxConnection.send` writes once, reads once, and has no backward branch (`build/request-operation-sequence-callees-bytecode.txt:10511-10686`).
+- **Correction to the earlier review:** `doConnect` does open a socket. The `AcpxConnection` constructor calls `createConnection`, which calls `HttpConnection.open`, which creates `new Socket(host,80)` (`:10489`, `:10733`; http-connection `:314`). Its retry loop only reconnects and sends no request bytes, so keeping it is fine.
+- **App-level retries can't get around a stopped manager.**
+  - `CommShutdownException` is an `IOException` subclass (static-inventory `:38726`).
+  - LunMapper's per-LUN loop, the firmware `finally`, the agent's polling and `mapUnmappedSlices` → `Restarter` all end up either throwing at the `isStopped` check, being drained with -102, or sitting queued and never sent.
+  - Only `RaidSystem(String)` builds a manager (static-inventory `:43598`), so only the user adding a system or the startup registry creates a new session.
+
+## Bytecode check of your patch
+- Replace PC 380–384 (`2a 59 3a 06 c2`) with `c8 00 00 00 c6`, i.e. `goto_w 578`.
+- Append at 578: `b8 <existing nullMessage ref> 3a 05 c8 ff ff ff 89`, i.e. `invokestatic`, `astore 5`, `goto_w 464`.
+- Code length becomes 588. You can reuse the existing `null_reference`, so the constant pool doesn't grow. Max stack/locals stay 6/9.
+- The stack is empty at 380 because `ifeq` consumed the value. PC 464 now merges `Exception` in local 5 from three predecessors, which is fine.
+- Because it's a 5-for-5 swap, all instruction boundaries and the 12-row exception table stay valid. 385–458 and handlers 396/426 become dead code. The old verifier only checks code it can reach, and it doesn't check monitor pairing.
+- PC 459 stays reachable from the -103 path (377).
+- Optional, equivalent alternative: change only the `ifeq` operand at 350–351 from `001f` to `00e5`. That leaves 380–458 byte-identical, which makes "legacy block retained" a simple byte-equality gate.
+
+## Compatibility costs beyond your list
+1. **Connect failures inside `send` now stop the session, even though nothing was sent.** After any request with `shutdown=true`, `send`'s cleanup closes the connection and clears it (`:10664-10678`). The system `restart` sets that flag (`build/queue-retry-policy-source-bytecode.txt:2796`). The next send reconnects inside `send` (PC 21), outside `doConnect`'s retry loop. So the Restarter's second system restart 10 s later, the firmware updater's second restart 40 s later, and the first poll after a restart can all stop the session while the controller is down. The original instead retried the connection with backoff, alternating primary and secondary addresses.
+2. **Idle persistent connections (largest unknown).** Connections are persistent by default and polls run every 15 s. If the controller closes idle connections, the original silently resent every time. With this change the session would stop on the first such poll. This hasn't been measured.
+3. **A close failure after a complete response becomes -102 plus a stop.** This happens in `send`'s cleanup (`:10652-10679`). The original actually resent a request that had already completed, so this is safer, but it is an exception to "successful requests unchanged".
+4. **Deterministic pre-send IO errors** (`MalformedURLException`, `UnknownHost`, "Failed to set SO timeout") used to retry forever. Now they stop the session, which is an improvement.
+5. **Diagnostics:** the original IO cause no longer appears in logs or callbacks.
+6. **Firmware:** the image is sent with a sync `postMessage` from an `InputStream`-backed `UpdateFirmwareRequest` (`:1426-1499`, `:1557-1595`). If the original's replay re-read an already-consumed stream, it could have sent a truncated image. That is an inference; I haven't seen `writeTo`/`clone`. With this change, an IO failure during a flash leaves the flash outcome unknown with no retry. A failed cache-disable now stops the session, so the flash `postMessage` throws `CommShutdownException` and is never sent.
+7. **LunMapper:** `map` and `unmap` are sync posts that catch `IOException` (`:164-267`).
+   - **Delete flow:** the async `delete-array` goes first, the sync `unmap` waits behind it and gets drained with -102, and the restart is never sent.
+   - **Map flow:** `mapUnmappedSlices` posts the Restarter unconditionally (`:563-570`), but those posts go to a stopped manager and aren't sent.
+8. **Agent polling:** the agent ends cleanly through `CommShutdownException` (agent `:520`, `:565`) without spinning.
+9. **The known hang gets more likely.** A sync post racing with worker exit can wait forever. Ordinary network errors can now trigger it, not just security markers, and the sync `unmap` may run on the UI thread. It's a liveness problem, not a resend. Fix it in this milestone or list it explicitly.
+
+## Not closed by this design
+- The -103 path still lets dependent queued writes continue. It's not a resend and matches the original.
+- The generic `Exception` path (PC 462) and the `MalformedInputException` path (PC 307), for non-marker exceptions after a send, return -102 without stopping the session, so dependent writes continue. Same as the original, but not fail-closed.
+- A `SyncSender` interrupt can report failure while the request is still queued and later sent.
+- The CLI sends through `AcpxConnection.send` directly, bypassing the manager.
+- If `nullMessage` throws a `LinkageError`, the worker dies without setting `stopped`. Nothing is sent, but later sync posts hang.
+- **Missing dumps:** `HttpRequest.send`, `sendHeader`, `sendBody`, `HttpOutputStream.close`, and the `HttpResponse` input stream's `close`. The call inventory shows one `sendHeader` and one `sendBody` call but can't rule out a loop (static-inventory `:39310-39334`). I'd also check that the `RaidSystem(RaidSystem)` copy constructor shares the existing manager or has none.
+
+## Fixtures needed before this counts as clean
+**Static gates**
+- Exact bytes at 380 and in the appended block, length 588, unchanged exception table, unchanged -102/-103 and backoff constants, and the 344–377 prefix branch unchanged.
+- A reachability walk proving 385–458 (including `addFirst` at 417) is unreachable and that no reachable `LinkedList.add*` exists in `run`.
+- Negative mutations: jump to 385, to 404, or to 474 (skipping report), and missing `astore`.
+
+**Runtime, both architectures**
+- Run with `-Xverify:all`, plus `-Xint` and `-Xcomp` parity runs.
+- Failure points to cover:
+  - connect refused inside `send` after a `shutdown=true` request
+  - write failures in the header and in the body
+  - timeout or EOF before the status line
+  - truncated headers or body
+  - close failure after a valid response
+  - an empty-string message
+  - null message (already covered)
+  - `PropertyListException` prefix → -103 with no stop
+- Assert for each case:
+  - exactly one request reaches the memory transport
+  - zero bytes for anything queued behind it
+  - an exact-class marker with a fixed message and no cause
+  - shutdown happens before logging
+  - the connection is closed once
+  - async queue entries drain as -102 `CommShutdownException`
+  - sync posts after the stop throw without enqueuing
+  - the worker exits
+- Sequences: delete→unmap→restart; the Restarter chain failing at each step; the first-array create; firmware cache-disable→flash; a flash IO failure; and the restart pair, both with IO on the first restart and with a successful first restart followed by a reconnect failure.
+- A shared-stream idle-close fixture to record cost 2.
+- A bounded concurrent sync-post stress test to measure the hang.
+- All 116 factory rows' successful bytes unchanged.
+- An original-JAR differential that records the resend counts, so the fix is demonstrated rather than assumed.
+
+Operational acceptance, as opposed to this interim safety claim, still needs controller evidence on idle-connection behavior, whether restart responses arrive before the socket drops, and restart timing against the Restarter's sleeps. Whole-GUI recovery remains open.

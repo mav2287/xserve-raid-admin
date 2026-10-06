@@ -1,0 +1,45 @@
+**Verdict:** Yes. Jumping to 563 is safe for both the verifier and control flow. I found no blocker to this exact refinement. The only required change outside the two code bytes is updating the static gate, which will otherwise reject the patch.
+
+**Why it's safe**
+- **Arithmetic:** 349 + 0x00d6 = 563, the `invokestatic` that starts the null block (`tools/class_patch.py:133`). 563 → `astore 5` (566) → `goto_w` −0x68 = 464.
+- **Frame merge at 563:** Every path into 349 runs through the trampoline: 339 `goto_w 553` → 559 `ifnonnull` → 573 `goto_w 344` → 349. That's the same local state as the 562 `pop` predecessor: local 5 is the `IOException`, the stack is empty after `ifeq`/`pop`, and nothing else is stored in between. 6/9 stays valid.
+- **Lengths and tables:** Code length stays 578, the pool doesn't grow, and the 12-row table is unchanged. 563–577 is outside every handler range, as it already is for the null path.
+- **The method has no StackMapTable** (the tail ends with `0000` attributes), so no frame needs editing. The existing patch already relies on this.
+- **What the 464 path does:** It calls `report(this, local5)`. Local 5 is now always `UntrustedResponseException`, so `report` calls `shutdown()` before logging (`patches/compat/RejectionRecovery.java:57-62`).
+- **Dead code:** 380–458 stays byte-identical and becomes unreachable. Handlers 396/426 only cover 385–393 and 412–423, so they become unreachable too. 352–377 (-103) stays reachable as the `ifeq` fall-through.
+
+**HTTP claims check out**
+- `send` sets `istore_1 = 1`. The IOException handler does `iinc −1`, so 109 `ifne 122` is never taken and the method throws at 120 (`build/http-send-lifecycle-bytecode.txt:487-543`). A failing `disconnect` is caught at 82 and still reaches the throw.
+- `HttpOutputStream.close` calls `send()` once, only if `!sent` (`build/http-request-output-bytecode.txt:13-28`).
+- **Caveat:** `sent` stays false after a failure, so a second `close()` would send again. `AcpxConnection.send` closes once and only on the success path (`:10561-10563`). However, `SimpleCryptOutputStream.close` and the `RequestMessage.writeTo` implementations aren't dumped. Record that as an assumption: neither may swallow an IOException and then close again.
+
+**Gate edits**
+- `class_patch.py:122`: also assert `original_code[349:352] == 99001f`.
+- `class_patch.py:131`: add `code[350:352] = b'\x00\xd6'`.
+- `check_security.py:361-367`:
+  - assert `b[14+349:14+352] == 9900d6` and `a[...] == 99001f`
+  - add 350–351 to the masked windows
+  - assert `b[14+380:14+459] == a[14+380:14+459]`
+  - update the description string at `:227`
+- Reachability walk:
+  - no reachable PC in 380–458
+  - no reachable `LinkedList.add*`, `doConnect`, or `monitorenter` in `run`
+  - 352 still reachable, with the -103 constant and `goto 459` unchanged
+- **Feature constant:** Optional. Something like `TERMINATES_AMBIGUOUS_IO = true` next to `STOPS_REJECTED_SESSIONS` works for fixture policy, but `javac` inlines it. Key the policy off the verified bytes, not the constant alone.
+
+**Negative mutations**
+
+| Operand | Target | Expected result |
+|---|---|---|
+| `001f` | 380 | Original behaviour: replay comes back |
+| `00e5` | 578 | Past end of code: VerifyError |
+| `00d5` | 562 `pop` | Stack underflow: VerifyError |
+| `00d7` | 564 | Mid-instruction: VerifyError |
+| `00e0` | 573 | Reaches 344 with an empty stack: VerifyError |
+| `00cc` | 553 | Verifies, then loops forever on a non-null message. The gate must catch it |
+| `0073` | 464 | **Verifies, but reports the raw IOException without stopping (log only)**. Gate and runtime must both catch it |
+| `006e` | 459 | Silent drop with no stop |
+
+Also run one runtime check that a non-null, non-prefix IO error leads to exactly one send, then stop, then -102 drain, under `-Xverify:all`.
+
+**Gaps that remain open:** The -103 prefix path, the `MalformedInputException` path at 307 and the generic `Exception` path at 462 all still return without stopping, so dependent queued writes can still go out. None of them resends automatically.
