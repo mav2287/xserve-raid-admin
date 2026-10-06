@@ -9,6 +9,8 @@ import sun.misc.Unsafe;
 
 /** Real ACP/queue code, in-memory HTTP transport; no actual connect or controller. */
 public final class TransportObservation {
+    private static final java.util.concurrent.atomic.AtomicReference<AssertionError> callbackAssertions=new java.util.concurrent.atomic.AtomicReference<AssertionError>();
+
     private static PrintStream fixtureOut;
     private static boolean unsafeWorkerFailureObserved;
     private static boolean unsafeSyncEnqueueObserved;
@@ -218,7 +220,7 @@ public final class TransportObservation {
         final int[] count = new int[2];
         final Thread thread = Thread.currentThread();
         CommunicationHandler handler = new CommunicationHandler() {
-            public void handleResponse(RaidSystem system, Response response, Object context) {
+            public void handleResponse(RaidSystem system, Response response, Object context) {try{
                 check(Thread.currentThread() == thread, "Unexpected queue callback thread");
                 try {
                     if (response.getType() == Response.TYPE_CONNECT) {
@@ -230,7 +232,7 @@ public final class TransportObservation {
                         if (++count[1] == 2) manager.shutdown();
                     }
                 } catch (Exception e) { throw new AssertionError("Queue fixture injection failed"); }
-            }
+            }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}
         };
         AcpxMessageFactory factory = new AcpxMessageFactory();
         manager.postMessageAsync(handler, factory.newGetStatusRequest(), contexts[0]);
@@ -265,7 +267,7 @@ public final class TransportObservation {
         final Object context = new Object();
         final Thread dispatchThread = Thread.currentThread();
         manager.postMessageAsync(new CommunicationHandler() {
-            public void handleResponse(RaidSystem system, Response response, Object received) {
+            public void handleResponse(RaidSystem system, Response response, Object received) {try{
                 try {
                     if (response.getType() == Response.TYPE_CONNECT) {
                         check(Thread.currentThread() == dispatchThread, "Asynchronous fixture callback");
@@ -282,7 +284,7 @@ public final class TransportObservation {
                         callbacks[1]++; manager.shutdown();
                     }
                 } catch (Exception e) { throw new AssertionError("Fixture injection failed"); }
-            }
+            }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}
         }, request, context);
         runWorker(manager);
         check(callbacks[1] == 1, "Terminal callback not exactly once");
@@ -380,6 +382,7 @@ public final class TransportObservation {
             else if(args.length==1 && args[0].startsWith("header-policy")) headerPolicy(defaultLogging);
             else if(args.length==1 && args[0].startsWith("allocation-policy")) allocationPolicy(defaultLogging);
             else execute(defaultLogging,parserPolicy);
+            if(args.length==0||!args[0].startsWith("verify-"))check(callbackAssertions.get()==null,"Contained fixture callback assertion");
             check(captured.toString("UTF-8").equals(defaultLogging ? "RAID_ADMIN_ERROR\n" : ""), "Unexpected logging output");
             check(capturedOut.size() == 0, "Unexpected application stdout");
         } finally {
@@ -408,7 +411,7 @@ public final class TransportObservation {
         }
         final State state=new State();state.nullDrops=1;final CommunicationsManager m=ioManager(state);
         final int[] callbacks={0};final Throwable[] escaped={null};final Object context=new Object();
-        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){callbacks[0]++;m.shutdown();}};
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{callbacks[0]++;m.shutdown();}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
         m.postMessageAsync(handler,new AcpxMessageFactory().newGetStatusRequest(),context);
         Thread worker=new Thread(new Runnable(){public void run(){runWorker(m);}},"io-null-fixture");
         worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread thread,Throwable failure){escaped[0]=failure;}});
@@ -440,21 +443,21 @@ public final class TransportObservation {
     private static void fixedFailure(final State state,String label,boolean print,final int sentCount)throws Exception {
         final boolean containment=sessionContainment();final CommunicationsManager m=ioManager(state);
         final Object[] contexts={new Object(),new Object()};final int[] callbacks={0},connects={0};final Throwable[] escaped={null};
-        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{
             try {
                 if(response.getType()==Response.TYPE_CONNECT){check(callbacks[0]==1&&connects[0]++==0&&response.getResultCode()==-101,"Unexpected fresh reconnect");set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);return;}
                 int i=callbacks[0]++;check(i<2&&seen==contexts[i]&&response.getResultCode()==(i==0||containment?-102:0),"Null IO callback differs");
                 if(i==0){Exception e=response.getException();state.unsafeFailureObserved=e==null||!e.getClass().getName().equals("compat.UntrustedResponseException")||!m.isStopped()||m.isConnected();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null&&!m.isConnected()&&m.isStopped()==containment&&state.sent.size()==sentCount,"Null IO terminal state differs");}
                 else m.shutdown();
             }catch(Exception e){throw new AssertionError("Null IO injection failed");}
-        }};
+        }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
         AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,containment?f.newSetTimeRequest(new Date(0)):f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,containment?f.newRestartSystemRequest():f.newGetTimeRequest(),contexts[1]);
         Thread worker=new Thread(new Runnable(){public void run(){runWorker(m);}},"fixture-null-fixed");set(m,"thread",worker);worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
         try{worker.start();worker.join(5000);check(!worker.isAlive()&&escaped[0]==null&&callbacks[0]==2&&connects[0]==(containment?0:1)&&state.sent.size()==(containment?sentCount:2)&&(containment||!Arrays.equals(state.sent.get(0),state.sent.get(1))),"Null IO recovery differs");}
         finally{m.shutdown();worker.interrupt();worker.join(2000);check(!worker.isAlive(),"Null IO cleanup differs");}
         if(containment){
             int sent=state.sent.size();final java.util.concurrent.CountDownLatch refused=new java.util.concurrent.CountDownLatch(1);final Throwable[] lateError={null};
-            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response r,Object c){try{check(r.getResultCode()==-102&&r.getException().getClass()==CommShutdownException.class&&javax.swing.SwingUtilities.isEventDispatchThread(),"Late refusal differs");}catch(Throwable e){lateError[0]=e;}finally{refused.countDown();}}},f.newRestartSystemRequest(),new Object());
+            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response r,Object c){try{try{check(r.getResultCode()==-102&&r.getException().getClass()==CommShutdownException.class&&javax.swing.SwingUtilities.isEventDispatchThread(),"Late refusal differs");}catch(Throwable e){lateError[0]=e;}finally{refused.countDown();}}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},f.newRestartSystemRequest(),new Object());
             Field queue=CommunicationsManager.class.getDeclaredField("queue");queue.setAccessible(true);
             boolean admission;try{Class.forName("compat.StoppedDelivery");admission=true;}catch(ClassNotFoundException absent){admission=false;}
             if(admission)check(refused.await(5,java.util.concurrent.TimeUnit.SECONDS)&&lateError[0]==null,"Late refusal missing");
@@ -489,12 +492,12 @@ public final class TransportObservation {
                     try{return method.invoke(base,args);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}
                 }});
             }
-            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{
+            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{try{
                 int i=count[0]++;check(i<2&&response.getType()!=Response.TYPE_CONNECT&&seen==contexts[i],"Operation callback order differs");
                 check(response.getResultCode()==(i==0?(label.equals("prefix")?-103:-102):(stopped?-102:0)),"Operation result differs");
                 if(i==0){unsafeWorkerFailureObserved=stopped&&!m.isStopped();check(state.closes==(stopped?1:0),"Worker fault close count differs");check(response.getException()==failure&&m.isStopped()==stopped&&m.isConnected()!=stopped,"Operation exception/stop state differs");if(stopped){int size=((LinkedList)queueValue(m)).size();try{m.postMessage(f.newRestartSystemRequest());throw new AssertionError("Stopped callback sync accepted");}catch(CommShutdownException expected){}check(((LinkedList)queueValue(m)).size()==size,"Stopped callback sync enqueued");}}
                 else {if(stopped)check(response.getException() instanceof CommShutdownException,"Queued operation not shutdown");m.shutdown();}
-            }catch(Exception e){throw new AssertionError("Operation fixture failed");}}};
+            }catch(Exception e){throw new AssertionError("Operation fixture failed");}}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
             m.postMessageAsync(handler,first,contexts[0]);m.postMessageAsync(handler,f.newRestartSystemRequest(),contexts[1]);runWorker(m);
             int firstAttempts=label.equals("before-request-creation")?0:1;
             check(count[0]==2&&state.attempts==firstAttempts+(stopped?0:1)&&state.sent.size()==firstAttempts+(stopped?0:1)&&state.preRequestFaultCalls==(label.equals("before-request-creation")?1:0)&&state.closes==1,"Operation send/close counts differ");
@@ -514,17 +517,17 @@ public final class TransportObservation {
         check(operationFailureStop(),"Worker-fault policy missing");
         for(final boolean throwConnect:new boolean[]{false,true}){
             final State state=new State();final CommunicationsManager m=ioManager(state);set(m,"connected",false);set(m,"connection",null);final int[] commands={0},connects={0};final boolean stoppedConnect=connectFailureStop();final RuntimeException thrown=new IllegalStateException("DO_NOT_RENDER_CONNECT_CALLBACK");
-            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
+            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{
                 if(response.getType()==Response.TYPE_CONNECT){check(++connects[0]==1&&response.getResultCode()==-101&&m.isStopped()==stoppedConnect,"Invalid-address seam differs");if(throwConnect)throw thrown;return;}
                 int i=commands[0]++;check(i<2&&response.getResultCode()==-102&&m.isStopped()&&!m.isConnected(),"Connection worker fault not stopped");
                 if(i==0&&(throwConnect||!stoppedConnect))check(throwConnect?response.getException()==thrown:response.getException() instanceof NullPointerException,"Connection fault identity/type differs");else check(response.getException() instanceof CommShutdownException,"Connection follow-up not rejected");
-            }};
+            }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
             AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newSetTimeRequest(new Date(0)));m.postMessageAsync(handler,f.newRestartSystemRequest());runWorker(m);check(commands[0]==(stoppedConnect&&(!throwConnect||guardedWorker())?1:2)&&connects[0]==1&&state.attempts==0&&state.sent.size()==0&&state.closes==0,"Connection worker fault wrote bytes");emit("worker_failure "+(throwConnect?"throwing-connect-callback":"null-connection")+" attempts=0 stopped=true queued_restart_blocked=true");
         }
         final State nul=new State();nul.injectedFailure=new IOException("PropertyListException synthetic");nul.clearOutstandingBeforeFailure=true;final CommunicationsManager nm=ioManager(nul);final int[] callback={0};AcpxMessageFactory f=new AcpxMessageFactory();
-        nm.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-103&&nm.isStopped()&&!nm.isConnected(),"Null-handler prerequisite not stopped");callback[0]++;}},f.newSetTimeRequest(new Date(0)));nm.postMessageAsync(null,f.newRestartSystemRequest());runWorker(nm);check(callback[0]==1&&nul.attempts==1&&nul.sent.size()==1&&nul.closes==1,"Null-handler queued write escaped");emit("worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true");
+        nm.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{check(response.getResultCode()==-103&&nm.isStopped()&&!nm.isConnected(),"Null-handler prerequisite not stopped");callback[0]++;}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},f.newSetTimeRequest(new Date(0)));nm.postMessageAsync(null,f.newRestartSystemRequest());runWorker(nm);check(callback[0]==1&&nul.attempts==1&&nul.sent.size()==1&&nul.closes==1,"Null-handler queued write escaped");emit("worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true");
         final State healthy=new State();byte[] negative="<plist version=\"1.0\"><dict><key>status</key><integer>-27</integer></dict></plist>".getBytes("UTF-8");healthy.rawResponse=reply("HTTP/1.1 200 Fixture","Content-Length: "+negative.length+"\r\n",negative);final CommunicationsManager hm=ioManager(healthy);final int[] hc={0};
-        CommunicationHandler good=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(!hm.isStopped()&&response.getResultCode()==(hc[0]==0?-27:0),"Healthy negative result stopped continuation");if(++hc[0]==2)hm.shutdown();}};hm.postMessageAsync(good,f.newGetStatusRequest());hm.postMessageAsync(good,f.newGetTimeRequest());runWorker(hm);check(hc[0]==2&&healthy.attempts==2&&healthy.sent.size()==2,"Healthy follow-up missing");emit("worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true");
+        CommunicationHandler good=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{check(!hm.isStopped()&&response.getResultCode()==(hc[0]==0?-27:0),"Healthy negative result stopped continuation");if(++hc[0]==2)hm.shutdown();}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};hm.postMessageAsync(good,f.newGetStatusRequest());hm.postMessageAsync(good,f.newGetTimeRequest());runWorker(hm);check(hc[0]==2&&healthy.attempts==2&&healthy.sent.size()==2,"Healthy follow-up missing");emit("worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true");
         final State sync=new State();sync.injectedFailure=new IOException("PropertyListException synthetic");final CommunicationsManager sm=ioManager(sync);final Throwable[] escaped={null};Thread worker=new Thread(new Runnable(){public void run(){runWorker(sm);}},"fixture-worker-fault-sync");worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
         try{worker.start();try{sm.postMessage(f.newSetTimeRequest(new Date(0)));throw new AssertionError("Faulted sync post accepted");}catch(IOException expected){check(expected.getClass()==IOException.class&&"PropertyListException synthetic".equals(expected.getMessage())&&expected.getCause()==null,"Faulted sync exception changed");}int size=((LinkedList)queueValue(sm)).size();try{sm.postMessage(f.newRestartSystemRequest());throw new AssertionError("Stopped next sync accepted");}catch(CommShutdownException expected){}check(((LinkedList)queueValue(sm)).size()==size&&sm.isStopped()&&!sm.isConnected(),"Next sync enqueued");worker.join(5000);check(!worker.isAlive()&&escaped[0]==null&&sync.attempts==1&&sync.sent.size()==1&&sync.closes==1,"Sync fault worker did not exit");}
         finally{sm.shutdown();worker.interrupt();worker.join(5000);check(!worker.isAlive(),"Sync fault cleanup did not exit");}
@@ -542,7 +545,7 @@ public final class TransportObservation {
         State cleanup=new State();cleanup.nonpersistent=true;cleanup.closeFailures=1;fixedFailure(cleanup,"cleanup-after-reply",false,1);check(cleanup.attempts==1&&cleanup.closeFailures==0&&cleanup.closes==2,"Cleanup failure replayed");emit("terminal_io cleanup-after-reply attempts=1 response_entries=1 stopped=true queued_restart_blocked=true");
         State codecWrite=new State();codecWrite.legacyBodyCodec=true;codecWrite.bodyWriteFault=true;fixedFailure(codecWrite,"codec-body-write",false,0);check(codecWrite.attempts==1&&codecWrite.bodyFaultReached&&codecWrite.closes==2,"Codec close replayed body write");emit("terminal_io legacy-codec-body-write attempts=1 response_entries=0 stopped=true queued_restart_blocked=true");
         final State idle=new State();idle.failureAfter=2;idle.injectedFailure=new EOFException("DO_NOT_RENDER_IDLE");final CommunicationsManager m=ioManager(idle);final int[] callbacks={0};final Object[] contexts={new Object(),new Object(),new Object()};
-        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){int i=callbacks[0]++;check(i<3&&response.getType()!=Response.TYPE_CONNECT&&seen==contexts[i]&&response.getResultCode()==(i==0?0:-102),"Idle sequence differs");check(m.isStopped()==(i>0),"Idle stop timing differs");if(i==1){Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&e.getCause()==null&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage()),"Idle failure not sanitized");}if(i==2)m.shutdown();}};
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{int i=callbacks[0]++;check(i<3&&response.getType()!=Response.TYPE_CONNECT&&seen==contexts[i]&&response.getResultCode()==(i==0?0:-102),"Idle sequence differs");check(m.isStopped()==(i>0),"Idle stop timing differs");if(i==1){Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&e.getCause()==null&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage()),"Idle failure not sanitized");}if(i==2)m.shutdown();}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
         AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,f.newSetTimeRequest(new Date(0)),contexts[1]);m.postMessageAsync(handler,f.newRestartSystemRequest(),contexts[2]);runWorker(m);check(callbacks[0]==3&&idle.attempts==2&&idle.sent.size()==2&&idle.closes==1,"Idle sequence replayed");emit("terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true");
         OfflineGuard.assertUntouched();emit("PASS terminal IO faults; guarded_operations=0");
     }
@@ -556,7 +559,7 @@ public final class TransportObservation {
         else {
         State state=new State();state.injectedFailure=firstText;
         final CommunicationsManager m=ioManager(state);final int[] commands={0},connects={0};
-        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{if(response.getType()==Response.TYPE_CONNECT){check(connects[0]++==0,"Unexpected repeated retry");set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);}else{check(response.getResultCode()==0,"Nonnull retry failed");commands[0]++;m.shutdown();}}catch(Exception e){throw new AssertionError("Retry injection failed");}}},new AcpxMessageFactory().newGetStatusRequest());
+        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{try{if(response.getType()==Response.TYPE_CONNECT){check(connects[0]++==0,"Unexpected repeated retry");set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);}else{check(response.getResultCode()==0,"Nonnull retry failed");commands[0]++;m.shutdown();}}catch(Exception e){throw new AssertionError("Retry injection failed");}}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},new AcpxMessageFactory().newGetStatusRequest());
         runWorker(m);check(firstText.calls==1&&commands[0]==1&&connects[0]==1&&state.sent.size()==2&&Arrays.equals(state.sent.get(0),state.sent.get(1)),"Nonnull IO delegation differs");
         emit("null_io changing-first-text ordinary-retry; getMessage_calls=1; sends=2");
         }
@@ -568,7 +571,7 @@ public final class TransportObservation {
     private static void shallowProperty()throws Exception {
         final State state=new State();final CommunicationsManager m=ioManager(state);final int[] callbacks={0};final Object context=new Object();
         RequestMessage request=new AcpxMessageFactory().newGetStatusRequest();request.setRequestProperty("X-Fixture","before");
-        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){check(seen==context&&response.getType()==Response.TYPE_COMMAND&&response.getResultCode()==0,"Shallow fixture response differs");callbacks[0]++;m.shutdown();}},request,context);
+        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{check(seen==context&&response.getType()==Response.TYPE_COMMAND&&response.getResultCode()==0,"Shallow fixture response differs");callbacks[0]++;m.shutdown();}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},request,context);
         request.setRequestProperty("X-Fixture","after");runWorker(m);
         check(callbacks[0]==1 && state.sent.size()==1,"Shallow fixture send count differs");
         String wire=new String(state.sent.get(0),"UTF-8");
@@ -622,11 +625,11 @@ public final class TransportObservation {
         final int[] callbacks={0};final Object[] contexts={new Object(),new Object()};
         final Field outstanding=HttpConnection.class.getDeclaredField("requestOutstanding");outstanding.setAccessible(true);
         CommunicationHandler handler=new CommunicationHandler() {
-            public void handleResponse(RaidSystem system,Response response,Object context) {
+            public void handleResponse(RaidSystem system,Response response,Object context) {try{
                 check(response.getType()==Response.TYPE_COMMAND && response.getResultCode()==-102 && callbacks[0]<2 && context==contexts[callbacks[0]],"Follow-on response differs");
                 try {check(outstanding.getBoolean(memory),"Outstanding state changed");}catch(Exception failure){throw new AssertionError("Follow-on inspection failed");}
                 if(++callbacks[0]==2)manager.shutdown();
-            }
+            }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}
         };
         AcpxMessageFactory factory=new AcpxMessageFactory();
         manager.postMessageAsync(handler,factory.newGetStatusRequest(),contexts[0]);manager.postMessageAsync(handler,factory.newGetTimeRequest(),contexts[1]);runWorker(manager);
@@ -744,7 +747,7 @@ public final class TransportObservation {
         org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         final State state=new State();final CommunicationsManager m=ioManager(state);set(m,"thread",Thread.currentThread());state.stopOnSecondResponse=m;final int[] callbacks={0};final int[] clones={0};final AcpxMessageFactory f=new AcpxMessageFactory();
         final RequestMessage forbidden=countedRequest(f.newRestartSystemRequest(),clones);
-        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
+        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{
             check(response.getResultCode()==0&&!m.isStopped(),"Callback prerequisite differs");callbacks[0]++;
             int before=((LinkedList)uncheckedQueue(m)).size();
             try{m.postMessage(forbidden);throw new AssertionError("Synchronous callback accepted");}
@@ -752,8 +755,8 @@ public final class TransportObservation {
             catch(IOException e){throw new AssertionError("Unexpected callback IO");}
             int added=((LinkedList)uncheckedQueue(m)).size()-before;unsafeSyncEnqueueObserved=added!=0;
             check(added==(fixed?0:1)&&clones[0]==(fixed?1:2),"Forbidden callback command enqueued");
-            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response r,Object c){check(r.getResultCode()==(fixed?0:-102),"Follow-up failed");callbacks[0]++;m.shutdown();}},f.newGetTimeRequest());
-        }},f.newGetStatusRequest());
+            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response r,Object c){try{check(r.getResultCode()==(fixed?0:-102),"Follow-up failed");callbacks[0]++;m.shutdown();}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},f.newGetTimeRequest());
+        }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},f.newGetStatusRequest());
         runWorker(m);check(callbacks[0]==2&&state.attempts==2&&state.sent.size()==state.attempts,"Callback sequence differs");
         check(Arrays.equals(requestBody(state.sent.get(1)),serialized(fixed?f.newGetTimeRequest():f.newRestartSystemRequest())),"Second operation bytes differ");
         emit("sync callback fixed_exception=true second_clone="+(!fixed)+" queued="+(fixed?0:1)+" request_attempts="+state.attempts+" forbidden_restart="+(fixed?"blocked":"sent"));

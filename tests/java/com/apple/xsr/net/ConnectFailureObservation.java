@@ -11,6 +11,8 @@ import sun.misc.Unsafe;
 
 /** Source characterization only: real Manager, test-only constructor/transport stub. */
 public final class ConnectFailureObservation {
+    private static final java.util.concurrent.atomic.AtomicReference<AssertionError> callbackAssertions=new java.util.concurrent.atomic.AtomicReference<AssertionError>();
+
     private static boolean guarded(){try{CommunicationsManager.class.getDeclaredField("workerActiveTxn");return true;}catch(NoSuchFieldException absent){return false;}}
     public static final class FakeSystem extends RaidSystem {
         boolean dual;
@@ -34,20 +36,23 @@ public final class ConnectFailureObservation {
         try{byte[] bytes=new byte[4096];for(int n;(n=in.read(bytes))!=-1;)digest.update(bytes,0,n);}finally{in.close();}
         StringBuilder hex=new StringBuilder();for(byte value:digest.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",value&255));return hex.toString();
     }
+    private static final class FixtureAssertionDetected extends AssertionError {FixtureAssertionDetected(){}}
+    private static void runChecked(CommunicationsManager manager){manager.run();if(callbackAssertions.get()!=null)throw new FixtureAssertionDetected();}
     public static void main(String[] args)throws Exception {
-        check(args.length==6&&Arrays.asList("single","dual","nohost","nohost-null","nohost-throw","single-null","verify-nohost","single-async","dual-async","single-async-throw").contains(args[0]),"Unknown fixture mode");check(Arrays.asList("legacy","terminal","late-stop").contains(args[5]),"Unknown policy mode");final boolean terminal=args[5].equals("terminal");OfflineGuard.install();
+        check(args.length==6&&Arrays.asList("single","dual","nohost","nohost-null","nohost-throw","single-null","verify-nohost","single-async","dual-async","single-async-throw","verify-callback-assertions").contains(args[0]),"Unknown fixture mode");check(Arrays.asList("legacy","terminal","late-stop").contains(args[5]),"Unknown policy mode");final boolean terminal=args[5].equals("terminal");OfflineGuard.install();
         org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         check(source(AcpxConnection.class).equals(new java.io.File(args[1]).getCanonicalFile()),"Stub CodeSource differs");
         check(source(CommunicationsManager.class).equals(new java.io.File(args[2]).getCanonicalFile()),"Manager CodeSource differs");
         check(classHash(CommunicationsManager.class).equals(args[3]),"Manager resource hash differs");
         if(!args[4].equals("-")){Class<?> recovery=Class.forName("compat.RejectionRecovery");check(source(recovery).equals(new java.io.File(args[2]).getCanonicalFile())&&classHash(recovery).equals(args[4]),"Recovery CodeSource/resource differs");}
+        if(args[0].equals("verify-callback-assertions")){verifyCallbackAssertions();return;}
         if(args[0].contains("-async")){async(args[0],args[5]);return;}
         if(args[0].equals("verify-nohost")){verifyNoHost();return;}
         if(args[0].startsWith("nohost")||args[0].equals("single-null")){extra(args[0],terminal);return;}
         FakeSystem system=(FakeSystem)unsafe().allocateInstance(FakeSystem.class);system.dual=args[0].equals("dual");
         CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);set(manager,"queue",new LinkedList<Object>());set(manager,"system",system);
         AcpxConnection.failures=system.dual?2:1;AcpxConnection.constructors=0;AcpxConnection.closes=0;AcpxConnection.lastFailure=null;AcpxConnection.onSend=new Runnable(){public void run(){manager.shutdown();}};AcpxConnection.bodies.clear();AcpxConnection.requests.clear();final Throwable[] escaped={null};
-        Thread worker=new Thread(new Runnable(){public void run(){try{manager.run();}catch(Throwable error){escaped[0]=error;}}},"fixture-connect-failure-worker");worker.setDaemon(true);set(manager,"thread",worker);
+        Thread worker=new Thread(new Runnable(){public void run(){try{runChecked(manager);}catch(Throwable error){escaped[0]=error;}}},"fixture-connect-failure-worker");worker.setDaemon(true);set(manager,"thread",worker);
         final RequestMessage request=new AcpxMessageFactory().newRestartSystemRequest();final ConnectException[] reported={null};final Throwable[] callerError={null};
         Thread caller=new Thread(new Runnable(){public void run(){try{manager.postMessage(request);callerError[0]=new AssertionError("Initial connection failure not reported");}catch(ConnectException expected){reported[0]=expected;}catch(Throwable error){callerError[0]=error;}}},"fixture-connect-failure-caller");caller.setDaemon(true);
         caller.start();RequestMessage held=null;long queueEnd=System.nanoTime()+5000000000L;
@@ -75,17 +80,17 @@ public final class ConnectFailureObservation {
         final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);set(manager,"queue",new LinkedList<Object>());set(manager,"system",system);set(manager,"thread",Thread.currentThread());
         AcpxConnection.failures=system.noHost?0:1;AcpxConnection.constructors=0;AcpxConnection.closes=0;AcpxConnection.bodies.clear();AcpxConnection.requests.clear();AcpxConnection.onSend=new Runnable(){public void run(){manager.shutdown();}};
         final int[] connects={0},commands={0};final Object context=new Object();final IllegalStateException callbackFailure=new IllegalStateException("Synthetic callback failure");
-        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object seen){
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object seen){try{
             if(response.getType()==Response.TYPE_CONNECT){
                 check(connects[0]++==0&&response.getResultCode()==-101&&manager.isStopped()&&!manager.isConnected()&&seen==null,"Connect notice not stopped before callback");
                 try{manager.postMessage(new AcpxMessageFactory().newRestartSystemRequest());throw new AssertionError("Stopped callback sync accepted");}catch(CommShutdownException expected){}catch(java.io.IOException unexpected){throw new AssertionError("Wrong stopped sync exception");}
                 if(mode.equals("nohost-throw"))throw callbackFailure;
             }else{check(response.getResultCode()==-102&&manager.isStopped(),"Queued response not stopped");if(seen==context)check(response.getException()==callbackFailure,"Callback exception identity changed");else check(response.getException() instanceof CommShutdownException,"Queued error changed");commands[0]++;}
-        }};
+        }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
         AcpxMessageFactory factory=new AcpxMessageFactory();
         manager.postMessageAsync(mode.equals("nohost-null")||mode.equals("single-null")?null:handler,factory.newGetStatusRequest(),context);
         if(!mode.equals("single-null")){manager.postMessageAsync(handler,factory.newRestartSystemRequest(),new Object());manager.postMessageAsync(null,factory.newRestartSystemRequest());}
-        manager.run();
+        runChecked(manager);
         if(mode.equals("single-null")){
             check(connects[0]==0&&commands[0]==0&&AcpxConnection.constructors==2&&AcpxConnection.bodies.size()==1&&system.enabled==1,"Null-handler retry changed");
             System.out.println("connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true");
@@ -101,8 +106,8 @@ public final class ConnectFailureObservation {
         FakeSystem system=(FakeSystem)unsafe().allocateInstance(FakeSystem.class);system.noHost=true;
         final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);set(manager,"queue",new LinkedList<Object>());set(manager,"system",system);set(manager,"thread",Thread.currentThread());
         final int[] noticed={0};AcpxConnection.constructors=0;
-        manager.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object context){if(response.getType()==Response.TYPE_CONNECT){check(response.getResultCode()==-101&&!manager.isStopped(),"Bypass not observed before callback");noticed[0]++;manager.shutdown();}else check(noticed[0]==1&&response.getResultCode()==-102&&manager.isStopped(),"Bypass local cleanup response differs");}},new AcpxMessageFactory().newRestartSystemRequest());
-        manager.run();check(noticed[0]==1&&manager.isStopped()&&AcpxConnection.constructors==0,"No-host semantic negative control differs");OfflineGuard.assertUntouched();
+        manager.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object context){try{if(response.getType()==Response.TYPE_CONNECT){check(response.getResultCode()==-101&&!manager.isStopped(),"Bypass not observed before callback");noticed[0]++;manager.shutdown();}else check(noticed[0]==1&&response.getResultCode()==-102&&manager.isStopped(),"Bypass local cleanup response differs");}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},new AcpxMessageFactory().newRestartSystemRequest());
+        runChecked(manager);check(noticed[0]==1&&manager.isStopped()&&AcpxConnection.constructors==0,"No-host semantic negative control differs");OfflineGuard.assertUntouched();
         System.out.println("PASS verified no-host bypass reports before stop; guarded_operations=0");
     }
 
@@ -111,10 +116,10 @@ public final class ConnectFailureObservation {
         FakeSystem system=(FakeSystem)unsafe().allocateInstance(FakeSystem.class);system.dual=mode.startsWith("dual-");
         final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);set(manager,"queue",new LinkedList<Object>());set(manager,"system",system);set(manager,"thread",Thread.currentThread());
         AcpxConnection.failures=system.dual?2:1;AcpxConnection.constructors=0;AcpxConnection.closes=0;AcpxConnection.bodies.clear();AcpxConnection.requests.clear();AcpxConnection.onSend=null;
-        final int[] connects={0},commands={0};final Object context=new Object();final IllegalStateException failure=new IllegalStateException("Synthetic reported callback failure");
-        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object seen){
+        final int[] connects={0},commands={0};final boolean[] observedStop={false};final Object context=new Object();final IllegalStateException failure=new IllegalStateException("Synthetic reported callback failure");
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object seen){try{
             if(response.getType()==Response.TYPE_CONNECT){
-                check(connects[0]++==0&&response.getResultCode()==-101&&seen==null&&!manager.isConnected()&&manager.isStopped()==!late,"Reported callback stop ordering differs");
+                observedStop[0]=manager.isStopped();check(connects[0]++==0&&response.getResultCode()==-101&&seen==null&&!manager.isConnected()&&observedStop[0]==!late,"Reported callback stop ordering differs");
                 Exception reported=response.getException();check(reported!=AcpxConnection.lastFailure&&reported.getClass()==ConnectException.class&&"Synthetic connection failure".equals(reported.getMessage())&&reported.getCause()==null,"Async connect exception changed");
                 if(!late)try{manager.postMessage(new AcpxMessageFactory().newRestartSystemRequest());throw new AssertionError("Stopped async callback sync accepted");}catch(CommShutdownException expected){}catch(java.io.IOException unexpected){throw new AssertionError("Wrong stopped async callback error");}
                 if(throwsCallback)throw failure;
@@ -122,11 +127,27 @@ public final class ConnectFailureObservation {
                 check(manager.isStopped()&&response.getResultCode()==-102,"Async queued operation not stopped");
                 if(seen==context)check(throwsCallback&&response.getException()==failure,"Reported callback exception identity changed");else check(response.getException() instanceof CommShutdownException,"Async queued shutdown changed");commands[0]++;
             }
-        }};
-        AcpxMessageFactory factory=new AcpxMessageFactory();manager.postMessageAsync(handler,factory.newRestartSystemRequest(),context);manager.postMessageAsync(handler,factory.newRestartSystemRequest(),new Object());manager.postMessageAsync(null,factory.newRestartSystemRequest());manager.run();
+        }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
+        AcpxMessageFactory factory=new AcpxMessageFactory();manager.postMessageAsync(handler,factory.newRestartSystemRequest(),context);manager.postMessageAsync(handler,factory.newRestartSystemRequest(),new Object());manager.postMessageAsync(null,factory.newRestartSystemRequest());runChecked(manager);
         check(manager.isStopped()&&connects[0]==1&&commands[0]==(throwsCallback&&!guarded()?2:1)&&AcpxConnection.constructors==AcpxConnection.failures&&AcpxConnection.bodies.isEmpty()&&AcpxConnection.requests.isEmpty()&&AcpxConnection.closes==0&&system.enabled==0,"Reported callback continuation escaped");OfflineGuard.assertUntouched();
-        System.out.println("connect_failure "+mode+" stop_inside_callback="+!late+" constructors="+AcpxConnection.constructors+" sends=0 commands="+commands[0]+" exception_identity=true");
+        System.out.println("connect_failure "+mode+" stop_inside_callback="+observedStop[0]+" constructors="+AcpxConnection.constructors+" sends=0 commands="+commands[0]+" exception_identity=true");
         System.out.println("PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified");
     }
+
+    private static void verifyCallbackAssertions()throws Exception {
+        check(guarded(),"Assertion capture requires guarded worker");
+        FakeSystem system=(FakeSystem)unsafe().allocateInstance(FakeSystem.class);system.noHost=true;
+        final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);set(manager,"queue",new LinkedList<Object>());set(manager,"system",system);set(manager,"thread",Thread.currentThread());
+        final AssertionError sentinel=new AssertionError("Synthetic fixture assertion");final int[] calls={0};
+        manager.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response response,Object context){
+            try{check(manager.isStopped()&&response.getType()==Response.TYPE_CONNECT&&response.getResultCode()==-101,"Sentinel callback ordering differs");calls[0]++;throw sentinel;}
+            catch(AssertionError failure){callbackAssertions.compareAndSet(null,failure);throw failure;}
+        }},new AcpxMessageFactory().newGetStatusRequest());
+        boolean witnessed=false;
+        try{runChecked(manager);}catch(AssertionError failure){witnessed=failure.getClass()==FixtureAssertionDetected.class&&callbackAssertions.get()==sentinel;}
+        check(witnessed&&calls[0]==1&&manager.isStopped()&&((LinkedList)getQueue(manager)).isEmpty()&&AcpxConnection.constructors==0,"Contained callback assertion was not detected outside worker");
+        OfflineGuard.assertUntouched();System.out.println("PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0");
+    }
+    private static Object getQueue(CommunicationsManager manager)throws Exception {Field f=CommunicationsManager.class.getDeclaredField("queue");f.setAccessible(true);return f.get(manager);}
 
 }

@@ -48,7 +48,7 @@ def main():
     assert_connect_failure_stop(before,entries[CM])
     derivation=json.loads((ROOT/'audit/connect-stop-reference-derivation.json').read_text())
     if derivation['manager_class_sha256']!=AUDIT17_MANAGER_SHA256 or derivation['jar_sha256']!=json.loads((ROOT/'audit/sync-preenqueue-final-integrity.json').read_text())['candidate_jar_sha256']:raise ValueError('Audit.17 class derivation differs from reviewed ledger')
-    inputs=[ROOT/n for n in ('tests/java/connectfixture/AcpxConnection.java','tests/java/com/apple/xsr/net/ConnectFailureObservation.java','tests/java/fixture/OfflineGuard.java','patches/sun/io/MalformedInputException.java','tools/check_connect_stop.py','tools/audit_support.py','tools/baseline.py','tools/runtime.py','tools/verify_builds.py','tools/class_patch.py','audit/runtime-lock.json','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/connect-stop-reference-derivation.json','audit/sync-preenqueue-final-integrity.json')]
+    inputs=[ROOT/n for n in ('tests/java/connectfixture/AcpxConnection.java','tests/java/com/apple/xsr/net/ConnectFailureObservation.java','tests/java/fixture/OfflineGuard.java','patches/sun/io/MalformedInputException.java','tools/check_connect_stop.py','tools/audit_support.py','tools/baseline.py','tools/runtime.py','tools/verify_builds.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','audit/runtime-lock.json','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/connect-stop-reference-derivation.json','audit/sync-preenqueue-final-integrity.json')]
     hashes={str(x.relative_to(ROOT)):sha(x) for x in inputs}
     runtime_lock=runtime_manifest();runtimes=[];seen=set()
     for root in a.runtime:
@@ -68,7 +68,7 @@ def main():
         stub_classes={str(x.relative_to(stub)):sha(x) for x in stub.rglob('*.class')}
         if set(stub_classes)!={'com/apple/xsr/net/AcpxConnection.class','com/apple/xsr/net/AcpxConnection$1.class'}:raise ValueError('Stub class allowlist differs')
         fixture_classes={str(x.relative_to(fixture)):sha(x) for x in fixture.rglob('*.class')}
-        if set(fixture_classes)!={'fixture/OfflineGuard.class','sun/io/MalformedInputException.class','com/apple/xsr/net/ConnectFailureObservation.class','com/apple/xsr/net/ConnectFailureObservation$FakeSystem.class','com/apple/xsr/net/ConnectFailureObservation$1.class','com/apple/xsr/net/ConnectFailureObservation$2.class','com/apple/xsr/net/ConnectFailureObservation$3.class','com/apple/xsr/net/ConnectFailureObservation$4.class','com/apple/xsr/net/ConnectFailureObservation$5.class','com/apple/xsr/net/ConnectFailureObservation$6.class','com/apple/xsr/net/ConnectFailureObservation$7.class'}:raise ValueError('Fixture class allowlist differs')
+        if set(fixture_classes)!={'fixture/OfflineGuard.class','sun/io/MalformedInputException.class','com/apple/xsr/net/ConnectFailureObservation.class','com/apple/xsr/net/ConnectFailureObservation$FakeSystem.class','com/apple/xsr/net/ConnectFailureObservation$1.class','com/apple/xsr/net/ConnectFailureObservation$2.class','com/apple/xsr/net/ConnectFailureObservation$3.class','com/apple/xsr/net/ConnectFailureObservation$4.class','com/apple/xsr/net/ConnectFailureObservation$5.class','com/apple/xsr/net/ConnectFailureObservation$6.class','com/apple/xsr/net/ConnectFailureObservation$7.class','com/apple/xsr/net/ConnectFailureObservation$8.class','com/apple/xsr/net/ConnectFailureObservation$FixtureAssertionDetected.class'}:raise ValueError('Fixture class allowlist differs')
         for jar in (original,a.candidate):
             with zipfile.ZipFile(jar) as z:
                 if any(n in z.namelist() for n in (set(fixture_classes)|set(stub_classes))-{'sun/io/MalformedInputException.class','com/apple/xsr/net/AcpxConnection.class'}):raise ValueError('Unexpected fixture class shadow')
@@ -105,6 +105,10 @@ def main():
                     lines,mh,rh=observe(a.candidate,mode,'terminal',execution)
                     if lines!=terminal_expected(mode):raise ValueError('Connect stop vector differs; raw output withheld')
                     observations.append({'architecture':arch,'execution':execution,'jar_sha256':sha(a.candidate),'manager_class_sha256':mh,'recovery_class_sha256':rh,'mode':mode,'lines':lines})
+            for assertion_execution in ('-Xint','-Xcomp'):
+             lines,mh,rh=observe(a.candidate,'verify-callback-assertions','terminal',assertion_execution)
+             if lines!=['PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0']:raise ValueError('Assertion containment control differs')
+             observations.append({'architecture':arch,'execution':assertion_execution,'mode':'verify-callback-assertions','fixture_assertion_control':True,'jar_sha256':sha(a.candidate),'lines':lines})
             for label,jar,mode,policy in mutants:
                 lines,mh,rh=observe(jar,mode,policy,'-Xint')
                 wanted=['PASS verified no-host bypass reports before stop; guarded_operations=0'] if label=='nohost' else [line.replace('stop_inside_callback=true','stop_inside_callback=false') for line in terminal_expected('single-async')] if label=='late-stop' else expected('single')

@@ -1,0 +1,67 @@
+I found one concrete blocker. The B1 fix (sending connect callbacks through `WorkerExit.connectCallback`) swallows every `Throwable` a callback throws, including the `AssertionError`s that older fixtures raise from inside their connect callbacks. So some of those fixtures' checks can no longer fail on the candidate. Everything else in scope checks out. I didn't run, build or write anything; this is all from reading the files and `tests/fixtures/guarded-worker-candidate-manager.javap`.
+
+## Blocker: the B1 fix silences old connect-callback assertions
+
+`WorkerExit.connectCallback` (`patches/compat/WorkerExit.java:83-88`) catches everything except `ThreadDeath` and signals. Several fixtures check things inside the connect callback, but increment their counter before the check runs. The outer checks then see the same counts whether the inner check passed or not.
+
+- **`ConnectFailureObservation.java:80-81`** (no-host extras): `connects[0]++==0&&…&&manager.isStopped()&&!manager.isConnected()&&seen==null`, plus the stopped-sync rejection. On the guarded candidate, `nohost` and `nohost-throw` give the same outer result (`connects==1`, `commands==1`). So stop-before-callback is no longer checked at runtime in these modes.
+- **`ConnectFailureObservation.java:117-119`** (async): the same pattern covers the stop ordering, `!isConnected`, the exception identity and the stopped-sync rejection. Line 128 prints `stop_inside_callback=`+`!late`, which comes from the policy argument, not from what happened.
+  - This makes the **late-stop semantic negative control in `check_connect_stop.py:89-94,110` vacuous.** The only check that tells the reordered mutant apart is `isStopped()==!late` at line 117, and it is now swallowed. The unmodified candidate run under the `late-stop` policy would print the same expected line.
+  - Likewise, a real callback-before-stop regression would pass the `terminal` async vectors. Only the static `assert_connect_failure_stop` byte check would catch it.
+- **`TransportObservation.java:518`** (`worker-failure-policy`, run by `check_transport.py:191-200`): `++connects[0]==1&&…&&m.isStopped()==stoppedConnect`. The `throwing-connect-callback` and `null-connection` rows have the same gap.
+
+These were not vacuous before the B1 fix: on audit.20 the `Error` escaped `run()`, and on the earlier guarded build it went through `exit` and changed `commands`.
+
+**Bounded fix (fixtures only):**
+1. Inside the callback, record what you observe (for example `stoppedAtCallback[0]=manager.isStopped()`, plus connected, exception and sync-rejection flags). Assert those after `run()`.
+2. Print the observed stop value instead of `!late`.
+3. For guarded builds, add a WARN capture appender and require an exact `RAID_ADMIN_WORKER_EXIT_FAILED` count: 1 for the `-throw` modes, 0 otherwise. `WorkerConnectCallbackObservation` already does this.
+
+The other connect callbacks in the fixtures are safe:
+- `WorkerConnectCallbackObservation.java:47` increments after the check, and line 50 asserts `connect[0]==1`, so a failure is caught.
+- `ConnectFailureObservation.java:104` (`verify-nohost`) increments `noticed` after the check, so it's also caught.
+- `RecoveryObservation.java:120` short-circuits before incrementing, and the outer `connect[0]==(stopExpected?0:1)` catches it.
+- I didn't trace the reconnect-path callbacks at `TransportObservation.java:224/270/445/559`. Line 445 also increments first, so it's worth applying the same pattern there.
+
+## B1 is closed
+
+- **Bytecode:** both callback sites (`javap` 409 and 586) are now `goto_w` into 15-byte tails at 754 and 769. Each tail does `workerActiveTxn=null`, then `invokestatic #432 connectCallback`, two `nop`s, and `goto_w` back to 414 or 591.
+  - The four operands already on the stack match the descriptor in order; the peak stack depth is 6, which equals `stack=6`.
+  - `doConnect`'s exception table is unchanged, and no row covers 754–784.
+- **`worker_exit_patch.py`:**
+  - `plan` checks `CALL` at both offsets and the 784 length. Pool 429→432 comes out as name, descriptor, NameAndType, Methodref.
+  - `normalize` restores both `CALL` windows from the first 754 bytes, then requires the exact `PIN` and `plan(restored)==data`.
+- **`worker_exit_structure.py`:** the hand-written `POOL` entries 429–432 and the per-tail expectations (`:62-65`) match, and handler rows and metadata must be identical. `assert_retry_unreachable` is still called. I'm not claiming the 380–459 reconnect path is reachable.
+
+## `WorkerConnectCallbackObservation`: correct
+
+- The no-host message comes from original code at `javap` 727–732: `Logger.error(Object)` on local 11, with no `Throwable`. The text is `No valid host address for system "fixture"`, which matches the `Capture` literal exactly.
+- `Capture` sets `unexpected` for any attached `Throwable` and for any other WARN-or-higher message.
+- In fixed mode the run must produce exactly one probe, one signal, `nohost==(nohost?1:0)` and nothing unexpected.
+- On the single path, the 498 handler doesn't log, 599 jumps to 692 (`info`, below WARN), and the 609 `warn` is skipped. So zero no-host events is correct.
+- Exactly one signal is right: `connectCallback` signals once, and `exit` sees no cause, no active entry and an empty queue.
+
+## `WorkerCompletionBatchObservation`: correct
+
+- **Deadlock avoided:** the caller that holds the Manager starts only after `entered.await` at `:53`, so the worker is already past its `isConnected` read and blocked in the memory send.
+- **Ordering proof:** it's a real positive check. `exit` completes the Sender before `synchronized(manager)`. If that order were reversed, the worker would block on the caller's monitor, the joins would time out, and `:58` would fail.
+- **Queue wait:** `queue.size()==3` plus `WAITING` identifies the queued caller. It doesn't prove which monitor it is waiting on, which is acceptable.
+- **EDT, Error and lock checks:**
+  - `isEventDispatchThread` is a real check. `!holdsLock(...)` on the EDT can only fail if the EDT holds those locks, so it says nothing about the worker.
+  - Index 0 gets `UntrustedResponseException`; indexes 1 and 2 get `CommShutdownException`.
+  - The `Fault` from index 1 is contained, and index 2 still runs.
+  - `signals==2` is the batch catch plus `exit`'s signal for `cause!=null`. `closes==1` is the `finally` close; the original epilogue isn't reached on the `Error` path.
+
+## Old regression tools
+
+- **`check_connect_stop.py`:** the reported mutant restores exact audit.20 for both the Manager and the Sender (`:83,87`). The hashes are enforced inside `normalize_manager` and `normalize_sender`. `control_start` is taken from the normalized class. The no-host mutant is built on the current candidate, which is consistent with its `verify-nohost` expectation. The only problem is the blocker above.
+- **`check_sync_posting.py:65`:** the Manager is normalized to exact audit.20 and the Sender is the original class, which is the bypass the test intends. The limits text matches.
+- **`check_transport.py`:** all four places that rewrite the Manager (`:174,227,250,266`) normalize before applying audit.20 run offsets, and the 595 length is asserted. The mutant JARs pair an audit.20 Manager with the ownership Sender. That pairing isn't a reviewed artifact, but the controls require specific observed flags (`unsafe*Observed`), so it can only cause a false failure, never a false pass.
+- **`check_architectures.py:181,190-195`:** the replacements only apply after exact counts (one `method=run;`, two `callback-drain-unqualified`). The `containment` lines are compared exactly. `RecoveryObservation.loopMethod()` and the guarded branch of `throwingCallback` are consistent with this.
+  - *Wording fix needed:* `null_io_recovery_limits` (`:211`, session-containment branch) still says "Logger location remains CommunicationsManager.run" and "not draining/completion". Both are wrong for the guarded candidate, and they contradict the updated `recovery_limits`.
+
+## Other non-blocking notes
+
+- The `inputs`/`helpers` hash lists in these tools record `class_patch.py`. They don't record `worker_exit_patch.py` or `sync_ownership_patch.py`, which `normalize_current_extensions` imports. The normalized outputs are still hash-pinned, so this is a provenance gap, not a correctness problem.
+
+Unchanged and explicitly not qualified: native GUI, transport deadlines, VM exhaustion, `ThreadDeath`, and stop-versus-active-send.

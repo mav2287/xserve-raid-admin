@@ -1,0 +1,29 @@
+**There's one blocker: `TransportObservation.java` won't compile.** The new wrapper was inserted at the wrong character position, inside an existing catch, at `tests/java/com/apple/xsr/net/TransportObservation.java:758`:
+
+```
+...m.shutdown();}catch(AssertionError callbackF}catch(AssertionError callbackFailure){…throw callbackFailure;}ailure){…throw callbackFailure;}}},f.newGetTimeRequest());
+```
+
+It splits the identifier `callbackFailure`, so javac will reject the file. That stops every tool that compiles this fixture (`check_transport.py`, plus the sync-preenqueue callers) before anything runs.
+
+The text looks like it was meant to go at the start of line 759. That would give the outer `syncPreenqueue` handler (`try{` at :750, closing at `}},f.newGetStatusRequest());` on :759) its missing catch. As it stands, that outer handler has no catch at all. Counting confirms it: Transport defines 14 handlers (:744 is a call, not a definition) and has 14 `compareAndSet` sites, but two of them are this misplaced pair. So 13 handlers are wrapped correctly, :758 is broken and :750 has nothing.
+
+The fix: remove the inner `}catch(…){…}` from :758 so it reads `catch(AssertionError callbackFailure){…}`, and add `}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}` in front of `}},` on :759. The other wrapped lines look fine on reading (:235, 287, 414, 453, 460, 500, 524, 528, 530, 548, 562, 574, 632). Because the insertion position drifted here, check the actual `git diff` hunks before trusting those.
+
+**Are the old controls nonvacuous now?**
+- **Connect, yes, on reading.** Every handler records the error and rethrows. All runs go through `runChecked`: the worker thread (:54), `extra` (:92), `verifyNoHost` (:109) and `async` (:130). The `nohost` and `late-stop` mutants are built from the current guarded `CommunicationsManager`. Before this change, a failed check inside their callbacks could have been swallowed while the outer checks still passed. `runChecked` now rejects that. The `reported` mutant runs `single`, which has no handler, so it doesn't depend on this mechanism.
+- **The sentinel test fails loudly either way.** If the worker doesn't swallow the error, `failure==sentinel` and the test fails. If the precondition check fails, the recorded error isn't the sentinel and the test fails.
+- **The `$1`–`$8` class allowlist matches** the eight anonymous classes (:53, 54, 56, 80, 82, 108, 119, 141).
+- **The observedStop line matches what the parent expects.** `terminal_expected` uses `stop_inside_callback=true`, and the late-stop mutant swaps that for `=false` (`check_connect_stop.py:113`).
+- **Recovery, wired correctly.** All 3 handlers are wrapped and the global is checked at :204, after the `invokeAndWait` flush. The intentional `IllegalStateException` at :167 is deliberately not recorded.
+- **Transport `verify-*` controls can't pass vacuously.** Each rejection needs both an escaping `AssertionError` and a mutant-specific flag. If the error is swallowed, nothing escapes and the control fails loudly instead of passing. `verify-sync-preenqueue` still works because the flag is set at :756, then the outside check at :760 fails (`callbacks!=2`).
+
+**Weaker spots that aren't blockers:**
+1. `verifyCallbackAssertions` (:146) only checks `failure!=sentinel`. Any other `AssertionError` coming out of `manager.run()` would also count as a pass. Checking the message equals `"Contained fixture callback assertion"` would close that.
+2. The sentinel test proves only Connect's `runChecked`. Recovery and Transport have the same wiring but no positive test of their own, so their checks are reviewed, not demonstrated.
+3. The sentinel runs only under `-Xint`, while the normal vectors cover `-Xint` and `-Xcomp`.
+4. The Transport `verify-*` exclusion means an unrelated swallowed assertion during a control isn't caught. The flags make that tolerable, but asserting the identity of the recorded error would be stronger.
+
+**Helper hashes are complete.** Every tool that calls `normalize_current_extensions` (directly or through the imports in `class_patch.py:109-128`) hashes both `sync_ownership_patch.py` and `worker_exit_patch.py`: `check_connect_stop.py:51`, `check_transport.py:149`, `check_stop_lock.py:47`, `check_stopped_post.py:50`, `check_sync_posting.py:50` and `check_guarded_worker.py:50`. `check_architectures.py` doesn't call the normalizer and already hashes `RecoveryObservation.java`.
+
+Nothing was compiled or run, so the compile failure is from reading, not from javac output. I also couldn't see the git diff, so I'm inferring the misplaced insertion from the text alone.

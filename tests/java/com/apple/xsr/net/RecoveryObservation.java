@@ -11,6 +11,8 @@ import sun.misc.Unsafe;
 
 /** Strictly memory-only, actual send/dispatch code; no production constructors. */
 public final class RecoveryObservation {
+    private static final java.util.concurrent.atomic.AtomicReference<AssertionError> callbackAssertions=new java.util.concurrent.atomic.AtomicReference<AssertionError>();
+
     private static PrintStream out;
     private static final byte[] XML;
     static {try {XML="<plist><dict><key>fixture</key><string>ok</string></dict></plist>".getBytes("UTF-8");}catch(Exception e){throw new AssertionError();}}
@@ -96,7 +98,7 @@ public final class RecoveryObservation {
         Logger logger=Logger.getLogger(CommunicationsManager.class);boolean add=logger.getAdditivity();Level level=logger.getLevel();Recorder recorder=new Recorder(false);logger.setAdditivity(false);logger.setLevel(Level.ERROR);logger.addAppender(recorder);
         try {
             final State state=new State();state.ordinary=true;final CommunicationsManager m=manager(transport(new Memory(state)));final int[] n={0};recorder.observed=m;recorder.requireStop=stopped;
-            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-102&&m.isStopped()==stopped&&m.isConnected()!=stopped&&state.closes==(stopped?1:0));n[0]++;m.shutdown();}},new AcpxMessageFactory().newGetStatusRequest());m.run();
+            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{check(response.getResultCode()==-102&&m.isStopped()==stopped&&m.isConnected()!=stopped&&state.closes==(stopped?1:0));n[0]++;m.shutdown();}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}},new AcpxMessageFactory().newGetStatusRequest());m.run();
             check(n[0]==1&&state.sent.size()==1&&recorder.events==1&&recorder.safe&&"com.apple.xsr.net.CommunicationsManager".equals(recorder.owner)&&loopMethod().equals(recorder.method));
             out.println("ordinary logger owner=CommunicationsManager method="+loopMethod()+"; terminal=-102; sends=1; "+(stopped?"connected=false; stop=true":"connected=true"));
         } finally {logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}
@@ -115,14 +117,14 @@ public final class RecoveryObservation {
         Logger logger=Logger.getLogger(CommunicationsManager.class);boolean add=logger.getAdditivity();Level level=logger.getLevel();Recorder recorder=new Recorder(loggingFailure);recorder.observed=m;recorder.requireStop=containment;
         if(logCapture){logger.setAdditivity(false);logger.setLevel(Level.ERROR);logger.addAppender(recorder);}
         try {
-            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
+            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{
                 try {
                     if(response.getType()==Response.TYPE_CONNECT){check(!stopExpected&&command[0]==1&&connect[0]++==0&&response.getResultCode()==-101&&context==null&&!m.isConnected());set(m,"connection",transport(new Memory(state)));set(m,"connected",true);return;}
                     int i=command[0]++;check(i<2&&context==contexts[i]&&response.getResultCode()==(i==0||stopExpected?-102:0));
                     if(i==0){check(state.sent.size()==1&&(state.closes>=1 || nullIo&&stopExpected));if(nullIo){check(state.closes==(metadataStop?0:1));Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null);}check(field(CommunicationsManager.class,"connection").get(m)==old);if(!metadataStop)check(!m.isConnected());if(containment)check(m.isStopped());}
                     if(i==1)m.shutdown();
                 }catch(Exception failure){throw new AssertionError("Recovery callback failed");}
-            }};
+            }catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
             AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,containment?f.newSetTimeRequest(new Date(0)):f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,containment?f.newRestartSystemRequest():f.newGetTimeRequest(),contexts[1]);m.run();
             check(command[0]==2&&connect[0]==(stopExpected?0:1)&&state.sent.size()==(stopExpected?1:2));
             if(!stopExpected)check(state.ordinals.equals(Arrays.asList(1,2))&&!Arrays.equals(state.sent.get(0),state.sent.get(1)));
@@ -162,7 +164,7 @@ public final class RecoveryObservation {
     private static void throwingCallback(final boolean nullIo)throws Exception {
         State state=new State();state.nullIo=nullIo;if(!nullIo)state.raw=cases()[0];
         final CommunicationsManager m=manager(transport(new Memory(state)));final int[] callbacks={0};
-        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(m.isStopped()&&!m.isConnected()&&response.getResultCode()==-102);callbacks[0]++;throw new IllegalStateException("synthetic callback");}};
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{check(m.isStopped()&&!m.isConnected()&&response.getResultCode()==-102);callbacks[0]++;throw new IllegalStateException("synthetic callback");}catch(AssertionError callbackFailure){callbackAssertions.compareAndSet(null,callbackFailure);throw callbackFailure;}}};
         AcpxMessageFactory factory=new AcpxMessageFactory();m.postMessageAsync(handler,factory.newSetTimeRequest(new Date(0)));m.postMessageAsync(handler,factory.newRestartSystemRequest());
         if(guarded()){m.run();javax.swing.SwingUtilities.invokeAndWait(()->{});check(callbacks[0]==2);}else{try{m.run();throw new AssertionError("Callback did not throw");}catch(IllegalStateException expected){check(callbacks[0]==1);}}
         check(m.isStopped()&&!m.isConnected()&&state.sent.size()==1&&state.closes==1&&((LinkedList)field(CommunicationsManager.class,"queue").get(m)).size()==(guarded()?0:1));
@@ -199,7 +201,7 @@ public final class RecoveryObservation {
                 }
             }
             if(fixed&&containment()){throwingCallback(false);throwingCallback(true);}
-            check(captured.size()==0&&errors.size()==0);out.println("PASS recovery fixed="+fixed+"; guarded_operations=0");
+            check(callbackAssertions.get()==null);check(captured.size()==0&&errors.size()==0);out.println("PASS recovery fixed="+fixed+"; guarded_operations=0");
         }finally{System.setOut(out);System.setErr(err);OfflineGuard.assertUntouched();}
     }
 }

@@ -47,7 +47,7 @@ def main():
  before,after=[disassemble_entries(a.jdk,jar,[ENTRY],verbose=True) for jar in (original,a.candidate)];
  from worker_exit_structure import normalize_extensions
  normalize_admission(before,normalize_extensions(after),True)
- names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StoppedPostObservation.java','tools/check_stopped_post.py','tools/stopped_post_structure.py','tools/class_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','tools/inventory.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json','audit/stop-lock-final-integrity.json','patches/compat/StoppedDelivery.java')
+ names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StoppedPostObservation.java','tools/check_stopped_post.py','tools/stopped_post_structure.py','tools/worker_exit_structure.py','tools/sync_ownership_structure.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','tools/inventory.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json','audit/stop-lock-final-integrity.json','patches/compat/StoppedDelivery.java')
  hashes={n:sha(ROOT/n) for n in names};runtimes=[];seen=set();lock=runtime_manifest()
  for root in a.runtime:
   arch=None

@@ -138,3 +138,36 @@ hold neither lock; Thread.holdsLock on EDT alone is not cross-thread lock proof.
 Native GUI/runtime-exhaustion guarantees remain excluded. Constructor preparation
 placement is locked independently by bytecode; runtime constructor success alone
 would not distinguish its prepare call from ensurePrepared in run.
+
+
+Final Claude source review found a test-oracle blocker: Error containment also
+swallows AssertionError raised inside older fixture callbacks. Existing counters
+could increment before the assertion, allowing false positives. All existing
+handleResponse methods in ConnectFailureObservation (3), RecoveryObservation (3)
+and TransportObservation (15) now record AssertionError identity in a static
+AtomicReference before rethrow. Connect checks outside Manager.run, Recovery at
+the end after the deferred callback flush, and Transport outside worker dispatch
+for normal vectors. Explicit verify-* transport mutants retain their deliberate
+unsafe-observation handling. Async connect output now uses the observed stop flag.
+A dedicated positive sentinel vector proves that an assertion swallowed by the
+product is independently detected outside the worker, per architecture. This
+changes fixtures only; application JAR and bytecode remain unchanged.
+
+The initial clean series at source0ecdc14 is excluded from final qualification
+because fixture strengthening occurred during that run. Its completed records
+are development/history only. New clean runs must bind the committed strengthened
+fixtures and all normalizer dependencies, which are now in gate source hash lists.
+No assertion-containment refinement is accepted solely on Claude's opinion;
+positive sentinel identity and existing semantic mutants are required evidence.
+
+
+Oracle followup refinement: nested Transport handler insertions initially collided
+because inserting an inner catch shifted an enclosing method's saved offset.
+That development-only source did not compile and is excluded. It was regenerated
+from exact committed0ecdc14 fixture bytes using independent insertions at original
+offsets; locked javac now compiles both Transport and Recovery fixtures. The
+Connect sentinel now requires an exact private FixtureAssertionDetected type,
+plus exact retained sentinel identity, rather than accepting any other Error.
+Sentinel vectors run interpreted and compiled on both architectures (4 controls).
+No application byte changes accompany these fixture corrections. Latest unit
+suite remains133 passing; new full clean qualification is required.
