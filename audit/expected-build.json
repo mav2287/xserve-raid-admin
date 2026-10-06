@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "65f8958c7da08347e2e5b0700d8add289068854506c5fb9a4c50f1cec280499d",
-  "reason": "audit.12 Claude-reviewed terminal malformed-header rejection with exact same-length bytecode block and fixed fresh marker",
+  "previous_record_sha256": "122d05fd2bc7ca7cf09f0be5621b6871c3d50a0d83ccbee914b64280fc07603b",
+  "reason": "audit.12 clean Claude-reviewed malformed-header rejection and regression gates",
   "schema": 1,
-  "source_commit": "47cb9d54510e82752623eb8c67a4cee9890cf534",
-  "source_dirty": true
+  "source_commit": "53e902ef8023ed06d5dd90183cc3bf326365c7a2",
+  "source_dirty": false
 }
