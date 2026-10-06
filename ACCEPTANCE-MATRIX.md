@@ -277,3 +277,17 @@ Nonnull IO classification and retries remain original; broader ambiguous mutatio
 replay, GUI sequencing and real sockets remain open. Reflection-metadata failure
 shuts dispatch down; original exit closes the source after terminal callbacks.
 No production hardware, mounted volumes or installed application are exercised.
+
+
+### Request-factory characterization refinement
+
+[Request-factory characterization](audit/REQUEST-FACTORY-CHARACTERIZATION.md)
+records 59 exact instance overloads: 58 synthetic invocations at timeout 0/123,
+with the filename-based firmware overload explicitly excluded. The reviewed table
+contains 116 body digests and six enqueue-sharing cases. No controller function
+is qualified by this evidence. RPC getCommand equals its body method, refining the
+previous hidden-method inference. RPC bodies and headers remain shared through
+cloning; command/property bodies are copied, including supported Date/byte[] leaves.
+Command alone cannot classify property/no-op requests. Broader ambiguous-IO retry
+classification still requires caller/control-flow and multi-step operation evidence.
+Clean qualification is linked from the characterization record when complete.

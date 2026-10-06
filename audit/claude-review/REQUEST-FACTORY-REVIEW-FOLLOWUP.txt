@@ -1,0 +1,64 @@
+I'd accept the expected table on its content: all 116 rows and the 6 sharing cases match the bytecode. Two things still block the clean commit and strict qualification: proving where bootstrap‑4 came from, and getting the working tree clean. One more small gap is worth closing first. Like the last pass, this was read-only: I didn't run, hash or edit anything.
+
+## Expected table: accepted on content
+
+**Shape counts** match the prior review exactly (25 rpc / 26 command-dict / 4 property-array / 2 property-dict / 1 none per sweep):
+
+| Field | Count | Notes |
+|---|---|---|
+| `shape` rpc / command-dict / property-array / property-dict / none | 50 / 52 / 8 / 4 / 2 | |
+| `plist_clone: shared` | 50 | exactly the rpc rows |
+| `parameters_clone: copied` | 52 | exactly the command-dict rows |
+| `parameters_clone: absent` | 14 | 6 property rows + noop, ×2 |
+| `command: null` | 14 | same 14 rows |
+| `target: null`, `restart: -1`, `shared_headers: true` | 116 each | |
+| `body_timeout_present: true` | 26 | timeout‑123 command-dict rows only |
+| `shutdown: true` | 2 | only `newRestartSystemRequest`, once per sweep |
+
+**Comparing the two sweeps:**
+- Exactly 26 digests differ between timeout 0 and timeout 123, and every one of them is a command-dict row (acp-, rsp- or diagnostic-action). All 25 rpc digests, the 4 acp-get, the 2 acp-set and noop are identical across sweeps.
+- The duplicate digests are the expected ones: `getProperties([AcpPropertyCode)` equals `getProperty(AcpPropertyCode)`, and `getProperties([String)` equals `getProperty(String)`.
+- Noop has body size 0 and digest `e3b0c442…b855`, which is the SHA-256 of empty input.
+- The set-time row has `parameter_keys: ["rtc"]`, so the `rtc` overwrite in the sharing case does hit an existing key.
+
+**Match with bootstrap-4:** all 116 digests appear in the same order in both files. Every line in the table sits exactly 61 lines later in bootstrap-4, which is the length of the `record` block. The `enqueue_observations` sections are identical. I didn't diff every field byte for byte, so run `diff <(jq .expected_for_review build/request-factory-bootstrap-4-final.json) <(jq . audit/request-factory-expected.json)` before committing.
+
+## Blockers
+
+1. **Bootstrap-4 wasn't produced by the current tool, and the stated reason doesn't fit.** `tests/test_request_factory.py` isn't in the hashed source set (`check_request_factory.py:80-82`), so adding unit tests can't have changed any recorded hash. The tool itself has changed: bootstrap-4's `limits` says "no controller, headers, …", while the current code says "no controller, wire-header serialization, header/body values emitted, …" (`:111`).
+   - Check that `RequestFactoryObservation.java` still hashes to `cca7da40…` (bootstrap-4 line 15).
+   - If it does, only the Python changed and the table is still valid.
+   - If it doesn't, generate bootstrap-5 before committing the table.
+   - Either way, the strict run is the real proof.
+2. **The tree has to be clean.** All 7 untracked files need to be committed, including `REQUEST-CLASSIFICATION-CHARACTERIZATION-DESIGN.txt`, which isn't part of this change. `git status --porcelain` counts `??` entries, so strict mode will refuse otherwise.
+3. **Record the caveats before committing.** `limits` already mentions HashMap order. It doesn't yet cover the Float/any-List rejection, or that copied maps always become HashMap (LinkedHashMap/TreeMap ordering). `limits` is in the hashed tool file, so this edit has to come before the commit, not after.
+
+## Should fix (cheap; affects how exact the gates are)
+
+- **Booleans in the sharing cases aren't type-checked.** `data['enqueue_observations'] != expected_sharing` uses Python equality, so `1` or `1.0` passes for `true` (`:46-47`). The row fields and counters are type-guarded; these aren't.
+- **Duplicate JSON keys are silently accepted.** `json.loads` keeps the last value, so a row could contain the same key twice and still validate. An `object_pairs_hook` that rejects duplicates fixes this. In short, the validator checks the parsed JSON, not the exact output bytes.
+- **Overwrites aren't asserted.** Add `check(original.containsKey("rtc"))` and `check(original.containsKey("TEST"))` before the overwrites (`RequestFactoryObservation.java:86`). Today the table confirms `rtc` exists, but the fixture doesn't check either key itself.
+
+## Non-blocking
+
+- **Structural checks are partial.** The validator ties rpc to its class and path, but doesn't tie command-dict to an action path with a non-null command, property shapes to acp-get/acp-set, or the shape to the clone state. Table equality covers all of these in strict mode.
+- **Catalog and table aren't hashed at read time.** They're parsed at `:74` and `:79` but hashed at `:83`, leaving a small gap where the file could change between the two. Hashing the parsed bytes closes it.
+
+## Confirmed fixed from the last review
+
+- Strict mode refuses a dirty tree and calls `/usr/bin/git` with `isolated_env`.
+- Both runtimes are required.
+- The candidate must match the audit.13 SHA in `expected-build.json` and can't be the original.
+- The bootstrap path is resolved via its parent, opened with `'x'`, and labelled with an explicit purpose; `limits` wording depends on the mode.
+- `validate` and `qualification_gate` are pure functions and have negative tests.
+- Clone sharing is tri-state.
+- Mutations happen both before and after the post, including the mutable-leaf case.
+- `params == null` is asserted for the property and none shapes.
+- The catalog now describes instance methods.
+- Discovery rejects bridge/synthetic methods and any primitive other than I or Z.
+- The template class is detected with `isInstance`.
+- Bootstrap-4 is marked dirty and unqualified.
+
+**Order to finish:** confirm the Java hash, then add the `limits` caveats and the three small fixes. Next, regenerate the bootstrap if the hash differs, commit everything, and run strict qualification on the original and audit.13 artifacts across both pinned runtimes.
+
+The scope is unchanged: no validation of every argument combination, no classifier, no mutation between retries, no UI sequence and no hardware.

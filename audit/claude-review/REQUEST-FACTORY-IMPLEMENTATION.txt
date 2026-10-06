@@ -1,0 +1,78 @@
+I'd hold off on committing the expected table for now. The 116 rows match the bytecode, but four gaps in `check_request_factory.py` would let a run be recorded as qualified when it shouldn't be. Also, two fixture changes would alter the output format, so they need to land before the table is fixed. This was a read-only review: I didn't execute or edit anything.
+
+## The 116 rows
+
+Each of the two sweeps (timeout 0 and 123) invokes 58 factories:
+
+| Shape | Count | Class | Path | Command | Clone sharing (plist / params) |
+|---|---|---|---|---|---|
+| rpc | 25 | `RpcRequestMessage` | `/cgi-bin/perform` | equals `requests[0].method` | shared / shared |
+| command-dict | 26 | `AcpxRequestMessage` (command constructor) | `acp-action`, `rsp-action` or `diagnostic-action` | non-null root key | copied / copied |
+| property-array | 4 | `AcpxRequestMessage` (plist constructor) | `acp-get` | null | copied / absent |
+| property-dict | 2 | same | `acp-set` | null | copied / absent |
+| none | 1 | `$1` | `/cgi-bin/noop` | null | absent / absent |
+
+Every row checks out against the bytecode:
+- **Timeout 0 → 123:** only the 26 command-dict rows change. They gain a body `timeout` key, a new digest and a larger size. That matches the constructor adding the key only when flag ∧ timeout≠0 (`inner:137-151`), and every factory uses `flag=1`. The RPC, property and noop digests are identical across both sweeps. The timeout field equals the factory timeout in all 116 rows.
+- **Flags:** shutdown is true only for `newRestartSystemRequest` (`:2796`). Restart is -1 everywhere. `shared_headers` is never vacuous, because the constructors always create `properties` as a HashMap (`:984-987`).
+- **Duplicate digests are expected:** `getProperty("TEST")` and `getProperties({"TEST"})` both produce a one-element array. The `AcpPropertyCode` pair duplicates the same way.
+- **Output safety holds:** user and password are null, there are no headers, and only key names, paths, commands and synthetic-body digests are emitted. `run_jdk` withholds stdout/stderr on failure.
+
+## Must fix before qualification
+
+1. **A dirty tree can still qualify.** The record sets `qualification: not bootstrap` regardless of `dirty`. A strict run should raise if the tree is dirty. It should also call `/usr/bin/git` with `isolated_env()` like the other `check_*.py` tools; right now it uses bare `git` with the inherited environment.
+2. **One runtime is enough to pass.** `--runtime` is `append` with no minimum. Require `seen == set(manifest['architectures'])`.
+3. **The candidate SHA is required, but it only checks itself.** Anything can be passed as long as its hash matches. Bind it to the audit.13 artifact, which is already recorded in `audit/expected-build.json` (`3f39352f…`), and reject `candidate == original`.
+4. **The bootstrap path check can be bypassed.** `Path.absolute()` doesn't collapse `..`, so `build/../audit/request-factory-expected.json` passes `is_relative_to(ROOT/'build')`. That target doesn't exist yet, so it isn't refused. Resolve the parent and open the file with `'x'`. Also add an explicit `"purpose": "development-bootstrap"`. And make `limits` depend on the mode, since it currently says "reviewed body digests" even in a bootstrap run.
+5. **The negative gates have nothing offline to call.** The `data != expected` comparison happens inside `main()` after a JVM run. Move it into a pure `validate(result, catalog, expected)` so offline tests can feed it altered JSON:
+   - signatures missing, extra or reordered
+   - the excluded firmware signature appearing in the rows
+   - a 57- or 117-row sweep
+   - a wrong `factory_timeout` value
+   - any flipped boolean
+   - a changed digest or size
+   - an extra key
+   - altered `enqueue_observations`
+   - a dirty tree, one runtime, or the wrong candidate SHA
+   - a bootstrap path that escapes `build/`
+
+## Changes to make before the table is fixed (they change the output)
+
+6. **Tell "absent" apart from "copied."** `shared_plist` and `shared_parameters` are `false` both when the object was copied and when it's null (6 property rows plus noop). Emit `"shared"`, `"copied"` or `"absent"` instead. The Java side should also assert `params == null` for the property and none shapes.
+7. **Mutate an existing parameter in the sharing cases.** Right now they only add new keys (`fixture`, `added`), so overwriting a value is never tested. For example, overwrite `rtc` for set-time and `TEST` for property.
+
+## Recommended, not blocking
+
+- Detect the template class with `instanceof AcpxRequestTemplate` rather than the `"$1"` name suffix.
+- Make `descriptor()` throw on any primitive other than `I` or `Z`, and reject bridge or synthetic methods during discovery.
+- Add structural checks to the validator, such as: rpc ⇔ Rpc class ⇔ `/cgi-bin/perform`; `body_timeout_present` ⇔ `timeout` key ⇔ (command-dict ∧ timeout≠0); noop has size 0. They make bootstrap review easier and catch problems without needing the table.
+- Optional enqueue cases: `newGetEventLogRequest(Date)` and `newSendEmailRequest`. Both pass caller-owned mutable objects into the shared RPC params by reference (`:1929`, `:2319-2320`; `TestEmail.toMap()` returns its internal map). Today that aliasing is inferred from the bytecode by analogy with the list case, not measured.
+- The catalog's `"static factory overloads"` wording is wrong: these are instance methods.
+
+## Source assumptions
+
+- **`deepCopy`: confirmed** (`extra:1510-1647`). It recurses into ArrayList and Map, clones `byte[]` and `Date`, and shares immutable values. Two caveats:
+  - Copied maps always become HashMap. If a caller passes a LinkedHashMap or TreeMap, the clone's body can be ordered differently from the original. The fixture's original-equals-clone body check only holds because every synthetic input is a HashMap.
+  - `isValidElement` accepts any List and Float, but `deepCopy` and `writeXMLLevel` throw on them. That would surface as an exception inside `postMessageAsync`, in the caller's thread. It matters for a future classifier, not for this fixture.
+- **`TestEmail` constructor: confirmed.** It only puts values into a HashMap: no file, profile or preference reads. Password and username are added only when `from` is also set; the fixture passes nulls.
+- **`postMessageAsync`: safe with the Unsafe-allocated manager.** It only clones the request, adds it to the queue and calls `notifyAll` (`:71-101`). The worker thread is only started in the constructor, which is bypassed.
+- **Each body reflects one synthetic argument set, not every possible key.** Several factories change their keys or values depending on the arguments:
+  - `stripe-size` is added only when non-null (`:2471`)
+  - the drive list defaults to 1..7 when the array is null
+  - `date` is added only when non-null (`:1925`)
+  - set-time defaults to `new Date()` when given null, which would make the digest nondeterministic (`:1966`)
+  - verify's `flag` is 1 or 2 depending on whether the argument is `"start"`
+  - write-signature truncates long input
+  - hard-loop-id throws when out of range
+
+  The `limits` text should say this. The digests also depend on HashMap iteration order in the pinned runtimes.
+
+## Next steps
+
+1. Apply 1–7 and generate bootstrap-3 (it stays a development run).
+2. Manually review the 116 rows again with the new tri-state field.
+3. Copy only `expected_for_review` into `audit/request-factory-expected.json` and commit it.
+4. Run strict qualification on a clean tree: original and audit.13 on both pinned runtimes, with the candidate SHA bound.
+5. Add the negative unit gates.
+
+This scope still covers only the factories and the six enqueue cases. It doesn't qualify a retry classifier, a GUI or CLI sequence, or anything against a real controller. Mutation between retries is still open.

@@ -1,0 +1,24 @@
+I found no code blocker. One wording problem in the doc needs settling before you commit. This was read-only: I didn't run, hash or edit anything.
+
+## The six fixes: all present and correct
+- **Duplicate-key rejection:** `unique_object` is used both for the fixture output (`check_request_factory.py:39`) and for reading the catalog and expected table (`:30`). A negative test covers both a sharing field and a top-level counter (`test_request_factory.py:82-85`).
+- **Exact booleans in sharing cases:** every field except `case` is checked with `type(...) is bool` before the equality test (`:61`). Both `1` and `1.0` are tested (`test_request_factory.py:76-80`).
+- **Overwrite assertions:** `containsKey("rtc")` and `containsKey("TEST")` are checked before each overwrite (`RequestFactoryObservation.java:86`). They only add checks, so the output stays the same and the reviewed table remains valid. The Java source hash changes, but strict mode records the new one.
+- **Parsed-byte hash binding:** `read_json` hashes the same bytes it parses, and `:99` compares that hash with the inventory. Bootstrap mode correctly leaves the expected table out of the inventory.
+- **Final recheck:** HEAD and the clean-tree check are repeated after observation (`:127-129`). The dirty check doesn't apply in bootstrap mode, which is correct. `build/` and `__pycache__/` are gitignored, so neither running the tests nor the tool's own imports will dirty the tree.
+- **Limits caveats:** the HashMap-copy and Float/general-List caveats are in `limits` (`:130`), which is a hashed file. The same caveats are in the doc (`REQUEST-FACTORY-CHARACTERIZATION.md:53-55`).
+
+## Blockers before commit
+1. **The doc claims a result that doesn't exist yet.** `REQUEST-FACTORY-CHARACTERIZATION.md:83` says "bootstrap-5 reran the updated fixture and exactly matched the reviewed table", but bootstrap-5 is still running.
+   - Don't commit until the table-equality check has actually passed on both runtimes, for both the original and the candidate.
+   - If it doesn't match, rewrite line 83. The `.md` isn't in the hashed set, so this doesn't affect any recorded hash.
+2. **The tree has to be clean.** All 9 untracked files need to be committed, including `REQUEST-CLASSIFICATION-CHARACTERIZATION-DESIGN.txt`, which the doc links to at `:71`. Run strict qualification only after that commit, with no further edits in between.
+
+Nothing else blocks committing the tools and then running strict qualification.
+
+## Non-blocking (deferred)
+- `setUp` in the tests loads the table with plain `json.loads` instead of `read_json`, so the unit tests wouldn't catch duplicate keys in the committed files. The tool itself still would at runtime.
+- `expected-build.json` is read at `:110` without byte binding. A change made after the inventory is hashed is still caught by the final recheck at `:124`. Only a change that is made and then reverted mid-run would get through, and that's theoretical.
+- `qualification_gate` at `:112` repeats checks that `:111` already enforces. That's harmless.
+- The doc's line 78 lists "existing-parameter overwrites" among the implementation-review fixes. They actually came from the follow-up review, so it's only a wording issue.
+- Scope is unchanged and still open: callers, wrappers and control flow, dual-target writes, UI sequences, CLI outcomes, a retry classifier, concurrency, and mutation between retries. The app bytes haven't changed and nothing touches the controller.

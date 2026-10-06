@@ -1,0 +1,106 @@
+I read the requested files plus the relevant parts of `static-inventory.json`. I didn't execute or edit anything, and I didn't access hardware, profiles or credentials. Here is the consult.
+
+# G10 continuation: request classification characterization
+
+## 1. Corrections to the new inferences
+
+**A. "getCommand likely exposes the method" is too weak for RPC and too strong for the rest of the factory.**
+- **For RPC it's established, not likely.** `RpcRequestMessage.<init>` passes `/cgi-bin/perform` as the path and the method as the fourth argument (`build/request-classification-inner-bytecode.txt:9-13`). The four-argument `AbstractRequestMessage` constructor stores that argument in `command` (`build/queue-retry-policy-source-bytecode.txt:1051-1032`, field at `:1032`). `getCommand` returns the field (`:1067-1071`). Neither `AcpxRequestTemplate` nor `RpcRequestMessage` overrides it. The earlier hidden-method inference is disproved for RPC.
+- **getCommand is not a factory-wide classification key.** It returns **null** for:
+  - Messages built with the plist constructor `AcpxRequestMessage(factory, PropertyList, path)`. That constructor uses the three-argument template constructor and never sets `command` (`request-classification-inner-bytecode.txt:185-209`). Every acp-get overload goes through it (`queue-retry-policy-source-bytecode.txt:1636-1641`, `:1695-1700`, `:1740-1745`). acp-set very probably does too, but that bytecode isn't in the excerpt I read.
+  - `newNoOpRequest`, which builds anonymous class `$1` with the three-argument constructor (`:1603-1611`).
+  - `UpdateFirmwareRequest`, which is unknown because its bytecode wasn't in scope.
+- As a result, acp-get and acp-set differ only by `path`, with `command == null`. Any `(path, command)` table has to treat a null command as a first-class value.
+
+**B. "AcpxRequestMessage clone deep-copies the plist" overstates what has been shown.**
+- The copy is only as deep as `PropertyListUtilities.deepCopy`, which hasn't been inspected (`request-template-clone-bytecode.txt:503`). The leaf types allowed by `isValidElement` include mutable `Date` and `byte[]` (`:561-604`). Whether those are copied is unknown.
+- `paramDict` is rebound only when it's non-null (`request-classification-inner-bytecode.txt:239-258`). For plist-constructed messages it's null, so nothing is rebound. That's harmless only because `appendParam` would throw on those messages anyway.
+- The protection only covers the caller's original object at post time. On retry, the worker re-queues the **same** clone (`addFirst(transaction)`, `queue-retry-policy-source-bytecode.txt:416`) and never clones again.
+
+**C. Don't generalize the "identical replay bytes" result.** `IO-FAILURE-CHARACTERIZATION.md:13-15` reports identical bytes for status (RPC) and set-time (command constructor). For RPC that only holds because nothing mutated the shared params between attempts. It doesn't show that RPC replays are stable.
+
+## 2. Sharing matrix (from bytecode, not yet measured except the header row)
+
+| State | RPC queued clone | Command-constructor Acpx clone | Plist-constructor Acpx clone |
+|---|---|---|---|
+| `plist` / body | **shared** with the original | copied (depth depends on deepCopy) | copied (depth depends on deepCopy) |
+| `paramDict` | **shared** | rebound to the copy | null |
+| `properties` (headers) | **shared** (`Object.clone`, `:1259-1266`; measured by `shallowProperty`) | **shared** | **shared** |
+| target, timeout, user, password, shutdown, restart | snapshot at clone time | snapshot | snapshot |
+| Body `timeout` | none | written into `paramDict` at construction if flag ∧ timeout≠0 (`inner:137-151`), so it can drift from the field | none |
+
+There's a pre-existing hazard independent of retry. `ManagementController` sets the target, posts, sets the target again and posts again on the same request (`static-inventory.json:13690-13709`). The posts go through `RaidSystem.postMessageAsync`, a wrapper layer that hasn't been inventoried. For a plist-built set this is safe because each post deep-copies. Any RPC request posted twice like this would make both queued clones share params, and the clones also share headers.
+
+## 3. Source evidence still needed before any policy
+
+1. **All 59 factory bodies in full.** For each overload: which constructor and argument order (command and path are passed in a swappable order, `inner:112-113`), the four-argument `flag` value, every `appendParam` overload used, and any calls to `setShutdownConnection`, `setRestartConnection` or `setTimeout` (restart system calls `setShutdownConnection`, `static-inventory.json:38185`). Also note where a caller-supplied mutable object is inserted by reference. The candidates are `newSetFibreChannelLUNMaskRequest(ArrayList)`, `newSetPropertiesRequest(Map)`, `newSendEmailRequest(TestEmail)` and `newCreateArray*` with `Integer[]`.
+2. **Method bodies not yet read:** `PropertyListUtilities.deepCopy`, `AcpxMessageFactory$1` (clone, writeTo, getCommand), `UpdateFirmwareRequest` (all constructors, clone, getCommand, writeTo, and whether the stream is shared), and the `TestEmail` constructor (to check whether it touches preferences or the filesystem).
+3. **Every implementer of `MessageFactory` and `RequestMessage`.** State which class universe you mean: `static-inventory` covers 656 classes, the direct-send scan covers 2844.
+4. **Caller inventory with control flow, not reference lists.** `static-inventory.json` "calls" are invoke-reference lists. They look instruction-ordered but contain no branch structure. For each `MessageFactory.new*` site you need:
+   - the sink (`RaidSystem.postMessage`/`postMessageAsync`, `CommunicationsManager` directly, or direct `AcpxConnection.send`, which is the two CLI callers in `direct-send-reference-inventory.json`)
+   - any setter calls before and after the post
+   - whether the request object is reused
+5. **`RaidSystem` wrapper bytecode** for postMessage, postMessageAsync, polling and `getMessageFactory`.
+6. **Multi-step sequences:**
+   - `CommunicationHandler.handleResponse` implementations that post follow-up requests (chained steps a replay could duplicate)
+   - UI flows: firmware update via `SystemMonitorController$UpdateFirmwareAction`, create array followed by LUN assign, the dual-target settings writes
+   - the CLI `createRequestMessage` handlers
+
+## 4. Proposed fixture (offline, memory only)
+
+**Scope:** a new `request-classification` mode in `TransportObservation`, or a sibling class. The sweep doesn't need transport, because inspection happens on objects in the queue.
+
+- **Factory sweep: 58 invoked, 1 excluded by name.** `newUpdateFirmwareRequest(int,int,String)` opens a file, so leave it out of the sweep and keep it covered only by the existing synthetic `UpdateFirmwareRequest(Target,int,int,InputStream)` fixture. Gate: the reflected signature set must equal the committed catalog exactly (59 = 58 invoked + 1 named exclusion). Any new, missing or duplicate overload fails the run.
+- **Factory state:** `new AcpxMessageFactory()` with default user and password left null, so no credential headers are produced. Run the sweep twice: once with timeout 0 and once with a fixed synthetic nonzero timeout, to find which overloads put the timeout in the body. Use synthetic argument values only, including a synthetic `TestEmail` and a synthetic properties map with no password-like keys.
+- **Per-overload metadata (no values):**
+  - runtime class
+  - `getPath`
+  - `getCommand`, or a null marker
+  - shutdown flag and restart value
+  - timeout field and whether a body timeout is present
+  - root shape (`requests[0].method`, `{command: dict}`, property array, or property dict)
+  - sorted parameter key names
+  - whether `requests[0].method == getCommand` for RPC, and whether the root key equals `getCommand` for Acpx
+  - clone mode (identity checks on `plist`, `paramDict` and `properties` after `clone()`)
+
+  To get the body shape, serialize with `writeTo` into memory and parse it back in memory, in the fixture only. Compare the result to a committed expected table. Emit only the count, PASS/FAIL and a SHA-256 of the canonical observed table. On mismatch, emit the overload signature and the column name, never the value.
+- **Post-enqueue sharing:**
+  - Use a manager allocated with `Unsafe`, call `postMessageAsync` without running the worker, then mutate the original: overwrite one parameter, add one parameter, set a header, set the target, set the timeout.
+  - Read the queued `Transaction` message reflectively and emit a boolean for each mutation saying whether it changed the queued bytes. Cover one representative per class (RPC, command constructor, plist constructor, noop) plus the caller-supplied-list case if step 1 confirms it.
+- **Mutation between attempts:** reuse `dispatch` with `drops=1`. In the `TYPE_CONNECT` seam, which fires between the failed send and the replay, mutate the original. Emit whether `sent[0]` and `sent[1]` are equal for RPC and for the Acpx command constructor. This directly measures whether replays are byte-stable.
+- **Bounds:** the existing caps (16 sends, 64 MiB, 20 s), logging threshold OFF, empty stdout/stderr, `OfflineGuard` reporting zero actions. Use the `FakeSystem` constructor bypass, and never call `doConnect` or the `AcpxConnection(String)` constructor.
+
+## 5. Ambiguous-mutation continuation risks
+
+- **RPC replay isn't byte-stable.** Shared `paramDict`, plus caller-supplied collections inserted by reference, mean a replay can send different parameters from the attempt whose outcome is unknown.
+- **Headers are shared across all classes**, so a replay can carry a different header set from the first attempt.
+- **A replay can change the outcome**, beyond duplicating the request:
+  - For toggles, create, delete, assign, set slice size, NVRAM reset or restart, an ambiguous first success followed by a replay can fail as "already exists" or wrong state, or act twice. Restart-class requests already replay today (`IO-FAILURE-CHARACTERIZATION.md:16-18`).
+  - Dual-controller sequences (target TOP, then BOTTOM) can interleave a TOP replay with a BOTTOM request that's already queued.
+  - Chained follow-ups posted from handlers may run against an outcome that isn't the real one.
+- **Read classification by name is unsafe:**
+  - `led`/illuminate, `morse-code` and the diagnostics' `action=start` change device state even though their names sound read-only.
+  - `get-event-log(date)` may have server-side cursor semantics (unknown).
+  - `read-signature` reads disk blocks.
+  - Use an explicit allowlist of `(runtime class, path, command-or-null, root shape)` identities. Never use heuristics like `startsWith("get")`.
+- **Classification state is mutable.** `path` and `command` are protected fields and the plist is reachable through `getRootElement`. That's another reason not to classify by serializing at retry time in production. A later design should favor tagging the class immutably at construction, inside the factory. That's a direction for review, not a proposal to implement now.
+- **Direct CLI sends bypass the queue.** A queue retry policy doesn't cover them, and they have no IOException handler (`direct-send-reference-inventory.json:27-28`).
+
+## 6. Security constraints any later policy must keep
+
+- Malformed-header and null-message IO stay terminal, with fixed messages, no peer text and no cause.
+- The parser, length, allocation and header quotas, and their `-102`/`-103` terminal paths, stay unchanged.
+- Never replay:
+  - firmware or stream bodies (the stream is single-use; the existing fixture shows the second send has an empty body or throws)
+  - requests with the shutdown or restart flag set
+  - anything not on the allowlist (default deny)
+- No credential headers, body values or `toString()` output in fixtures or logs. `AbstractRequestMessage.toString` includes the password (`queue-retry-policy-source-bytecode.txt:1245-1253`), and `AcpxRequestTemplate.toString` adds the full plist (`request-template-clone-bytecode.txt:235-252`). Email settings and property sets may contain secrets.
+- No reads of profiles, preferences or the filesystem through the `TestEmail` or `RaidSystem` constructors, and no real hosts.
+
+## Recommendation
+
+1. Gather the source evidence in §3, starting with the 59 factory bodies, deepCopy, `$1`, `UpdateFirmwareRequest`, the `RaidSystem` wrappers and the handlers that chain follow-ups.
+2. Then build the §4 fixture with a committed expected table and the 58+1 coverage gate.
+3. Retry policy only after the caller and sequence inventory has been reviewed as complete.
+
+Until then, the only replay-related change I'd consider is keeping replay at today's level for the request classes already measured. Any broadening would rest on inferences this evidence doesn't support yet.
