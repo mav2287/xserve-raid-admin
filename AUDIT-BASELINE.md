@@ -1,12 +1,11 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current candidate: **audit.11**, clean application source `f962570`, clean runtime
-packager and fixture anchor `b4d5a45`. Both architecture packages reproduce and
-pass bounded offline fixtures. See [framing security scope](audit/RESPONSE-FRAMING-POLICY.md),
-[build/runtime identities](audit/framing-bundle-results.json), and
-[clean source provenance](audit/framing-clean-provenance.json). Earlier intake and
-candidate sections remain historical. This is unsigned and operationally
-unqualified; incorrect declared lengths, HTTP status, native UI and hardware
+Most recent clean qualified candidate: **audit.12**, application source `53e902e`,
+fixture/package anchor `e22e837`. See [malformed-header security scope](audit/MALFORMED-HEADER-GUARD.md)
+and [runtime identities](audit/invalid-header-bundle-results.json).
+Audit.13 null-message recovery is undergoing clean qualification. Earlier intake
+and candidate sections remain historical. Candidates are unsigned and operationally
+unqualified; broader IO replay, incorrect lengths, status, native UI and hardware
 acceptance remain open.
 
 ## Result and scope
@@ -265,3 +264,14 @@ Valid response behavior and unrelated IO retry paths remain unchanged. Null-mess
 IO worker death, other ambiguous mutation retries, incorrect single lengths,
 trailing bytes, status interpretation and real controller/UI/CLI qualification
 remain open. No installed application or production hardware is modified.
+
+
+## audit.13 null-message dispatch recovery
+
+The null-message IOException worker-death case now returns one fixed -102 with
+an unconfirmed controller outcome and retires the connection in bounded fixtures.
+A distinct next request succeeds. See [audit.13 evidence](audit/NULL-IO-RECOVERY.md).
+Nonnull IO classification and retries remain original; broader ambiguous mutation
+replay, GUI sequencing and real sockets remain open. Reflection-metadata failure
+shuts dispatch down; original exit closes the source after terminal callbacks.
+No production hardware, mounted volumes or installed application are exercised.

@@ -26,7 +26,7 @@ public final class RecoveryObservation {
         @Override public void setUserMessageIndex(int value){}
     }
     private static final class State {
-        byte[] raw;int closes,closeFailure;boolean ordinary;IllegalArgumentException injected;
+        byte[] raw;int closes,closeFailure;boolean ordinary,nullIo;IllegalArgumentException injected;
         final List<byte[]> sent=new ArrayList<byte[]>();
         final List<Integer> ordinals=new ArrayList<Integer>();int created;
     }
@@ -36,6 +36,7 @@ public final class RecoveryObservation {
         @Override OutputStream getOutputStream(){pending=new ByteArrayOutputStream();return pending;}
         @Override InputStream getInputStream()throws IOException {
             check(pending!=null&&state.sent.size()<4);state.sent.add(pending.toByteArray());state.ordinals.add(ordinal);pending=null;
+            if(state.nullIo){state.nullIo=false;EOFException failure=new EOFException();failure.initCause(new IOException("DO_NOT_RENDER_SYNTHETIC_HEADER"));throw failure;}
             if(state.injected!=null)throw state.injected;
             if(state.ordinary){state.ordinary=false;throw new IllegalStateException("synthetic ordinary failure");}
             byte[] raw=state.raw;state.raw=null;
@@ -74,13 +75,15 @@ public final class RecoveryObservation {
         return all;
     }
     private static final class Recorder extends AppenderSkeleton {
-        final boolean throwing;int events;String owner,method;boolean safe;
+        final boolean throwing;int events,markerEvents,reconnectEvents;String owner,method,markerOwner,markerMethod;boolean safe;
         Recorder(boolean throwing){this.throwing=throwing;}
         @Override protected void append(LoggingEvent event){
             events++;Object value=event.getMessage();safe=value instanceof Exception;
             check(!event.getRenderedMessage().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));
             String[] trace=event.getThrowableStrRep();if(trace!=null)for(String line:trace)check(!line.contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));
             owner=event.getLocationInformation().getClassName();method=event.getLocationInformation().getMethodName();
+            if(value!=null&&value.getClass().getName().equals("compat.UntrustedResponseException")){markerEvents++;markerOwner=owner;markerMethod=method;}
+            else if("No valid host address for system \"fixture\"".equals(event.getRenderedMessage()))reconnectEvents++;
             if(throwing && value!=null && value.getClass().getName().equals("compat.UntrustedResponseException"))throw new IllegalStateException("synthetic appender failure");
         }
         @Override public void close(){} @Override public boolean requiresLayout(){return false;}
@@ -95,25 +98,33 @@ public final class RecoveryObservation {
         } finally {logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}
     }
     private static void pair(final byte[] raw,final int closeFailure,final boolean loggingFailure,final boolean stopExpected)throws Exception {
-        final State state=new State();state.raw=raw;state.closeFailure=closeFailure;
+        pair(raw,closeFailure,loggingFailure,stopExpected,false);
+    }
+    private static void pair(final byte[] raw,final int closeFailure,final boolean loggingFailure,final boolean stopExpected,final boolean nullIo)throws Exception {
+        pair(raw,closeFailure,loggingFailure,stopExpected,nullIo,loggingFailure);
+    }
+    private static void pair(final byte[] raw,final int closeFailure,final boolean loggingFailure,final boolean stopExpected,final boolean nullIo,final boolean logCapture)throws Exception {
+        final State state=new State();state.raw=raw;state.closeFailure=closeFailure;state.nullIo=nullIo;
         final AcpxConnection old=transport(new Memory(state));final CommunicationsManager m=manager(old);
         final Object[] contexts={new Object(),new Object()};final int[] command={0},connect={0};
         Logger logger=Logger.getLogger(CommunicationsManager.class);boolean add=logger.getAdditivity();Level level=logger.getLevel();Recorder recorder=new Recorder(loggingFailure);
-        if(loggingFailure){logger.setAdditivity(false);logger.setLevel(Level.ERROR);logger.addAppender(recorder);}
+        if(logCapture){logger.setAdditivity(false);logger.setLevel(Level.ERROR);logger.addAppender(recorder);}
         try {
             CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
                 try {
                     if(response.getType()==Response.TYPE_CONNECT){check(!stopExpected&&command[0]==1&&connect[0]++==0&&response.getResultCode()==-101&&context==null&&!m.isConnected());set(m,"connection",transport(new Memory(state)));set(m,"connected",true);return;}
                     int i=command[0]++;check(i<2&&context==contexts[i]&&response.getResultCode()==(i==0||stopExpected?-102:0));
-                    if(i==0){check(state.sent.size()==1&&state.closes>=1);check(field(CommunicationsManager.class,"connection").get(m)==old);if(!stopExpected)check(!m.isConnected());}
+                    if(i==0){check(state.sent.size()==1&&(state.closes>=1 || nullIo&&stopExpected));if(nullIo){check(state.closes==(stopExpected?0:1));Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null);}check(field(CommunicationsManager.class,"connection").get(m)==old);if(!stopExpected)check(!m.isConnected());}
                     if(i==1)m.shutdown();
                 }catch(Exception failure){throw new AssertionError("Recovery callback failed");}
             }};
             AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,f.newGetTimeRequest(),contexts[1]);m.run();
             check(command[0]==2&&connect[0]==(stopExpected?0:1)&&state.sent.size()==(stopExpected?1:2));
             if(!stopExpected)check(state.ordinals.equals(Arrays.asList(1,2))&&!Arrays.equals(state.sent.get(0),state.sent.get(1)));
-            out.println("recovery close_failure="+closeFailure+" logger_failure="+loggingFailure+" stop="+stopExpected+" results="+(stopExpected?"-102,-102":"-102,0")+" sends="+state.sent.size()+" reconnect_seams="+connect[0]);
-        }finally{if(loggingFailure){logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}}
+            if(nullIo)check(stopExpected?state.closes==1:state.closes==2);
+            if(nullIo&&logCapture)check(recorder.events==2&&recorder.markerEvents==1&&recorder.reconnectEvents==1&&"com.apple.xsr.net.CommunicationsManager".equals(recorder.markerOwner)&&"run".equals(recorder.markerMethod));
+            out.println((nullIo?"null_io_recovery":"recovery")+(nullIo?" log_capture="+logCapture:"")+" close_failure="+closeFailure+" logger_failure="+loggingFailure+" stop="+stopExpected+" results="+(stopExpected?"-102,-102":"-102,0")+" sends="+state.sent.size()+" reconnect_seams="+connect[0]);
+        }finally{if(logCapture){logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}}
     }
     private static void direct(byte[] raw,boolean persistent,int closeFailure,int flag)throws Exception{direct(raw,persistent,closeFailure,flag,false);}
     private static void direct(byte[] raw,boolean persistent,int closeFailure,int flag,boolean encrypted)throws Exception{
@@ -162,6 +173,12 @@ public final class RecoveryObservation {
                 org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.ERROR);pair(cases[0],0,true,false);org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
                 Class<?> helper=Class.forName("compat.RejectionRecovery");Field metadata=field(helper,"connectedField");Object previous=metadata.get(null);metadata.set(null,null);
                 try{pair(cases[0],0,false,true);}finally{metadata.set(null,previous);}
+                boolean nullFixed;try{helper.getMethod("nullMessage");nullFixed=true;}catch(NoSuchMethodException absent){nullFixed=false;}
+                if(nullFixed){
+                    for(int failure=0;failure<=2;failure++)pair(null,failure,false,false,true);
+                    org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.ERROR);pair(null,0,true,false,true);pair(null,0,false,false,true,true);org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
+                    metadata.set(null,null);try{pair(null,0,false,true,true);}finally{metadata.set(null,previous);}
+                }
             }
             check(captured.size()==0&&errors.size()==0);out.println("PASS recovery fixed="+fixed+"; guarded_operations=0");
         }finally{System.setOut(out);System.setErr(err);OfflineGuard.assertUntouched();}

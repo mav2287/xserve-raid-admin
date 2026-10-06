@@ -1,0 +1,41 @@
+I found no blockers in the bytecode or helper code. There are four blockers to recording audit.13 as qualified: two record claims are now false, one record describes the wrong method, and the dev records are stale. I read all 14 files plus `audit/communications-manager-bytecode.txt`. Nothing was run or edited.
+
+## What I checked and confirmed
+
+- **Jumps and byte count:** the jump at 339 lands on 553, the null check at 559 on 573, the jump at 568 on 464, and the one at 573 on 344. The appended block is 25 bytes, taking the code from 553 to 578 bytes. `max_stack` and `max_locals` stay 6 and 9.
+- **Exception table:** the pinned tail in `class_patch.py:121` decodes to exactly twelve handlers and no sub-attributes. It matches the dump at `communications-manager-bytecode.txt:478-489`. Calling it nine was the design doc's typo, and nothing depends on it.
+- **The original code ends cleanly:** it finishes with 551 `astore_1` and 552 `return`, so execution can't run into the appended block. The appended block sits outside every handler range, as 339 effectively did before.
+- **The other handler is safe:** handler 307 catches `sun/io/MalformedInputException`, which is an IOException subclass. It logs and returns −102 without calling `getMessage`, so a null message there causes no NPE. That path is unchanged and still doesn't retire the connection.
+- **Mutation tests:** a corrupted byte in 339–348 or 553–577 raises `ValueError`. The pool-index fix inside `methodref()` covers the out-of-range index case.
+- **Independent javap check (`check_security.py:76-90`):** it requires the exact 339 jump, the exact appended instruction list, `#71` at 555, the `nullMessage` linkage, `stack=6, locals=9`, and an unchanged masked disassembly. Exception-table rows have no colon, so the mask regex can't hide them.
+- **VerifyError control:** pointing the jump at 340 lands mid-instruction, and `Class.forName` with `-Xverify:all` rejects it. That proves the verifier really runs on this class.
+- **Metadata-failure shutdown:** the test shows the second queued request gets −102 with one send in total and no reconnect, and the old source closes after `run` exits.
+
+## Blockers before clean records
+
+1. **A stale claim contradicts the policy.** `check_transport.py:221` always emits `invalid_header_scope`, which ends "ordinary IO replay/null-message failure unchanged". With `--null-io-policy` the null-message part is false, and the dev transport record carries it at line 316. It should depend on the flag, for example "ordinary non-null IO replay unchanged; null-message handled per null_io_limits".
+2. **A shared label describes the wrong method.** `check_security.py:215` gives `run` and `send` the same text, so `AcpxConnection.class` is recorded as having "null-IO windows / nonnull IO classification" (security record line 51). `send` has neither, so it needs its own text.
+3. **The security tool's `limits` don't mention null IO.** `check_security.py:241` lists every other independently checked edit but not the run trampoline or the fixed `nullMessage` marker that lines 76-90 and 201-203 verify. Add them, and note that runtime behaviour is recorded by the transport and recovery tools.
+4. **The dev records are stale, not just dirty.** The transport record has no `null_io_limits` key, and its `io_limits` wording differs from the current tool, so it came from an older `check_transport.py`. All three records also pin `class_patch.py` at `cce81a99…`, which is from before the KeyError fix. The clean re-run you planned has to replace all three.
+
+## Missing narrow gates (cheap to add)
+
+- **Pin the five recovery lines exactly.** `check_architectures.py:146` only checks that there are 140 lines, plus the first and last. Check the five `null_io_recovery …` strings exactly; they're at runtime record lines 238–242. The fixture asserts things internally, but the tool shouldn't accept 140 arbitrary lines.
+- **Make the recovery tool's limits text conditional.** In `check_architectures.py:162`, "Null IO adds close failures…" is printed whenever `--recovery` is set, even for a candidate that lacks the null-IO fix. Tie it to `null_io_policy`.
+- **Tighten the close counts.** `RecoveryObservation.java:112` and `:119` only check `closes>=1`.
+  - Non-stop null IO: require `closes==1` at the first callback, so a double close fails.
+  - Metadata-failure null IO: require `closes==0` at the first callback and `closes==1` after `run`. That turns your "can't close the old source before the callback" explanation into an asserted fact.
+- **Add one null-IO case with logging on and a non-throwing logger.** The only null-IO case with a log capture throws on the first marker event. Add one with a non-throwing recorder that requires exactly one event, logger location `compat.RejectionRecovery`, and no cause marker in any event. Today "cause not logged" is only shown indirectly, because the callback exception's cause is null.
+- **Unit-test the null-IO mode of `completed_io`.** `test_transport_comparison.py` never calls `completed_io(..., True, True)`. Add a positive check, plus rejection of the old NPE line in null-IO mode and of the fixed line in legacy mode. `completed_null_io` also has only a rejection test.
+- **Mutate more of `run`'s Code attribute.** Flip the attribute-length and code-length bytes (begin+2..5 and begin+10..13) and one byte in the IOException row and the Exception row of the exception table. Corrupt length fields currently surface as `KeyError` or `struct.error` from `ClassFile`. Either wrap those parse errors as `ValueError` or accept both types explicitly, as `test_header_insertion…` already does at line 89.
+- **Add a static branch-target check (optional).** In `check_security`, confirm that no branch or handler in the original `run` targets 340–343 or 345–348. The VerifyError control covers this when the classes run; this would be the same check done statically.
+- **Run the negative control with default verification (optional).** Running it without `-Xverify:all` would show that the shipped launcher's default (remote) verification also catches a corrupted manager.
+
+## Claims to keep narrow in the audit.13 text
+
+- **What's covered:** only IOExceptions whose `getMessage()` returns null on the single call. `new IOException(cause)` gets a non-null message (`cause.toString()`), so it still takes the unchanged replay path. A null-message `MalformedInputException` goes to handler 307, which was never affected.
+- **The −102 outcome is unconfirmed,** whether the failure happened before or after the write. A peer that always produces null IO gets −102 and a reconnect on every request, but nothing is replayed.
+- **The metadata-failure case** keeps the old source open until `run` exits. Shutdown stops further sends, and queued callbacks finish first.
+- **What still kills the worker:** an overridden `getMessage()` that throws, or `nullMessage()` failing with OOM or a LinkageError. That's the same as before, and the design doc says to list it as a limit.
+- **"getMessage called once"** is shown with logging off only. The current `null_io_limits` already says so.
+- **Unchanged and unqualified, as you said:** broad IO replay, `IOException` from a direct `Acpx.send`, real sockets, UI and CLI. The null IOException is injected at the memory seam.

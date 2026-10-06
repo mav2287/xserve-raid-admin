@@ -60,6 +60,9 @@ This project contains compatibility patches for the original application. Full f
 14. **Malformed-header rejection** — Fixed terminal errors for colonless and
     leading-colon headers prevent peer-text exceptions and command replay on
     that response path. See [audit.12 evidence](audit/MALFORMED-HEADER-GUARD.md).
+15. **Null-message IO recovery** — Replaces dispatch worker death with one fixed
+    terminal failure and connection retirement, preserving nonnull IO retry behavior.
+    See [audit.13 evidence](audit/NULL-IO-RECOVERY.md).
 
 ## Requirements
 

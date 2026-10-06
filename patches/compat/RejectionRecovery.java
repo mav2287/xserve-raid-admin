@@ -9,6 +9,10 @@ import org.apache.log4j.Logger;
 
 /** Retire a rejected response without replay; ordinary exception handling stays legacy. */
 public final class RejectionRecovery {
+    /** The controller may have acted; never retain an untrusted cause chain. */
+    public static Exception nullMessage() {
+        return new UntrustedResponseException("Response transport failed; outcome is unconfirmed");
+    }
     private static Field connectedField, connectionField;
     private static boolean initialized;
     private static Logger logger() { return Logger.getLogger(CommunicationsManager.class); }

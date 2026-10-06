@@ -135,3 +135,14 @@ Valid response behavior and unrelated IO retry paths remain unchanged. Null-mess
 IO worker death, other ambiguous mutation retries, incorrect single lengths,
 trailing bytes, status interpretation and real controller/UI/CLI qualification
 remain open. No installed application or production hardware is modified.
+
+
+## audit.13 null-message dispatch recovery
+
+The null-message IOException worker-death case now returns one fixed -102 with
+an unconfirmed controller outcome and retires the connection in bounded fixtures.
+A distinct next request succeeds. See [audit.13 evidence](audit/NULL-IO-RECOVERY.md).
+Nonnull IO classification and retries remain original; broader ambiguous mutation
+replay, GUI sequencing and real sockets remain open. Reflection-metadata failure
+shuts dispatch down; original exit closes the source after terminal callbacks.
+No production hardware, mounted volumes or installed application are exercised.

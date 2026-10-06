@@ -117,7 +117,22 @@ def transform(entry, data):
         _,begin,end=codes[0]; n=u4(data,begin+10); original_code=data[begin+14:begin+14+n]
         if name=='run':
             if n!=553 or original_code[464:474]!=bytes.fromhex('b2002619051905b60046'): raise ValueError('Recovery log window differs')
-            replacement=bytearray(data[begin:end]);replacement[14+464:14+474]=b'\x2a\x19\x05\xb8'+word(reference)+bytes(4)
+            tail=data[begin+14+n:end]
+            expected_tail=bytes.fromhex('000c000700350048000000380045004800000048004b0048000000d701300133004500d701300151002301810189018c0000018c0191018c0000019c01a701aa000001aa01af01aa000000d7013001ce004c0000020a020d004f021602240227004c0000')
+            if original_code[339:349]!=bytes.fromhex('1905b600471248b60049') or data[begin+6:begin+10]!=bytes.fromhex('00060009') or tail!=expected_tail:raise ValueError('IO handler window, frames or exact twelve-handler table differs')
+            for index,owner_name,method_name,method_descriptor in ((71,'java/io/IOException','getMessage','()Ljava/lang/String;'),(73,'java/lang/String','startsWith','(Ljava/lang/String;)Z')):
+                tag,member=cls.pool[index];ot,ov=cls.pool[u2(member,0)];nt,nv=cls.pool[u2(member,2)]
+                if tag!=10 or ot!=7 or cls.text(u2(ov,0))!=owner_name or nt!=12 or cls.text(u2(nv,0))!=method_name or cls.text(u2(nv,2))!=method_descriptor:raise ValueError('IO handler original targets differ')
+            tag,value=cls.pool[72]
+            if tag!=8 or cls.text(u2(value,0))!='PropertyListException':raise ValueError('IO prefix classification differs')
+            null_signature=append(12,word(utf8('nullMessage'))+word(utf8('()Ljava/lang/Exception;')))
+            null_reference=append(10,word(owner)+word(null_signature))
+            code=bytearray(original_code)
+            code[339:344]=bytes.fromhex('c8000000d6')
+            code[464:474]=b'\x2a\x19\x05\xb8'+word(reference)+bytes(4)
+            code.extend(bytes.fromhex('1905b6004759c7000e57b8')+word(null_reference)+bytes.fromhex('3a05c8ffffff98c8ffffff1b'))
+            body=data[begin+6:begin+10]+struct.pack('>I',len(code))+code+tail
+            replacement=data[begin:begin+2]+struct.pack('>I',len(body))+body
         else:
             tail=data[begin+14+n:end]
             if n!=392 or tail!=bytes.fromhex('00030020010f0115003700200112013e000001150143013e00000000'):
@@ -332,17 +347,24 @@ def assert_recovery_edit(before,after,name):
         return data[b:e]
     a,b=attribute(old,before),attribute(new,after)
     def methodref(index,method,descriptor):
-        tag,value=new.pool[index]
-        if tag!=10: raise ValueError('Recovery target must be Methodref')
-        tag,owner=new.pool[u2(value,0)];nt,sig=new.pool[u2(value,2)]
-        if tag!=7 or new.text(u2(owner,0))!='compat/RejectionRecovery' or nt!=12 or new.text(u2(sig,0))!=method or new.text(u2(sig,2))!=descriptor:
-            raise ValueError('Recovery helper target differs')
+        try:
+            tag,value=new.pool[index]
+            if tag!=10: raise ValueError('Recovery target must be Methodref')
+            tag,owner=new.pool[u2(value,0)];nt,sig=new.pool[u2(value,2)]
+            if tag!=7 or new.text(u2(owner,0))!='compat/RejectionRecovery' or nt!=12 or new.text(u2(sig,0))!=method or new.text(u2(sig,2))!=descriptor:
+                raise ValueError('Recovery helper target differs')
+        except (KeyError,struct.error):raise ValueError('Recovery helper reference invalid') from None
     if name=='run':
         window=b[14+464:14+474]
-        if len(a)!=len(b) or window[:4]!=b'\x2a\x19\x05\xb8' or window[6:]!=bytes(4): raise ValueError('Recovery log substitution differs')
+        if len(b)!=len(a)+25 or a[:2]!=b[:2] or u4(b,2)!=u4(a,2)+25 or a[6:10]!=b[6:10] or a[6:10]!=bytes.fromhex('00060009') or u4(a,10)!=553 or u4(b,10)!=578 or window[:4]!=b'\x2a\x19\x05\xb8' or window[6:]!=bytes(4):raise ValueError('Recovery run frames or report substitution differs')
         methodref(u2(window,4),'report','(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V')
-        masked=bytearray(b);masked[14+464:14+474]=a[14+464:14+474]
-        if bytes(masked)!=a: raise ValueError('Run changed outside recovery log window')
+        if b[14+339:14+344]!=bytes.fromhex('c8000000d6'):raise ValueError('IO trampoline entry differs')
+        added=b[14+553:14+578]
+        if added[:11]!=bytes.fromhex('1905b6004759c7000e57b8') or added[13:]!=bytes.fromhex('3a05c8ffffff98c8ffffff1b'):raise ValueError('IO trampoline branches or stack operations differ')
+        methodref(u2(added,11),'nullMessage','()Ljava/lang/Exception;')
+        masked=bytearray(b[:14+553]+b[14+578:]);masked[:14]=a[:14]
+        masked[14+339:14+344]=a[14+339:14+344];masked[14+464:14+474]=a[14+464:14+474]
+        if bytes(masked)!=a:raise ValueError('Run changed outside exact IO/report windows and appended block')
     else:
         if len(b)!=len(a)+13 or a[:2]!=b[:2] or u4(b,2)!=u4(a,2)+13 or a[6:10]!=b[6:10] or u4(a,10)!=392 or u4(b,10)!=397 or b[14:406]!=a[14:406]:
             raise ValueError('Send frames/code differ outside appended handler')

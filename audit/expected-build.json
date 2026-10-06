@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "e17330bfc12882d890986eb7d589c82d65e00dda3ee38715cd41ea0de2c7284b",
+      "Contents/Info.plist": "9c9357478e4b6a0fb0cf7825da57933c952e5b75df7b6508949ae14fa881a652",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "744efeba288e16aac97cf5bd53b2b87300fe7469bda59e16533df8e20fd63f6b"
+      "Contents/Resources/RAID_Admin.jar": "3f39352faf7b0fe0b117d04af0b2455efd81b4511fc522617743f7d169793175"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "8ce97c37acb72527e676fa5897c16dfece8501ab498da70bf3ae71a5fcfe2bd5",
+      "audit/security-patches.json": "2d822d9cf8be30de960c5614ab0bf987a65057772e541ec9bda4d37ce7be2e88",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -35,16 +35,16 @@
       "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
       "patches/compat/BoundedHeaderStream.java": "d6481d31e34b4f84d927f764f954f63d55e87d58a9e60c70f04ee2ae24644b8e",
       "patches/compat/BoundedResponseBuffer.java": "abae0d2ffb85dd9314ed1774e5f81b15a4b81967ab2badbe902d3b6c0941b995",
-      "patches/compat/RejectionRecovery.java": "47ee08bd46110c0ee27d8bf915e6a172d605dbb1cf8b07c4099ec83f5550225f",
+      "patches/compat/RejectionRecovery.java": "e71a7605ed9731a7c025f648c023cdb0cd009979782f5559cf4c3d1448fb6d60",
       "patches/compat/ResponseFraming.java": "4b8bc91e7616c983e370a779654d15c35a5a721d6cac6eefc2d277a344a60b2e",
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
       "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
       "patches/compat/SafePlistResolver.java": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d",
-      "patches/compat/UntrustedResponseException.java": "925844ccffea026b5ed50a3ee097b00c108a4c432b23d82948a01d354be161a4",
+      "patches/compat/UntrustedResponseException.java": "a7b97d2d51991c78b6e958d21e75df3bbf35914648cfc5f8e9b3dd409c0efa32",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "7f52c39ece4497c977e16e20d8b271d3d5875fe6795ea62c3c0b110fb7c39a4b",
-      "tools/class_patch.py": "57131e8ef615a386087771cf73c1348dde166e7d82b9c8814e78196d153796e6"
+      "tools/baseline.py": "632e7676dce7814752566be7430b019e661f0362d18df5483a883eb7d13465f9",
+      "tools/class_patch.py": "c79002eaffa4fbb8f2e269fc8768cf6cbea64125605adcf26a7d4eb530429f18"
     },
     "jdk": {
       "architecture": "arm64",
@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "122d05fd2bc7ca7cf09f0be5621b6871c3d50a0d83ccbee914b64280fc07603b",
-  "reason": "audit.12 clean Claude-reviewed malformed-header rejection and regression gates",
+  "previous_record_sha256": "8d95bce07cbffd9f4d9f6f81713d5348e684b1d86741b5e0bb701bba35fa62ea",
+  "reason": "audit.13 Claude-reviewed null-message IO terminal recovery, preserved nonnull classification, twelve-handler Code tail and verifier negative control",
   "schema": 1,
-  "source_commit": "53e902ef8023ed06d5dd90183cc3bf326365c7a2",
-  "source_dirty": false
+  "source_commit": "51bf9eaf2660a977de5c2f705875bdde99b90466",
+  "source_dirty": true
 }

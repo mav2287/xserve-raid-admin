@@ -1,0 +1,32 @@
+I found no blocker. The new logger gate is stricter than the one it replaces and doesn't weaken any safety check. You can go ahead with the clean commit and rerun.
+
+## The new logger check is correct
+
+**Where the second event comes from:** Our test system returns `null` for both host addresses. So `doConnect` falls through to PC335–398 in `build/queue-retry-policy-source-bytecode.txt:648-676`. That code calls `logger.error(String)` with `No valid host address for system "` + `getName()` + `"`. `FakeSystem.getName()` returns `"fixture"`, so the exact-string match at `RecoveryObservation.java:86` is right. That path is original code, so expecting exactly one reconnect event documents existing behaviour and doesn't change any application logging.
+
+**Why the marker location is `run`:** `RejectionRecovery.log` (`patches/compat/RejectionRecovery.java:20`) passes `"compat.RejectionRecovery"` as the FQCN. log4j therefore records the frame that called the helper, which is `CommunicationsManager.run` through the 464 report hook. That confirms the doc's correction of the earlier suggested helper location.
+
+**Why the gate is stricter, not looser:**
+- `events==2`, `markerEvents==1` and `reconnectEvents==1` together rule out any extra or missing event.
+- The sentinel checks (lines 82–83) run on every event, before anything is counted.
+- Sentinel failures surface rather than being swallowed:
+  - `report` only catches `Exception`/`LinkageError` (line 60), so an `AssertionError` from `check()` gets out of `run`. The 464–473 window has no `Throwable` handler, so the fixture fails.
+  - If the check somehow didn't throw, `markerEvents++` (line 85) comes after it, so the count assertion would still fail.
+- In the throwing-logger variant, the counters go up before the `IllegalStateException` is thrown. That exception is contained at `RejectionRecovery.java:60`, so the same exact counts still apply.
+
+**Close counts:** These match the code. In the normal path, `report` closes the old source before the `-102` callback, so the first callback sees 1. Shutdown then closes the fresh source through the shared `State` at run exit (534–545), giving 2. When metadata is missing, `stop()` doesn't close anything, so the count is 0. The original worker exit then closes the old source, giving 1. Close-failure modes still increment before they throw (line 49).
+
+## The other gates are consistent
+- **Line count:** `check_architectures.py:146-150` requires exactly 141 lines plus the six exact `null_io_recovery` lines in order, and requires both runtimes to produce the same output. `runtime-2.json` lines 104–244 are 141 lines, the six null lines match `expected_null`, and both runtimes agree.
+- **Fixed-mode detection:** This is driven by the JAR (`nullMessage` bytes in the class file). A fixed JAR without `--null-io-policy` still has to produce 141 lines, so it can't quietly fall back to 135.
+- **Trampoline bytes:** The entry `c8 000000d6` in `check_transport.py:157` is `goto_w` +214, which lands on 553. The block in `check_security.py:79` is 25 bytes ending at 578. The stack is `[s,s]` → `ifnonnull` → `[s]` → `goto 344` on the non-null path, and empty → marker → `astore 5` → `goto 464` on the null path. Both are consistent with the original layout.
+- **Python mutation tests:** `test_class_patch.py:99-114` flips every changed trampoline byte, both Code length fields and the IO and Exception handler-row targets.
+
+## Check before committing (I couldn't verify this read-only)
+- Confirm that the `RecoveryObservation.java` hash recorded in `runtime-2.json` (`a7a50cb5…`) and `tool_sha256` (`452d7ece…`) match the files as they will be committed. Either way, keep that JSON as dev evidence only, which matches your plan.
+
+## Optional, not blocking
+1. `RecoveryObservation.java:117` checks the null-IO response's message and that it has no cause, but not its class. Adding `e.getClass().getName().equals("compat.UntrustedResponseException")` would pin it fully.
+2. The 141-line and null-line gate is written inline in `main()`, so no Python test covers it. Pulling it out into a `completed_null_io`-style function would let unit tests check it.
+3. Log capture isn't combined with close failure or the metadata-stop variants, so the `RAID_ADMIN_REJECTION_CLEANUP_FAILED` signal events aren't counted. The doc only claims the six variants, so this is a scope note.
+4. Cosmetic: `NULL-IO-RECOVERY.md` has missing spaces in "at464" (line 15) and "to578" (line 27).

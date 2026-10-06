@@ -73,7 +73,20 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
             expected=[(464,'aload_0'),(465,'aload         5')]
             if window[:2]!=expected or len(window)!=7 or window[2][0]!=467 or not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.report:\(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;\)V',window[2][1]) or window[3:]!=[(i,'nop') for i in range(470,474)]:
                 raise ValueError('Independent recovery report window differs')
-            def mask(text):return re.sub(r'^\s+(?:46[4-9]|47[0-3]):.*\n','',text,flags=re.M)
+            instructions=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)
+            if next(rest for offset,rest in instructions if offset=='339')!='goto_w        553':raise ValueError('Independent null-IO entry differs')
+            added=[(int(offset),rest) for offset,rest in instructions if int(offset)>=553]
+            expected=[(553,'aload         5'),(555,'invokevirtual'),(558,'dup'),(559,'ifnonnull     573'),(562,'pop'),(563,'invokestatic'),(566,'astore        5'),(568,'goto_w        464'),(573,'goto_w        344')]
+            if len(added)!=len(expected):raise ValueError('Independent null-IO block length differs')
+            for (pc,actual),(wanted,operation) in zip(added,expected):
+                if pc!=wanted:raise ValueError('Independent null-IO offset differs')
+                if pc==555:
+                    if not re.fullmatch(r'invokevirtual\s+#71\s+// Method java/io/IOException.getMessage:\(\)Ljava/lang/String;',actual):raise ValueError('Independent IO message delegation differs')
+                elif pc==563:
+                    if not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.nullMessage:\(\)Ljava/lang/Exception;',actual):raise ValueError('Independent null IO helper differs')
+                elif actual!=operation:raise ValueError('Independent null IO stack/branch differs')
+            if 'stack=6, locals=9, args_size=1' not in b:raise ValueError('Independent IO frame differs')
+            def mask(text):return re.sub(r'^\s+(?:339|34[0-3]|46[4-9]|47[0-3]|553|555|558|559|562|563|566|568|573):.*\n','',text,flags=re.M)
             if mask(a)!=mask(b):raise ValueError('Run differs outside report window')
         else:
             appended=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)[-3:]
@@ -186,6 +199,8 @@ def main():
     if '  major version: 52' not in header_helper or not all(re.search(pattern,header_helper) for pattern in (r'ldc\s+#\d+\s+// int 1048576',r'ldc\s+#\d+\s+// int 65536',r'sipush\s+129',r'// String Response headers exceed limit')):
         raise ValueError('Header helper version, budgets or fixed rejection differs')
     recovery_helper=disassemble_entries(args.jdk,args.jar,['compat/RejectionRecovery.class'],verbose=True)
+    null_helper=re.search(r'^  public static java.lang.Exception nullMessage\(\);.*?(?=^  \S|^})',recovery_helper,re.M|re.S)
+    if null_helper is None or re.findall(r'^\s+\d+:\s+(\S+)',null_helper[0],re.M)!=['new','dup','ldc','invokespecial','areturn'] or '// String Response transport failed; outcome is unconfirmed' not in null_helper[0] or '// Method compat/UntrustedResponseException."<init>":(Ljava/lang/String;)V' not in null_helper[0]:raise ValueError('Null IO fresh fixed marker differs')
     marker_helper=disassemble_entries(args.jdk,args.jar,['compat/UntrustedResponseException.class'],verbose=True)
     if 'public final class compat.UntrustedResponseException extends java.lang.IllegalArgumentException' not in marker_helper or '  major version: 52' not in marker_helper or '  major version: 52' not in recovery_helper or not all(text in recovery_helper for text in ('public final class compat.RejectionRecovery', 'public static java.lang.Throwable sendFailure(java.lang.Throwable, com.apple.xsr.net.AcpxConnection);', 'descriptor: (Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;', 'public static void report(com.apple.xsr.net.CommunicationsManager, java.lang.Exception);')):
         raise ValueError('Marker/recovery helper linkage or hierarchy differs')
@@ -197,7 +212,7 @@ def main():
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
         if name in ('run','send'):
-            verified_methods[entry]='Exact report window / appended marker handler independently verified, original remainder unchanged'
+            verified_methods[entry]=('Exact report/null-IO windows and appended null trampoline independently verified; nonnull IO classification and original handler metadata unchanged' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
             continue
         if name == 'getBody':
             verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons'
@@ -223,6 +238,6 @@ def main():
         'request_inventory':request_inventory,'http_reference_inventory':http_reference_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
         'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py', ROOT/'tools/class_patch.py']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
-        'limits':'Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
+        'limits':'Manager.run null-message-only entry/appended trampoline and fresh fixed nullMessage marker independently verified; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
 
 if __name__ == '__main__': main()

@@ -3,9 +3,22 @@ import sys
 from pathlib import Path
 import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from check_transport import common_observations, completed_io
+from check_transport import common_observations, completed_io, completed_null_io
 
 class TransportComparisonTests(unittest.TestCase):
+    def test_null_io_gate_rejects_invented_success_without_payload(self):
+        with self.assertRaises(ValueError) as caught:completed_null_io('DO_NOT_RENDER_NULL_IO_CAUSE')
+        self.assertNotIn('DO_NOT_RENDER',str(caught.exception))
+    def test_null_io_vectors_require_explicit_mode(self):
+        legacy=json.loads((Path(__file__).resolve().parents[1]/'audit/io-characterization-clean-results.json').read_text())['io_observations'][0]['results']
+        fixed=list(legacy);fixed[:3]=['io invalid-header message_has_peer_line=false; direct_sends=1','queue_response invalid-header-read-terminal result=-102 sends=1 terminal_callbacks=1','queue_response invalid-header-mutation-terminal result=-102 sends=1 terminal_callbacks=1'];fixed.insert(-1,'io sync invalid-header fixed-IOException; no-peer-or-cause; sends=1')
+        null_fixed=list(fixed);null_fixed[5]='io null-message terminal=-102; callbacks=1; failed_sends=1; next_distinct=0; worker-survives'
+        self.assertEqual(completed_io('\n'.join(null_fixed),True,True),null_fixed)
+        for lines,mode in ((fixed,True),(null_fixed,False)):
+            with self.assertRaises(ValueError):completed_io('\n'.join(lines),True,mode)
+        cases=['null_io '+label+' terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=0; worker-survives' for label in ('eof','cause','changing-first-null')]+['null_io changing-first-text ordinary-retry; getMessage_calls=1; sends=2','null_io sync fixed-IOException; no-peer-or-cause; sends=1','PASS null IO policy; guarded_operations=0']
+        self.assertEqual(completed_null_io('\n'.join(cases)),cases)
+        with self.assertRaises(ValueError):completed_null_io('\n'.join(cases[:-2]+cases[-1:]))
     def test_io_gate_rejects_invented_success_without_exposing_payload(self):
         with self.assertRaises(ValueError) as caught:
             completed_io('io null-message callbacks=1 DO_NOT_RENDER\nPASS IO characterization; guarded_operations=0')

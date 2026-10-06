@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--parser', action='store_true', help='Compare accepted XML boundaries and values')
     parser.add_argument('--recovery', action='store_true', help='Candidate marker cleanup and no-replay fixtures; ordinary original logging parity')
     parser.add_argument('--headers', action='store_true', help='Compare bounded header corpus and candidate-only limits')
+    parser.add_argument('--null-io-policy', action='store_true', help='Require null-message terminal IO recovery')
     parser.add_argument('--invalid-header-policy', action='store_true', help='Require terminal invalid-header recovery')
     parser.add_argument('--framing-policy', action='store_true', help='Require response framing class and expanded recovery coverage')
     args = parser.parse_args()
@@ -38,6 +39,8 @@ def main():
     candidate_sha = sha(args.jar)
     with zipfile.ZipFile(args.jar) as archive: framing_policy='compat/ResponseFraming.class' in archive.namelist()
     with zipfile.ZipFile(args.jar) as archive: invalid_header_policy=framing_policy and b'invalidHeader' in archive.read('compat/ResponseFraming.class')
+    with zipfile.ZipFile(args.jar) as archive: null_io_policy='compat/RejectionRecovery.class' in archive.namelist() and b'nullMessage' in archive.read('compat/RejectionRecovery.class')
+    if args.null_io_policy and (not args.recovery or not null_io_policy):raise ValueError('Required null IO policy missing')
     if args.invalid_header_policy and (not args.recovery or not args.headers or not invalid_header_policy):raise ValueError('Required invalid-header policy missing')
     if args.framing_policy and (not args.recovery or not framing_policy):raise ValueError('Required framing recovery policy missing')
     sources = [ROOT / 'tests/java/ApiProbe.java', ROOT / 'tests/java/com/apple/xsr/net/OfflineParity.java']
@@ -140,8 +143,11 @@ def main():
             if args.recovery:
                 a=run(original,'com.apple.xsr.net.RecoveryObservation','false').splitlines()
                 b=run(args.jar,'com.apple.xsr.net.RecoveryObservation','true').splitlines()
-                if len(a)!=2 or not b or a[0]!=b[0] or a[-1]!='PASS recovery fixed=false; guarded_operations=0' or b[-1]!='PASS recovery fixed=true; guarded_operations=0' or len(b)!=(135 if invalid_header_policy else 113 if framing_policy else 78):
+                if len(a)!=2 or not b or a[0]!=b[0] or a[-1]!='PASS recovery fixed=false; guarded_operations=0' or b[-1]!='PASS recovery fixed=true; guarded_operations=0' or len(b)!=(141 if null_io_policy else 135 if invalid_header_policy else 113 if framing_policy else 78):
                     raise RuntimeError('Recovery coverage incomplete or ordinary logger parity differs')
+                if null_io_policy:
+                    expected_null=['null_io_recovery log_capture=false close_failure='+str(failure)+' logger_failure=false stop=false results=-102,0 sends=2 reconnect_seams=1' for failure in range(3)]+['null_io_recovery log_capture=true close_failure=0 logger_failure=true stop=false results=-102,0 sends=2 reconnect_seams=1','null_io_recovery log_capture=true close_failure=0 logger_failure=false stop=false results=-102,0 sends=2 reconnect_seams=1','null_io_recovery log_capture=false close_failure=0 logger_failure=false stop=true results=-102,-102 sends=1 reconnect_seams=0']
+                    if [line for line in b if line.startswith('null_io_recovery ')]!=expected_null:raise RuntimeError('Null IO recovery coverage differs; raw output withheld')
                 if expected_recovery is None:expected_recovery=b
                 if b!=expected_recovery:raise RuntimeError('Recovery observations differ across runtimes')
                 observations[-1]['recovery_regression']=b
@@ -152,10 +158,11 @@ def main():
     if sha(args.jar) != candidate_sha:
         raise RuntimeError('Candidate changed during observation')
     print(json.dumps({'tool_sha256':sha(Path(__file__)), 'compiler_tree_sha256': compiler['tree_sha256'],
-                      'required_framing_policy':args.framing_policy,'required_invalid_header_policy':args.invalid_header_policy,'host_machine': platform.machine(), 'macos_version': platform.mac_ver()[0],
+                      'required_framing_policy':args.framing_policy,'required_invalid_header_policy':args.invalid_header_policy,'required_null_io_policy':args.null_io_policy,'host_machine': platform.machine(), 'macos_version': platform.mac_ver()[0],
                       'original_sha256': sha(original), 'candidate_sha256': candidate_sha,
                       'fixture_sources': {str(p.relative_to(ROOT)): sha(p) for p in sources},
                       'observations': observations,
+                      'null_io_recovery_limits':'Six exact null-IO recovery variants: close failures, throwing/nonthrowing logger and metadata shutdown. Normal first callback has one old-source close; metadata failure has zero then closes once after queued callbacks and run exit. Logger location remains CommunicationsManager.run through the existing FQCN boundary.' if args.recovery and null_io_policy else None,
                       'recovery_limits': 'Actual dispatch/send with bounded memory replies; '+('15 security violations (13 prior cases plus colonless/empty-name headers)' if invalid_header_policy else '13 security violations (8 prior bounds/length cases plus 5 framing cases)' if framing_policy else '8 security violations')+' plus parse gates, persistent/nonpersistent close IO/runtime failures, marker identity, retained callback contexts, distinct next-command send on fresh connection, logger throw containment, metadata failure shutdown and ordinary logger location parity. Malformed-header flag/codec/logger-throw variants use the colonless case; empty-name receives pair and six direct close variants. Invalid-address callback injects reconnection; no TCP or real retry/controller qualification.' if args.recovery else None,
                       'header_limits': '174762 bounded short-input/EOF constructor cases; candidate counters/phase independently compared with original readLine behavior on isolated Unsafe shells; exact fixed malformed-header markers normalized only for parse/consumption parity. Exact line/count/aggregate boundaries, fresh per-response budget and body pass-through above 1 MiB. Three candidate-only overlimit rejections; no real socket framing or recovery qualification.' if args.headers else None,
                       'menu_limits': 'Real interface proxies and API metadata; synthetic backend callbacks only. No native singleton registration, real event construction or AppleEvent delivery.' if args.menus else None,

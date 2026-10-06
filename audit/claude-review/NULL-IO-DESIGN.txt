@@ -1,0 +1,68 @@
+I've read all the files you named (the full 3157-line bytecode dump, `class_patch.py`, `RejectionRecovery.java`, `TransportObservation.java`, and the characterization doc), plus `UntrustedResponseException`, `ResponseFraming` and the run/send section of `check_security.py`. Nothing was executed or edited.
+
+## Verdict
+
+**Your design is feasible and I found nothing that blocks it.** The offsets, stack math and verifier merges all work out. I'd keep your approach over the alternatives below. There are a few things the implementation must pin down (listed under "Required before implementation").
+
+## Offset and byte math (checked against the dump)
+
+The original bytes at 339–348 are `19 05 | b6 00 47 | 12 48 | b6 00 49`. Pool #71 is `IOException.getMessage`, #72 is the string `"PropertyListException"`, #73 is `String.startsWith`, and `ifeq` at 349 jumps to 380.
+
+- **Replacement at 339:** `c8 00 00 00 d6`, i.e. `goto_w` with offset +214 to reach 553. It is exactly 5 bytes, so it fills 339–343 completely. A disassembler reading straight through (javap, or the masked diff in `check_security.py`) still lands on 344, so the 344–552 text stays the same apart from the one changed line.
+- **Appended block, your `ifnonnull` layout:**
+
+| pc | bytes | instruction | stack after |
+|---|---|---|---|
+| 553 | `19 05` | aload 5 | IOException |
+| 555 | `b6 00 47` | invokevirtual #71 | String |
+| 558 | `59` | dup | String, String |
+| 559 | `c7 00 0e` | ifnonnull → 573 | String |
+| 562 | `57` | pop | — |
+| 563 | `b8 HH HH` | invokestatic nullMessage | Exception |
+| 566 | `3a 05` | astore 5 | — |
+| 568 | `c8 ff ff ff 98` | goto_w → 464 (−104) | — |
+| 573 | `c8 ff ff ff 1b` | goto_w → 344 (−229) | String |
+
+  The new code length is 578 (+25 bytes), so the Code attribute length also grows by 25. The deepest stack in the new block is 2, so `max_stack` 6 and `max_locals` 9 are still correct. The block ends with an unconditional jump, so execution can't run off the end of the code.
+
+## Verifier (class version 47 uses the old type-inference verifier, which needs no stack-map frames)
+
+- **Merge at 344:** it is now reached only from 573. The stack there is `[String]`, the same as at the original 344, and locals 0–5 match the IOException handler's state (local 5 is IOException).
+- **Merge at 464:** it is reached from the 462 fallthrough (stack empty, local 5 = Exception) and from 568 (stack empty, local 5 = Exception from the `()Ljava/lang/Exception;` return). Both match. The already-patched `report(CommunicationsManager, Exception)`, the `BasicResponse` constructor at 474 (`…ILjava/lang/Exception;`) and the 489 callback all accept that.
+- **Exception table:** 339 sits inside `0–522 InterruptedException`. The handler at 525 only runs `astore_1`, so the new local-5 types don't matter to it. The appended block lies outside every range. That matches the original, where handler code was never protected either.
+- **One evaluation of `getMessage`:** `dup` means `getMessage()` runs exactly once, as in the original. That matters for subclasses that override it. A design that re-called it would have an unsafe check-then-use gap.
+
+## Security semantics
+
+- **Null message:** the request fails terminally with −102, one callback, no requeue, and the connection is retired through the existing exact-class branch in `report`. Previously the worker died, so this replaces worker death and does not remove a replay that used to happen. It's conservative, and "outcome is unconfirmed" is accurate whether the failure happened before or after the send.
+- **Dropping the cause is the right call.** A null-message IOException can still carry a cause whose message contains peer text (for example a wrapped `ProtocolException`), and `log(failure, failure)` would print that chain.
+- **Unchanged behaviour:** non-null messages still reach 344 with the same String, so the −103 prefix path, the requeue/doConnect path and their timing don't change.
+- **Reusing `UntrustedResponseException` stretches its "untrusted response" meaning**, but it's the only exact-class key `report` retires on. Its constructor is package-private, so `nullMessage` has to live in `compat`, and `RejectionRecovery` does. Update its javadoc so it no longer says only response guards construct it.
+- **Side effect:** if a peer causes null IO every time, every request (including polls) gets −102 and a reconnect. Load is bounded by the request rate and nothing is replayed, but the GUI will show repeated −102s.
+- **What the fix doesn't cover:** if `nullMessage()` itself fails (OOM or LinkageError), or an overridden `getMessage()` throws, the worker still dies, exactly as before. Say so in the limits.
+
+## Required before implementation
+
+1. **Rewrite `assert_recovery_edit` for run.** It currently requires `len(a)==len(b)` and only masks 464–473. It needs to:
+   - mask both windows;
+   - check the 25 appended bytes exactly, resolving both methodrefs;
+   - check code length 553 → 578 and attribute length +25;
+   - check max_stack/max_locals stay 6/9.
+2. **Pin the run Code tail.** `transform` currently copies the run Code tail without checking it. Pin the 9-entry exception table and the sub-attribute names and bytes, the way `send` pins its tail. Line-number and local-variable tables with entries inside 339–343 are only checked against code length, but you should know whether they're there.
+3. **Byte-check 339–348 and pool #71/#72/#73 before editing**, the same way `getBody` validates its pool targets.
+4. **Make sure the fixture actually verifies the patched class.** It must be loaded by the app class loader, not the boot path, which skips verification. Add a negative control, such as a corrupted goto target, that must produce `VerifyError`.
+5. **Update `check_security.py` for run.** Its window check (lines 71–77) only masks 464–473. It also needs the `339: goto_w 553` line and the 553–573 lines, and to confirm the javap `stack=6, locals=9` line hasn't changed.
+
+## Tests to add beyond your list
+
+- **`getMessage` call order:** an IOException subclass returning null then `"x"` must go terminal; one returning `"x"` then null must requeue without an NPE. This shows `getMessage` runs once.
+- **Cause chain:** `new IOException()` with a cause containing a peer-text marker. The callback's exception has no cause and the fixed message, and the captured logs don't contain the marker.
+- **`EOFException()`:** the most likely real source of a null message from the JDK.
+- **Unchanged paths:** the existing truncated-retry, drops=1/4 and malformed (−103) vectors produce the same output.
+- **Sync caller:** gets an IOException with exactly the fixed message and no cause, within a time bound.
+
+## Alternatives considered
+
+- **3-byte in-place swap:** replace `invokevirtual #71` with `invokestatic message(IOException)String`. The smallest possible edit, but a null message then has to go down either the requeue path (replays a possibly-applied mutation) or the −103 path (labels it a parse error, never retires the connection, and leaves the stream possibly out of sync). Reject.
+- **NPE catch row over 339–349:** catches more than intended, and the handler would still need the same retirement routing. Reject.
+- **Your null-check-and-branch design is the smallest correct option.**

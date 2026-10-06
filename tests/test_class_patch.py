@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import struct
 import sys
 import unittest
 import zipfile
@@ -95,6 +96,22 @@ class ClassPatchTests(unittest.TestCase):
             changed=bytearray(after);changed[offset]^=1
             with self.subTest(target=value),self.assertRaises(ValueError):assert_header_insertion(before,bytes(changed))
 
+    def test_null_io_trampoline_is_fully_locked(self):
+        entry='com/apple/xsr/net/CommunicationsManager.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
+        for offset in list(range(339,349))+list(range(553,578)):
+            changed=bytearray(after);changed[begin+14+offset]^=1
+            with self.subTest(offset=offset),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
+    def test_null_io_code_lengths_and_handler_rows_are_locked(self):
+        entry='com/apple/xsr/net/CommunicationsManager.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
+        # Twelve preserved rows follow the 578-byte code. IO is row5; generic Exception row10.
+        offsets=list(range(begin+2,begin+6))+list(range(begin+10,begin+14))+[begin+14+578+2+4*8+6,begin+14+578+2+9*8+6]
+        for offset in offsets:
+            changed=bytearray(after);changed[offset]^=1
+            with self.subTest(offset=offset),self.assertRaises((ValueError,KeyError,struct.error)):assert_recovery_edit(before,bytes(changed),'run')
     def test_recovery_run_only_changes_report_window(self):
         entry='com/apple/xsr/net/CommunicationsManager.class'
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
