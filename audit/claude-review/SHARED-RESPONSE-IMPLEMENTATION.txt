@@ -1,0 +1,57 @@
+# G12 shared persistent stream fixture: review
+
+**Verdict:** The fixture is correct for what it claims to show. The response mix-up it reports matches what the original bytecode does. I found no fixture flaw that would invalidate the results. There are three blockers before this can be accepted, all about provenance or gating rather than correctness, plus a few narrow tightening fixes. I didn't execute, hash or edit anything.
+
+## Blockers before acceptance
+
+1. **The recorded results came from an uncommitted tree.** `build/shared-stream-results.json` shows `fixture_dirty: true`, and its `fixture_commit` (02c1ebb) doesn't contain the two untracked fixture files. Commit both files, rerun from a clean tree, and confirm that the recorded source hashes match the committed files. I couldn't check the hashes myself without running a hash tool.
+2. **The Python checker doesn't pin the expected values** (`tools/check_shared_stream.py:14-22`). It only checks line count, line prefixes, the final PASS line, and that all four runs agree. A wrong value that appeared the same way in every run would still pass. The Java assertions cover most values, but not:
+   - `pending_after_second` in the chunked case (118)
+   - the `reads=` counts
+
+   **Narrow fix:** add an `EXPECTED` list of the 8 exact lines and require `lines == EXPECTED`. The output is fully deterministic, so this is safe.
+3. **The candidate JAR isn't tied to the anchored candidate.** The checker accepts any regular JAR that differs from the original (`:33-35`). The run used `1526b6…`, but nothing checks that this is the reviewed audit.10 build. **Fix:** add a required `--candidate-sha256` argument and compare it before running.
+
+## Correctness checks against the original bytecode
+
+| Area | Assessment |
+|---|---|
+| **Append only after a real request** | Correct. The append happens in `Memory.getInputStream`, which is only reached through `HttpResponse.<init>` → `HttpConnection.getResponse`. That method requires `requestSent`, which (as you confirmed) is set after `sendBody`. The fixture's own check `pending.size()>0` (`:56`) adds little; the legacy flag is the real gate. |
+| **One input stream per response** | Correct. `getInputStream` is called once per response, from the `HttpResponse` constructor only. The counter checks `outputs==inputs+1` and `outputs<2` would catch any extra call. |
+| **Persistent stream not closed** | Correct. Since `persistent=true` and no `Connection: close` header is sent, `getBody` never closes the stream. The send path's finally block only closes `HttpInputStream`, which matches your disassembly. `closes==0` is asserted after both sends. |
+| **Response mix-up** | Correct. The forged reply arrives as surplus bytes inside the first response. The legitimate second reply is only appended once the second request has been sent. So `second=prior-body` with exactly `legitimate.length` (113) bytes left over is genuine leftover-body contamination, not a reply loaded in advance. |
+| **Header variants** | Correct, given that headers are case-sensitive and the last value wins: `getHeaderField("Content-Length")` returns null or `"0"`, so the body is empty, `available()==0`, and the plist is null (`empty`). |
+| **Chunked case** | Correct. `readLine` takes `"3"` as the status line, then `"abc"` has no colon, so it throws `ProtocolException`. That consumes 8 bytes, and 13+113−8 = 118 remain. |
+| **Skipping the constructor** | Acceptable. `allocateInstance` avoids `createConnection`/`open` (which would open a socket). `encrypted` defaults to false, which matches what the constructor sets. Only the plaintext path is covered. |
+| **Final disconnect** | This tests the fixture's own close, not the legacy `disconnect` (which is overridden). That's acceptable because the limits text disclaims TCP. |
+| **Idle timeout** | `sourceControls` only tests the synthetic `Source`. None of the six scenarios ever runs out of data, so the original code's timeout handling isn't observed. The wording should say this is a property of the fixture. |
+| **Bounds** | Adequate: replies ≤8192 bytes, source ≤16384 bytes and reads, 64 MB heap, 20 s limit, at most 2 sends. |
+| **Raw output containment** | Adequate. stdout/stderr are redirected and checked to be empty, log4j is turned off, assertion messages are generic, and stderr is restored before any uncaught exception prints (that output is discarded on failure). The checker rejects any unexpected line without echoing it. |
+
+## Narrow fixture fixes (not blockers)
+
+- **Pin the chunked leftover:** in `SharedResponseObservation.java:87`, assert `remaining()==legitimate.length+chunks.length-8` for the chunked case.
+- **Record the stuck state after a protocol error.** From the bytecode, this is what happens after the `ProtocolException`:
+  - The exception is thrown in the `HttpResponse` constructor, so neither `getBody` nor `HttpInputStream.close` ever runs.
+  - As a result, `requestOutstanding` stays `true`, and `send`'s finally block keeps the connection because it's persistent and not shutting down.
+  - Every later `newRequest` should therefore throw `IllegalStateException`.
+
+  To observe this, allow a third send in the chunked case only, expect `IllegalStateException`, and assert that `outputs` stays at 2. Right now this is inferred from the bytecode, not observed.
+- **Add to the limits text:** a peer EOF (`read()==-1`) isn't modelled. Neither is a response `Connection: close` header (the fixture would fail with an `AssertionError` on the next `getOutputStream` instead of modelling the legacy socket failure).
+
+## Fixture flaws vs. legacy behaviour
+
+**Fixture or tooling issues:** the three blockers, the unpinned chunked leftover, the weak `pending` check, and the timeout wording.
+
+**Legacy behaviour (the same in the original and the candidate; this is what the fixture should characterize, not fix):**
+- **Confirmed by the run:**
+  - A missing, lowercase, duplicate-last-zero or zero `Content-Length` makes the client treat leftover bytes as the next response, leaving it permanently one response behind on that connection.
+  - Closing `HttpInputStream` never closes the underlying stream.
+- **Inferred from bytecode only:**
+  - A `ProtocolException` leaves the connection stuck, as described above.
+  - `Connection: close` is matched case-insensitively, but `Content-Length` is matched case-sensitively.
+  - `readLine` ends a line after any two CR/LF characters, even if other characters come between them.
+  - At EOF, `readLine` returns whatever partial line it has. An empty result there silently ends the header block.
+  - After a response with `Connection: close`, the input stream is closed but `AcpxConnection` keeps the connection object.
+
+The claim that "stricter framing cannot encrypt or authenticate legacy HTTP" is correctly limited, as is the statement that x64 ran under Rosetta.
