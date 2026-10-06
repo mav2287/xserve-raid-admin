@@ -25,21 +25,28 @@ def unhook(data,reference):
  restored=compose(data,c,[(b,e,code_attribute(data[b:e],data[b+6:b+10],bytes(code),word(u2(table,0)-4)+table[2:-34]+table[-2:]))],433,keep_end=end)
  if restored!=reference or hook(restored)!=data:raise ValueError('Whole exposure hook differs')
  return restored
+def write_fixture(path,entries,manager):
+ with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_STORED) as z:
+  for name,value in sorted(entries.items()):
+   info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.create_system=3;info.external_attr=(0o40755<<16)|0x10 if name.endswith('/') else 0o100644<<16
+   z.writestr(info,manager if name==ENTRY else value)
 def build(reference,out):
  reference=Path(reference);out=Path(out)
  if hash(reference.read_bytes())!=JAR:raise ValueError('Unreviewed reference JAR')
  original=Path('original/RAID_Admin_original.jar')
  if hash(original.read_bytes())!=ORIGINAL:raise ValueError('Original changed')
  with zipfile.ZipFile(original) as z:source=worker_plan(transform_manager(transform(ENTRY,z.read(ENTRY))))
- with zipfile.ZipFile(reference) as z:entries={n:z.read(n) for n in z.namelist()}
+ with zipfile.ZipFile(reference) as z:
+  names=z.namelist()
+  if len(names)!=len(set(names)):raise ValueError('Duplicate reference entries')
+  entries={n:z.read(n) for n in names}
  if source!=entries[ENTRY] or hash(source)!=PIN:raise ValueError('Source-reference mismatch')
  guarded=plan(source)
  if normalize(guarded)!=source:raise ValueError('Guard reconstruction differs')
  result={}
  for name,data in [('legacy',source),('guarded',guarded)]:
   patched=hook(data);unhook(patched,data);path=out/(name+'-exposure-fixture.jar')
-  with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_STORED) as z:
-   for n,v in entries.items():z.writestr(n,patched if n==ENTRY else v)
+  write_fixture(path,entries,patched)
   with zipfile.ZipFile(path) as z:
    if set(z.namelist())!=set(entries) or any(z.read(n)!=v for n,v in entries.items() if n!=ENTRY):raise ValueError('Non-Manager fixture changes')
    unhook(z.read(ENTRY),data)

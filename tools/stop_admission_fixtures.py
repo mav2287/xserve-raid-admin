@@ -19,13 +19,21 @@ def unhook(data):
  c=ClassFile(data);b,e=method_code(c,'dispatchLoop','()V');at=b+14+235;end=pool_boundary(c,433)
  if c.pool_count!=439 or data[end:c.pool_end]!=TAIL or data[at:at+3]!=b'\xb8'+word(438):raise ValueError('Fixture hook differs')
  return compose(data,c,[(at,at+3,bytes.fromhex('b6001b'))],433,keep_end=end)
+def write_fixture(path,entries,manager):
+ with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_STORED) as z:
+  for name,value in sorted(entries.items()):
+   info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.create_system=3;info.external_attr=(0o40755<<16)|0x10 if name.endswith('/') else 0o100644<<16
+   z.writestr(info,manager if name==ENTRY else value)
 def build(reference,out):
  reference=Path(reference);out=Path(out)
  if hash(reference.read_bytes())!=JAR:raise ValueError('Unreviewed reference JAR')
  original=Path('original/RAID_Admin_original.jar')
  if hash(original.read_bytes())!=ORIGINAL:raise ValueError('Original changed')
  with zipfile.ZipFile(original) as z:source=worker_plan(transform_manager(transform(ENTRY,z.read(ENTRY))))
- with zipfile.ZipFile(reference) as z:entries={n:z.read(n) for n in z.namelist()}
+ with zipfile.ZipFile(reference) as z:
+  names=z.namelist()
+  if len(names)!=len(set(names)):raise ValueError('Duplicate reference entries')
+  entries={n:z.read(n) for n in names}
  if entries[ENTRY]!=source or hash(source)!=PIN:raise ValueError('Source-reference mismatch')
  guarded=plan(source)
  if normalize(guarded)!=source:raise ValueError('Stop guard reconstruction differs')
@@ -34,8 +42,7 @@ def build(reference,out):
   patched=hook(data)
   if unhook(patched)!=data or hook(unhook(patched))!=patched:raise ValueError('Hook roundtrip differs')
   path=out/(name+'-fixture.jar')
-  with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_STORED) as z:
-   for n,v in entries.items():z.writestr(n,patched if n==ENTRY else v)
+  write_fixture(path,entries,patched)
   with zipfile.ZipFile(path) as z:
    if set(z.namelist())!=set(entries) or any(z.read(n)!=v for n,v in entries.items() if n!=ENTRY):raise ValueError('Fixture changed non-Manager entries')
    if unhook(z.read(ENTRY))!=data:raise ValueError('Written fixture differs')
