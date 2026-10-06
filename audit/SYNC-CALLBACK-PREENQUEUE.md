@@ -1,6 +1,6 @@
 # Audit.17 synchronous callback guard
 
-Status: development; clean qualification pending. This is defense in depth, not
+Status: clean memory-fixture qualification passed at source/fixture/package commit `47166ed`. This is defense in depth, not
 proof of a reachable original GUI workflow. Original source facts and actual
 [Claude design](claude-review/SYNC-CALLBACK-PREENQUEUE-DESIGN.txt) show that a
 SyncSender posts its request before checking whether it is on the manager thread.
@@ -57,3 +57,50 @@ is checked against expected-build and the audit.17 matrix pin, supplementing the
 constructor-only mask. Parity cases are unchanged behavior, not additional fixes.
 Only the successful-response callback path is exercised. An escaping callback
 Error at run PC509 can still strand the worker without stopping the manager.
+
+## Clean qualification and archive mapping
+
+Two source builds reproduce JAR
+`948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a`.
+Seven gates passed at clean commit `47166ed`, each exit 0 with empty stderr:
+[security](sync-preenqueue-clean-security-2.json), [transport](sync-preenqueue-clean-transport-2.json),
+[runtime](sync-preenqueue-clean-runtime-2.json), [resources](sync-preenqueue-clean-resources-2.json),
+[shared stream](sync-preenqueue-clean-shared-2.json), [factory](sync-preenqueue-clean-factory-2.json)
+and [posting](sync-preenqueue-clean-posting-2.json). These are byte-for-byte copies
+of the identically named build records. The first clean run's posting checker
+failed a metadata lookup caused by a tuple in place of a Path. That run is excluded;
+the corrected gate, requalified seven-gate set and package/fixture identity use
+`47166ed` and the `-2` records. Application bytes did not change in that correction.
+The [108 Python tests](sync-preenqueue-clean-tests.json) pass from the same commit.
+
+The posting record has eight original/candidate interpreted/compiled positives
+and two restored-constructor negative controls (default mode, one per architecture).
+Both mutant archives have identical hashes; restoring the constructor reproduces
+the audit.16 JAR. Other gates retain the 143-line recovery matrix, worker failure
+mutants, XML quotas, headers, shared-stream and 116-row factory regressions.
+
+[Package records](sync-preenqueue-bundle-results.json) preserve vendor signatures
+and reproduce files, modes and directory modes twice per architecture. Trees:
+aarch64 `c1ad83d067cc088315ad0ad9f860a43dce42b5cd244204a6bcdb5b8a5f22f2a9`;
+x64 `ffe58e27a43ade1691d26b3894510b4b38d674f7a0f5eafa8316f109642e7d88`.
+[Arm64 diagnostics](sync-preenqueue-diagnostics-aarch64.json) and
+[x64 diagnostics](sync-preenqueue-diagnostics-x64.json) match the reviewed artifact,
+manifest and audit.17 claim. Their architecture field describes the host; x64 runs
+under Rosetta. The runtime gate hashes Contents/Home; lock checks hash Runtime.jdk.
+Their distinct measured scopes are retained in final integrity. Application signing,
+notarization, native UI and physical Intel acceptance remain unperformed.
+
+[Final integrity](sync-preenqueue-final-integrity.json), SHA-256
+`22034b0f12291e3a43832b4f60067bfaf8fe4c304293473874bc3c120d10da5b`, hashes all seven records, tests, bundles and diagnostics, maps role
+keys to archive filenames, verifies fixture sources against committed bytes and
+preserves original mode 444 and installed-app files/modes. Only SyncSender.class
+changes from audit.16 JAR entries. No controller contact or production-volume test
+occurred, and no installed application was modified.
+
+[Claude clean review](claude-review/SYNC-CALLBACK-PREENQUEUE-CLEAN-EVIDENCE.txt)
+found no evidence blocker and required updating pending documentation, retaining
+archive file mappings, excluding the metadata-error run and pinning final integrity.
+Those changes are now present. No qualification input changed in this archive step.
+Claude's review compared recorded hashes; executed gates and final integrity supply
+the independent checksum verification. The additional copied guard/enqueue and old
+check snapshot mutations requested in follow-up are covered by the 108-test record.

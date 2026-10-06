@@ -1,0 +1,61 @@
+{
+  "fixture_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "fixture_dirty": false,
+  "qualification": true,
+  "purpose": "clean-reviewed-qualification",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "host_machine": "arm64",
+  "macos_version": "26.6.2",
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "source_hashes": {
+    "tests/java/com/apple/xsr/net/RequestFactoryObservation.java": "a18b1f8bf06b1665c4c8e3ae4c18c1aac6237f1f01115ec3d0fda6cc6de4bf98",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+    "tools/check_request_factory.py": "7497fdd775fee1d70fd1cccc5f5e647c25d9a80ea79ca419768498b7a948757f",
+    "audit/request-factory-signatures.json": "54f2c882894546a486c737c43c31d7e54abfb288f7edb5dd15cf62b6ea38437a",
+    "audit/expected-build.json": "780381ad2dec2aa7aaadf46129443900dd1c10d94ce59701632e597e3902bea7",
+    "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
+    "tools/baseline.py": "bc328babf6c370a89d29ff19c54deee5ee6acd30efb4f1f2ef84f1ecfa80d9b0",
+    "tools/class_patch.py": "28ceb16a99328d3ea28404113a5284115e7b4a4750df19aac1a7cc96a405d8ce",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "audit/request-factory-expected.json": "741e2b830a8bd7d8cd1b866acd0580e929b922d7626f5973780064ae03d7032a"
+  },
+  "observations": [
+    {
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "architecture": "aarch64",
+      "rows": 116,
+      "invoked_per_sweep": 58,
+      "excluded_per_sweep": 1,
+      "guarded_operations": 0
+    },
+    {
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "architecture": "x64",
+      "rows": 116,
+      "invoked_per_sweep": 58,
+      "excluded_per_sweep": 1,
+      "guarded_operations": 0
+    },
+    {
+      "jar_sha256": "948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a",
+      "architecture": "aarch64",
+      "rows": 116,
+      "invoked_per_sweep": 58,
+      "excluded_per_sweep": 1,
+      "guarded_operations": 0
+    },
+    {
+      "jar_sha256": "948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a",
+      "architecture": "x64",
+      "rows": 116,
+      "invoked_per_sweep": 58,
+      "excluded_per_sweep": 1,
+      "guarded_operations": 0
+    }
+  ],
+  "limits": "Synthetic arguments and body-only serialization into capped memory; no controller, wire-header serialization, header/body values emitted, full GUI/CLI, profile or actual firmware. 59=58 invoked+one filename-firmware exclusion. Two factory timeout states; clone identities, body digests matched to reviewed table and unmutated body equality. Six bounded enqueue-sharing cases, including Date/byte-array isolation and caller-list aliasing. No retry classifier, concurrency, mutation-between-retries or sequence qualification. One synthetic argument set per overload, not every conditional/default schema. Copied maps become HashMap, so ordered-map serialization may change. Source isValidElement accepts Float/general List types unsupported by deepCopy/writeXMLLevel; no GUI failure inferred. HashMap serialization order is pinned-runtime evidence, not portability proof. x64 uses Rosetta here."
+}

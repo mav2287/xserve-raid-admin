@@ -1,0 +1,62 @@
+{
+  "source_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "fixture_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "records": {
+    "security": "86a32dc1326b36cddb63071c7f480bbe5f19c8e544225e5d54fa3c5ae8bc642f",
+    "transport": "1f2c8d5d7536080df2bbd46c03ffd5a62b874778d703d310af4ad8f960594df4",
+    "runtime": "4433c5695b3d8bd87b812437f6ab887420fd4a13de61613018a3806851e23139",
+    "resources": "038d93176faeae56f2503a5ce1c124879fff6ce7deeab311119a874eaf0b248b",
+    "shared": "f2c320a7ee9759b332f9d721ee2243bc86155111c375c702a8f449b8bd42cb49",
+    "factory": "ecf2424aa11a6ffc566ed00c6727070b4b37451a93ecb7d38a007aee253daba1",
+    "posting": "ee70d923a007f008f9d2fe51ac5e4a6377cb1847b4d642a1d979092e67dfde32"
+  },
+  "supplemental_records": {
+    "sync-preenqueue-clean-tests": "916ebbbb78b82d6b4352189792e70e9c9c1939980aff3bdc99b3ecf54152bd11",
+    "sync-preenqueue-bundle-results": "41760637c72301d869ef9c59bb372416551ae61fecc7d3dc4c709e759c66c818",
+    "sync-preenqueue-diagnostics-aarch64": "236b9974c8fa347da1c7ba8a9ed5930f634babcf03bd1f09ba2b7f28ae038606",
+    "sync-preenqueue-diagnostics-x64": "05bb2e2c10ac7c78dd436efa32d31125db5098e7e9c0c07f3b701dd2d100058a"
+  },
+  "candidate_jar_sha256": "948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "checked_source_hash_entries": 70,
+  "python_tests_passed": 108,
+  "posting_records": 10,
+  "posting_default_mode_mutants_per_architecture": 1,
+  "restored_mutant_reproduces_same_archive_on_both_architectures": true,
+  "changed_jar_entries_from_audit16": [
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class"
+  ],
+  "architectures": [
+    "aarch64",
+    "x64"
+  ],
+  "x64_execution": "Rosetta, not physical Intel",
+  "controller_contact": false,
+  "installed_application_modified": false,
+  "record_files": {
+    "security": "sync-preenqueue-clean-security-2.json",
+    "transport": "sync-preenqueue-clean-transport-2.json",
+    "runtime": "sync-preenqueue-clean-runtime-2.json",
+    "resources": "sync-preenqueue-clean-resources-2.json",
+    "shared": "sync-preenqueue-clean-shared-2.json",
+    "factory": "sync-preenqueue-clean-factory-2.json",
+    "posting": "sync-preenqueue-clean-posting-2.json"
+  },
+  "claude_clean_review_sha256": "61897e2bf31b90cf6c47bc7d40c3379efdedb8ca9ebd9c1dc5a964430ef17648",
+  "runtime_hash_scopes": {
+    "aarch64": {
+      "Runtime.jdk": "e599cb3abe9ac6b09164cec18f6fca71625a16522d186ba7148e08a218d354c0",
+      "Runtime.jdk/Contents/Home": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2"
+    },
+    "x64": {
+      "Runtime.jdk": "bddb573491588b48dee81e1b2461fb71765a0dbeb005ddb9337e211f52fc6d39",
+      "Runtime.jdk/Contents/Home": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d"
+    }
+  }
+}

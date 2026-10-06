@@ -1,12 +1,12 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current clean fixture-qualified candidate: **audit.16**, source/fixture/package
-commit `727e5c4`. See [worker-failure containment](audit/WORKER-FAILURE-STOP.md),
-[build/runtime identities](audit/worker-stop-bundle-results.json) and
-[integrity record](audit/worker-stop-final-integrity.json). Earlier candidate
-sections remain historical. This is unsigned and operationally unqualified;
-synchronous cancellation/liveness, incorrect lengths, HTTP status, native UI,
-firmware binding and hardware acceptance remain open.
+Current clean fixture-qualified candidate: **audit.17**, source/fixture/package
+commit `47166ed`. See [synchronous callback guard](audit/SYNC-CALLBACK-PREENQUEUE.md),
+[build/runtime identities](audit/sync-preenqueue-bundle-results.json) and
+[integrity record](audit/sync-preenqueue-final-integrity.json). Earlier sections
+remain historical. This is unsigned and operationally unqualified; TYPE_CONNECT
+completion, synchronous cancellation/liveness, incorrect lengths, HTTP status,
+native UI, firmware binding and hardware acceptance remain open.
 
 ## Result and scope
 
@@ -321,12 +321,12 @@ Interrupted synchronous waits, premature connection completion, queue exit races
 GUI recovery and hardware qualification remain unresolved. No controller command
 or installed-app modification is part of this change.
 
-### Audit.17 callback guard (development)
+### Audit.17 callback guard (clean fixtures)
 
 A constructor-only defense removes enqueueing before the existing forbidden
 synchronous-callback error. The memory differential shows the original queued
 command later executing; the patch rejects before enqueueing while preserving
 normal synchronous response identity and clone counts. This does not establish
 original GUI reachability or fix interrupted waits and TYPE_CONNECT failure/later
-transmission. Claude reviewed the design and implementation, and 108 tests pass.
-Clean qualification is pending. See [scoped evidence](audit/SYNC-CALLBACK-PREENQUEUE.md).
+transmission. Claude reviewed the design, implementation and clean evidence; seven gates and
+108 tests pass at clean source/fixture/package commit `47166ed`. See [scoped evidence](audit/SYNC-CALLBACK-PREENQUEUE.md).

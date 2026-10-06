@@ -1,0 +1,52 @@
+**Verdict:** I found no blocker in the evidence itself. Every record is consistent with clean qualification of `948c1d85…` at `47166ed`. What still has to happen before you archive is documentation and file handling, listed below. I only read files. I recomputed no hashes and ran nothing.
+
+## What I checked
+
+- **Identity is the same in every record.**
+  - Source, fixture and package are all `47166ed`, with both dirty flags false where the record has them.
+  - Every record has candidate `948c1d85…` and original `5505d8d9…`.
+  - Every record has compiler tree `da86c7df…`.
+  - Runtime trees are `ce517f50…` (aarch64) and `6aa1fb2c…` (x64) in posting, resources, shared, factory, the bundle results and both diagnostics.
+- **Posting record** (`build/sync-preenqueue-clean-posting-2.json`):
+  - `qualification: true`.
+  - It has 8 run entries (2 architectures × `-Xint`/`-Xcomp` × original/candidate) plus 2 restored-mutant entries, which matches `posting_records: 10`.
+  - The mutant SHA `73d155bf…` is the same on both architectures, which matches `restored_mutant_reproduces_same_archive_on_both_architectures`.
+  - The output lines match `expected(False)` and `expected(True)` in `check_sync_posting.py`.
+  - `source_hashes` now includes `audit/runtime-lock.json`, which closes optional fix 3 from the follow-up review.
+  - The `expected-build.json` hash `780381ad…` is the same in the posting and factory records.
+- **Other records:**
+  - Tests: 108 passed, and the final-integrity record also says 108.
+  - Security: `independent_preservation: PASS`.
+  - Runtime: `required_sync_preenqueue` and `required_worker_failure_stop` are both true.
+  - Factory: `qualification: true`.
+- **Bundle and diagnostics:**
+  - Each architecture built twice to the same bundle tree: `c1ad83d0…` for aarch64 and `ffe58e27…` for x64.
+  - Both builds carry jar `948c1d85…`, are clean, and are labelled `1.5.1-modern.audit.17`.
+  - Both diagnostics report `matches_reviewed_artifact` and no controller discovery.
+- **Scope:** the doc and the posting `limits` field agree on all the open items: PC509 stranding, interruption leaving a request queued, TYPE_CONNECT, the success-path-only callback, ImmediateManager being a test seam, and Rosetta. `changed_jar_entries_from_audit16` lists only the SyncSender class, which matches the corrected wording in the doc.
+
+## Blockers to archiving (all documentation or process)
+
+1. **Status is still "pending" in nine places.** `audit/SYNC-CALLBACK-PREENQUEUE.md:3` says "development; clean qualification pending". `PLAN.md`, `PROTOCOL-INVENTORY.md`, `DEPENDENCIES.md`, `GAPS.md`, `README.md`, `ARCHITECTURE.md`, `AUDIT-BASELINE.md` and `ACCEPTANCE-MATRIX.md` each still say "Clean qualification is pending". Change them to the pattern used in `WORKER-FAILURE-STOP.md:3`: "clean memory-fixture qualification passed at source/fixture/package commit `47166ed`", followed by the scope.
+2. **The records are not in `audit/` yet.** The only `audit/sync-preenqueue*` file is `recovery-expected.json`. Copy the build records byte-for-byte, because `final-integrity.json` holds their hashes. Either keep the file names, `-2` suffix included, or write down the mapping. If you rename them, the role keys in final-integrity (`posting`, `security`, …) no longer clearly point to a file.
+3. **The excluded run isn't documented.** The doc only describes the earlier three-request socket-guard experiment. Add the excluded first run that failed on a metadata error: why it was excluded, that it is not qualification evidence, and that the `-2` files are the run you are using. The records don't capture exit codes or stderr, so the doc should state the "exit 0, empty stderr" claim itself.
+4. **The archive commit must not touch any hashed input.** That covers `tools/*`, `tests/*`, `patches/*`, `audit/expected-build.json`, `audit/sync-preenqueue-recovery-expected.json` and `audit/runtime-lock.json`. Don't re-run `--update-expected` either. Otherwise the records no longer describe the committed tree.
+5. **Nothing records final-integrity's own hash.** Add it to the archive doc so the whole set of records can be checked from one value.
+
+## Non-blocking notes
+
+- The runtime and transport records only have `fixture_commit`, not `source_commit`/`source_dirty`. The candidate SHA plus final-integrity cover this.
+- `runtime_tree_sha256` in the runtime record (`278ffbb3…`/`a4747957…`) differs from the lock trees. It is a different measure (`runtime_identity` in `check_architectures.py`), and the same values already appear in `audit/security-runtime-fixtures.json`. Don't describe the two as the same thing.
+- `architecture: "arm64"` in the x64 diagnostics file means the host machine. The bundled JRE is correctly x64.
+- The diagnostics files list host network interfaces. Remove them before archiving if you don't want host details in the repo.
+- From the follow-up review, the hash-timing order is still as described (expected records read before hashing). It doesn't matter for a clean run. I couldn't confirm from these files whether optional fix 1, the extra javap-snapshot mutations, was added.
+
+## Remaining limitations (correctly kept open)
+
+- The evidence is memory-only. Whether the GUI, a real controller or the real classpath can reach this path is still unknown.
+- Only the successful-response callback path is exercised. An Error thrown by a callback at run PC509 can still strand the worker.
+- An interrupted synchronous wait still leaves one request queued (`cancellation=unfixed`).
+- The TYPE_CONNECT failure path, post/exit atomicity, lock-order liveness and callback-failure cleanup are not fixed.
+- x64 ran under Rosetta, not on a physical Intel Mac.
+- The bundle is unsigned and not notarized, and the application was never launched.
+- Legacy HTTP is still plaintext.
