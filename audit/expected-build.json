@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "87e35a8812e978c91af8fc2bbf019a2ede545c7296cda6810b56f8f6bcb1e3d0",
+      "Contents/Info.plist": "74035a3f89e5b4453400e2560468d073049a377425417bcdaba4be3611622990",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "14e210d66e8f9feb1c107e253c2363a76d177fd1e7a5ce6c8e63fd9fe96adfdb"
+      "Contents/Resources/RAID_Admin.jar": "1526b6a5e6cb4be8515c74b8cf36271b405d19c7d9a4266378c5811785b9bdc1"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "74f07ae33841cceae17f3a5dde5074132f9066a0a8778865dc5f767b951625f6",
+      "audit/security-patches.json": "7ae6e21a9178ce3cd9dc519baf5e4cc651007ec40436d36a6df6685c8c6445d2",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -34,7 +34,7 @@
       "patches/com/apple/mrj/MRJApplicationUtils.java": "3affe88c3c87520a93c0fb878c910fad4b27ea6a0366bb4d2564c3c41a92d08b",
       "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
       "patches/compat/BoundedHeaderStream.java": "d6481d31e34b4f84d927f764f954f63d55e87d58a9e60c70f04ee2ae24644b8e",
-      "patches/compat/BoundedResponseBuffer.java": "ed4aaa713e8d241817cbfaa337ae16ad7bffc59b7d3f6721594ad35199aa06ae",
+      "patches/compat/BoundedResponseBuffer.java": "abae0d2ffb85dd9314ed1774e5f81b15a4b81967ab2badbe902d3b6c0941b995",
       "patches/compat/RejectionRecovery.java": "47ee08bd46110c0ee27d8bf915e6a172d605dbb1cf8b07c4099ec83f5550225f",
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
       "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
@@ -42,8 +42,8 @@
       "patches/compat/UntrustedResponseException.java": "925844ccffea026b5ed50a3ee097b00c108a4c432b23d82948a01d354be161a4",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "84e171831963c058f73cb3f45ac1f3986986c74c0ca2d72f9877e619df16c356",
-      "tools/class_patch.py": "f657a0eb23726e717462b4e2b6e936ae63484de9a2767043ca065f1962018e94"
+      "tools/baseline.py": "9e4078cae223ff10a2522d0e334b9b086bdf1d7b69c07734a93271c02c7f1126",
+      "tools/class_patch.py": "3a90e60beb5975081e515bf37c0afd2c050a138ba8ca5c88b8e625eb520d8f3f"
     },
     "jdk": {
       "architecture": "arm64",
@@ -53,9 +53,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "f0a9ba2dd6a09a60bb80b24e20d5dac29c1bf89543d1c53529bcd75f75af4c2a",
-  "reason": "Clean audit.9 candidate: exact-marker send handler and original queue reconnect path, bounded memory no-replay and failure-containment fixtures pass both pinned architectures; Claude implementation review pending final evidence.",
+  "previous_record_sha256": "f7221f6911c7885690d6556862ed63fa19a59c708bffc80ef067268cb8666a2b",
+  "reason": "Development audit.10 malformed/negative response length terminal markers; original valid Integer.parseInt preserved, candidate fixtures in progress.",
   "schema": 1,
-  "source_commit": "82acf2c7f1b82be17c4248ae1f62c9b57263e702",
-  "source_dirty": false
+  "source_commit": "91221acec0d2efd58cd7f1597279ecdf01d63bd8",
+  "source_dirty": true
 }

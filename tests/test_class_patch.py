@@ -40,7 +40,7 @@ class ClassPatchTests(unittest.TestCase):
         cls=ClassFile(after)
         method=next(m for m in cls.methods if m['name']=='getBody')
         _,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
-        for offset in (begin+14+24,begin+14+29):
+        for offset in (begin+14+15,begin+14+24,begin+14+29):
             changed=bytearray(after);changed[offset:offset+2]=b'\x00\x17'
             with self.subTest(operand=offset),self.assertRaises(ValueError):assert_allocation_operands(before,bytes(changed))
         for offset in (begin+7,begin+14+40,end-1):

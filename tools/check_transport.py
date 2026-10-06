@@ -22,6 +22,16 @@ def completed(result, parser_policy=False, allocation_policy=False, header_polic
     return lines
 
 
+def common_observations(lines):
+    legacy='follow_on invalid-length results=-102,-102; sends=1; outstanding=true; reconnects=0'
+    security=[line for line in lines if line.startswith('security_length ')]
+    expected=['security_length '+label+' fixed-marker; closed; no-input-or-cause' for label in ('invalid-length','negative-length','overflow-length')]+['security_length follow-on qualified by recovery fixture']
+    if security:
+        if security!=expected or legacy in lines:raise ValueError('Intentional length security coverage differs')
+    elif lines.count(legacy)!=1:raise ValueError('Original/legacy follow-on observation missing')
+    return [line for line in lines if line!=legacy and not line.startswith('security_length ')]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', required=True, type=Path)
@@ -107,7 +117,7 @@ def main():
                         header_observations.append({'jar_sha256':identity,'architecture':architecture,'mode':mode,'results':lines})
                     if root is not None:verify_runtime(root,runtime_lock['architectures'][architecture])
             if sha(jar) != identity: raise ValueError('JAR changed during observation')
-    if any(o['results'] != observations[0]['results'] for o in observations):
+    if any(common_observations(o['results']) != common_observations(observations[0]['results']) for o in observations):
         raise RuntimeError('Transport observations differ')
     if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in sources} or tool_hash != sha(Path(__file__)):
         raise ValueError('Fixture source changed during observation')
@@ -119,6 +129,7 @@ def main():
         'tool_sha256':tool_hash, 'jdk_tree_sha256': lock['tree_sha256'],
         'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for arch in seen},
         'fixture_sources': source_hashes, 'harness_sources':helper_hashes, 'observations': observations,'parser_observations':parser_observations,'allocation_observations':allocation_observations,'header_observations':header_observations,
+        'intentional_differences': 'When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. All remaining transport observations must match.',
         'limits': 'Original queue and ACP send with bounded synthetic memory HttpConnection replies; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Two-request ordering observed after one injected drop, not concurrency or indefinite retry qualification. ACP status decoding through BasicResponse, not authentication UI or real controller. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. Each reply uses a fresh stream; shared-socket residual bytes/desynchronization and real EOF/timeout timing are not qualified. Synthetic idle streams throw immediately after their scripted bytes. Per-process 20-second timeout is the outer bound. Candidate-only allocation probes use empty bodies with advertised 16777217 and 2147483647 bytes, 64 MiB heap, terminal -102 and zero reconnects; original JAR is never passed these oversized declarations. Boundary gate exercised without allocating ceiling-sized buffers. Candidate header-policy tests cover line 65537, field 129, aggregate 1048577, sticky rejection and terminal -102 without resend; follow-on security recovery is recorded separately by the architecture recovery fixture. No TCP, hardware, polling, or real reconnect/backoff qualification. x64 on this arm64 host is Rosetta, not physical Intel qualification.'}, indent=2))
 
 if __name__ == '__main__': main()

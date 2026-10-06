@@ -57,10 +57,11 @@ public final class RecoveryObservation {
         CommunicationsManager m=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);
         set(m,"queue",new LinkedList<Object>());set(m,"system",unsafe().allocateInstance(FakeSystem.class));set(m,"connection",connection);set(m,"connected",true);return m;
     }
+    private static byte[] lengthReply(String value)throws Exception{return ("HTTP/1.1 200 X\r\nContent-Length: "+value+"\r\n\r\n").getBytes("US-ASCII");}
     private static byte[][] cases()throws Exception {
         StringBuilder line=new StringBuilder("HTTP/1.1 200 X\r\nX: ");for(int i=0;i<65534;i++)line.append('x');line.append("\r\n");
         StringBuilder count=new StringBuilder("HTTP/1.1 200 X\r\n");for(int i=0;i<129;i++)count.append("X: x\r\n");
-        return new byte[][]{("HTTP/1.1 200 X\r\nContent-Length: 2147483647\r\n\r\n").getBytes("US-ASCII"),line.toString().getBytes("US-ASCII"),count.toString().getBytes("US-ASCII"),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII")};
+        return new byte[][]{("HTTP/1.1 200 X\r\nContent-Length: 2147483647\r\n\r\n").getBytes("US-ASCII"),line.toString().getBytes("US-ASCII"),count.toString().getBytes("US-ASCII"),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII"),lengthReply("synthetic-invalid"),lengthReply("2147483648"),lengthReply("-1"),lengthReply("-2147483648")};
     }
     private static final class Recorder extends AppenderSkeleton {
         final boolean throwing;int events;String owner,method;boolean safe;
@@ -115,6 +116,14 @@ public final class RecoveryObservation {
         Throwable ordinary=new IOException("synthetic");check(handler.invoke(null,ordinary,a)==ordinary&&state.closes==1);
         out.println("direct persistent="+persistent+" legacy_body_codec="+encrypted+" connection_flag="+flag+" close_failure="+closeFailure+" marker_identity=true sends=1");
     }
+    private static void lengthGates()throws Exception {
+        Class<?> helper=Class.forName("compat.BoundedResponseBuffer");Method parse=helper.getMethod("parseLength",String.class),gate=helper.getDeclaredMethod("checkLength",int.class);gate.setAccessible(true);
+        for(String value:new String[]{"0","-0","+0","1","+1","0001","16777215","16777216","2147483647","-2147483648"})check(((Integer)parse.invoke(null,value)).intValue()==Integer.parseInt(value));
+        String[] invalid={null,""," "," 1","1 ","+","-","1x","2147483648","-2147483649","DO_NOT_RENDER_SYNTHETIC_HEADER"};
+        for(String value:invalid){try{parse.invoke(null,value);throw new AssertionError();}catch(InvocationTargetException failed){Throwable actual=failed.getCause();check(actual.getClass().getName().equals("compat.UntrustedResponseException")&&actual.getCause()==null&&"Response length is invalid".equals(actual.getMessage()));StringWriter text=new StringWriter();actual.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}}
+        for(int value:new int[]{-1,Integer.MIN_VALUE})try{gate.invoke(null,value);throw new AssertionError();}catch(InvocationTargetException failed){check(failed.getCause().getClass().getName().equals("compat.UntrustedResponseException")&&"Response length is invalid".equals(failed.getCause().getMessage())&&failed.getCause().getCause()==null);}
+        out.println("length gates: runtime parseInt parity, malformed/overflow/negative fixed markers; no-input-or-cause");
+    }
     private static void markerIdentity()throws Exception {
         Constructor<?> constructor=Class.forName("compat.UntrustedResponseException").getDeclaredConstructor(String.class);constructor.setAccessible(true);
         State state=new State();state.injected=(IllegalArgumentException)constructor.newInstance("Response headers exceed limit");
@@ -129,7 +138,7 @@ public final class RecoveryObservation {
             System.setOut(new PrintStream(captured,true,"UTF-8"));System.setErr(new PrintStream(errors,true,"UTF-8"));
             org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.ERROR);ordinaryLogging();
             org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
-            if(fixed){byte[][] cases=cases();for(byte[] raw:cases){check(raw.length<=1048577);pair(raw,0,false,false);for(boolean persistent:new boolean[]{true,false})for(int failure=0;failure<=2;failure++)direct(raw,persistent,failure,0);}
+            if(fixed){lengthGates();byte[][] cases=cases();for(byte[] raw:cases){check(raw.length<=1048577);pair(raw,0,false,false);for(boolean persistent:new boolean[]{true,false})for(int failure=0;failure<=2;failure++)direct(raw,persistent,failure,0);}
                 for(int i=0;i<2;i++)for(int flag=1;flag<=2;flag++)for(int failure=1;failure<=2;failure++)direct(cases[i],true,failure,flag);markerIdentity();
                 for(int i=0;i<2;i++)for(int failure=0;failure<=2;failure++)direct(cases[i],true,failure,0,true);
                 for(int failure=1;failure<=2;failure++)pair(cases[0],failure,false,false);

@@ -1,5 +1,8 @@
 # audit.9 terminal security rejection recovery
 
+This records audit.9. The subsequent [audit.10 refinement](INVALID-LENGTH-GUARD.md)
+addresses its explicitly retained malformed/negative-length gap.
+
 **Fact:** audit.7–8 guarded queues establish that new body/header ceiling rejection
 leaves the legacy persistent connection outstanding and the next command fails
 before transmission. The user authorized safe security closure. audit.9 deliberately

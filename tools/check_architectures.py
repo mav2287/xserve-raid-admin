@@ -133,7 +133,7 @@ def main():
             if args.recovery:
                 a=run(original,'com.apple.xsr.net.RecoveryObservation','false').splitlines()
                 b=run(args.jar,'com.apple.xsr.net.RecoveryObservation','true').splitlines()
-                if len(a)!=2 or not b or a[0]!=b[0] or a[-1]!='PASS recovery fixed=false; guarded_operations=0' or b[-1]!='PASS recovery fixed=true; guarded_operations=0' or len(b)!=49:
+                if len(a)!=2 or not b or a[0]!=b[0] or a[-1]!='PASS recovery fixed=false; guarded_operations=0' or b[-1]!='PASS recovery fixed=true; guarded_operations=0' or len(b)!=78:
                     raise RuntimeError('Recovery coverage incomplete or ordinary logger parity differs')
                 if expected_recovery is None:expected_recovery=b
                 if b!=expected_recovery:raise RuntimeError('Recovery observations differ across runtimes')
@@ -149,7 +149,7 @@ def main():
                       'original_sha256': sha(original), 'candidate_sha256': candidate_sha,
                       'fixture_sources': {str(p.relative_to(ROOT)): sha(p) for p in sources},
                       'observations': observations,
-                      'recovery_limits': 'Actual dispatch/send with bounded memory replies; 4 security violations, persistent/nonpersistent close IO/runtime failures, marker identity, retained callback contexts, distinct next-command send on fresh connection, logger throw containment, metadata failure shutdown and ordinary logger location parity. Invalid-address callback injects reconnection; no TCP or real retry/controller qualification.' if args.recovery else None,
+                      'recovery_limits': 'Actual dispatch/send with bounded memory replies; 8 security violations plus parse gates, persistent/nonpersistent close IO/runtime failures, marker identity, retained callback contexts, distinct next-command send on fresh connection, logger throw containment, metadata failure shutdown and ordinary logger location parity. Invalid-address callback injects reconnection; no TCP or real retry/controller qualification.' if args.recovery else None,
                       'header_limits': '174762 bounded short-input/EOF constructor cases; candidate counters and phase independently compared with unchanged private parseHeaders/readLine on isolated Unsafe shells. Exact line/count/aggregate boundaries, fresh per-response budget and body pass-through above 1 MiB. Three candidate-only overlimit rejections; no real socket framing or recovery qualification.' if args.headers else None,
                       'menu_limits': 'Real interface proxies and API metadata; synthetic backend callbacks only. No native singleton registration, real event construction or AppleEvent delivery.' if args.menus else None,
                       'limits': 'Base parity covers headless serializer and simple HTTP 200 Content-Length replay. Additional flagged fixtures qualify only their separately recorded scopes. No GUI/Aqua, JNI, app launcher, preferences, controller, or physical Intel Mac qualification. x86_64 JVM on the recorded arm64 host uses Rosetta; translation status is inferred, not separately probed.'}, indent=2))

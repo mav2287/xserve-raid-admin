@@ -134,6 +134,9 @@ def transform(entry, data):
         if u2(data,6) != 47: raise ValueError('Unexpected legacy verifier version')
         _, begin, end = codes[0]
         start = begin + 14
+        if data[start+13:start+23]!=bytes.fromhex('2cb800153c2a1bb50016'):raise ValueError('Response parse instruction window differs')
+        pt,pv=cls.pool[21];ot,ov=cls.pool[u2(pv,0)];nt,nv=cls.pool[u2(pv,2)]
+        if pt!=10 or ot!=7 or cls.text(u2(ov,0))!='java/lang/Integer' or nt!=12 or cls.text(u2(nv,0))!='parseInt' or cls.text(u2(nv,2))!='(Ljava/lang/String;)I':raise ValueError('Original response parser target differs')
         if data[start+23:start+31] != bytes.fromhex('bb0017591bb70018'):
             raise ValueError('Response allocation instruction window differs')
         class_tag,class_value=cls.pool[23]
@@ -147,7 +150,10 @@ def transform(entry, data):
         owner = append(7,word(utf8('compat/BoundedResponseBuffer')))
         signature = append(12,word(utf8('<init>'))+word(utf8('(I)V')))
         constructor = append(10,word(owner)+word(signature))
+        parse_signature=append(12,word(utf8('parseLength'))+word(utf8('(Ljava/lang/String;)I')))
+        parse_reference=append(10,word(owner)+word(parse_signature))
         replacement = bytearray(data[begin:end])
+        replacement[14+15:14+17]=word(parse_reference)
         replacement[14+24:14+26] = word(owner)
         replacement[14+29:14+31] = word(constructor)
         header_owner=append(7,word(utf8('compat/BoundedHeaderStream')))
@@ -218,7 +224,7 @@ def assert_preserved(before, after, name, descriptor):
 
 
 def assert_allocation_operands(before, after):
-    """Only allocation-owner operands may change; even Code subattributes are fixed."""
+    """Only the parse and allocation operands may change; Code subattributes stay fixed."""
     old,new=ClassFile(before),ClassFile(after)
     def code(cls,data):
         methods=[m for m in cls.methods if (m['name'],m['descriptor'])==('getBody','()[B')]
@@ -226,6 +232,11 @@ def assert_allocation_operands(before, after):
         _,start,end=attrs[0]
         return bytearray(data[start:end])
     a,b=code(old,before),code(new,after)
+    if b[14+14]!=0xb8:raise ValueError('Length parse opcode differs')
+    tag,value=new.pool[u2(b,14+15)]
+    if tag!=10:raise ValueError('Length parser must be Methodref')
+    ot,ov=new.pool[u2(value,0)];nt,nv=new.pool[u2(value,2)]
+    if ot!=7 or new.text(u2(ov,0))!='compat/BoundedResponseBuffer' or nt!=12 or new.text(u2(nv,0))!='parseLength' or new.text(u2(nv,2))!='(Ljava/lang/String;)I':raise ValueError('Length parser helper target differs')
     allocation_class=u2(b,14+24);constructor=u2(b,14+29)
     tag,value=new.pool[allocation_class]
     if tag!=7 or new.text(u2(value,0))!='compat/BoundedResponseBuffer':
@@ -236,7 +247,7 @@ def assert_allocation_operands(before, after):
     if tag!=12 or new.text(u2(signature,0))!='<init>' or new.text(u2(signature,2))!='(I)V':
         raise ValueError('Response constructor operand signature differs')
     if len(a)!=len(b): raise ValueError('Response Code length changed')
-    for offset in (14+24,14+29):
+    for offset in (14+15,14+24,14+29):
         b[offset:offset+2]=a[offset:offset+2]
     if a!=b: raise ValueError('Response modification outside allocation operands')
 

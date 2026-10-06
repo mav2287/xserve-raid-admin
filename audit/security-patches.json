@@ -46,14 +46,14 @@
   },
   "com/apple/xsr/net/HttpResponse.class": {
     "original_sha256": "e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75",
-    "patched_sha256": "bdcae980cb87f3186e2344c34fc97fdf60f7c73ed6e884e858f2b3c2f9b01d7e",
+    "patched_sha256": "d201bc257adbeb5891a49d90c150b9b2a9fbb23e70f8e21bb6fffb25f31ddf7d",
     "method": [
       "getBody",
       "()[B"
     ],
     "original_major_version": 47,
     "patched_major_version": 47,
-    "scope": "getBody allocation operands and exactly one static stream wrapper insertion in package-private constructor; all other Code unchanged"
+    "scope": "getBody parse/allocation operands plus one constructor stream wrapper; other Code unchanged"
   },
   "com/apple/xsr/net/CommunicationsManager.class": {
     "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",

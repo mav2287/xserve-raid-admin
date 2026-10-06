@@ -94,6 +94,10 @@ public final class TransportObservation {
         check(ceiling<=2097152 && out.size() < ceiling, "Fixture response bound exceeded");
         return out.toByteArray();
     }
+    private static boolean lengthPolicy()throws Exception {
+        try{Class.forName("compat.BoundedResponseBuffer").getMethod("parseLength",String.class);return true;}
+        catch(ClassNotFoundException absent){return false;}catch(NoSuchMethodException absent){return false;}
+    }
     private static void responseCase(String label, byte[] raw, String expected) throws Exception {
         responseCase(label, raw, expected, false);
     }
@@ -109,7 +113,12 @@ public final class TransportObservation {
             }
         } catch (java.net.ProtocolException e) { outcome = "protocol-error"; }
           catch (NumberFormatException e) { outcome = "invalid-length"; }
-          catch (IllegalArgumentException e) { outcome = "negative-length"; }
+          catch (IllegalArgumentException e) {
+              if(e.getClass().getName().equals("compat.UntrustedResponseException")) {
+                  check(lengthPolicy() && Arrays.asList("invalid-length","negative-length","overflow-length").contains(label) && "Response length is invalid".equals(e.getMessage()) && e.getCause()==null,"Invalid marker differs");
+                  emit("security_length "+label+" fixed-marker; closed; no-input-or-cause");outcome=expected;
+              }else outcome="negative-length";
+          }
           catch (java.net.SocketTimeoutException e) { outcome = "synthetic-idle-timeout"; }
           catch (IOException e) { outcome = "io-error"; }
         check(expected.equals(outcome), "Unexpected synthetic response outcome");
@@ -323,7 +332,7 @@ public final class TransportObservation {
         Class<?> helper=Class.forName("compat.BoundedResponseBuffer");
         check(helper.getSuperclass()==ByteArrayOutputStream.class,"Allocation superclass differs");
         java.lang.reflect.Method gate=helper.getDeclaredMethod("checkLength",int.class);gate.setAccessible(true);
-        for(int value:new int[]{-1,0,1,16777215,16777216})check(((Integer)gate.invoke(null,value)).intValue()==value,"Allowed allocation boundary differs");
+        for(int value:(lengthPolicy()?new int[]{0,1,16777215,16777216}:new int[]{-1,0,1,16777215,16777216}))check(((Integer)gate.invoke(null,value)).intValue()==value,"Allowed allocation boundary differs");
         for(int value:new int[]{16777217,Integer.MAX_VALUE}) {
             try {gate.invoke(null,value);throw new AssertionError("Allocation quota not enforced");}
             catch(java.lang.reflect.InvocationTargetException expected) {check(expected.getCause() instanceof IllegalArgumentException && "Response length exceeds limit".equals(expected.getCause().getMessage()),"Allocation quota failure differs");}
@@ -389,7 +398,7 @@ public final class TransportObservation {
         responses();
         queueResponses();
         queueOrder();
-        followOn(false);
+        if(lengthPolicy())emit("security_length follow-on qualified by recovery fixture");else followOn(false);
         firmwareStream(false);
         firmwareStream(true);
         OfflineGuard.assertUntouched();

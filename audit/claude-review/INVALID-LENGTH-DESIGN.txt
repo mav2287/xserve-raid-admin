@@ -1,0 +1,69 @@
+Actual Claude CLI read-only design review.
+
+I've read everything in scope and am writing up the review now.
+
+# Review: design for rejecting malformed and negative Content-Length
+
+**Verdict:** The design is sound and I recommend going ahead. The new invalid-length cases fail at the same place in the code as the existing too-large check, so the already-reviewed cleanup reaches them without catching ordinary exceptions more broadly. Before implementing, fix the patcher's verification code (R1) and the version-dependent test expectation (R2).
+
+Nothing was executed. "Fact" below means I read it directly in the scoped files. "Inference" means a conclusion from those files that hasn't been checked by running anything.
+
+## Does it close the malformed-length denial of service?
+
+- **Fact:** In the original `getBody`, the `parseInt` call at offset 14 and the buffer allocation at 23–28 both sit before the protected region, which starts at offset 32 (`build/http-response-allocation-bytecode.txt:153`). So neither getBody's own finally block nor the reset of the "request outstanding" flag at offset 183 runs when either step fails. That is the demonstrated stuck state.
+- **Fact:** The existing too-large check already throws from offset 28 in this same call. Both new failures happen at the same depth:
+  - the parse helper at offset 14;
+  - the negative-length check inside the `BoundedResponseBuffer` constructor at offset 28.
+- **Inference:** Because of that, the new invalid-length marker reaches the existing catch in `AcpxConnection.send` and the manager's reporting in the same way as the too-large marker. I can't confirm this from the send code itself because it isn't in scope.
+- **Fact:** The exception filters stay narrow:
+  - `sendFailure` and `report` only act when the exception's class is exactly `UntrustedResponseException` (`RejectionRecovery.java:28,52`).
+  - The helper catches only `NumberFormatException`.
+  - Ordinary IO and runtime exceptions don't match, so they keep their original paths.
+- **Fact:** A missing header can't produce a `NumberFormatException` from `parseInt(null)`, because the `ifnull` check at offset 10 skips the parse entirely.
+- **Inference:** Values outside the int range (e.g. `2147483648`), negative values including `Integer.MIN_VALUE`, and non-numeric strings all end in the marker. `-0` becomes 0 and is allowed.
+
+## Concrete risks
+
+**R1 — The patcher's checks would reject or miss the new edit (must fix).**
+- `assert_allocation_operands` (`tools/class_patch.py:239-241`) only tolerates changes at offsets 14+24 and 14+29. A third change at 14+15 will fail this check unless it is updated.
+- The update needs to:
+  - mask only the two bytes at 14+15 and 14+16;
+  - check the byte at offset 14 is still `0xb8` (invokestatic);
+  - confirm the new constant is a Methodref to `compat/BoundedResponseBuffer.parseLength` with descriptor `(Ljava/lang/String;)I`.
+- The existing `methodref()` helper (`:269-274`) hard-codes `compat/RejectionRecovery` as the owner. Reusing it as written would fail; loosening it carelessly would weaken the recovery checks. Write a separate or parameterized checker instead.
+- The window check before the transform (`:137`) only covers offsets 23–31. Extend it to cover 13–19 (`2b b80015 3c 2a 1b`), and check that constant #21 resolves to `java/lang/Integer.parseInt:(Ljava/lang/String;)I`. The file hash already pins this, but the design explicitly promises the check.
+
+**R2 — Whether `+1` is accepted depends on the Java version (test risk, not a behaviour risk).**
+- The class file is format version 47, which suggests an old Java target. `Integer.parseInt("+1")` throws `NumberFormatException` on Java 6 and earlier and returns 1 on Java 7 and later.
+- The helper calls `parseInt` unchanged, so the patched app behaves the same as the original on any Java version. But the planned "accepts `+1`" test only holds on Java 7+.
+- The test should either expect whatever `Integer.parseInt` returns on the JVM running it, or pin the JVM version in the evidence. Otherwise it will fail, or be wrong, on the older runtime the app may actually use.
+
+**R3 — Callers that catch `NumberFormatException` specifically (unverified).**
+- `NumberFormatException` and `UntrustedResponseException` are both subclasses of `IllegalArgumentException`. So any caller catching `IllegalArgumentException` or `RuntimeException` still catches the new exception.
+- A caller catching `NumberFormatException` specifically would no longer catch it. I can't check this because callers of `getInputStream`/`getBody`, the CLI `DefaultHandler`, and handler 15 are out of scope.
+- The same applies to the first typed catch in `send`. Its exception-table entry `[32,271)→277` uses constant #55, whose class isn't visible to me (`class_patch.py:123`).
+- **Inference:** The too-large marker already has this exact class and passed review, so the new site likely adds no new exposure. Confirming the types at constant #55 and at the CLI catch sites would close this.
+
+**R4 — Docs and comments that become wrong.**
+- `BoundedResponseBuffer.java:9` says negative lengths keep the original failure.
+- `audit/REJECTION-RECOVERY.md:12-14` and `:74-76` say the same.
+- All three must change in the same commit, or the audit record will contradict the code.
+
+**R5 — Leaking the untrusted header value.**
+- **Fact:** The original `NumberFormatException` message contains the raw header value ("For input string: …"), and `report` logs the throwable (`RejectionRecovery.java:16`).
+- **Fact:** The design discards it. The marker class only has a `(String)` constructor (`UntrustedResponseException.java:5`), so it can't carry the original exception as a cause.
+- The implementation must also not log or keep the caught exception anywhere else. A test should assert that `getCause()` is null and the stack trace contains no input bytes.
+
+## Default-response and CLI compatibility
+
+- **Fact:** Behaviour when the header is missing is unchanged (offset 10 jumps past the parse), so the empty-body result and framing gap G12 stay as they are.
+- **Fact:** Whether the header lookup is case-sensitive, and whether a duplicate Content-Length header overwrites the first, depend on `HttpMessage.getHeaderField`/`setHeaderField`, which are out of scope.
+  - **Inference:** A lowercase `content-length: abc` might be ignored and take the empty-body path rather than raising the marker. That would be a framing (G12) issue, not a new denial of service.
+- **Fact:** The negative-length path still stores `contentLength` before rejecting (offset 20 comes before 28). The invalid-string path still leaves it unset. Both match the original.
+- **Inference:** Direct CLI callers will now get close-and-rethrow with the fixed message instead of the original exception and its input-bearing message. Their UI and lifecycle behaviour hasn't been run, which matches the limit already recorded in the audit.
+
+## Not addressed, and not regressions
+
+Getting through `getBody` with an ordinary IOException still skips the reset at offset 183 (G10, replay of interrupted commands). Real network recovery, hardware, firmware and native GUI checks remain open as the design says.
+
+Disposition: checks now pin the original parse opcode/window/Integer Methodref and only mask its two operand bytes in addition to the prior allocation edits. The exact original byte is aload_2 (2c), not the review's proposed 2b. Pure gate parity calls the running pinned JVM Integer.parseInt, so supported Java 8/11 behavior is the authority. Full original catch-table scan finds no NumberFormatException catch in AcpxConnection, CommunicationsManager, CLI DefaultHandler or handler 15; their inspected typed CLI catches are PropertyListException. Existing audit.9 descriptions remain historical; audit.10 refines the deliberate unsafe-input behavior. New markers carry no cause or input; fixtures check this.

@@ -70,9 +70,9 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         changed=[]
         for a,b in zip(old_lines,new_lines):
             if a!=b: changed.append((a,b))
-        if len(changed)!=2: raise ValueError('Response changes outside two allocation operands')
-        for (a,b),offset,operation,owner in zip(changed,(23,28),('new','invokespecial'),('class compat/BoundedResponseBuffer','Method compat/BoundedResponseBuffer."<init>":(I)V')):
-            if not re.match(r'^\s+'+str(offset)+r': '+operation+r'\s+#\d+\s+// ',b) or owner not in b or 'java/io/ByteArrayOutputStream' not in a:
+        if len(changed)!=3: raise ValueError('Response changes outside parse and allocation operands')
+        for (a,b),offset,operation,owner in zip(changed,(14,23,28),('invokestatic','new','invokespecial'),('Method compat/BoundedResponseBuffer.parseLength:(Ljava/lang/String;)I','class compat/BoundedResponseBuffer','Method compat/BoundedResponseBuffer."<init>":(I)V')):
+            if not re.match(r'^\s+'+str(offset)+r': '+operation+r'\s+#\d+\s+// ',b) or owner not in b or ('java/lang/Integer.parseInt' if offset==14 else 'java/io/ByteArrayOutputStream') not in a:
                 raise ValueError('Response allocation target differs')
         def ctor(text):
             return re.search(r'^  com\.apple\.xsr\.net\.HttpResponse\(com\.apple\.xsr\.net\.HttpConnection\).*?(?=^  \S|^})',text,re.M|re.S)[0]
@@ -155,7 +155,7 @@ def main():
             verified_methods[entry]='Exact report window / appended marker handler independently verified, original remainder unchanged'
             continue
         if name == 'getBody':
-            verified_methods[entry] = 'Allocation operands at offsets 23 and 28 plus exact static wrapper insertion in constructor; independent complete disassembly comparisons'
+            verified_methods[entry] = 'Parse operand at 14 and allocation operands at 23 and 28 plus exact static wrapper insertion in constructor; independent complete disassembly comparisons'
             continue
         expected = {'resolveEntity':['aload_1','aload_2','invokestatic','areturn'],'getParser':['invokestatic','areturn']}.get(name,['ldc_w','areturn'])
         if operations != expected: raise ValueError('Independent disassembly differs from intended substitution')
