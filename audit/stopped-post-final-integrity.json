@@ -1,0 +1,140 @@
+{
+  "source_commit": "b600ad3d4a9ef1f97a5b3d5cd8d66802d0e2d8be",
+  "fixture_commit": "b600ad3d4a9ef1f97a5b3d5cd8d66802d0e2d8be",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "historical_characterization_source_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "records": {
+    "security": "ee9ab2d872a6d5fd0ab6196d6e7de2abf1036901cfd2f402004f74787da5b170",
+    "transport": "fa318b61da11ef2e3ebdb16ad0cf132c59e52f583bfccea4a1fcfa6620c56eba",
+    "runtime": "f36051a076d4673bd29dcbf129d89969fe27504a99d28de792a13786fad441f3",
+    "resources": "1b6ca5fdb63d6917b48bd030e28e82cf87cc63f2f06a6db9ccdf96b4cabd629e",
+    "shared": "87ca65af3227a0ed7215fb7732f9ea6f552f90f44b9c6562d57a7766642c6f81",
+    "factory": "861741aa39da5fabc6a90afd0e4600ffbc71bf0460946be930fee1d1dc704375",
+    "posting": "8136da0a10f6a940a992b170a6e59fcaafd0d0efaccf81fdde57fed9471c8eec",
+    "connect": "00534e29fd8b10ff809272d3f9eba408a41f6c1a29a3b84dbf54f2c03521eae7",
+    "characterization": "80f4c7fb15a5d075e1f541f9d978af64a3bdbfdd6d08e18b116293426ceae886",
+    "lock": "b55afbc799468bbc8f46fad6dbd52c36ec38b69146a81de8d9181cd1733c2de7",
+    "admission": "be7fce98f8947e38bfd53a8cbc2a00534dd62fcc7145d000bfaab637ebb7205c"
+  },
+  "record_files": {
+    "security": "stopped-post-clean-security.json",
+    "transport": "stopped-post-clean-transport.json",
+    "runtime": "stopped-post-clean-runtime.json",
+    "resources": "stopped-post-clean-resources.json",
+    "shared": "stopped-post-clean-shared.json",
+    "factory": "stopped-post-clean-factory.json",
+    "posting": "stopped-post-clean-posting.json",
+    "connect": "stopped-post-clean-connect.json",
+    "characterization": "stopped-post-clean-characterization.json",
+    "lock": "stopped-post-clean-lock.json",
+    "admission": "stopped-post-clean-admission.json"
+  },
+  "supplemental_records": {
+    "stopped-post-clean-tests": "42a10171a3111d28cfafdecf0d60fd37695e49013863a0ede9dba133c4cabbdc",
+    "stopped-post-bundle-results": "9a7fa5bfd17daaee7216e0dce7663e4cadda7f965887b7644ad3ef49ca116d3d",
+    "stopped-post-diagnostics-aarch64": "6fa236c9118dbcab6a035e5b4c4ffa329338140ef1b89e40696758bbcc0c67a8",
+    "stopped-post-diagnostics-x64": "bd34d0978bb849bb2fc90f9814a431ac6b113b22de36b35ae02cfa98c1670bdb",
+    "stopped-post-run-results": "4387b8dab5f2ca9d401ed9a721abed4d472ce133dc2783feec987d19ef9e7014"
+  },
+  "candidate_jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "checked_source_hash_entries": 232,
+  "python_tests_passed": 124,
+  "connection_stop_records": 42,
+  "interpreted_compiled_connection_positives": 36,
+  "semantic_mutants_per_architecture": 3,
+  "historical_characterization_records": 8,
+  "changed_jar_entries_from_audit19": [
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "compat/StoppedDelivery$Callback.class",
+    "compat/StoppedDelivery.class"
+  ],
+  "architectures": [
+    "aarch64",
+    "x64"
+  ],
+  "x64_execution": "Rosetta, not physical Intel",
+  "controller_contact": false,
+  "production_or_mounted_volume_tests": false,
+  "installed_application_modified": false,
+  "runtime_hash_scopes": {
+    "aarch64": {
+      "Runtime.jdk files only": "e599cb3abe9ac6b09164cec18f6fca71625a16522d186ba7148e08a218d354c0",
+      "Runtime.jdk/Contents/Home files only": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2",
+      "Runtime.jdk files and file_modes": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187"
+    },
+    "x64": {
+      "Runtime.jdk files only": "bddb573491588b48dee81e1b2461fb71765a0dbeb005ddb9337e211f52fc6d39",
+      "Runtime.jdk/Contents/Home files only": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d",
+      "Runtime.jdk files and file_modes": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    }
+  },
+  "integrity_checker_scope": "record/source/byte/hash assertions; controller_contact, production_or_mounted_volume_tests and installed_application_modified are action-scope attestations from reviewed fixture sources/guarded results, not global packet capture",
+  "audit19_reference_jar_sha256": "f7c829f83735ccd7fd6d36d6b7220bd4be8f82733b38bfa7d150d704f42a6775",
+  "changed_entry_sha256_from_audit19": {
+    "com/apple/xsr/net/CommunicationsManager.class": {
+      "before": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24",
+      "after": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd"
+    },
+    "compat/StoppedDelivery$Callback.class": {
+      "before": null,
+      "after": "ddc04c262b0e304157035c3f478f80583b405c8892001ba0cc439c0ffeaa49c4"
+    },
+    "compat/StoppedDelivery.class": {
+      "before": null,
+      "after": "2e49f0b0f07d903f703685e3467d54bb5ea434b92d865396b3a7e1818c6ca5c9"
+    }
+  },
+  "manifest_entry_unchanged_from_audit19": {
+    "entry": "META-INF/MANIFEST.MF",
+    "byte_identical": true,
+    "sha256": "33c12af863951b01abc7f8fd9f283bac409d7a63af4c2901358abf88371c005a"
+  },
+  "lock_observation_records": 20,
+  "exact_deadlock_controls": 10,
+  "interpreted_compiled_lock_positives": 8,
+  "site_attribution_cross_controls": 2,
+  "runtime_hash_scope_definitions": {
+    "Runtime.jdk files only": "Fresh file-content-map digest excluding modes",
+    "Runtime.jdk/Contents/Home files only": "Fresh Home file-content-map digest excluding modes",
+    "Runtime.jdk files and file_modes": "Fresh digest({files: file-content map, file_modes: mode map}); matches exact vendor lock/gate/package digest; directory modes separately verified"
+  },
+  "recovery_lines_per_architecture": 143,
+  "factory_rows_per_observation": 116,
+  "factory_differential_observations": 4,
+  "synchronous_posting_observation_records": 10,
+  "installed_intake_file_map_pinned": true,
+  "installed_intake_file_map_digest": "192c2d06bce9b514580f44621aef938a10171fe0c21b246b5d2f3d233751d3c3",
+  "installed_reference_files_modes_digest": "318768daacb717fc243b46e8db0f4f8126b16245ae013468193407078208911e",
+  "installed_reference_mode_scope": "Modes match preserved external reference; content independently pinned to tracked intake map. Initial reference modes were not separately hash-pinned in intake.",
+  "action_scope_attestation": "No Main/native GUI/controller/production volume operations performed: reviewed fixture entrypoints plus OfflineGuard zero-denial assertions. Not independently established by packet capture.",
+  "qualification_interpreter_attestation": {
+    "path": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "version": "3.14.8",
+    "implementation": "CPython",
+    "python_lock_sha256": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "measurement_phase": "Final ledger verification; each qualification entrypoint invokes verify_python, corrected bundle/test orchestration explicitly selects sys.executable. Path not separately captured at every gate start."
+  },
+  "checked_source_hash_entries_definition": "Count of all asserted reported source-hash entries plus Python test source entries, including repeated files; not unique-file count.",
+  "supplemental_record_scope": "Bundle/run results are this independent ledger checker summaries, hashes identify those summaries; diagnostics assertions verify their pass/source/architecture/artifact claims, not new behavior tests.",
+  "admission_observation_records": 40,
+  "interpreted_compiled_admission_positives": 32,
+  "restored_audit19_stranding_controls": 4,
+  "missing_helper_controls": 2,
+  "logging_containment_bypass_controls": 2,
+  "excluded_runs": {
+    "development": "Dirty drafts, initial pop opcode corrected to pop2, classallowlist correction, worker-identity fixture corrections, and sourceguard-rejected run excluded. Separate dirty dev-admission-4 run passed40 checks and is not clean acceptance; earlier expanded dev-admission-3 run was rejected on source changes.",
+    "initial_package_interpreter": "One initial orchestration attempt per architecture used python3 resolved by isolated PATH to an unpinned Python; rejected before package copy. Corrected to sys.executable pinned CPython3.14.8; no source change.",
+    "historical_audit19": "Earlier lock stdout mismatch remains unexplained; audit20 does not claim a cause or fix."
+  },
+  "limits": "External stopped async callbacks deliberately run on EDT and can precede older drain/nonEDT return, show errors/model changes, or cause extension repost event loops. Disposed AppContext can drop events; scheduling/link errors propagate outside queue. Production logger emits only its existing limited ERROR signal. Constructor bypass, absent connection, headless EventQueue and arbitrary third-party callback limits are in admission record. Active send/shutdown races, interruption orphaning, abnormal unstopped worker exit, native GUI, physical Intel, production controller/volume behavior and signing/notarization remain unqualified.",
+  "claude_stopped_post_clean_evidence_sha256": "3cf2f3f0c64cf59f7564dd28183c6f36371e6e3d760c8e8415e7aae3f413683f",
+  "claude_stopped_post_clean_followup_sha256": "d17c53f93a82809abb12cb40c9761bbbadb3268bc58b9ca84703300d508c71c9",
+  "final_evidence_refinements": "After actual Claude follow-up: application_source_commit checked; missing top-level fields use fixture commit plus per-row current/original JAR pairs, runtime Home digest bound to each architecture, exact factory pairs and connect/lock counts derived, diagnostics pass/source/arch/tree checked, installed contents intake-pinned. Summaries are identified as ledger outputs rather than extra tests; action-scope attestations and interpreter measurement phase explicit. Qualification inputs unchanged.",
+  "final_integrity_generator_sha256": "8eccf1f42660f68e916cf904d2b731baa5e5a460f2afb3e963592057c644f971"
+}

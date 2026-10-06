@@ -1,0 +1,127 @@
+{
+  "source_commit": "b600ad3d4a9ef1f97a5b3d5cd8d66802d0e2d8be",
+  "fixture_commit": "b600ad3d4a9ef1f97a5b3d5cd8d66802d0e2d8be",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "gates": {
+    "security": {
+      "gate": "security",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "transport": {
+      "gate": "transport",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "runtime": {
+      "gate": "runtime",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "resources": {
+      "gate": "resources",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "shared": {
+      "gate": "shared",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "factory": {
+      "gate": "factory",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "posting": {
+      "gate": "posting",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "connect": {
+      "gate": "connect",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "characterization": {
+      "gate": "characterization",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "lock": {
+      "gate": "lock",
+      "exit": 0,
+      "stderr_bytes": 0
+    },
+    "admission": {
+      "gate": "admission",
+      "exit": 0,
+      "stderr_bytes": 0
+    }
+  },
+  "gate_output_sha256": {
+    "security": "ee9ab2d872a6d5fd0ab6196d6e7de2abf1036901cfd2f402004f74787da5b170",
+    "transport": "fa318b61da11ef2e3ebdb16ad0cf132c59e52f583bfccea4a1fcfa6620c56eba",
+    "runtime": "f36051a076d4673bd29dcbf129d89969fe27504a99d28de792a13786fad441f3",
+    "resources": "1b6ca5fdb63d6917b48bd030e28e82cf87cc63f2f06a6db9ccdf96b4cabd629e",
+    "shared": "87ca65af3227a0ed7215fb7732f9ea6f552f90f44b9c6562d57a7766642c6f81",
+    "factory": "861741aa39da5fabc6a90afd0e4600ffbc71bf0460946be930fee1d1dc704375",
+    "posting": "8136da0a10f6a940a992b170a6e59fcaafd0d0efaccf81fdde57fed9471c8eec",
+    "connect": "00534e29fd8b10ff809272d3f9eba408a41f6c1a29a3b84dbf54f2c03521eae7",
+    "characterization": "80f4c7fb15a5d075e1f541f9d978af64a3bdbfdd6d08e18b116293426ceae886",
+    "lock": "b55afbc799468bbc8f46fad6dbd52c36ec38b69146a81de8d9181cd1733c2de7",
+    "admission": "be7fce98f8947e38bfd53a8cbc2a00534dd62fcc7145d000bfaab637ebb7205c"
+  },
+  "bundle_statuses": {
+    "aarch64": [
+      {
+        "operation": 0,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "operation": 1,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "operation": 2,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "operation": 3,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      }
+    ],
+    "x64": [
+      {
+        "operation": 0,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "operation": 1,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "operation": 2,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "operation": 3,
+        "exit_code": 0,
+        "stderr_bytes": 0
+      }
+    ]
+  },
+  "python_tests": {
+    "exit_code": 0,
+    "passed": true,
+    "tests": 124
+  }
+}

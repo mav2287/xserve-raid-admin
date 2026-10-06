@@ -1,8 +1,9 @@
 # Stopped-post admission — audit.20 candidate
 
-Status: initial development tests and actual Claude implementation/follow-up
-reviews passed; final strict-stderr development gate and clean full qualification
-are pending. The previously qualified artifact remains audit.19.
+Status: clean fixture qualification complete at source/fixture/package commit
+`b600ad3` after actual Claude code and evidence reviews. Audit.20 is the current
+qualified local compatibility candidate; native GUI, hardware and release
+acceptance remain open.
 This document does not declare the application fully operational or secure.
 
 ## Facts and exact changes
@@ -41,11 +42,11 @@ unrelated-method changes must fail.
 
 The candidate Manager is
 `ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd`.
-The candidate JAR is
+The qualified candidate JAR is
 `f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859`.
 Only that Manager and the two new helper entries differ from audit.19; the
 manifest, SyncSender constructor, worker run, connection routine and existing
-helper entries are unchanged. Development artifacts are not qualified releases.
+helper entries are unchanged. Local fixture qualification is not full application or release acceptance.
 
 ## Deliberate behavior differences and limits
 
@@ -113,8 +114,8 @@ uncaught handler is installed before all cases and separately records unexpected
 escapes so a later expected Error cannot overwrite a failure. Each observation
 requires empty JVM stderr without exposing unexpected diagnostics. The
 expanded gate expects 40 observations, including a compiled helper mutant
-that removes logging containment and must positively observe exactly two
-appender exception identities escaping on the EDT; its results are pending. Historical
+that removes logging containment and positively observes exactly two
+appender exception identities escaping on the EDT. The clean run passed. Historical
 connection extras retain their late_async_stranded=1 line because that fixture
 artificially records its own calling thread as the worker even after run exits.
 That is the preserved worker exemption, not evidence that an external late post
@@ -122,5 +123,74 @@ in the audit.20 candidate strands. The dedicated admission fixture records a
 different worker thread and observes the external refusal.
 
 A dirty development expanded-gate attempt was invalidated when its locked source
-metadata changed during review refinements. The source guard rejected it; its
-results are excluded. Clean qualification must use one unchanged source commit.
+metadata changed during review refinements. The source guard rejected it (dev-admission-3); its
+results are excluded. A separate dirty dev-admission-4 run then passed all 40
+checks before the clean run. Neither development run is acceptance evidence. Clean qualification must use one unchanged source commit.
+
+
+## Clean qualification and archive
+
+[Eleven gates](stopped-post-run-results.json) passed with actual outer exit code
+zero and empty parent stderr from unchanged clean `b600ad3`. The gate records
+are [security](stopped-post-clean-security.json),
+[transport](stopped-post-clean-transport.json), [runtime](stopped-post-clean-runtime.json),
+[resources](stopped-post-clean-resources.json), [shared stream](stopped-post-clean-shared.json),
+[factory](stopped-post-clean-factory.json), [synchronous posting](stopped-post-clean-posting.json),
+[connection stop](stopped-post-clean-connect.json),
+[historical characterization](stopped-post-clean-characterization.json),
+[stop lock ordering](stopped-post-clean-lock.json), and
+[stopped admission](stopped-post-clean-admission.json).
+The historical characterization artifact remains audit.17 at `47166ed`, with
+current `b600ad3` fixtures; it is not the audit.20 application.
+
+[124 Python tests](stopped-post-clean-tests.json) passed. Their non-empty stderr
+is the normal unittest progress/summary, not an empty-stderr claim. Runtime
+records contain 143 recovery lines for each freshly identified runtime Home
+digest; factory records contain four original/candidate × arm64/x64 pairs of
+116 rows. Ten synchronous posting observations, 42 connection observations
+(36 positives and six controls), and 20 lock observations (eight positives,
+ten exact deadlocks and two site-attribution cross-controls) pass. Admission
+records contain 32 candidate positives, four restored-Manager controls, two
+missing-helper controls and two logging-containment controls. Every candidate
+admission row is tied to the current JAR and Manager hashes and the complete
+mode/architecture/execution combination set. JVM stderr is explicitly empty
+for every admission observation; Claude's earlier stderr caution is resolved.
+
+[Duplicate packages](stopped-post-bundle-results.json) match application files,
+file modes, directory modes and verified vendor signatures on each architecture.
+Their metadata differs only in source_provenance_sha256: package 1 comes from
+clean-3 and package 2 from clean-4, whose separate source provenance contains
+its own timestamp. Both hashes are independently bound to those source files;
+entire metadata JSON is not claimed byte-identical. Arm64 and x64
+[diagnostics](stopped-post-diagnostics-aarch64.json)
+[records](stopped-post-diagnostics-x64.json) pass their source/architecture/tree
+and reviewed-artifact assertions. An initial package orchestration attempt per
+architecture selected an unpinned Python through the isolated PATH and was
+rejected before copying. Selecting sys.executable corrected orchestration with
+no source change; those failed attempts are excluded.
+
+[Final integrity](stopped-post-final-integrity.json), SHA-256 `dfb3a801123c95e459e3c0f7f05ae5fbda2e0acb46ec49454de9bf355f5ab87f`,
+records exact gate/archive hashes and verifies reported source hashes against
+committed bytes. The source-hash-entry count includes repeated files across
+records; it is not a unique-file count. Bundle/run summaries are ledger outputs,
+not additional behavior tests. Fresh runtime file-only, Home-only and
+files-plus-modes digests use explicit scope definitions. The installed app's
+content map is pinned independently to tracked intake digest `192c2d06…`;
+its modes match the preserved external copy, whose original modes were not
+separately hash-pinned in intake. Original JAR mode 444 is retained. No-controller,
+no-production-volume and no-installed-modification statements are action-scope
+attestations from the reviewed fixture/orchestration and OfflineGuard results,
+not a global packet capture. Interpreter metadata is freshly measured at final
+ledger verification; the path was not captured at each gate's start. Each
+qualification entrypoint enforces the pinned Python version.
+
+The archived [ledger generator](source/stopped-post/finalize-evidence.py) was
+executed before archival from the clean qualification commit; it requires that
+source state and local build outputs. [Claude code review](claude-review/STOPPED-POST-CODE-REVIEW.txt),
+[boundary follow-up](claude-review/STOPPED-POST-BOUNDARY-FOLLOWUP.txt),
+[clean review](claude-review/STOPPED-POST-CLEAN-EVIDENCE.txt) and
+[evidence follow-up](claude-review/STOPPED-POST-CLEAN-FOLLOWUP.txt) distinguish
+record comparisons from machine-executed hash checks. The latter's evidence
+refinements are incorporated above and in the generator/ledger. These archive
+updates change no qualification input. The historical audit.19 stdout mismatch
+remains unexplained; audit.20 does not claim to have diagnosed or fixed its cause.

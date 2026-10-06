@@ -1,0 +1,40 @@
+I couldn't find `STOPPED-POST-CLEAN-EVIDENCE.txt` or `.json` in `audit/claude-review/`. The `../audit/...` fallback is outside this session's restricted working directory, so I couldn't read it. This review covers only `build/finalize-stopped-post.py`, `build/stopped-post-final-integrity.json`, and the gate and audit records they reference. I made no edits and ran no commands.
+
+**Verdict:** Every refinement is present and every recorded value matches. I found no checksum or count that contradicts another. Several checks, though, are hard-coded or skipped when a field is missing, so they prove less than the ledger wording suggests.
+
+## Confirmed
+- **Recovery, factory, posting:** the script requires two runtime observations of 143 lines each (`build/finalize-stopped-post.py:71-72`). It requires four factory observations, each with 116 rows and 0 guarded operations (`:73`). It requires 10 posting records (`:74`). The factory record shows aarch64, x64, aarch64, x64.
+- **Admission:** the script requires 40 rows (`:65`). Every row's Manager hash must match either the audit19 class hash or the patched class hash (`:67`), and every candidate row's JAR hash must match the built JAR (`:68`). The 32 candidate rows must form exactly the 2 arch × 2 execution × 8 mode set with no duplicates (`:70`, `:80`). The split is 32 + 4 + 2 + 2 = 40, all asserted (`:80-83`).
+- **Installed bundle:** it is checked against the tracked intake file map and digest without reference to the external copy (`:37`). The intake file records `192c2d06…` for both installed and preserved, which matches the ledger (`:112`). The installed JAR hash `aa5de223…` matches the intake entry. Modes are described as matching the external reference only (`:114`).
+- **Commit and candidate values:** every top-level `source_commit` in the records is `b600ad3`, except characterization, which is `47166ed` and is exempted on purpose. Every non-characterization `candidate_sha256` is `f6e545…`, which equals the expected-recovery value and the ledger's candidate JAR hash.
+- **Package provenance:** the two builds may differ only in `source_provenance_sha256`, and each is tied to clean-3 or clean-4 (`:40`).
+- **Limits:** assigned once (`:86`), so nothing overwrites it.
+- **Interpreter:** described as measured at final-ledger time and not captured at the start of every gate (`:121`).
+- **Arithmetic:** connect is 42 records with 6 negatives, so 36 positives, which matches 3 mutants per architecture. Lock is 10 + 8 + 2 = 20. The audit19 JAR `f7c829…` matches `stop-lock-final-integrity.json`.
+
+## Gaps
+1. **Commit and candidate checks are skipped when the field is missing** (`:18-19`).
+   - transport, shared and factory have neither field at the top level.
+   - runtime and resources have no `source_commit`.
+   - resources records `application_source_commit`, which is never checked, though it does equal `b600ad3`.
+
+   All five are tied to the commit only through `fixture_commit`. The values are correct, but "matched at each relevant gate" really means "matched wherever the field exists."
+2. **Per-architecture counts aren't tied to architectures.** The 143 lines are checked only as two observations with no architecture key asserted, so "one per arch" isn't proven. The four factory observations aren't checked for distinct architecture/execution pairs either, even though the record shows two of each.
+3. **Some counts are typed in, not checked.** These ledger values are hard-coded and not asserted:
+   - lock: 8 positives and 2 cross-controls
+   - connect: 36 positives and 3 mutants per architecture
+
+   The arithmetic holds, but nothing in the script enforces it.
+4. **Some supplemental hashes aren't independent evidence.**
+   - `stopped-post-bundle-results` and `stopped-post-run-results` are written by this same script (`:46`, `:53`) and then hashed.
+   - The two `diagnostics-*` files are hashed but their contents are never checked.
+5. **Scoping wording.**
+   - The global `controller_contact`, `production_or_mounted_volume_tests` and `installed_application_modified` booleans (lines 62-64 of the JSON) appear *above* the scope note, which says "attestations below."
+   - The bundle-results file repeats those booleans without the scope note.
+   - Moving the note up, or pointing to it by key name, would fix this.
+6. **Excluded-runs wording doesn't quite match what you described.**
+   - **Development:** the ledger never names dev-admission-4. It says "sourceguard-rejected run excluded. Final development40 checks passed," which could be read as the same run. It should say the passing development40 run was a dirty dev-admission-4 run, separate from the earlier expanded run that sourceguard rejected, and that neither qualified.
+   - **Interpreter attempts:** the ledger says "Both … rejected before packaging." You said one attempt per architecture, rejected before the copy step. It should say "one per architecture, before copy" if that's accurate.
+7. **`checked_source_hash_entries: 232`** can't be re-derived from recorded values alone. It counts entries across all records plus the test sources, not unique files, so the same file may be counted more than once.
+
+None of these invalidate the qualification inputs. Items 1–3 are only stronger checks, and items 5–6 are wording for the pending docs and archive update.

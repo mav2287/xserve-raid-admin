@@ -1,0 +1,154 @@
+{
+  "source_commit": "b600ad3d4a9ef1f97a5b3d5cd8d66802d0e2d8be",
+  "source_dirty": false,
+  "fixture_commit": "b600ad3d4a9ef1f97a5b3d5cd8d66802d0e2d8be",
+  "fixture_dirty": false,
+  "qualification": true,
+  "candidate_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/xsr/net/TransportObservation.java": "ca9af7eb6f5983955e90b42336b1f7d392f8785c6520ed3e782da572dc6a39fd",
+    "tests/java/com/apple/xsr/net/HeaderObservation.java": "b36a32a1b43679e23618b2ff6dc1d886375fa429d6af19086176395fd8abf029",
+    "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+    "tools/check_sync_posting.py": "d9eb72c6c590e9ce223a83664a42b5d3d4516ee719d64ad447e769a05280cb93",
+    "tools/class_patch.py": "a125c58f3f4b7614ad3b9bbd67eaeab2157c3890236407e4a8cf3cec9f290aeb",
+    "tools/baseline.py": "e1fb2c8a4cbcb6457bc4d833f11ce3df513324dbaf0b6fdac2742a1c295206d1",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "audit/expected-build.json": "577f4f9fd60c772c8ff6157c77739769902a98d067219135aa3982f8c1dba035",
+    "audit/stopped-post-recovery-expected.json": "1cef1197ed512669e9a6557d5f6cd4dba1167878a4b20b9c52b4fc2c5c5c13a7",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "candidate": true,
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "candidate": true,
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "restored_constructor_mutant_sha256": "dc1f4e11b49b0fbbce79eac4d1164dd6ec6cacb92182ea445dac636b06e2b79d",
+      "semantic_negative_control": true
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "candidate": true,
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "candidate": true,
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "restored_constructor_mutant_sha256": "dc1f4e11b49b0fbbce79eac4d1164dd6ec6cacb92182ea445dac636b06e2b79d",
+      "semantic_negative_control": true
+    }
+  ],
+  "limits": "Defense in depth: live worker callback deliberately catches IllegalStateException. Stop on second scripted response bounds original continuation; exact second body compared internally. ImmediateManager is a synchronous callback seam, not a production subclass. Interrupted wait remains queued; Throwing callbacks at run PC509 can strand a worker; TYPE_CONNECT/exit/lock liveness, GUI reachability and controllers unqualified. No sockets, profiles, app launch or production volumes."
+}

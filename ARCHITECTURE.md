@@ -284,3 +284,20 @@ has an unresolved cause and is excluded; only the second plain set qualifies.
 See [scope, limits and evidence](audit/STOP-LOCK-ORDER.md). Posting/exit stranding,
 interrupted waits, callback failure cleanup, native GUI and hardware/release
 acceptance remain open. No controller or installed-app modification occurred.
+
+### Audit.20 stopped request admission (clean fixtures)
+
+External posts to a locally stopped Manager are refused after the original clone,
+under the queue lock. The lock is released before response delivery: SyncSender
+is completed directly; other nonnull handlers are deferred to the EDT. The
+worker retains its original enqueue/drain behavior. Deferred errors may update
+the GUI/model where the old queue stayed silent, can precede older callbacks,
+and can execute before a non-EDT poster returns; extension repost loops and
+disposed AppContext delivery remain unqualified. Only Manager and two new
+compatibility helper entries differ from audit.19; exact class reconstruction
+checks unrelated logic. Eleven gates, 124 tests, 40 admission observations and
+duplicate arm64/x64 packages pass at clean `b600ad3`; x64 is Rosetta.
+See [scope, evidence and remaining gaps](audit/STOPPED-POST-ADMISSION.md).
+Interrupted-wait ownership, abnormal worker exit, stop-versus-active-send,
+native GUI, real hardware and signed release acceptance remain open. Original
+JAR and installed application are preserved; legacy HTTP remains plaintext.

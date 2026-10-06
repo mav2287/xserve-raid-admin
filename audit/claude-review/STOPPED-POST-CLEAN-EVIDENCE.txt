@@ -1,0 +1,58 @@
+I found no blockers. The recorded hashes, counts and identities agree across the eight files. I ran nothing and only compared the recorded values, so anything a gate checks internally is taken from its record. Below are fixes I'd make before archival, then wording cautions.
+
+## Checks that agree
+
+- **Gates:** all 11 have `exit 0` and `stderr_bytes 0`. The 11 `gate_output_sha256` values in the run results match `records` in the final-integrity file exactly. The script also requires every `.stderr` sibling file to be empty (`finalize-stopped-post.py:13`).
+- **Commits:** source and fixture are both `b600ad3` and clean in all records. The script requires a clean `git status` and checks each record's `fixture_commit` against HEAD.
+- **Admission, 40 rows:**
+  - All 32 candidate rows carry JAR `f6e545bb` and Manager `ddd62642`, across both architectures and both `-Xint` and `-Xcomp`.
+  - The 4 restored rows carry Manager `cfefcc5b` and show `fixed=false queue=1` and `pending-sender-observed`, so the stranding is positively seen.
+  - The 2 missing-helper rows show `NoClassDefFoundError=true monitor_released=true`.
+  - The 2 logging-bypass rows show `exact_appender_escapes=2 fatal_identity=true`.
+- **JAR delta from audit.19:**
+  - The script computes the changed entries over the union of both JARs and gets exactly the Manager plus the two helpers.
+  - `normalize_stopped_admission(candidate)` must equal the audit.19 bytes, and the audit.19 Manager hash is pinned.
+  - The manifest is asserted byte-identical, and the old JAR's hash is pinned to `stop-lock-final-integrity.json`.
+- **Packaging:**
+  - Only `source_provenance_sha256` is excluded from the manifest comparison.
+  - Bundle 1 maps to clean-3 and bundle 2 to clean-4 for both architectures (`2389c40c…` and `22e89a38…`), each checked against the actual provenance file.
+  - Files and file modes are compared against the manifest for both bundles.
+  - `verify_runtime` runs on both, and the files-plus-modes runtime digest must equal the runtime lock.
+  - Vendor, team ID and the "never re-signed" note are identical across the manifests.
+- **Original and installed app:** the original is asserted to be mode `0o444`. The installed app's file tree and modes must equal the reference.
+- **Last review's open item:** the empty-stderr risk from the previous review is now settled. Every gate and every admission row passed with stderr required empty.
+
+## Fixes before archival
+
+1. **Some recorded numbers are hard-coded, not asserted.**
+   - Asserted: 42 connect records, 6 semantic mutants in total, 20 lock records, 10 exact deadlock pairs, and the 40 admission rows by variant.
+   - Written as literals with no check:
+     - 36 connect positives
+     - 3 mutants *per architecture* (only the total of 6 is checked)
+     - 8 lock positives
+     - 2 site-attribution cross-controls
+     - `controller_contact`, `production_or_mounted_volume_tests` and `installed_application_modified`
+   - Either derive these or describe them as gate-attested, not finalize-checked.
+2. **143 recovery, 116 factory and 10 posting don't appear anywhere in the files you named.** Neither the final-integrity file nor the finalize script records or asserts them. If the archive cites them, point to the gate record that holds each count.
+3. **Admission rows aren't checked against the candidate identity.** The finalize script counts rows by variant but doesn't assert their `jar_sha256` or `manager_class_sha256`. It does this for the characterization rows (`:24`). The values are correct by inspection, but the script wouldn't catch a mismatch. It also doesn't assert any record's `source_commit`, only `fixture_commit`.
+4. **The interpreter fix isn't machine-recorded.** "Pinned CPython 3.14.8 via `sys.executable`" appears only in the `excluded_runs` text. The 124-test record and the gate records carry no interpreter path, version or `python-lock.json` hash, although the bundle `input_hashes` include `python-lock.json`. If you can't add this, state the claim as documented, not recorded.
+5. **The development-run history doesn't match.** `excluded_runs.development` says "Final development40 checks passed but are not clean acceptance". `STOPPED-POST-ADMISSION.md:124-126` mentions only a dirty 40-observation attempt that the source guard rejected, and your summary mentions only the earlier 34-test run. Reconcile whether a passing dirty 40-observation run existed. Also say whether "Both orchestration attempts" means two runs.
+6. **Dead `limits` string.** The `limits` at `finalize-stopped-post.py:51` is overwritten at `:67`. It's harmless, but it reads like a second, conflicting statement of limits. Remove it before the script is archived.
+
+## Wording cautions
+
+- **Python tests:** `stderr_sha256` for the 124 tests is non-empty, as you'd expect from unittest output. Limit "parent stderr 0" to the 11 gates and the bundle operations.
+- **Restored controls:** the restored-control JAR (`ad8d99aa`) is not the audit.19 JAR (`f7c829f8`). Describe it as "the audit.19 Manager restored in the candidate JAR", as the doc does, not as audit.19.
+- **Installed app:** it is compared with `../audit/reference`, which this script doesn't hash-pin. "Unchanged" therefore depends on the reference's earlier archive.
+- **Bundle verifier output:** only the second bundle's verifier stdout is archived (`-2.stdout`). The first bundle is covered by the script's own checks and its exit status.
+- **Final-integrity `limits`:** it leaves out items that are in the admission `limits`: the bypassed constructor, the absence of a connection, the headless EventQueue and arbitrary third-party handlers. Either add them or cross-reference the admission record.
+- **Packaging:** as you planned, say the two bundle manifests are equal except `source_provenance_sha256`. Don't claim the whole metadata JSON is byte-identical.
+- **Audit.19 lock mismatch:** keep it as an unexplained mismatch, with no cause or fix claimed. The record already says this.
+
+## Stale text for the post-review update
+
+- `STOPPED-POST-ADMISSION.md:3-5`: the status still says clean qualification is pending.
+- `:116-117`: the 40-observation results are "pending".
+- `:124-126`: the excluded attempt needs reconciling with item 5.
+- The doc has no section on the clean run, the rejected interpreter run, the provenance caveat or the audit.19 mismatch.
+- `STOPPED-POST-BOUNDARY-FOLLOWUP.txt` residual 1 can be marked resolved by this clean run.
