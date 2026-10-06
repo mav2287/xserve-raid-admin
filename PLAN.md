@@ -649,3 +649,13 @@ qualification gates and 103 tests pass at clean source/fixture/package commit `7
 Interrupted synchronous waits, premature connection completion, queue exit races,
 GUI recovery and hardware qualification remain unresolved. No controller command
 or installed-app modification is part of this change.
+
+### Audit.17 callback guard (development)
+
+A constructor-only defense removes enqueueing before the existing forbidden
+synchronous-callback error. The memory differential shows the original queued
+command later executing; the patch rejects before enqueueing while preserving
+normal synchronous response identity and clone counts. This does not establish
+original GUI reachability or fix interrupted waits and TYPE_CONNECT failure/later
+transmission. Claude reviewed the design and implementation, and 108 tests pass.
+Clean qualification is pending. See [scoped evidence](audit/SYNC-CALLBACK-PREENQUEUE.md).

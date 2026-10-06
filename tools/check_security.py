@@ -115,7 +115,8 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
             constructor = target=='getBody' and re.match(r'^  com\.apple\.xsr\.net\.HttpResponse\(',part)
             framing = target=='getBody' and re.match(r'^  private void parseHeaders\(\)',part)
             if constructor or framing: part = re.sub(r'^    Code:\n.*?(?=^    \S|^}|\Z)', '', part, flags=re.M | re.S)
-            if re.match(r'^  [^\n]*\b' + target + r'\(', part) and ('    descriptor: ' + descriptor + '\n') in part:
+            matched=(re.match(r'^  public com\.apple\.xsr\.net\.CommunicationsManager\$SyncSender\(',part) if target=='<init>' else re.match(r'^  [^\n]*\b' + target + r'\(', part))
+            if matched and ('    descriptor: ' + descriptor + '\n') in part:
                 selected.append(part)
                 part = re.sub(r'^    Code:\n.*?(?=^    \S|^}|\Z)', '', part, flags=re.M | re.S)
             kept.append(part)
@@ -128,6 +129,18 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         raise ValueError('Independent class identity/version check failed')
     if new[1][:len(old[1])] != old[1] or old[2] != new[2]:
         raise ValueError('Independent constant pool/non-target disassembly check failed')
+    if target=='<init>':
+        if old[1]!=new[1] or 'stack=7, locals=7, args_size=3' not in new[3]:raise ValueError('Independent sync pool/frame differs')
+        instructions=lambda text:[(int(pc),rest) for pc,rest in re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)]
+        a,b=instructions(old[3]),instructions(new[3])
+        window=[x for x in b if 14<=x[0]<20]
+        if window!=[(14,'goto          109'),(17,'nop'),(18,'nop'),(19,'nop')]:raise ValueError('Independent sync entry differs')
+        expected=[(pc+78,rest.replace('51','129') if pc==38 else rest) for pc,rest in a if 31<=pc<51]
+        expected += [(pc+115,rest) for pc,rest in a if 14<=pc<20]+[(135,'goto          20')]
+        if [x for x in b if x[0]>=109]!=expected:raise ValueError('Independent sync appended check/enqueue differs')
+        def mask(text):return '\n'.join(line for line in text.splitlines() if not ((m:=re.match(r'^\s+(\d+):',line)) and (14<=int(m[1])<20 or int(m[1])>=109)))
+        if mask(old[3])!=mask(new[3]):raise ValueError('Independent sync original instructions/handlers changed')
+        return
     if target in ('run','send'):
         a,b=old[3],new[3]
         if target=='run':
@@ -282,6 +295,11 @@ def main():
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)
         disassembly = disassemble_entries(args.jdk, args.jar, [entry])
+        if name == '<init>':
+            method=re.search(r'^  public com\.apple\.xsr\.net\.CommunicationsManager\$SyncSender\([^\n]*\n(.*?)(?=^  \S|^})',disassembly,re.M|re.S)
+            if method is None or any(not re.search(pattern,method[1],re.M) for pattern in (r'^\s+14:\s+goto\s+109$',r'^\s+116:\s+if_acmpne\s+129$',r'^\s+135:\s+goto\s+20$')):raise ValueError('Sync constructor trampoline disassembly differs')
+            verified_methods[entry]='Exact hash-pinned constructor preenqueue guard and binary mask; constant pool, monitor/wait/interrupt code, handlers and other methods preserved'
+            continue
         match = re.search(r'^  (?:public|protected) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)

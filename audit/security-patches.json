@@ -76,5 +76,10 @@
     "original_major_version": 47,
     "patched_major_version": 47,
     "scope": "Appended exact-marker handler; original instructions and handler entries preserved"
+  },
+  "com/apple/xsr/net/CommunicationsManager$SyncSender.class": {
+    "original_sha256": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "patched_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+    "scope": "SyncSender constructor only: preenqueue thread guard, original pool/handlers and other methods retained"
   }
 }

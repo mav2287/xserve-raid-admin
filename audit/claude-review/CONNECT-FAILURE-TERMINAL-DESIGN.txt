@@ -1,0 +1,51 @@
+I recommend **B, narrowed to `doConnect` only**. Of the three it is the thinnest change that keeps the request bytes unchanged and stops a request from being sent after its failure was reported. A and C are worse for the reasons below. Two blockers remain before B can be called done.
+
+## Facts from the bytecode that drive the choice
+- **audit.16 already makes a stopped manager skip the held request.** Its fixed `run` reaches `doConnect` only at PC231, inside the 215–304 Exception range, so a callback that throws goes to `report`. The other call at PC454 is now dead. `run` PC234 already checks `isStopped` and skips the send. PC273 then sends a -102 only if `connectionFailureSent` is false. So B needs **no `run` edit**.
+- **There are two places the -101 is sent:**
+  - **No-host path** (PC409): no null check on the handler, and `connectionFailureSent` is never set. In audit.16 today, `run` then calls send on a null `connection`. That throws a NullPointerException before any bytes are written, `report` stops the manager, and the handler gets a **second** callback (-102). So there is no write here today, only a duplicate callback.
+  - **Retry path** (PC586): this is the real bug. It runs only if the handler is not null and either there is one valid host or this is the second or later attempt. After the callback, retries continue with backoff up to 1 hour. When a later connect succeeds, `run` PC255 sends the request whose failure was already reported.
+- **`isValidAddress`** (lines 842–859) only checks for null, length under 7, and `"0.0.0.0"`. It does no name lookup.
+- **A lock inversion already exists.** `run` PC7–53 holds the queue lock and calls the synchronized `isStopped`. `shutdown` takes the manager lock first, then the queue lock. Calling `shutdown` from a caller thread can therefore deadlock against the worker. At both `doConnect` patch points the worker holds no locks: the `doConnect` monitors at 448–456 and 505–513 are already released, and `run` releases the queue at PC68.
+
+## Why not A or C
+- **A rejected.** `SyncSender.wait()` has no timeout, and the retry loop runs until stopped. The caller can therefore block indefinitely. The only way out is an interrupt, which returns -102 but leaves the transaction held, so it is sent later. That is the same bug, now triggered by the user. A also drops the -101 for sync callers and does nothing for async handlers, which still get two callbacks.
+- **C rejected.** It needs per-transaction state and changes to `run` and the Transaction, and it races with dequeue. If keeping automatic retries becomes a requirement, there is a thinner way to get C's result. The existing `connectionFailureSent` flag already records "failure reported", so skip the send at `run` PC234 when it is set. That needs one window in `run` plus setting the flag on the no-host path. Treat this as the fallback only.
+
+## B: exact constraints
+1. **Window W1, PC393–400** (`getstatic logger; aload 11; invokevirtual error`, 8 bytes). Replace it with a `goto_w` to an appended block containing:
+   - `aload_0; iconst_1; putfield #13` (sets `connectionFailureSent`; this prevents the duplicate -102 from PC273)
+   - `aload_0; invokestatic <stop>`
+   - the original 8 bytes
+   - `goto_w 401`
+2. **Window W2, PC578–582** (`aload_1; aload_0; getfield #14`, 5 bytes, empty stack). This is inside the null-handler-guarded block, so null-handler retries are unchanged. Replace it with a block containing `aload_0; invokestatic <stop>`, the original bytes, then `goto_w 583`. The flag is already set at PC594.
+3. **The stop helper.** Reuse `RejectionRecovery.retire`, which only the worker calls and which fails closed through `shutdownRequired`, or add a one-line wrapper around it. No new state. If stopping fails, the error goes to `report` and then escapes `run`. Nothing is sent.
+4. **Callback behaviour after B:**
+   - The handler sees `isStopped()==true`.
+   - A sync `postMessage` from the callback throws CommShutdownException at PC0, before anything is queued.
+   - An async post is queued, then drained with -102 and never sent.
+   - If the handler throws an Exception, `report` runs and the handler gets a second -102. audit.16 already does this; B doesn't add it.
+   - If the handler throws an Error, the manager is now already stopped, which is an improvement.
+   - A null handler at PC409 still throws a NullPointerException, which goes to `report`.
+5. **Bytecode checks.** Version 47, so no StackMapTable. No exception range covers 393–400, 578–582, or anything at 718 and above; assert this. Assert the owner, name and descriptor of fields #13 and #14 and of the methodref, and check `max_stack`.
+6. **Tooling blocker.** `TARGETS` allows only one method per class, and `CommunicationsManager` already has `run`. The tool needs one hash pin per class covering several methods, masked full-method diffs for both `run` and `doConnect`, and a bump to audit.17.
+
+## Concrete blockers
+- **Availability cost (not yet checked).** `CommunicationsManager` is constructed only in `RaidSystem(String)`, and `RaidSystem.disconnect` shuts it down. Under B, a controller that can't be reached on the first command stops that system's manager for good. Someone needs to check how the GUI recovers: does it build a new RaidSystem, or does the user have to relaunch? Also inventory the GUI handlers that react to a TYPE_CONNECT response, in case any of them reconnect inside the callback.
+- **No socket-free way to reach the retry path yet.** Only the `AcpxConnection` constructor, `createConnection` and `HttpConnection.open`, which calls `new Socket`, can raise the IOException that leads to PC498. A SecurityManager `checkConnect` guard throws SecurityException, not IOException, and still runs the Socket constructor. Two options:
+  - (a) An in-memory, child-first class loader that defines every `com.apple.xsr.net` class from the jar bytes, read-only, plus a stub `AcpxConnection(String)`. The stub throws ConnectException on its first call and returns a recording memory transport on its second.
+  - (b) A bytecode dump to look for an IOException thrown before the socket is created, such as a MalformedURLException. I didn't find one.
+
+## Fixtures (memory only)
+- **Setup, reused from audit.16 (`RecoveryObservation`):**
+  - Allocate the manager with Unsafe, so no thread starts and the RaidSystem constructor never runs.
+  - Use a fake RaidSystem, and use TEST-NET-1 literals (192.0.2.x) or null hosts.
+  - Keep the network, Preferences, write and exec guards. The real RAID address never appears anywhere in the fixture.
+- **No-host path (W1):** with audit.16 classes, a handler that injects a memory connection during the -101 shows a send after a reported failure. Without that injection it shows the duplicate callback. With B: exactly 1 callback, 0 sends, the manager stopped, and every queued item gets one -102.
+- **Retry path (W2), using the stub from blocker (a):** with original or audit.16 classes, -101, then one sleep of 5–10 seconds, then the second constructor call, then **send = 1**. That is the control proof. Run it under a watchdog with a hard limit. With B: no sleep, 0 sends, 1 callback. Include a dual-host case: the first failure is silent and the second triggers the stop.
+
+## Pre-enqueue callback trampoline
+Yes, it can ship separately, labelled defense in depth.
+- It throws the exception in exactly the same cases as the original and only removes the enqueue. Its safety doesn't depend on the GUI catching IllegalStateException; only a claim that it fixes a reachable bug would.
+- After B, the `doConnect` callbacks run against a stopped manager, so a sync post from them never reaches the enqueue. The only place left is callbacks on a live manager at `run` PC509, i.e. successful responses.
+- The tooling fix from the earlier design is still required: the `toString` fallback must not catch `<init>`.

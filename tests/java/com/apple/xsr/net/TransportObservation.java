@@ -11,6 +11,7 @@ import sun.misc.Unsafe;
 public final class TransportObservation {
     private static PrintStream fixtureOut;
     private static boolean unsafeWorkerFailureObserved;
+    private static boolean unsafeSyncEnqueueObserved;
     private static void emit(String value) { fixtureOut.println(value); }
     private static final byte[] XML;
     static {
@@ -338,7 +339,7 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization","null-io-policy","terminal-io-policy","operation-failure-characterization","worker-failure-policy","verify-worker-stop-prefix","verify-worker-stop-report","verify-worker-stop-shim","verify-worker-stop-tail","verify-manager-unsafe-policy","verify-manager-corrupt").contains(args[0])), "Unknown fixture arguments");
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization","null-io-policy","terminal-io-policy","operation-failure-characterization","worker-failure-policy","verify-worker-stop-prefix","verify-worker-stop-report","verify-worker-stop-shim","verify-worker-stop-tail","verify-manager-unsafe-policy","verify-manager-corrupt","sync-preenqueue-original","sync-preenqueue-candidate","verify-sync-preenqueue").contains(args[0])), "Unknown fixture arguments");
         boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].endsWith("-default-logging"));
         boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
@@ -359,6 +360,13 @@ public final class TransportObservation {
                 boolean rejected=false;try{fixedFailure(unsafeState,"unsafe-negative",false,1);}catch(AssertionError expected){rejected=unsafeState.unsafeFailureObserved;}
                 check(rejected,"Unsafe semantic policy not specifically observed");OfflineGuard.assertUntouched();emit("PASS verified unsafe manager fails containment fixture; guarded_operations=0");
             }
+            else if(args.length==1 && args[0].equals("verify-sync-preenqueue")) {
+                Class.forName("com.apple.xsr.net.CommunicationsManager$SyncSender").getDeclaredMethods();
+                unsafeSyncEnqueueObserved=false;boolean rejected=false;
+                try{syncPreenqueue(true);}catch(AssertionError expected){rejected=unsafeSyncEnqueueObserved;}
+                check(rejected,"Unsafe sync enqueue not specifically observed");OfflineGuard.assertUntouched();emit("PASS verified preenqueue bypass fails queue fixture; guarded_operations=0");
+            }
+            else if(args.length==1 && args[0].startsWith("sync-preenqueue-")) syncPreenqueue(args[0].endsWith("candidate"));
             else if(args.length==1 && args[0].startsWith("verify-worker-stop-")) {
                 Class.forName("com.apple.xsr.net.CommunicationsManager").getDeclaredMethods();Class.forName("compat.RejectionRecovery").getDeclaredMethods();unsafeWorkerFailureObserved=false;
                 boolean rejected=false;try{operationFailures(new String[]{args[0].endsWith("prefix")||args[0].endsWith("tail")?"prefix":args[0].endsWith("shim")?"shim":"generic"});}catch(AssertionError expected){rejected=unsafeWorkerFailureObserved;}
@@ -710,4 +718,52 @@ public final class TransportObservation {
         OfflineGuard.assertUntouched();
         emit("PASS memory-only transport and queue observations; real reconnection/backoff excluded");
     }
+    private static RequestMessage countedRequest(final RequestMessage delegate,final int[] clones){
+        return (RequestMessage)java.lang.reflect.Proxy.newProxyInstance(RequestMessage.class.getClassLoader(),new Class[]{RequestMessage.class},new java.lang.reflect.InvocationHandler(){
+            public Object invoke(Object proxy,java.lang.reflect.Method method,Object[] args)throws Throwable{
+                if(method.getName().equals("clone")){clones[0]++;return proxy;}
+                try{return method.invoke(delegate,args);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}
+            }
+        });
+    }
+    public static final class ImmediateManager extends CommunicationsManager {
+        Response supplied;
+        private ImmediateManager(){super(null);throw new AssertionError("Constructor must not run");}
+        @Override public void postMessageAsync(CommunicationHandler handler,RequestMessage request){handler.handleResponse(null,supplied,null);}
+    }
+    private static void syncPreenqueue(final boolean fixed)throws Exception {
+        org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+        final State state=new State();final CommunicationsManager m=ioManager(state);set(m,"thread",Thread.currentThread());state.stopOnSecondResponse=m;final int[] callbacks={0};final int[] clones={0};final AcpxMessageFactory f=new AcpxMessageFactory();
+        final RequestMessage forbidden=countedRequest(f.newRestartSystemRequest(),clones);
+        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
+            check(response.getResultCode()==0&&!m.isStopped(),"Callback prerequisite differs");callbacks[0]++;
+            int before=((LinkedList)uncheckedQueue(m)).size();
+            try{m.postMessage(forbidden);throw new AssertionError("Synchronous callback accepted");}
+            catch(IllegalStateException expected){check(expected.getClass()==IllegalStateException.class&&"Attempt to post message synchronously from handler callback".equals(expected.getMessage())&&expected.getCause()==null,"Callback exception changed");}
+            catch(IOException e){throw new AssertionError("Unexpected callback IO");}
+            int added=((LinkedList)uncheckedQueue(m)).size()-before;unsafeSyncEnqueueObserved=added!=0;
+            check(added==(fixed?0:1)&&clones[0]==(fixed?1:2),"Forbidden callback command enqueued");
+            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem sy,Response r,Object c){check(r.getResultCode()==(fixed?0:-102),"Follow-up failed");callbacks[0]++;m.shutdown();}},f.newGetTimeRequest());
+        }},f.newGetStatusRequest());
+        m.run();check(callbacks[0]==2&&state.attempts==2&&state.sent.size()==state.attempts,"Callback sequence differs");
+        check(Arrays.equals(requestBody(state.sent.get(1)),serialized(fixed?f.newGetTimeRequest():f.newRestartSystemRequest())),"Second operation bytes differ");
+        emit("sync callback fixed_exception=true second_clone="+(!fixed)+" queued="+(fixed?0:1)+" request_attempts="+state.attempts+" forbidden_restart="+(fixed?"blocked":"sent"));
+        final State normal=new State();final CommunicationsManager nm=ioManager(normal);final Response[] returned={null};final Throwable[] errors={null};final int[] normalClones={0};
+        Thread worker=new Thread(new Runnable(){public void run(){try{nm.run();}catch(Throwable e){errors[0]=e;}}},"fixture-normal-sync-worker");worker.setDaemon(true);set(nm,"thread",worker);
+        Thread caller=new Thread(new Runnable(){public void run(){try{returned[0]=nm.postMessage(countedRequest(f.newGetStatusRequest(),normalClones));}catch(Throwable e){errors[0]=e;}}},"fixture-normal-sync-caller");caller.setDaemon(true);
+        caller.start();long end=System.nanoTime()+5000000000L;Object handler=null;
+        while(handler==null&&System.nanoTime()<end){LinkedList q=(LinkedList)queueValue(nm);synchronized(q){if(q.size()==1){Object transaction=q.getFirst();Field hf=transaction.getClass().getDeclaredField("handler");hf.setAccessible(true);handler=hf.get(transaction);}}if(handler==null)Thread.sleep(5);}
+        while(caller.getState()!=Thread.State.WAITING&&caller.isAlive()&&System.nanoTime()<end)Thread.sleep(5);
+        try{check(handler!=null&&caller.getState()==Thread.State.WAITING,"Normal synchronous wait not established");worker.start();caller.join(5000);check(!caller.isAlive()&&errors[0]==null&&returned[0]!=null&&returned[0].getResultCode()==0,"Normal synchronous call failed");Field rf=handler.getClass().getDeclaredField("response");rf.setAccessible(true);check(rf.get(handler)==returned[0]&&normalClones[0]==2&&normal.attempts==1,"Normal response identity or clone count changed");}
+        finally{nm.shutdown();worker.interrupt();caller.interrupt();worker.join(2000);caller.join(2000);check(!worker.isAlive()&&!caller.isAlive(),"Normal sync cleanup failed");}
+        emit("sync normal clones=2 attempts=1 waited=true response_identity=true");
+        ImmediateManager immediate=(ImmediateManager)unsafe().allocateInstance(ImmediateManager.class);immediate.supplied=new BasicResponse(Response.TYPE_COMMAND,null,0,null);Response fast=immediate.postMessage(f.newGetStatusRequest());check(fast==immediate.supplied,"Immediate response identity changed");emit("sync immediate-before-wait response_identity=true");
+        final CommunicationsManager stopped=ioManager(new State());stopped.shutdown();int[] stoppedClones={0};try{stopped.postMessage(countedRequest(f.newRestartSystemRequest(),stoppedClones));throw new AssertionError("Stopped sync accepted");}catch(CommShutdownException expected){}check(stoppedClones[0]==0&&((LinkedList)queueValue(stopped)).isEmpty(),"Stopped sync enqueued");stopped.run();emit("sync stopped before_clone=true queue=0");
+        final CommunicationsManager interrupted=ioManager(new State());Thread.currentThread().interrupt();try{interrupted.postMessage(f.newRestartSystemRequest());throw new AssertionError("Interrupted sync accepted");}catch(IOException expected){check(expected.getClass()==IOException.class&&"communications shutdown".equals(expected.getMessage()),"Interrupted result changed");}finally{Thread.interrupted();}check(!interrupted.isStopped()&&((LinkedList)queueValue(interrupted)).size()==1,"Interrupted residual changed");interrupted.shutdown();interrupted.run();emit("sync interrupted residual_queue=1 stopped=false cancellation=unfixed");
+        OfflineGuard.assertUntouched();emit("PASS sync preenqueue observations; guarded_operations=0");
+    }
+    private static Object uncheckedQueue(CommunicationsManager m){try{return queueValue(m);}catch(Exception e){throw new AssertionError("Queue unavailable");}}
+    private static byte[] requestBody(byte[] wire){for(int i=0;i+3<wire.length;i++)if(wire[i]==13&&wire[i+1]==10&&wire[i+2]==13&&wire[i+3]==10)return Arrays.copyOfRange(wire,i+4,wire.length);throw new AssertionError("Request body missing");}
+    private static byte[] serialized(RequestMessage request)throws Exception{ByteArrayOutputStream out=new ByteArrayOutputStream();request.writeTo(out);return out.toByteArray();}
+
 }

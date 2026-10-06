@@ -1,0 +1,27 @@
+**Verdict:** I found one blocker, and it is in the evidence, not the patch. I found no bugs in the bytecode or the tooling. This was a read-only review: I ran nothing and recomputed no hashes.
+
+## Blocker
+
+**`waited=true` is printed but never checked** (`TransportObservation.java:754-758`). The caller is treated as waiting once the poll loop sees `q.size()==1` and `caller.isAlive()`. That only proves the request was queued. When `worker.start()` runs, the caller could still be anywhere between PC129–134 and `wait()`: running the enqueue, taking the trampoline `goto 20`, or blocked on the monitor at PC23. If so, the worker's `handleResponse` sets `handled` first and the caller skips the wait. The fixture still passes and still prints `waited=true`. This matters because the off-worker path through the trampoline into the wait is the main thing the candidate changes for healthy callers.
+
+The fix is to poll until `caller.getState()==Thread.State.WAITING` before `worker.start()`, with the same 5 s limit. The only `wait` reachable in `postMessage` is the SyncSender monitor wait, and the queue lock shows as BLOCKED, not WAITING. Otherwise, rename the line to `queued=true`. Either change alters `TransportObservation.java`, so its source hash in the posting record changes too.
+
+## What checks out
+- **Trampoline offsets:**
+  - The goto at 14 is `a7 005f` and lands on 109.
+  - The copied check's `if_acmpne +13` at 116 lands on 129.
+  - The goto at 135 is `ff8d` (−115) and lands on 20.
+  - The total length is 138.
+  - The backward branch at 135 has an empty stack, and `this` is already initialized there because PC14 passes it as an argument. So the old verifier's "no uninitialized object on a backward branch" rule is met. The dead `00 00 00` padding is the same pattern the `send` patch already uses.
+- **Handlers:** `assert_sync_preenqueue` pins the original 3-entry handler table byte for byte (the last range ends at 105) and no nested attributes. Nothing covers PC 109 or later.
+- **The class is fully pinned:** the pool must be identical, `assert_preserved` checks every other method, the class attributes and the fields, and the code is compared after masking only the two edited windows and the length fields. Together with `baseline.py:90` checking `patched_sha256`, this matches the golden 9313aae….
+- **The `toString` hazard is closed:** the `<init>` branch comes first, the fallback is now `elif name=='toString'`, and anything else raises.
+- **The callback fixture separates original from candidate:** `added`, `clones` and the second body are all asserted rather than just printed. The negative control requires `unsafeSyncEnqueueObserved`, so a fixture that failed for some other reason doesn't count as rejecting the mutant.
+- **The immediate seam:** a wrong ordering would hang until the 20 s timeout, so it can't pass by accident.
+
+## Scope corrections
+1. **`check_sync_posting.py` only pins the SyncSender class.** The rest of the candidate is bound only by the `--candidate-sha256` the operator passes in, and the observed behaviour depends on the candidate's `CommunicationsManager`/`run`. The evidence covers audit.17 only if the record's `candidate_sha256` equals `948c1d85…`, the jar in `sync-preenqueue-recovery-expected.json`. State that as part of the claim, or assert it in the gate.
+2. **Callback paths:** the fixture only exercises a callback after a successful response at `run` PC509. Without the CONNECT-FAILURE "B" change, `doConnect` −101 callbacks still run against a live manager. The guard doesn't depend on which callback path runs, but don't claim the −101 path was observed.
+3. **What audit.17 does not fix:** the TYPE_CONNECT retry still sends a request after its failure was reported (CONNECT-FAILURE doc). An Error escaping at PC509 still strands the worker without setting `stopped`. Neither is affected by audit.17. Your `limits` string already lists TYPE_CONNECT, interrupted-wait cancellation and exit/lock liveness as unqualified; keep the stranding at PC509 explicit there too.
+4. **Mutant control:** the restored-constructor mutant runs once per architecture in the default mode, not under each of `-Xint` and `-Xcomp`. Describe it that way.
+5. **Parity lines:** the TAIL lines are expected to match between original and candidate. Present them as parity checks, not as fixes. This includes `cancellation=unfixed`.

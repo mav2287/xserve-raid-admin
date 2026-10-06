@@ -1,0 +1,51 @@
+I recommend fixing the premature TYPE_CONNECT path first, and keeping the constructor trampoline as a small follow-on. The trampoline is feasible and low-risk with the patch tooling as it is. But after audit.16 its remaining reach is narrow, while the TYPE_CONNECT path needs no misuse, race or interrupt.
+
+## Source facts
+From `next-session-safety-selected-bytecode.txt`, `communications-manager-bytecode.txt`, `class_patch.py`, `baseline.py` and `RejectionRecovery.java`:
+
+- **SyncSender constructor** (code length 109): the six bytes at PC14–19 are `2b 2a 2c b6 0004`, the enqueue call to `postMessageAsync`. The thread check at PC31–50 runs only after taking the monitor at PC23 and checking `handled` at PC24. Exception ranges are 31–55 (InterruptedException), 24–98 and 101–105 (any). PC14–19 and anything after PC108 are not covered.
+- **Manager thread field:** `access$000` just returns `thread`. In the dumped class, `thread` is assigned only in the Manager constructor, before `Thread.start`.
+- **Order in `Manager.postMessage`:** the `isStopped` check, then `RequestMessage.clone`, then the SyncSender constructor. `postMessageAsync` then clones the message a second time inside the queue lock.
+- **Where callbacks run on the worker:** `run` PC509 (no handler except InterruptedException, so a throw ends the worker without setting `stopped`). Also `doConnect` PC409 and PC586. Those are reached from `run` PC231, which is inside the 215–304 generic Exception range that audit.16 routes to `RejectionRecovery.report`, which shuts the manager down first.
+- **TYPE_CONNECT path:** `doConnect` passes a -101 type-0 response to the held transaction's handler. `SyncSender.handleResponse` accepts any response without checking its type. Retries continue, and after a later successful connect, `run` PC234–255 sends that same held transaction.
+
+## Inference: how much the proposed fix still covers
+- On the worker thread the transaction can't be dispatched while its callback is still running, so `handled` is always false at the old check. The new check before enqueue therefore throws in exactly the same cases as the original. Off the worker, the old path is unchanged and the old check runs again harmlessly.
+- After audit.16, a callback that lets the exception escape either stops the manager (the `doConnect`-via-PC231 path: the queued sync item gets CommShutdown -102 and is never sent) or ends the worker (PC509: the item is stranded, not sent).
+- **The bug is only still live if a handler catches the IllegalStateException and returns normally.** Nobody has yet checked whether any `handleResponse` implementation reaches a synchronous `postMessage` inside a catch of RuntimeException, Exception or Throwable. That check is what decides the fix's value.
+
+## Bytecode design requirements
+1. Pin the original SyncSender hash (`69c71a7d…`, from the source-identities JSON) plus a golden patched hash in `security-patches.json`. Version 47 means the old inference verifier, with no StackMapTable.
+2. Replace PC14 with `a7 005f` (goto 109) and `00 00 00` as dead padding; the existing `send` patch already has the same dead-padding pattern.
+3. Append at 109: `b8 0005, 2b, b8 0006, a6 000d, bb 0007, 59, 12 08, b7 0009, bf`, then the original `2b 2a 2c b6 0004` at 129, then `a7 ff8d` (goto 20). New code length 138. These offsets are hand-computed, so the tool must assert them.
+4. Add no constants: reuse #4–#9 and assert each one's owner, name and descriptor, as the `run` patch does. `pool_count`, max stack (7) and max locals (7) stay the same.
+5. The exception table and nested Code attributes must be byte-identical, and no handler may cover PC ≥ 109. If the any-handler at 101 caught the new exception, it would run `monitorexit` on a monitor that was never entered.
+6. **Tooling hazard:** in `transform()`, any target that isn't one of the named special cases falls into the `toString` redaction branch. Adding a `<init>` entry to TARGETS without its own branch would silently turn the constructor into `ldc; areturn`. The new branch needs to come first, and the fallback should require `name=='toString'`. A masked full-method comparison (like `assert_recovery_edit`) and a version bump to audit.17 are also needed. Since `ALLOWED_JAR_CHANGES` is built from TARGETS, it picks up the new class automatically.
+7. One intended semantic change: on the worker thread the second clone and taking the queue lock no longer happen. Nothing else changes: no new commands, timers or shutdowns, and interrupt and wait behaviour stay the same.
+
+## Memory-only fixtures
+Reuse the audit.16 scripted-connection harness with no sockets, and run each case against both the original and patched classes.
+
+- **Static:** hash refusals for shifted windows, wrong access flags and changed pool entries; the masked diff; and a load with verification enabled under the locked JDK.
+- **Positive:**
+  - A sync post from another thread is queued once, waits, and returns the scripted response object unchanged.
+  - A response that arrives before the caller takes the lock skips the wait.
+  - Stopped manager: the original CommShutdownException is still thrown.
+  - Interrupted wait: still returns -102 and the transaction stays queued. This records the remaining bug; it is not a fix.
+- **Negative:**
+  - A worker callback (from the `doConnect` -101 path with no valid host, scripted) makes a sync post. Expect exactly IllegalStateException with the original message, an unchanged queue size, no second clone, and zero scripted sends after the callback swallows the exception.
+  - The same post with the exception allowed to escape: no enqueue, and propagation identical to the original.
+  - The original class enqueues in both of these cases, which shows the patch is what makes the difference.
+- **Prerequisite:** confirm `isValidAddress` does no name lookup before relying on the no-host path.
+
+## Priority
+**TYPE_CONNECT first (inference from control flow):**
+- **Deterministic:** it needs only an unreachable controller on the first attempt, with no callback misuse, race or interrupt.
+- **High impact:** the caller gets a ConnectException, but the command is sent later. If the user retries after the error dialog, a destructive request could run twice. Async handlers also receive two callbacks. `doConnect` is unpatched by audit.16.
+- **Harder:** it touches the already-patched `run` or `doConnect` and needs its own design, such as not sending a held transaction whose failure was already reported.
+
+**Interrupted wait second:** the trigger is unproven (an inferred race, or external interrupts).
+
+**This trampoline:** ship it as a separate small milestone if the handler-reachability check finds a handler that swallows the exception. Otherwise label it defense in depth.
+
+**Separately:** a callback throwing at `run` PC509 ends the worker without setting `stopped`, which strands later synchronous callers. The trampoline doesn't change this.

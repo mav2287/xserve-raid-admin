@@ -1,0 +1,38 @@
+I found no blocker to committing this work and then running clean qualification. As requested, I only read files: I ran no commands, didn't touch the controller or profiles, and recomputed no hashes.
+
+## Checked items
+- **The fixture now waits for the caller to be WAITING** (`TransportObservation.java:754-757`). It first waits until the queued transaction's handler shows up, then polls `caller.getState()` until it is `WAITING` or the caller dies. Both loops share one 5 s deadline. It asserts `handler!=null && WAITING` before `worker.start()`. The handler appears first, and nothing else that could block is set up beforehand, so `WAITING` can only be the `wait()` at 51/52. The `waited=true` line is now backed by a real check.
+- **`check_sync_posting.py`:**
+  - **Artifact identity:** line 43 calls `check_artifact(candidate.resolve().parents[3])`. For a candidate at `<out>/RAID Admin.app/Contents/Resources/RAID_Admin.jar`, that resolves to `<out>`. The returned identity is compared with the full `expected-build.json` `expected` record (line 44). The candidate SHA must match both `--candidate-sha256` and `candidate_jar_sha256` (`948c1d85…`) in `sync-preenqueue-recovery-expected.json`. The jar entry in `expected-build.json` is also `948c1d85…`, so these agree.
+  - **Clean-tree rules:** clean application source (`manifest['source_dirty']`) and a clean fixture commit are required whenever `--development` isn't passed.
+  - **What the record holds:** both commits (`source_commit` and `fixture_commit`) and their dirty flags. Hashed inputs include `expected-build.json`, `sync-preenqueue-recovery-expected.json` and `verify_builds.py`, and they are re-checked at the end (line 76). The `limits` string now names the PC509 stranding.
+- **`check_security.py` `independent_preservation`:**
+  - **Target lookup:** for `<init>`, line 118 matches the literal `public …$SyncSender(` header plus the exact descriptor, and requires exactly one match. That matches the fixture javap at `sync-preenqueue-original.javap:95`.
+  - **Constructor branch:**
+    - The constant pool must be identical, with `stack=7, locals=7`.
+    - The entry window must be `goto 109` plus three `nop`s.
+    - The appended code must be the original 31..50 moved +78 (with only `if_acmpne 51→129` rewritten), then the original 14..19 moved +115, then `goto 20`.
+    - The masked comparison still includes the exception table and LineNumberTable lines, because they have no `N:` prefix.
+
+    This matches `sync-preenqueue-candidate.javap:108-176`.
+  - **Actual javap selection:** lines 298-302 select the constructor with the same `$SyncSender(` regex. The non-`<init>` fallback can't match `<init>`.
+- **`class_patch.assert_sync_preenqueue`:** the byte checks agree with the javap. `a7005f`+3×`00` lands on 109. The copied `if_acmpne` uses a relative +13, so it lands on 129. `a7ff8d` jumps from 135 back to 20. The handler bytes are pinned (last range ends at 0x65=101..105). Unsupported targets now raise an error (`class_patch.py:251-256`).
+- **Tests:**
+  - `test_sync_posting.py` mutates the independent javap snapshot in five ways: entry target, padding, guard target, back-branch and a handler row. Each must raise.
+  - Byte-flip tests cover all of 14..19 and 109..137.
+  - `test_class_patch.py:46` now requires the constant-pool count to be exactly unchanged for `<init>`.
+- **Matrix gate:** `check_architectures.py:56-57,86-90` ties `--sync-preenqueue` to an actual change in the SyncSender class, requires worker-stop, and binds `948c1d85…` through the sync expected record.
+- **The scope corrections from the implementation review are reflected in the doc:** the WAITING assertion, complete artifact identity, parity framing, successful-response-only callback, PC509 stranding, and the mutant running once per architecture in default mode.
+
+## Order of steps for clean qualification
+`expected-build.json` is a development record (`source_dirty: true`, from `ec35cd5`). Its `input_hashes` cover `class_patch.py`, `baseline.py` and `security-patches.json`, which are currently uncommitted. So:
+1. Commit exactly these working-tree contents.
+2. Rebuild from the clean commit and run `verify_builds` without `--update-expected`. `source_commit` and `source_dirty` aren't part of the identity, so the record still matches.
+3. Run the matrix, security and posting gates without `--development`.
+
+If you re-run `--update-expected` after the commit, the tree becomes dirty and the posting gate's `expected-build.json` hash changes. Record the qualification evidence in a follow-up commit instead.
+
+## Optional fixes (none block)
+1. **Snapshot mutation coverage:** the javap mutations don't touch the copied guard or enqueue body (e.g. `132: invokevirtual #4`→`#10`, `123: ldc #8`→`#13`), or removing the original check at 31..50. The code would catch these through the expected-list and mask comparisons, but no test proves it. Adding two or three of these would cover it.
+2. **Wording in the doc** (`SYNC-CALLBACK-PREENQUEUE.md:23`): "Only that JAR entry changes from audit.16" isn't quite right. `META-INF/MANIFEST.MF` and `Info.plist` also change with the `audit.17` version. Say "only that class entry".
+3. **Hash timing:** `check_sync_posting.py` hashes its sources (line 51) after it has already read both expected records (lines 43-44), and `audit/runtime-lock.json` isn't in the hashed list. In a clean run, the start and end git-status checks make this harmless. It only matters for `--development` evidence.

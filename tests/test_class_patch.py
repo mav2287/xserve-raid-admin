@@ -43,7 +43,8 @@ class ClassPatchTests(unittest.TestCase):
                     original, candidate = ClassFile(before), ClassFile(after)
                     self.assertEqual(before[:8],after[:8])
                     self.assertEqual(before[10:original.pool_end],after[10:original.pool_end])
-                    self.assertGreater(candidate.pool_count,original.pool_count)
+                    if name=='<init>':self.assertEqual(candidate.pool_count,original.pool_count)
+                    else:self.assertGreater(candidate.pool_count,original.pool_count)
                     changed = bytearray(before); changed[-1] ^= 1
                     with self.assertRaises(ValueError): transform(entry,bytes(changed))
                     with self.assertRaises(ValueError): transform(entry,after)

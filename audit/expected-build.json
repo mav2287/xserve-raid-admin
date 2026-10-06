@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "726551519f2247ccebfc413cd5bff96a4a9417aafed0287b8e0031779af1fae5",
+      "Contents/Info.plist": "ac440ae7d993a83c9f021638746b4dce76851c92b81c2fddbbd6c050c1298d99",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "73d155bf301d23ae189cd4d04d956ed4b275ed400065fbbeff6ef12fbaf06c94"
+      "Contents/Resources/RAID_Admin.jar": "948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "3e6e1f704ceaa8f8af70ad97674e2da83df11f773fa2fbe9e439fbb4b67f9211",
+      "audit/security-patches.json": "49d7be889a20acc340b2b5c08cb0a35988bee2739d6c7a088ad1f003e1492ed5",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -43,8 +43,8 @@
       "patches/compat/UntrustedResponseException.java": "a7b97d2d51991c78b6e958d21e75df3bbf35914648cfc5f8e9b3dd409c0efa32",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "6d83615974aa499d3ab54d24214a6be6943b1c5f95f467c0423735fef7fc470b",
-      "tools/class_patch.py": "dbeac6b4fb610307fe528c5047104e9801288e3d758970467228c5d1dfc9706a"
+      "tools/baseline.py": "bc328babf6c370a89d29ff19c54deee5ee6acd30efb4f1f2ef84f1ecfa80d9b0",
+      "tools/class_patch.py": "28ceb16a99328d3ea28404113a5284115e7b4a4750df19aac1a7cc96a405d8ce"
     },
     "jdk": {
       "architecture": "arm64",
@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "6610e55bad077d674c79a0b235ae4eba5c1999e0aceb8348ae3fa45b77d9e2ec",
-  "reason": "Audit.16 worker-only failure containment; Claude-reviewed exact patch; clean reproducible source anchor, full qualification follows",
+  "previous_record_sha256": "648a59a01878e4305c75ae71a68e36e52752578eb3bf78561311a76bcd1ca289",
+  "reason": "Development audit.17 preenqueue defense in depth; clean qualification pending",
   "schema": 1,
-  "source_commit": "365a2c43150712311aaebadd3e2acaa8e5e388e2",
-  "source_dirty": false
+  "source_commit": "ec35cd5eda01e4ac65fff9fcf8b9998e632020c6",
+  "source_dirty": true
 }

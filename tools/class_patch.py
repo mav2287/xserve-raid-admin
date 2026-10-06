@@ -3,6 +3,7 @@ import hashlib
 import struct
 
 TARGETS = {
+    'com/apple/xsr/net/CommunicationsManager$SyncSender.class': ('69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab', '<init>', '(Lcom/apple/xsr/net/CommunicationsManager;Lcom/apple/xsr/net/RequestMessage;)V'),
     'com/apple/xsr/net/CommunicationsManager.class': ('c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1', 'run', '()V'),
     'com/apple/xsr/net/AcpxConnection.class': ('f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125', 'send', '(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;'),
     'com/apple/xsr/net/HttpResponse.class': ('e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75', 'getBody', '()[B'),
@@ -108,6 +109,20 @@ def transform(entry, data):
     def utf8(text):
         value = text.encode('ascii')
         return append(1, word(len(value)) + value)
+    if name == '<init>':
+        _, begin, end = codes[0]
+        if u2(data,6)!=47 or data[begin+6:begin+10]!=bytes.fromhex('00070007') or u4(data,begin+10)!=109:
+            raise ValueError('Sync constructor verifier/code shape differs')
+        code=data[begin+14:begin+14+109]
+        if code[14:20]!=bytes.fromhex('2b2a2cb60004') or code[31:51]!=bytes.fromhex('b800052bb80006a6000dbb0007591208b70009bf'):
+            raise ValueError('Sync constructor queue/check windows differ')
+        patched=bytearray(code);patched[14:20]=bytes.fromhex('a7005f000000')
+        patched.extend(code[31:51]+code[14:20]+bytes.fromhex('a7ff8d'))
+        body=data[begin+6:begin+10]+struct.pack('>I',len(patched))+patched+data[begin+14+109:end]
+        replacement=data[begin:begin+2]+struct.pack('>I',len(body))+body
+        result=data[:begin]+replacement+data[end:]
+        assert_preserved(data,result,name,descriptor);assert_sync_preenqueue(data,result)
+        return result
     if name in ('run','send'):
         if u2(data,6)!=47: raise ValueError('Unexpected recovery verifier version')
         owner=append(7,word(utf8('compat/RejectionRecovery')))
@@ -233,10 +248,12 @@ def transform(entry, data):
         reference = append(10, word(owner) + word(signature))
         code = (b'\x2b\x2c' if name == 'resolveEntity' else b'') + b'\xb8' + word(reference) + b'\xb0'
         stack, local = (2, 3) if name == 'resolveEntity' else (1, 0)
-    else:
+    elif name == 'toString':
         constant = append(8, word(utf8(REDACTED)))
         code = b'\x13' + word(constant) + b'\xb0'  # ldc_w even when the index happens to fit in one byte
         stack, local = 1, 1
+    else:
+        raise ValueError('Unsupported transformation target')
     _, begin, end = codes[0]
     body = struct.pack('>HHI',stack,local,len(code)) + code + b'\x00\x00\x00\x00'
     replacement = data[begin:begin+2] + struct.pack('>I',len(body)) + body
@@ -264,6 +281,7 @@ def assert_preserved(before, after, name, descriptor):
         elif before[a['start']:a['end']] != after[b['start']:b['end']]:
             raise ValueError('Non-target method changed')
 
+    if name == '<init>': assert_sync_preenqueue(before,after)
     if name in ('run','send'): assert_recovery_edit(before,after,name)
     if name=='getBody':
         assert_allocation_operands(before,after)
@@ -387,3 +405,20 @@ def assert_recovery_edit(before,after,name):
         if added[:6]!=struct.pack('>HHH',32,271,392): raise ValueError('Send marker coverage differs')
         tag,value=new.pool[u2(added,6)]
         if tag!=7 or new.text(u2(value,0))!='compat/UntrustedResponseException': raise ValueError('Send catch marker differs')
+
+
+def assert_sync_preenqueue(before,after):
+    old,new=ClassFile(before),ClassFile(after)
+    if before[:old.pool_end]!=after[:new.pool_end]:raise ValueError('Sync original pool changed')
+    def body(cls):
+        ms=[m for m in cls.methods if m['name']=='<init>']
+        if len(ms)!=1:raise ValueError('Sync constructor missing')
+        attrs=[a for a in ms[0]['attributes'] if a[0]=='Code']
+        if len(attrs)!=1:raise ValueError('Sync Code missing')
+        _,begin,end=attrs[0];return cls.data[begin:end]
+    a,b=body(old),body(new)
+    if u4(a,10)!=109 or u4(b,10)!=138 or a[6:10]!=bytes.fromhex('00070007') or a[6:10]!=b[6:10]:raise ValueError('Sync Code/frame lengths changed')
+    if b[14+14:14+20]!=bytes.fromhex('a7005f000000') or b[14+109:14+138]!=a[14+31:14+51]+a[14+14:14+20]+bytes.fromhex('a7ff8d'):raise ValueError('Sync preenqueue trampoline differs')
+    restored=bytearray(b[:14+109]+b[14+138:]);restored[2:6]=a[2:6];restored[10:14]=a[10:14];restored[14+14:14+20]=a[14+14:14+20]
+    if bytes(restored)!=a:raise ValueError('Sync edit outside preenqueue trampoline')
+    if u2(a,14+109)!=3 or a[14+111:14+135]!=bytes.fromhex('001f0037003a000b00180062006500000065006900650000') or a[14+135:]!=bytes(2):raise ValueError('Sync handlers or nested attributes differ')
