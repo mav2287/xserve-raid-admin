@@ -52,7 +52,7 @@ five after four drops, and one eventual callback with retained context. Parse er
 produce -103 without requeue. Synthetic single-use firmware streams either throw
 before a second send or produce a zero-length second body, depending on stream
 behavior. See `audit/transport-observation.json`. The synthetic archive fixture now observes stored-entry streams returning EOF after close, while deflated-entry streams throw I/O errors. Real reconnect/backoff and queue
-ordering remain unqualified; transmission of real firmware packages is untested. No retry behavior
+concurrency remain unqualified. A two-read-request fixture now observes first–first–second sends on connections 1–2–2 after one dropped response, with callbacks in order and context retained; see [HTTP findings](audit/HTTP-RESPONSE-FINDINGS.md). Transmission of real firmware packages is untested. No retry behavior
 has been changed.
 
 ## G11 — MRJ folder lookup
@@ -64,3 +64,17 @@ single-argument overload returns the user Desktop for its singleton constant.
 method, plus null/custom-type/unused-overload behavior. No directories are created.
 The two dialog callers are statically verified; GUI workflows remain unqualified.
 See `audit/folder-fix-results.json`.
+
+## G12 — HTTP response framing and error interpretation
+
+Guarded original/candidate fixtures confirm that HTTP status is ignored, header
+lookup is case-sensitive, duplicate exact length fields use the last value and
+missing/lowercase length or chunked-only replies parse as empty. A queued
+lowercase-length response reports zero success; HTTP 401/403/500 with a success
+plist also report zero. ACP plist authentication error codes are preserved.
+Truncated bodies enter the generic I/O retry path; malformed numeric lengths
+produce -102 in the queue. See [HTTP findings](audit/HTTP-RESPONSE-FINDINGS.md).
+Actual authentication UI and controller framing remain unqualified; these
+observations do not establish authentication bypass. Parser limits, large positive
+allocation, persistent-stream desynchronization and visible errors remain open.
+No response interpretation or retry behavior has been changed.

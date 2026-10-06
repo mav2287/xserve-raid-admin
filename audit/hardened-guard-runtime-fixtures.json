@@ -1,0 +1,91 @@
+{
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "host_machine": "arm64",
+  "macos_version": "26.6.2",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "b6fdfab523768556f2c3c76190704c2319a9038efb43ebac05d66a3afebe70df",
+  "fixture_sources": {
+    "tests/java/ApiProbe.java": "6a9dd0e78b28080170d943b78bed7619f452aeacfe5210b7b07b5f7c6fd04425",
+    "tests/java/com/apple/xsr/net/OfflineParity.java": "53f6d2eedf3ed449378f9055ed9b025b6392b039c9141170b07fb44622785eee",
+    "tests/java/FolderProbe.java": "2141de90b22ef3194a0ebd8098faa887a58caf8f2bb936269d14f6c04e71c182",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/mrj/MenuProbe.java": "fddc09bfdf4c7d2d453685dc1cf2d6b901e45d04491aec3bfc0e69acff9eecff",
+    "tests/java/RuntimeProbe.java": "15cac2bffa81939b4ef49d075c965cc7627cc74b2b44c33b5fb4a2f4bf8e574b",
+    "tests/java/SecurityProbe.java": "52ed9a9bc12fc3c60d600574ede4c5a0ec5af86ba66c59ae2e17e3a00a214241",
+    "tests/java/LoggingProbe.java": "26fc7aa6b3cd8b7de66c3d42670468e6a5ab372e08ced139627ed18ce316e989"
+  },
+  "observations": [
+    {
+      "runtime_tree_sha256": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2",
+      "api": [
+        "desktop_class_present=true",
+        "java_awt_desktop_about_handler_present=false",
+        "jdk=1.8.0_504",
+        "architecture=aarch64"
+      ],
+      "parity": "PASS",
+      "fixture_output_sha256": "1bde6a397f57362a8653964dbf568ec625215555e91d654ddd503db75daad251",
+      "folder_regression": [
+        "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+        "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+      ],
+      "menu_regression": "PASS runtime_api=eawt; About/Preferences/Quit/OpenFiles callbacks; proxy identity; quit cancellation; guarded operations=0",
+      "vendor_extension_regression": "PASS vendor crypto-provider availability and French locale data; no encryption/network operation performed",
+      "security_regression": [
+        "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+        "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+        "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+        "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+        "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+        "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+        "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+        "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+        "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+        "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+        "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+      ],
+      "logging_regression": [
+        "PASS safe_log_codes; no_message_or_exception_rendering; bounded_across_reconfiguration; guarded_operations=0; write_failure=false; closed_first=false",
+        "PASS safe_log_codes; no_message_or_exception_rendering; bounded_across_reconfiguration; guarded_operations=0; write_failure=true; closed_first=false",
+        "PASS safe_log_codes; no_message_or_exception_rendering; bounded_across_reconfiguration; guarded_operations=0; write_failure=false; closed_first=true"
+      ]
+    },
+    {
+      "runtime_tree_sha256": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d",
+      "api": [
+        "desktop_class_present=true",
+        "java_awt_desktop_about_handler_present=false",
+        "jdk=1.8.0_504",
+        "architecture=x86_64"
+      ],
+      "parity": "PASS",
+      "fixture_output_sha256": "1bde6a397f57362a8653964dbf568ec625215555e91d654ddd503db75daad251",
+      "folder_regression": [
+        "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+        "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+      ],
+      "menu_regression": "PASS runtime_api=eawt; About/Preferences/Quit/OpenFiles callbacks; proxy identity; quit cancellation; guarded operations=0",
+      "vendor_extension_regression": "PASS vendor crypto-provider availability and French locale data; no encryption/network operation performed",
+      "security_regression": [
+        "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+        "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+        "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+        "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+        "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+        "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+        "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+        "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+        "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+        "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+        "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+      ],
+      "logging_regression": [
+        "PASS safe_log_codes; no_message_or_exception_rendering; bounded_across_reconfiguration; guarded_operations=0; write_failure=false; closed_first=false",
+        "PASS safe_log_codes; no_message_or_exception_rendering; bounded_across_reconfiguration; guarded_operations=0; write_failure=true; closed_first=false",
+        "PASS safe_log_codes; no_message_or_exception_rendering; bounded_across_reconfiguration; guarded_operations=0; write_failure=false; closed_first=true"
+      ]
+    }
+  ],
+  "menu_limits": "Real interface proxies and API metadata; synthetic backend callbacks only. No native singleton registration, real event construction or AppleEvent delivery.",
+  "limits": "Headless serializer and simple HTTP 200 Content-Length replay only. No GUI/Aqua, JNI, app launcher, preferences, ACP transport, controller, or physical Intel Mac qualification. x86_64 JVM on the recorded arm64 host uses Rosetta; translation status is inferred, not separately probed."
+}

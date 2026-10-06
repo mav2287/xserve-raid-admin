@@ -100,6 +100,8 @@ queried. Failures/open issues use local stable [gap IDs](GAPS.md).
 | Harness | Drop credential/header/body/arbitrary event fields | Pass: four-test Python suite includes allowlist cases |
 | Protocol | Ten synthetic read request serializers match | Pass: original/installed/audit; no ACP header injection or timing coverage |
 | Protocol | Ten in-memory HTTP responses replay | Pass: synthetic OK responses; not controller fixtures |
+| Protocol | Malformed HTTP/ACP replies and queued errors | Characterization passes on both pinned runtimes: 21 direct and nine queued cases; original behavior retained. Framing/status defects remain open — [G12](GAPS.md#g12--http-response-framing-and-error-interpretation) |
+| Protocol | Two read requests after one response drop | Offline sends first–first–second on connections 1–2–2, callbacks in order with context retained. Concurrency and real reconnect unqualified — [findings](audit/HTTP-RESPONSE-FINDINGS.md) |
 | Harness | Network sockets prohibited in parity fixture | Pass: guard denial verified |
 | XML | Known Apple plist DTD remains local | Pass: all three JARs on locked JDK |
 | Classloading | FileManager origin and preferences lookup | Runtime shadows shim on Corretto 8/11; guarded Java 8 preferences lookup passes. Shadowing alone is not a defect; [G02](GAPS.md#g02--runtime-and-classloading) |

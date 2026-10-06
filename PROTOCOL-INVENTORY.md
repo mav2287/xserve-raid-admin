@@ -14,6 +14,13 @@ Facts below derive from the hash-verified candidate JAR, its `javap -c -p -const
 
 ## HTTP endpoint families
 
+Offline response characterization now confirms that HTTP status is ignored;
+result codes come from the plist `status`. Header lookup is case-sensitive,
+duplicate length fields use the last value and missing/lowercase length can
+produce empty success. These original semantics are preserved, with explicit
+open risks in [G12](GAPS.md#g12--http-response-framing-and-error-interpretation)
+and [fixture findings](audit/HTTP-RESPONSE-FINDINGS.md).
+
 | Actual HTTP path | Purpose | Safety classification |
 |---|---|---|
 | `/cgi-bin/noop` | No-op request/authentication context | Read-only candidate; auth side effects unqualified |

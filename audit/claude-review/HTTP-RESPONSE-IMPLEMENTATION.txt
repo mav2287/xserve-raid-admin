@@ -1,0 +1,47 @@
+Actual Claude CLI read-only implementation consultation.
+
+I read the three files and executed nothing. The core assertions match the bytecode facts you listed. I found three bugs worth fixing, a few smaller issues, and some limits that the recorded evidence doesn't yet state.
+
+## Bugs to fix
+
+**1. A run that stops early can still pass.** `OfflineGuard` doesn't override `checkExit`. Also, `check_transport.py:56,63` never checks that the output ends with the final `PASS memory-only transport…` line (`TransportObservation.java:302`).
+- If application code calls `System.exit(0)` partway through, the output is cut short and the run may still look successful (I couldn't check how `run_jdk` treats the exit code).
+- The cross-run comparison only proves the outputs are identical, not that they're complete. If the original and the candidate both stop at the same point, they still match.
+- **Fix:** deny `checkExit` in the guard (the fixture itself never exits), and have Python require that every run's last line is the `PASS` token.
+
+**2. The symlink check never applies to candidate JARs.** `check_transport.py:22` resolves every path before `:48` checks `jar.is_symlink()`, so a symlinked candidate is followed instead of rejected. The resolved target is still a regular file, hashed and re-hashed, so the impact is small. But the check isn't doing what it claims. **Fix:** test `is_symlink()` on the raw arguments before resolving.
+
+**3. The original JAR can slip through as a candidate.** `jar != original` (`:51`, `:57`) compares a resolved candidate path with an unresolved `ROOT / 'original/…'`. If `ROOT` isn't resolved, the original passed as a candidate is treated as a real candidate: the shim check reads a missing entry, so the run fails closed with a `KeyError`. If `ROOT` is resolved, the shim and default-logging checks are silently skipped. **Fix:** compare `jar.resolve() == original.resolve()` and reject the original as a candidate outright.
+
+## Smaller issues
+- **Ambiguous output lines:** `TransportObservation.java:292-293` print the same line (`dispatch drops=1 malformed=false sends=2 …`) for GetStatus and SetTime. The evidence depends only on line order to tell them apart. Add the request type to the line.
+- **Unknown arguments ignored:** `main` treats any argument other than `default-logging` as forced-off. It should fail instead.
+
+## Limits to add to the `limits` string
+- **Every reply uses a fresh stream.** `MemoryConnection` replaces `getInputStream`, `getOutputStream`, `connect`, `disconnect` and `setTimeout`, and hands out a new stream per request. Several cases leave body bytes unread: missing length, lowercase length, chunked, duplicate-last-zero, and the queue-level `lowercase-length-empty-success`. On a real persistent socket those bytes would corrupt the next response. The results show these as "empty" or success, so the limits need to say this explicitly. Today it only says "No TCP".
+- **Large lengths that fit in an int are untested on purpose.** Since `getBody` sizes its buffer from the parsed length, a reply like `Content-Length: 2147483647` would try a huge allocation. The resulting `OutOfMemoryError` isn't an `Exception`, so `CommunicationsManager` won't catch it. Record this as a known hazard so "no huge positive allocations" isn't read as "the application bounds its allocations".
+- **No real timeouts.** `setTimeout` does nothing and idle behaviour is a synthetic `SocketTimeoutException`. Real timeout values aren't covered, and neither is idle behaviour at the queue level (an `IOException` there leads to a requeue and a reconnect).
+- **The idle fixture depends on byte-by-byte reads.** The stream wrapper only overrides `read()`. If anything reads in bulk, the default `InputStream.read(byte[],int,int)` swallows an `IOException` after the first byte. That's fine given your javap facts, but the evidence covers byte-by-byte reads only, not real socket read behaviour.
+- **Queue-level gaps:** negative length, overflow length and the idle cases are tested at the `send` level only, not through the queue.
+- **Logging check scope:** default-logging runs on the candidate only. The check is that the whole run emits `RAID_ADMIN_ERROR\n` exactly once, not once per error path.
+- **Output capture covers `System.out`/`System.err` only.** Writes straight to `FileDescriptor.out` or `FileDescriptor.err` aren't blocked (`checkWrite(FileDescriptor)` isn't overridden). "All application stdout captured" should name the streams.
+- **Guard gap:** `checkConnect(host, port, context)` isn't overridden and falls back to `checkPermission`, which allows it. It's unlikely to be reached, but the guard is not a complete socket ban.
+- **Provenance:**
+  - `fixture_dirty` is recorded but not enforced. Both fixture files are currently modified, so evidence generated now would have `fixture_dirty: true` and a `fixture_commit` (87804bf) that doesn't contain the sources that ran. Commit first, or make recorded runs fail when the tree is dirty.
+  - `tool_sha256` covers only `check_transport.py`, not the helpers it imports (`audit_support`, `baseline`, `runtime`).
+  - How `run_jdk` handles stderr and exit codes is outside these three files, so I couldn't verify it.
+
+## Confirmed, no action needed
+- **Privacy:**
+  - The test credentials are fixed strings.
+  - The fixture prints only fixed text, never header values.
+  - Application stderr is captured and must exactly equal "" or the fixed code, so a credential leaking into the log would fail the run.
+  - File and network log output would trip the guard's deny counter.
+  - Failure messages are fixed labels.
+- **External DTD:** the test plist includes a DOCTYPE pointing at an external DTD. If the parser tried to fetch it, the guard would have recorded a DNS or connect attempt. Since runs pass, nothing was fetched.
+- **Catch ordering:** `NumberFormatException` is caught before `IllegalArgumentException`, and `ProtocolException`/`SocketTimeoutException` before `IOException`, so the overflow and negative-length outcomes really are distinguished.
+- **Assertion failures propagate:** they are `Error`s, so they get past `CommunicationsManager`'s `catch (Exception)`.
+- **Truncated body:** `truncated-retry-then-valid` (one reconnect, not −103) together with `truncated-body-idle` (a timeout on the missing byte) supports the claim of an explicit EOF in `getBody` rather than a plist parse failure.
+- **Bounds:** replies are under 4 KiB, reads are capped at 8192, reconnects at 8, and each run has a 20 s subprocess timeout.
+
+Disposition: completion marker enforced and tested; fixture exits and descriptor writes denied; contextual socket connect overload denied. Candidate symlinks and original-as-candidate rejected. Unknown arguments rejected. Harness helper hashes recorded before/after. Fresh stream desynchronization, synthetic timeout timing, large int allocation, direct-only cases and whole-process logging boundaries documented. Historical dispatch lines retained intentionally for comparability. Final evidence is rerun after committing fixture sources, recording a clean commit. run_jdk captures subprocess stdout/stderr, withholds raw failures and enforces a 20-second timeout; Java verifies captured System.err/Out. Model consultation is not independent human or hardware qualification.

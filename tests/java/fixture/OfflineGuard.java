@@ -1,6 +1,7 @@
 package fixture;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.net.InetAddress;
 import java.security.Permission;
 
@@ -22,9 +23,12 @@ public final class OfflineGuard extends SecurityManager {
             throw deny("Preference reads prohibited");
     }
     @Override public void checkWrite(String path) { throw deny("Writes prohibited"); }
+    @Override public void checkWrite(FileDescriptor descriptor) { throw deny("Descriptor writes prohibited"); }
+    @Override public void checkExit(int status) { throw deny("Process exit prohibited"); }
     @Override public void checkDelete(String path) { throw deny("Deletes prohibited"); }
     @Override public void checkExec(String command) { throw deny("Subprocesses prohibited"); }
     @Override public void checkConnect(String host, int port) { throw deny("Sockets prohibited"); }
+    @Override public void checkConnect(String host, int port, Object context) { throw deny("Sockets prohibited"); }
     @Override public void checkListen(int port) { throw deny("Sockets prohibited"); }
     @Override public void checkMulticast(InetAddress address) { throw deny("Sockets prohibited"); }
 }

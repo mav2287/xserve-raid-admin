@@ -1,0 +1,157 @@
+Actual Claude CLI read-only design consultation.
+
+# Design review: synthetic HTTP response characterization (offline only)
+
+I read only the four files you named and ran nothing. The design is sound in direction, but it has a few hazards that could make results wrong or let the run hang. Points that depend on application bytecode I haven't seen are marked **(unverified)**.
+
+## Overall
+
+- **Worth doing:** characterizing the unchanged parser with original and candidate run side by side. Today the parser has only been run against one well-formed 200 response (`TransportObservation.java:51`).
+- **Before implementing, fix four things:**
+  1. Bounds currently rely on the application not swallowing errors.
+  2. The in-memory EOF hides how keep-alive actually behaves.
+  3. Fields left unset by Unsafe allocation can cause failures that look like application behaviour.
+  4. The planned exact ordering assertion contradicts "characterize first".
+
+## Critical hazards
+
+**1. Bounds are enforced by throwing inside application code.**
+- The retry bound throws an `AssertionError` from inside the callback (`:80`), and any failure there is rethrown as an `AssertionError` (`:88`). If the dispatch loop catches `Throwable` **(unverified)**, the bound is silently ignored.
+- With 401/403/500, every attempt gets the same answer. If the app treats that as retryable, the only remaining limit is the 20 s process timeout (`check_transport.py:32`).
+- **Fix:** replace `drops`/`malformed` with a finite per-case script, e.g. `ArrayDeque<Action>` of `DROP` and `RESPOND(caseBytes)`.
+  - When the script runs out, set a flag and call `manager.shutdown()` (stop cooperatively, don't throw), then return an EOF stream.
+  - After `run()` returns, assert the flag.
+
+**2. `manager.run()` can block forever.**
+- The fixture leaves `run()` only because the terminal callback calls `shutdown()` (`:86`).
+- If a malformed response produces no terminal callback, the worker probably waits on an empty queue **(unverified)**. Examples: a `RuntimeException` ends the loop, or a backoff sleep runs (`CONNECT_BACKOFF_CEILING=3600000`, PROTOCOL-INVENTORY.md:36).
+- **Fix:**
+  - Run queue cases on a daemon thread and `join` with a fixed timeout (~1–2 s). On timeout, call `shutdown()`, record the case ID as `NO_TERMINAL`, and skip the remaining queue cases (fail closed).
+  - Keep per-case timeout × number of cases below the process timeout, or raise the timeout explicitly.
+  - Change the thread-identity check (`:73,78`) to compare against the captured worker thread.
+
+**3. In-memory EOF is not the same as a socket.**
+- `ByteArrayInputStream` returns −1 at the end of the body. So "missing Content-Length", "lowercase Content-Length" and "chunked" can all succeed by reading to EOF.
+- On a real persistent connection, the same code would wait for the 30 s socket timeout (PROTOCOL-INVENTORY.md:9). The characterization would be optimistic.
+- **Fix:** give the bounded stream two end modes and run each relevant case under both:
+  - **CLOSED:** return −1.
+  - **IDLE_OPEN:** after the scripted bytes, throw `java.net.SocketTimeoutException`. It's an `IOException` and constructing it does no networking.
+
+**4. Read-past-EOF spins.**
+- A loop like `n += in.read(buf, n, len - n)` never ends on truncated bodies, because `read` keeps returning −1.
+- **Fix:** have the injected stream count reads after EOF. Past a small cap (e.g. 64), it sets an `EOF_SPIN` flag and throws a fixture-only `IOException` subclass with a fixed message.
+
+**5. Fields left unset by Unsafe allocation.**
+- `AcpxConnection` (`:60–62`), `CommunicationsManager` (`:67–70`) and `FakeSystem` are created without running constructors.
+- Error paths (401 handling, decryption, backoff state) may touch fields only a constructor sets. The resulting `NullPointerException` would look like a parser outcome.
+- A zero-initialized backoff may also be why reconnects are currently instant.
+- 401 handling may call `RaidSystem` methods that `FakeSystem` doesn't override **(unverified)**.
+- **Fix:**
+  - Before adding status cases, use `audit/static-inventory.json` to list the fields and `RaidSystem` methods reached from response and error paths.
+  - Override reached methods with recording no-ops.
+  - Record each category with the path it occurred on, so fixture artifacts can be told apart.
+
+**6. Large or negative Content-Length.**
+- A negative value may give `NegativeArraySizeException`. A very large value may try a multi-GB allocation, and whether that hits `OutOfMemoryError` depends on the heap size, so results won't be repeatable.
+- **Fix:** keep overstated lengths small (body + 16). Exclude `Integer.MAX_VALUE`-sized cases unless `-Xmx` is pinned in `run_jdk` and recorded in the JSON.
+
+**7. Application output to stdout.**
+- Only `System.err` is captured (`:134–139`). If legacy code calls `System.out.println` or `printStackTrace(System.out)` on a response, those lines go straight into the `results` that `check_transport.py:33` publishes as evidence.
+- **Fix:**
+  - Capture stdout during each case and assert it is empty.
+  - Write the fixture's own lines to the saved original stdout.
+
+**8. Unclassified exceptions leak messages.**
+- "Catch only fixed categories" is right. But anything that escapes `main` is printed by the JVM with its message (e.g. `NumberFormatException: For input string: "…"`) and possibly chained causes.
+- **Fix:**
+  - At the case boundary, map the exact exception class against an allowlist to a category token.
+  - For anything else, throw `new AssertionError("UNCLASSIFIED case=<id>")` with no cause attached. That costs some debugging information; accept it.
+  - Never treat `SecurityException` as a normal category.
+  - Call `OfflineGuard.assertUntouched()` after every case, not just at the end (`:142,175`), so a denial is pinned to the case that caused it.
+
+**9. Default-logging mode.**
+- `check_transport.py:36` with the `:139` check requires stderr to be exactly one `RAID_ADMIN_ERROR\n`. Several new error paths may log several times and break that.
+- **Options:**
+  - Record an exact expected count per case.
+  - Run the new cases only in forced-off mode. In that case, add a statement to the `limits` string that logging on these paths is unqualified.
+
+## Two-request queue test
+
+- **Requests must look different on the wire.** Two `newGetStatusRequest()` calls likely serialize identically, so A-A-B can't be told from A-B-B.
+  - Use two different read factories, ideally different endpoints. Varying only `TARGET_TOP` vs bottom is weaker.
+  - Get reference bytes by sending each request once through its own memory connection, then compare by equality. Never print them.
+  - If serialization includes anything time-varying, byte equality fails. Find that out first.
+  - Note the existing tests use `newSetTimeRequest` (`:170–171`). It's harmless in memory, but it isn't read-only.
+- **Don't hard-assert first-first-second yet.** Re-queuing at the head or the tail is exactly what's being characterized.
+  - Emit the observed sequence as tokens (`seq=A@c1,A@c2,B@c2`) and gate on original matching candidate.
+  - Promote it to a hard assertion only after the original has been recorded.
+- **Record which connection carried each send** (ordinal, not identity hash). Expected under the hypothesis: connection 1 carries A, which is dropped; connection 2 carries A then B. This also proves B never went out on the dead connection.
+- **Use one handler per request.** The connect callback has `received == null` (`:79`), so it can't be attributed by context. Separate handler instances can record which handler received each `TYPE_CONNECT`.
+  - Both handlers may receive it. Replacing the connection twice should be harmless, but count it.
+- **Shut down only after the second terminal callback.** The current handler shuts down on the first (`:86`), which would never send B.
+- **Assertions:**
+  - Each request gets exactly one terminal callback, with its own context object.
+  - Terminal order is recorded.
+  - Total sends ≤ script length.
+  - The script is fully consumed.
+
+## Missing cases
+
+- **Content-Length smaller than the body.** This is the keep-alive desync case. On a real socket, the extra bytes would be read as the start of the next response. Because `getInputStream` returns a fresh stream for each request (`:45–53`), the memory model can't show this at all. Either add a mode where one stream is reused across responses on the same connection, or document the gap.
+- **Duplicate Content-Length:** cover equal values, smaller-then-larger and larger-then-smaller.
+- **Invalid value variants:** `12abc`, ` 12 ` (whitespace), `+12`, `-0`, and `4294967296` (overflow).
+- **Header and status framing:**
+  - A zero-byte response (`readLine` returning null).
+  - EOF inside the headers (no blank line after them).
+  - Bare LF line endings.
+  - Folded header lines.
+  - A header with no colon.
+  - Non-ASCII bytes in a header. This would hit the `sun.io.MalformedInputException` shim (`check_transport.py:22`), so it's worth exercising.
+  - `HTTP/1.1 200` with no reason phrase. This is valid and should succeed.
+  - Non-numeric and four-digit status codes.
+  - `HTTP/1.0`.
+- **Persistence handling:** a response `Connection: close` header; `100 Continue` before the 200; `204` with a body.
+- **Chunked + Content-Length together.**
+- **Response `Content-Encoding: acp-crypt`** (PROTOCOL-INVENTORY.md:11). This exercises the response decryption path in memory.
+- **Other drop points:** the current drop happens after the whole request is written (`:47–48`). Add a failure while writing (from `getOutputStream`) and a failure partway through the response (partial headers, then `IOException`).
+- **Both direct send and queue for each case.**
+  - Direct `send()` classifies what the parser does and whether `getRootElement` parses.
+  - The queue classifies the result code, retry count and send count.
+  - 401 with a valid plist matters most: the app may ignore the status and report success.
+
+## Sensible assertions
+
+**Invariants (hard assertions, every case):**
+- `connect()` is never called.
+- No OfflineGuard denials.
+- App stdout and stderr are empty in forced-off mode.
+- Sends ≤ script length; the script is not exhausted unless the case expects it.
+- Reads past EOF stay under the cap; no `NO_TERMINAL` result.
+- At most one terminal callback per request, each with the correct context.
+- Every response loaded into the stream is ≤ 1 KiB.
+
+**Characterization (recorded, then compared between original and candidate):**
+- The send outcome category.
+- The app result code.
+- The number of connect callbacks and sends.
+- Whether retries were byte-identical.
+- The EOF mode.
+
+**Output format:** each line is a case ID plus category tokens and app-level integers only. No bytes, header names or values, exception messages, identity hashes, timings or thread names.
+
+## Harness changes
+
+- **Keep existing output lines byte-identical** and only append new ones, so earlier evidence stays comparable.
+- **Plan for intended differences.** Once preservation-compatible fixes land, the blanket equality check (`check_transport.py:38`) will fail by design. It needs a reviewed allowlist of expected deviations, keyed by case ID.
+- **Update the `limits` text (`:42`)** to name the new cases and what memory can't qualify: socket EOF and timing, desync across reused streams, real backoff, and constructors bypassed by Unsafe.
+
+## Suggested order
+
+1. Inventory the fields and `RaidSystem` methods reached from the error paths.
+2. Add the scripted, bounded stream, the per-case timeout and stdout capture.
+3. Run the direct-send parser cases.
+4. Run the status cases through the queue.
+5. Run the two-request test with observed tokens only.
+6. Choose fixes after that.
+
+Disposition: implemented application stdout capture, bounded tiny replies/read/send counts, immediate synthetic idle stream timeout mode, distinct read factories and connection ordinal assertions, pinned runtime verification. javap proves the dispatch loop catches Exception, not Throwable; assertions cannot be swallowed there. The unchanged parser reads bytewise with explicit EOF handling, so the suggested additive read-loop spin is absent. Overflow fixture exceeds integer range and throws before allocation; no huge positive allocation is attempted. Original first run and bytecode confirm queue head requeue before the assertion was retained. All new paths pass with bounded fixed-code candidate logging. Fresh per-reply streams exclude residual-byte desynchronization; real timing, concurrent scheduling, Unsafe constructor invariants outside reached paths, and GUI authentication remain unqualified.

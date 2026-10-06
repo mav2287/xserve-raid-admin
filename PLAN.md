@@ -65,6 +65,14 @@ instructions, hashes, and known gaps.
 
 ## 3. Architecture strategy
 
+Offline refinement: HTTP status/framing and ACP result interpretation are now
+characterized across both pinned runtimes, including two-request retry order.
+The original can report empty success for missing/lowercase length and ignores
+HTTP error status; [G12](GAPS.md#g12--http-response-framing-and-error-interpretation)
+tracks this. Do not silently normalize framing, remap results or change retries.
+Persistent-stream/concurrent-queue and real authentication qualification remain
+open; see [findings](audit/HTTP-RESPONSE-FINDINGS.md).
+
 Prefer a thin compatibility layer around the original JAR.
 
 ### 3.1 Immutable upstream artifact

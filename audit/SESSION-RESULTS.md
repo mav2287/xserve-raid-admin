@@ -14,10 +14,11 @@ Completed with actual Claude CLI model consultation plus the recorded automated 
 - Synthetic ACP/retry, archive, parsing, logging and OS-adapter fixtures.
 - Apple-served distribution acquisition: its JAR exactly matches the immutable reference.
 - Hash-only reads of the accompanying real firmware package through the unchanged wrapper, without updater/model/command construction.
+- Broader HTTP/ACP error fixtures: 21 direct replies, nine queued replies and two-request retry ordering, on both pinned runtimes. See [HTTP findings](HTTP-RESPONSE-FINDINGS.md); application parser behavior remains unchanged.
 
 Validation:
 
-- 35 Python tests pass.
+- 38 Python tests pass, including new harness completion/input regressions.
 - Independent javap preservation checks and guarded Java fixtures pass.
 - Both architecture bundles reproduce with identical bytes and permissions.
 - arm64 and x64 pinned-runtime fixtures pass; x64 runs under Rosetta on this arm64 host.
@@ -31,7 +32,7 @@ Not complete:
 - Native UI/menu/Finder/preference workflows in an isolated test environment.
 - Keychain/native credential integration and visible in-app failure states.
 - Representative controller responses, discovery/authentication/polling/reconnect/sleep/wake and long-duration behavior.
-- XML resource limits and broader malformed-response/queue-order coverage.
+- XML resource limits, persistent-stream framing/desynchronization, concurrent queue/cancellation coverage and representative controller replies. HTTP status is ignored and lowercase/missing length can produce empty success; [G12](../GAPS.md#g12--http-response-framing-and-error-interpretation).
 - Firmware preflight UI and malformed-package handling; cache/update/restart lifecycle.
 - Original retry remains unbounded: a non-idempotent command may repeat after a dropped response, and exhausted firmware streams may send an empty retry body. No retry behavior was changed. Interrupted updates or failed cache restoration could leave caches disabled; this is an unqualified risk, not an observed hardware result.
 - Physical Intel-machine and independent-host build qualification.
