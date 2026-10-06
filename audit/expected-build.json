@@ -49,9 +49,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "c0eb157392eaabe93365600d91e61da4ff26754976c7ba52a147d36484aeff2e",
-  "reason": "Final explicit entity policy: 1 MiB total custom expansion, 256 KiB general / 64 KiB parameter entities, 4096 expansions, 100000 replacement nodes. Independent quota behaviors and accepted-value differential pass; source builds are clean.",
+  "previous_record_sha256": "4adb1a6da2a9ac812840b7efdf46c82f4562307d3dd4c150a8fa99273437cd7b",
+  "reason": "Final audit.6 parser policy from a clean implementation tree; two repeated builds match exact byte and mode identity. Previous dirty development evidence is retained as historical metadata only.",
   "schema": 1,
-  "source_commit": "1a5dc84eeda26f9078bb8bb8b123bd68d7e3946d",
-  "source_dirty": true
+  "source_commit": "3044651d9eef5648e00d2ffc285bda66149213ce",
+  "source_dirty": false
 }
