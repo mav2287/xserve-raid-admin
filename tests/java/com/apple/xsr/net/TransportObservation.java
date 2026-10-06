@@ -37,6 +37,7 @@ public final class TransportObservation {
         final List<Integer> connections = new ArrayList<Integer>();
         int connectionCount;
         int drops;
+        int nullDrops;
         boolean malformed;
         byte[] rawResponse;
         boolean idleOpen;
@@ -54,6 +55,7 @@ public final class TransportObservation {
             check(state.sent.size() < 16, "Fixture send bound exceeded");
             state.sent.add(pending.toByteArray()); pending = null;
             state.connections.add(ordinal);
+            if(state.nullDrops>0){state.nullDrops--;throw new IOException();}
             if (state.drops-- > 0) throw new IOException("synthetic response loss");
             if (state.rawResponse != null) {
                 byte[] raw = state.rawResponse; state.rawResponse = null;
@@ -282,7 +284,7 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging").contains(args[0])), "Unknown fixture arguments");
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization").contains(args[0])), "Unknown fixture arguments");
         boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].endsWith("-default-logging"));
         boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
@@ -292,7 +294,8 @@ public final class TransportObservation {
         try {
             System.setErr(new PrintStream(captured,true,"UTF-8"));
             System.setOut(new PrintStream(capturedOut,true,"UTF-8"));
-            if(args.length==1 && args[0].startsWith("header-policy")) headerPolicy(defaultLogging);
+            if(args.length==1 && args[0].equals("io-characterization")) ioCharacterization();
+            else if(args.length==1 && args[0].startsWith("header-policy")) headerPolicy(defaultLogging);
             else if(args.length==1 && args[0].startsWith("allocation-policy")) allocationPolicy(defaultLogging);
             else execute(defaultLogging,parserPolicy);
             check(captured.toString("UTF-8").equals(defaultLogging ? "RAID_ADMIN_ERROR\n" : ""), "Unexpected logging output");
@@ -302,6 +305,59 @@ public final class TransportObservation {
             System.setOut(previousOut);
             OfflineGuard.assertUntouched();
         }
+    }
+    private static CommunicationsManager ioManager(State state)throws Exception {
+        CommunicationsManager m=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);
+        set(m,"queue",new LinkedList<Object>());set(m,"system",unsafe().allocateInstance(FakeSystem.class));
+        set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);return m;
+    }
+    private static void nullMessage()throws Exception {
+        final State state=new State();state.nullDrops=1;final CommunicationsManager m=ioManager(state);
+        final int[] callbacks={0};final Throwable[] escaped={null};final Object context=new Object();
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){callbacks[0]++;m.shutdown();}};
+        m.postMessageAsync(handler,new AcpxMessageFactory().newGetStatusRequest(),context);
+        Thread worker=new Thread(new Runnable(){public void run(){m.run();}},"io-null-fixture");
+        worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread thread,Throwable failure){escaped[0]=failure;}});
+        try {
+            worker.start();worker.join(2000);
+            check(!worker.isAlive() && escaped[0] instanceof NullPointerException,"Null IO did not escape worker");
+            StackTraceElement first=escaped[0].getStackTrace()[0];
+            check(first.getClassName().equals("com.apple.xsr.net.CommunicationsManager")&&first.getMethodName().equals("run"),"Unexpected null IO throw site");
+            check(callbacks[0]==0 && state.sent.size()==1 && !m.isStopped() && m.isConnected(),"Unexpected lost transaction state");
+            Field q=CommunicationsManager.class.getDeclaredField("queue");q.setAccessible(true);
+            check(((LinkedList)q.get(m)).isEmpty(),"Failed transaction still queued");
+            m.postMessageAsync(handler,new AcpxMessageFactory().newGetTimeRequest(),new Object());
+            check(((LinkedList)q.get(m)).size()==1 && !worker.isAlive() && callbacks[0]==0,"Later post did not remain queued");
+            emit("io null-message worker-escaped=NPE; callbacks=0; sends=1; stopped=false; connected=true; later_queue=1");
+        }finally{m.shutdown();worker.interrupt();worker.join(2000);check(!worker.isAlive(),"Fixture worker did not end");}
+    }
+    private static void shallowProperty()throws Exception {
+        final State state=new State();final CommunicationsManager m=ioManager(state);final int[] callbacks={0};final Object context=new Object();
+        RequestMessage request=new AcpxMessageFactory().newGetStatusRequest();request.setRequestProperty("X-Fixture","before");
+        m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){check(seen==context&&response.getType()==Response.TYPE_COMMAND&&response.getResultCode()==0,"Shallow fixture response differs");callbacks[0]++;m.shutdown();}},request,context);
+        request.setRequestProperty("X-Fixture","after");m.run();
+        check(callbacks[0]==1 && state.sent.size()==1,"Shallow fixture send count differs");
+        String wire=new String(state.sent.get(0),"UTF-8");
+        check(wire.contains("X-Fixture: after\r\n")&&!wire.contains("X-Fixture: before\r\n"),"Queued property not shared");
+        emit("io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1");
+    }
+    private static void ioCharacterization()throws Exception {
+        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
+        org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+        AcpxMessageFactory factory=new AcpxMessageFactory();
+        byte[] invalid=reply("HTTP/1.1 200 Fixture","DO_NOT_RENDER_PROTOCOL_HEADER\r\n",XML);
+        State direct=new State();direct.rawResponse=invalid;
+        try{transport(new MemoryConnection(direct)).send(factory.newGetStatusRequest());throw new AssertionError("Bad header accepted");}
+        catch(java.net.ProtocolException failed){check(failed.getMessage()!=null&&failed.getMessage().contains("DO_NOT_RENDER_PROTOCOL_HEADER"),"Peer line not retained");}
+        check(direct.sent.size()==1,"Direct bad-header sends differ");
+        emit("io invalid-header message_has_peer_line=true; direct_sends=1");
+        dispatch(factory.newGetStatusRequest(),0,false,invalid,0,1,"invalid-header-read-retry");
+        dispatch(factory.newSetTimeRequest(new Date(0)),0,false,invalid,0,1,"invalid-header-mutation-retry");
+        RequestMessage restart=factory.newRestartSystemRequest();
+        check(restart.getShutdownConnection() && restart.getRestartConnection()==-1,"Unexpected restart fixture flags");
+        dispatch(restart,1,false);emit("io synthetic-restart lost-response; same-command-replayed; shutdown_flag=true; memory-only");
+        nullMessage();shallowProperty();OfflineGuard.assertUntouched();
+        emit("PASS IO characterization; guarded_operations=0");
     }
     private static void followOn(boolean allocation) throws Exception {
         followOn(allocation?"allocation-limit":"invalid-length",reply("HTTP/1.1 200 Fixture","Content-Length: "+(allocation?"2147483647":"fixture")+"\r\n",new byte[0]));

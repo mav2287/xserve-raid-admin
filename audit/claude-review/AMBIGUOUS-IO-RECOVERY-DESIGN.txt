@@ -1,0 +1,88 @@
+# G10 consultation: ambiguous mutating-command IO failure
+
+I read only the eight files you named; the 3,157-line bytecode dump was read in full. Nothing was executed or edited.
+
+**Recommendation:** don't make the replay-policy change yet. First do a characterization step that changes no application bytes. Then make the bad-header marker the first byte change. The read-only allowlist classifier should come last. Your files can't yet support a source-proven classifier, and two preservation conflicts haven't been raised so far (see "Preservation conflicts" below).
+
+## Facts (proven by the files read)
+
+**How `run()` handles failures** (`build/queue-retry-policy-source-bytecode.txt`)
+- Lines 481–489: the three handlers cover only offsets 215–304. Any exception thrown inside the handler code itself escapes `run()`, because the outer 0–522 entry catches only `InterruptedException`.
+- Lines 369–433: on an IOException, the code calls `getMessage().startsWith("PropertyListException")`. If true, it returns a terminal -103. Otherwise it sets `connected=false`, puts the same transaction back at the front with `addFirst`, calls `setUserMessageIndex(5)` and `doConnect`, and sets the handler to null so no callback fires this time.
+- **The null-message defect is real:** an IOException with no message causes a NullPointerException at offset 346. That exception is uncaught, so the CommMgr thread dies. The transaction is lost, no callback fires, `stopped` stays false, and later posts queue up with no worker. Java's default uncaught-exception handler then prints the stack trace to stderr, bypassing the audit.5 fixed-code logging. The stderr part is standard Java behavior, not something we measured here.
+- The requeue path never closes the old `AcpxConnection`; `doConnect` simply overwrites the field (lines 684–689). That's a probable connection leak on every ordinary IO failure.
+- The audit.11 path works differently. `class_patch.py:118-120` hooks the generic `Exception` handler (offset 462), not the IOException one. The security markers are `IllegalArgumentException` subclasses, so they skip the requeue branch entirely. `RejectionRecovery.report` (`:52`) matches the exact class only.
+
+**Sync callers:** `postMessage` (lines 147–153) re-wraps any other failure as `new IOException(e.getMessage())`. Whatever message the exception carries reaches sync callers.
+
+**What a classifier could see** (`AbstractRequestMessage`, `AcpxConnection`, factory)
+- `RequestMessage` exposes path, command, target, the shutdown/restart flags and request properties. There is no accessor for the body or the RPC method.
+- The 3-argument constructor passes a null command (lines 990–998).
+- `clone()` is a shallow `Object.clone` (lines 1259–1275). The `properties` HashMap, and probably the parameter structures, are shared with the caller's object. `postMessageAsync` stores only this shallow clone (line 84).
+- `addHeaders` copies every request property into HTTP headers last (`acpx-response-callers-bytecode.txt:368-410`), so a property can affect the wire.
+- **Path alone can't classify:** `get-page`/`get-rtc` and `set-rtc`/`restart-controller` use the same class and the same `rsp-action` path; only the command differs (lines 1896–1971, 2800–2808). `power-state-get` and `power`/`restart` share `acp-action`. Status reads and RAID mutations are all `RpcRequestMessage`, distinguished only by the method name in the body.
+- `newRestartSystemRequest` sets `shutdownConnection=true` (lines 2785–2798).
+- **`writeTo` can't be used to classify:** calling it consumes the firmware stream (`TransportObservation.java:262-282`).
+
+**Already measured** (`TransportObservation.java:410-412`, plus G10 in `GAPS.md`)
+- `set-rtc` is replayed identically: 2 sends after one dropped response, 5 sends after four.
+- Status/time reads retry, and a truncated read retries and then succeeds.
+
+**Not yet measured:**
+- Invalid header has only a direct-`send` case (`:159`, result `protocol-error`). There is no queue case, so whether a bad header causes replay or kills the thread is unknown.
+- `build/acpx-response-callers-bytecode.txt` contains only the `AcpxConnection` class. It has no caller evidence.
+
+## Inferences (not proven)
+
+- The bad-header `ProtocolException` is an IOException. In the queue it either replays the command indefinitely, if the exception has a message, or kills the worker, if it doesn't. Either way the peer controls the outcome, for mutations as well as reads.
+- If a restart request drops the connection before a response arrives, the restart is replayed after reconnect.
+- Any socket timeout on a slow mutation is replayed. Slow mutations include array create, NVRAM flush and diagnostics. This is probably the most common real-world way replay gets triggered.
+- `RpcRequestMessage` probably targets `/cgi-bin/perform` with a null command. That fits the factory constants, but the inner-class bytecode wasn't in the files I read.
+
+## Assessing the hash-pinned allowlist classifier
+
+The shape is right if it is an allowlist of reads with everything else failing closed:
+- Match on exact `getClass()` (class hash pinned), exact path, and exact command, or the RPC method for `perform`.
+- Also require `shutdown == false`, `restart == -1` and an empty property set.
+- Classify the object at the moment of failure, never at enqueue time, because the shallow clone means callers can change the request after posting.
+- Unknown classes, custom `RequestMessage` implementations and `UpdateFirmwareRequest` all become terminal.
+
+It isn't source-proven yet. Reading the RPC method needs pinned access to a private field of an inner class whose bytecode isn't in these files.
+
+**Placement:** put the change in `run()`'s IOException branch, not in `send`. One approach: change the operand of the `ifeq 380` at offset 349 so it jumps to an appended block; this is version-47 class bytecode, the same pattern as the existing `send` edit. Placing it in `send` would turn checked IOExceptions into unchecked exceptions for direct `AcpxConnection.send` callers, whose scope is still **unresolved**. The `run()` placement leaves the direct-send contract untouched.
+
+## Preservation conflicts to document
+
+1. **Queue order (the largest conflict).** Today a failed command blocks everything behind it until it succeeds. With terminal failure, later queued mutations run after an unconfirmed one. Firmware's cache disable → update → restore sequence is the known case.
+2. **Final result.** Today the caller eventually gets a success, possibly after the command ran twice. With the change it gets -102 even if the controller applied the change, which invites a manual double-apply.
+3. **Pre-send connect failures.** A mutation that fails before any byte is sent would also become terminal. We can't separate "never sent" from "maybe sent" yet, because when `HttpConnection` actually transmits is unknown.
+4. **Status side effects.** The terminal path skips `setUserMessageIndex(5)` and the synchronous `doConnect` with its -101 callback.
+5. **Callback count** stays at exactly one in both cases, so that is preserved.
+
+## UI "unconfirmed" status
+
+This is **unresolved**. How panes render -102, and whether a new result code would fall through to a default branch, isn't in these files. Nothing should claim the UI shows "outcome unknown" until the `handleResponse` implementations have been inventoried.
+
+## Recommended sequence
+
+**G10-a: characterization only, no application bytes**
+- Memory-only queue fixtures for:
+  - invalid header (replay count, or thread death)
+  - an IOException with no message (thread death, missing callback, a queue that never drains, stderr output)
+  - a request changed after posting
+  - a restart-type request when the response is lost
+- An offline table covering all 59 factory overloads, built with synthetic arguments and never sent: runtime class, path, command, RPC method and flags. It must show the read/mutation split is injective.
+- Pinned bytecode for `AcpxRequestMessage`, `RpcRequestMessage`, `$1`, `UpdateFirmwareRequest`, `SyncSender` and `Transaction`.
+- A static inventory of:
+  - callers of `setRequestProperty`, the shutdown/restart setters and `appendParam`
+  - direct `AcpxConnection.send` callers (the CLI scope)
+  - how `handleResponse` and sync callers handle -102 and the IOException message
+  - multi-step mutation sequences that are queued together
+- When `HttpConnection` actually sends bytes, and what `timeout=0` means.
+
+**G10-b: bad-header marker (first byte change).** This follows the audit.9–11 framing pattern exactly: a fixed message, a terminal -102, the connection retired, no replay for any command. Ordinary read IO retries stay as they are.
+- Doing it as a same-length edit depends on the throw site in `parseHeaders` and whether its message includes the peer's line. That bytecode isn't in these files.
+- `report()` matches exact classes only, so either reuse `UntrustedResponseException` with a fixed message or deliberately widen that check.
+- If G10-a confirms the null-message crash, a narrow terminal fix for it could share this milestone. It is a separate defect and needs its own explicit documentation.
+
+**G10-c: the replay policy change itself.** Only after G10-a's table, caller inventory and sequencing findings have been reviewed, and the conflicts above are recorded as deliberate deviations.

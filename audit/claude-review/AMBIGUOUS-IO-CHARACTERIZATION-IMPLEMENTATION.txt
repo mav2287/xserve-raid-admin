@@ -1,0 +1,59 @@
+I found no blocking defect in the fixture logic. Two things need fixing before this becomes a clean baseline. First, the evidence was produced from a dirty tree. Second, a few output lines and limit strings claim more than the fixture observes. I executed and edited nothing, and read only the seven files you named. I could not run the code or compute hashes, so the hash and rerun points below are checks for you, not results.
+
+## Accuracy: what the code supports
+
+| Claim | Verdict | Basis |
+|---|---|---|
+| Invalid header in the queue: one retry with identical bytes, for both the status read and set-rtc | ✔ Supported | `dispatch` checks every captured send is byte-identical (`TransportObservation.java:236`) and expects exactly one reconnect callback (`:234`). The `ProtocolException` has a message, so it takes the requeue path. |
+| Lost restart response: identical command replayed | ✔ Supported | Same check, plus the flags checked at `:351`. |
+| Null-message `IOException`: NPE escapes `run`, no callback, `stopped=false`, `connected=true`, transaction lost | ✔ Supported | The bytecode matches. `getMessage().startsWith` is called at offset 346, inside handler code that the exception table doesn't cover (`queue-retry-policy-source-bytecode.txt:481-488`). The NPE happens before the `connected=false` store at 385. The `removeFirst` at 60 had already run, which is why the queue is empty (`:328`). |
+| Shallow property sharing | ✔ Supported | `clone()` is just `Object.clone` (bytecode `:1259-1266`). This proves only that the `properties` map is shared. It says nothing about parameter structures. |
+| Throw-site check | ✔ Sound | For an `invokevirtual` on a null receiver, the top stack frame is the calling method, so `run` is the right expectation. |
+
+## Things to fix or reword before committing
+
+1. **The evidence isn't from a clean tree.** `io-characterization-results.json:3` shows `"fixture_dirty": true` and `fixture_commit` `0f8e252`. That commit doesn't contain the two modified files. Commit the fixture and tool first, then regenerate. Also check that the recorded `TransportObservation.java` hash (`49027177…`) and `tool_sha256` (`4dbada46…`) match the committed bytes.
+
+2. **The restart line overstates what is observed.** The line says `shutdown=true`, but it only checks the request flag. `MemoryConnection.disconnect()` does nothing (`:81`), and every retry gets a fresh injected connection, so any effect of the flag on the transport is suppressed. I suggest `shutdown_flag=true`. That changes a gated line, so update `completed_io` as well. This is cheap now, before the evidence is recorded.
+
+3. **The invalid-header canary is never checked.** The header text `DO_NOT_RENDER_PROTOCOL_HEADER` (`:347`) implies a check that doesn't exist. The design doc says G10-b depends on whether the `ProtocolException` message echoes the peer's line (`ambiguous-io-recovery-design.txt:84`). That message reaches `logger.error` and is re-wrapped for sync callers (bytecode `:147-153`). A narrow fix: do one direct `send` with this reply, catch `ProtocolException`, and output only a fixed line such as `io invalid-header message_has_peer_line=<bool>`. Never print the message itself. If you'd rather not add a case, remove the canary name.
+
+4. **`io_limits` is missing scope limits you stated** (`check_transport.py:178`). Add that:
+   - The `CommunicationsManager` constructor is bypassed. The worker is a fixture thread that calls `run()`, not the `CommMgr` thread started by the constructor.
+   - The real thread group's uncaught-exception path is replaced by the fixture's handler.
+   - A retry count of 1 holds only because the scripted second reply is valid. A peer that keeps sending bad headers is not bounded or measured.
+   - The null `IOException` is injected at the transport seam. The fixture doesn't show that any real socket or parser path produces a message-less `IOException`.
+   - These are G10-a's initial cases only, not classifier qualification. The factory/RPC table and the caller, UI and sequencing inventories are still open.
+
+5. **Sync callers after the worker dies are unmeasured.** `later_queue=1` covers only `postMessageAsync`. `SyncSender`'s bytecode isn't in these files. `RaidSystemAgent` polls with synchronous `postMessage` (`recovery-clean-static-scope.json` facts[0–1]), so whether a polling caller blocks forever once the worker is dead is still unknown. List this explicitly as an open limit.
+
+6. **The design doc's line references are stale.** `ambiguous-io-recovery-design.txt` cites `TransportObservation.java:410-412`, `:159` and `:262-282`. They are now `:460-462`, `:161` and `:264-283`. Its statement that the invalid header has only a direct-send case is also out of date. If the doc gets committed, add a note saying the G10-a fixture supersedes those points.
+
+## Bounds, leaked threads and output containment: OK, with minor notes
+- **Bounds:**
+  - Send bound is 16 (`:55`).
+  - Retry bound is 8 (`:221`).
+  - Response size is capped.
+  - Heap is limited with `-Xmx64m` and each process times out after 20 seconds.
+  - The worker is a daemon with `join(2000)`.
+  - A cleanup step in `finally` shuts down, interrupts and joins the worker, so a failed check can't leave a live worker. All other io cases run `run()` on the main thread, so no other threads are left behind.
+- **Minor:** if the `isAlive` check in that `finally` fails, it masks the original assertion. This is cosmetic.
+- **stderr containment:** the uncaught-exception handler catches the NPE, and both captured streams must be empty (`:301-302`).
+  - `ioCharacterization` sets only the root logger to OFF, unlike `execute`/`headerPolicy`, which set the repository threshold. It passed, but setting the threshold would make it less fragile if a candidate configures logger-specific levels.
+- **Harness:** `completed_io` requires the exact list of seven lines, for every jar and runtime. That's stronger than comparing runs with each other, and the raw output is withheld on mismatch. The io run happens before `verify_runtime` (`:131`), so it is covered by that re-check.
+- **Guard:** creating the thread and setting the uncaught handler only reach `checkPermission`, which is allowed. The result `guarded_operations=0` is consistent with that.
+
+## The direct-send caller evidence: it narrows the gap but doesn't close it
+`recovery-clean-static-scope.json` pins `CommandDispatcher$DefaultHandler` and `$15` as direct `AcpxConnection.send` callers. That moves the design doc's "unresolved" to "at least two CLI direct callers exist". That strengthens the case for putting the change in `run()` rather than in `send`.
+
+It is not an exhaustive inventory:
+- Only three classes were inspected. Contrast the `isConnected` owner list, which comes from a scan of all 2,844 classes.
+- The finding that handler 15 closes and rethrows describes the audit.11 candidate, not the original.
+
+So record it as "≥2 pinned CLI callers; complete direct-send inventory still open".
+
+## Not issues
+- Neither the original nor audit.11 changes any of these behaviours: both produce the same seven lines. That fits audit.11 hooking the generic handler at offset 462, not the `IOException` path.
+- `drops--` can go negative when `nullDrops` is in use. This already existed and has no effect.
+
+Order for a clean baseline: fix items 2–4 (plus 5 in the limits), commit, regenerate with both runtimes, check `fixture_dirty: false` and the hashes, then commit the evidence.
