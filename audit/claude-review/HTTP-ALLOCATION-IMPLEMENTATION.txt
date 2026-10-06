@@ -1,0 +1,41 @@
+Actual Claude CLI read-only implementation review.
+
+I found no defects in the patch mechanics or runtime behaviour. The two-operand rewrite, the Code preservation, the javap comparison and the candidate-only tests do what you described. The real issues are one wrong evidence record and a few gaps in what the checks actually prove. Nothing was run; this is from reading the code only.
+
+## Confirmed correct
+
+- **Byte offsets** (`tools/class_patch.py:111-127`): `begin+14` skips the 6-byte attribute header and the 8 bytes of stack, locals and code length. The 8-byte check window covers code bytes 23–30, and the rewritten operands at 24–25 and 29–30 match `new` at offset 23 and `invokespecial` at offset 28. Both instructions point at the same appended class constant. Requiring major version 47 keeps the old verifier, so there is no StackMapTable to update.
+- **Code preservation** (`assert_allocation_operands`): it compares the whole Code attribute, including its header, stack/locals, exception table and subattributes, with only those 4 operand bytes masked. The test flips bytes in the stack value, in code byte 40 and in the last subattribute byte, which is the right spread.
+- **Independent javap check** (`tools/check_security.py:38-48`): it diffs the full verbose method text and accepts exactly two changed lines, at offsets 23 and 28, each old line naming `ByteArrayOutputStream` and each new line naming the helper. It also checks that the original constant-pool listing is an unchanged prefix and that non-target members are identical. The helper's constructor must be exactly `aload_0, iload_1, invokestatic checkLength, invokespecial BAOS.<init>(I)V, return`.
+- **Fixture**: the original JAR never gets the oversized cases (`check_transport.py:38,90`). Distinguishing the rejection by its fixed message correctly separates it from NumberFormatException and from the negative-size error. The queued case requires `-102`, zero reconnects, one send and one callback with its context kept. If the patch were missing, the test would fail: 2147483647 would throw OutOfMemoryError under `-Xmx64m`, and 16777217 would hit EOF and throw IOException. Neither is caught as IllegalArgumentException. Ordinary negative lengths still reach `super(-1)`. The normal regression mode also covers the helper's accept path under `-Xverify:all`.
+
+## Defects
+
+1. **The security record contradicts this milestone** (`tools/check_security.py:125`). Its `limits` text still says "PropertyListUtilities resolver and two request toString methods only. No … XML expansion/size/depth limits, HTTP allocation limits…". The same script now verifies `getParser` and `getBody`, and the parser limits exist. Anyone reading the emitted JSON gets a false statement. Update the text to say what is covered (the parser policy and the 16 MiB declared-length pre-allocation check) and what remains open.
+
+2. **The security record never pins the ceiling value or the helper's class version** (`check_security.py:90-93`).
+   - The other two helpers must be major version 52; `BoundedResponseBuffer` has no version check.
+   - Nothing checks that `checkLength` compares against `16777216` or that the comparison is `>`. A change to `MAX` or to the comparison would still pass `check_security`.
+   - Today only the opt-in `--allocation-policy` transport run checks the boundary.
+   - Fix: use verbose disassembly and require major 52, `ldc 16777216` (or `MAX`'s constant value), `if_icmple`, and the fixed message string.
+
+3. **The Python operand check never checks the new operand values.** `assert_allocation_operands` overwrites the 4 changed bytes with the originals before comparing, so any value there passes. The golden hash in `audit/security-patches.json` (currently modified) is regenerated from this same transformer, so it can't catch a transformer error either. That leaves javap as the only check of what the operands point to. A small addition would fix this: assert the bytes at code offsets 24 and 29 equal the appended class and method-reference indices, and that those resolve to `compat/BoundedResponseBuffer` / `<init>` / `(I)V`.
+
+## Overstated wording (no code defect)
+
+- **What the 64 MiB heap proves.** It only shows nothing was allocated for 2147483647. A 16777217-byte buffer fits easily in 64 MiB. For that case, "rejected before allocation" rests on the javap constructor-order check, not on the heap. `HTTP-ALLOCATION-GUARD.md:43-46` and the `check_transport.py:111` limits text should say so. The `rejected-before-body` label is fine, because with an empty body any read would have failed with an IO error first.
+
+## Missing test worth adding
+
+- **An end-to-end case exactly at the ceiling.** The boundary is only tested by calling `checkLength` through reflection. Add `Content-Length: 16777216` with an empty or short body under `-Xmx64m` (a 16 MiB buffer fits):
+  - Direct send should give `io-error`.
+  - Queued send should give one reconnect and one resend, like `truncated-retry-then-valid`.
+
+  This shows that a length at the ceiling still takes the original retried-IO path and that only lengths above it become terminal `-102`. It also runs the full patched `getBody` with the largest allowed value.
+
+## Not a defect
+
+- The design's "`new #23` and `invokespecial #24` appear exactly once in the method" check wasn't implemented. The SHA-256 lock plus the fixed 8-byte window make it redundant.
+- `allocationPolicy` turns logging off only through the repository threshold, while `execute` also sets individual loggers. The threshold alone silences everything, and the default-logging run still checks for a single `RAID_ADMIN_ERROR`.
+
+Disposition: Updated verifier scope text, checked helper major 52 / ceiling / comparison / fixed message, and resolved masked allocation operands to the exact helper class and constructor. Added full-path allowed-ceiling truncation/retry and two-command post-rejection state observation. The constructor-order disassembly proves preallocation ordering; 64 MiB heap alone is not that proof for MAX+1. Production app/JAR bytes are unchanged by these verifier/fixture refinements.

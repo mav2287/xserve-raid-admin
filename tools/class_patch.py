@@ -180,6 +180,15 @@ def assert_allocation_operands(before, after):
         _,start,end=attrs[0]
         return bytearray(data[start:end])
     a,b=code(old,before),code(new,after)
+    allocation_class=u2(b,14+24);constructor=u2(b,14+29)
+    tag,value=new.pool[allocation_class]
+    if tag!=7 or new.text(u2(value,0))!='compat/BoundedResponseBuffer':
+        raise ValueError('Response allocation class operand differs')
+    tag,value=new.pool[constructor]
+    if tag!=10 or u2(value,0)!=allocation_class: raise ValueError('Response constructor operand owner differs')
+    tag,signature=new.pool[u2(value,2)]
+    if tag!=12 or new.text(u2(signature,0))!='<init>' or new.text(u2(signature,2))!='(I)V':
+        raise ValueError('Response constructor operand signature differs')
     if len(a)!=len(b): raise ValueError('Response Code length changed')
     for offset in (14+24,14+29):
         b[offset:offset+2]=a[offset:offset+2]

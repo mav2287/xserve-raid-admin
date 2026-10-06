@@ -1,0 +1,109 @@
+Actual Claude CLI read-only design review. Header implementation is not yet present.
+
+I don't see a design-level blocker. The thin wrapper is better than a `StringWriter` subclass plus a weak-map header budget, but it needs four spec fixes and some tooling work before you build it. I only read files; I ran nothing and changed nothing.
+
+## Is it safer and thinner than the alternative?
+
+Yes:
+- The header budget lives in a wrapper created for each response. That removes the global weak map, its lookup-by-object hazards, its dependence on garbage-collection timing and its locking.
+- `readLine`, `parseHeaders` and `getBody`'s read loop stay byte-identical.
+- The class is version 47 (`tools/class_patch.py:110`), so there is no `StackMapTable` to fix up.
+- Inserting at 36 adds no branch: the only branch is 10→23, which comes before the insertion point.
+- The stack stays within the existing maximum. That maximum is already at least 3, because of `new/dup/ldc` at 13–17.
+- Rejecting with `IllegalArgumentException` is right. It isn't an `IOException`, so it skips the 307 and 337 handlers (reconnect plus `addFirst` retry). It lands in the `Exception` handler at 462 and becomes a terminal `-102` (`audit/communications-manager-bytecode.txt:481-487`).
+- The original is worse on huge headers. `OutOfMemoryError` isn't caught by the run loop, so it would kill the dispatch thread.
+
+The cost is a second copy of the line-ending logic, which could drift from the original. Differential tests (below) cover that.
+
+## Line-ending logic check against the original `readLine` (offsets 0–71)
+
+The design matches on these points:
+- The newline flag is local to each line and never resets inside a line.
+- The second CR or LF ends the line, even with other characters in between.
+- Any other byte is written to the line.
+
+So `A\rB\r` gives `"AB"`, and `A\r\r\n` gives `"A"` and leaves `\n` as the next line's first ending byte. That byte can then pull body bytes into a "header" line, and your design copies this correctly.
+
+"Empty" must mean zero non-ending bytes when the line finishes, not two endings in a row. For example, `\rX\n` gives `"X"`.
+
+The first line is always treated as the status line, even when empty, because `parseHeaders` turns an empty first line into `EOFException`. The design gets this right.
+
+## Blockers
+
+1. **End-of-stream handling is missing from the spec.** The original treats `-1` as the end of the current line (offsets 18–31→67). It returns the partial string, and on a later call it returns `""`, which ends the headers. The wrapper must:
+   - pass `-1` through without counting it or throwing;
+   - treat `-1` as a finished line, so the line count goes up and the flag resets;
+   - treat an empty line finished by `-1` (other than the status line) as the end of the headers.
+   
+   Otherwise the wrapper's line and phase count drifts from the parser's, for example on `HTTP/1.1 200\r\nX: y<EOF>`.
+
+2. **Off-by-one in the line limit.** "128 field lines plus status plus blank = 130" must not reject a blank 130th line. Define it as: reject on the first non-ending byte of line 130. Ending bytes on line 130 can only produce an empty line, which correctly ends the headers.
+
+3. **The patch tool can't express this edit yet.**
+   - `TARGETS` (`tools/class_patch.py:5-6`) maps each class to one method.
+   - `assert_preserved` (`:163-171`) rejects any other changed method, so whichever of `getBody` and `<init>` isn't the target fails as "Non-target method changed".
+   - `EXPECTED_ACCESS` assumes 0x0001, but this constructor is package-private (0x0000).
+   
+   You need one combined `HttpResponse` transform with:
+   - a single constant-pool append, covering the `BoundedResponseBuffer` entries plus the `BoundedHeaderStream` class, NameAndType and Methodref;
+   - the existing operand-only check on `getBody`;
+   - a new exact-insertion check on `<init>`: original bytes 0–35, then `b8 xxxx`, then original bytes 36–43; code length +3, attribute length +3, max stack and max locals unchanged, empty exception table;
+   - every other method byte-identical.
+   
+   The independent javap comparison also has to accept exactly this insertion, with 39/40/43 becoming 42/43/46, and nothing looser.
+
+4. **The constructor's Code subattributes are unverified.** The listing is `javap -c` without `-l`, so it doesn't show whether there is a `LineNumberTable` or `LocalVariableTable`. Version-47 javac output usually has a `LineNumberTable`, and the `getBody` check's comment ("even Code subattributes are fixed", `class_patch.py:175`) suggests they exist. "Update Code lengths only" is only valid if the constructor's Code has zero subattributes. Either assert that and fail closed, or shift line-number entries with start ≥ 36 by 3 and extend local-variable lengths. Don't leave this implicit.
+
+## Must be tested before claiming normal semantics are unchanged
+
+**State after a rejection.** The rejection happens in the constructor, before `getBody`'s `finally`. So `setRequestOutstanding(false)` never runs, the stream stays open with unread bytes, and `connected` stays true.
+
+Both `HttpConnection.getResponse` and `newRequest` build `IllegalStateException`s (`audit/static-inventory.json:39038-39052`). That makes it plausible that every later command on that connection fails with `-102` until something reconnects. I haven't confirmed this. Existing `-102` paths inherit the same state, but this change adds a new trigger an attacker can reach.
+
+Benign replies never hit it, but one follow-on-command test must record what actually happens, and the docs should state it.
+
+## Minor items
+
+- `wrap(null)` should return `null`, so the original NPE still happens inside `readLine`.
+- Once a limit is hit, `read()` should keep throwing without reading the underlying stream. `close()` should still pass through to it.
+- The rejection message must differ from `"Response length exceeds limit"`. A fixed message also logs no attacker data, unlike `"Invalid HTTP header: " + line`.
+- Bulk reads, `skip` and mark need no overrides. Only `read()` and `close()` are ever called on `inStream`, and the inherited `read(byte[],…)` swallowing an `IOException` after the first byte can't happen here.
+- The per-response object is the right scope. Persistent sockets get a fresh budget for each response.
+
+## Fixture gaps
+
+- `boundedReply` caps replies at 524288 bytes (`TransportObservation.java:94`), and the reply-stream read bound is `raw.length+64`. A test just over 1 MiB needs a streaming generator, not a larger byte array.
+- `responseCase` maps every `IllegalArgumentException` to `"negative-length"` (`:112`). It needs a distinct header-limit outcome, checked by message.
+- `main` has a fixed list of allowed modes and expects exactly one `RAID_ADMIN_ERROR` line on stderr (`:260`, `:272`). You'll need a `header-policy` mode and `header-policy-default-logging` mode.
+
+## Minimum tests
+
+1. **Exhaustive differential test, original vs candidate.** Feed every byte sequence over {CR, LF, `a`, `:`} up to length 8 (about 65k cases), plus a fixed body marker, through the original and candidate `HttpResponse` constructors. Require the same exception type or the same header map, and the same number of bytes consumed. Include `-1` at every position.
+2. **Proof the wrapper switches to pass-through at the right byte.** Run a valid reply whose `Content-Length` body is over 64 KiB with no newlines and contains more than 130 CR/LF bytes after it. `getBody` must succeed with an identical body hash, which proves the wrapper stopped counting exactly at the header end.
+3. **Accepted boundaries, on both original and candidate (all ≤ 1 MiB):**
+   - a line of exactly 65536 non-ending bytes;
+   - exactly 128 header fields plus a blank line;
+   - exactly 1 MiB of header bytes in total.
+   
+   Results must be identical.
+4. **Rejections, candidate only, 64 MiB heap, streaming input:**
+   - 65537 bytes on one line;
+   - a non-ending byte on line 130;
+   - 1 MiB + 1 total bytes.
+   
+   For each, assert:
+   - the exact exception and message;
+   - the stream was read exactly up to the violating byte and no further;
+   - a later `read()` doesn't touch the stream.
+5. **Through the queue, using `dispatch`:** each rejection gives `-102`, one send, one callback with its context kept, and zero reconnects.
+6. **A normal follow-on command** after a rejection on the same manager, recording the actual result per the state-after-rejection item.
+7. **Patch tool unit tests:**
+   - a hash mismatch is refused;
+   - extra Code subattributes either fail or are shifted as specified;
+   - a corrupted inserted byte or a changed `getBody` byte fails;
+   - all other methods compare byte-equal.
+8. **Regression:** existing `responses()`, `queueResponses()`, `queueOrder()` and the allocation-policy output are unchanged on both pinned runtimes, with logging off and with logging configured.
+
+Not covered by this design: malformed status lines and headers (a header with no colon still goes through the `IOException` path and resends indefinitely), framing, and recovering the persistent connection.
+
+Disposition for planned work: EOF finishes the current line without counting an extra byte; an empty non-status line switches phase. Blank line 130 remains accepted. Constructor Code was independently inspected and has zero exception entries and zero nested attributes. Package-private constructor access is pinned; max stack is preserved rather than assumed 2. Sticky rejection and fixed distinct message will be required. Two-command recovery is measured separately before implementing the wrapper.

@@ -87,8 +87,10 @@ def main():
     if '  major version: 52' not in helper: raise ValueError('Helper requires unexpected JVM version')
     parser_helper = disassemble_entries(args.jdk,args.jar,['compat/SafePlistParser.class'],verbose=True)
     if '  major version: 52' not in parser_helper: raise ValueError('Parser helper requires unexpected JVM version')
-    allocation_helper = disassemble_entries(args.jdk,args.jar,['compat/BoundedResponseBuffer.class'])
-    constructor = re.search(r'public compat.BoundedResponseBuffer\(int\);\n    Code:\n(.*?)(?=\n  \S|\n})',allocation_helper,re.S)
+    allocation_helper = disassemble_entries(args.jdk,args.jar,['compat/BoundedResponseBuffer.class'],verbose=True)
+    if '  major version: 52' not in allocation_helper or 'ConstantValue: int 16777216' not in allocation_helper or not re.search(r'ldc\s+#\d+\s+// int 16777216',allocation_helper) or 'if_icmple' not in allocation_helper or '// String Response length exceeds limit' not in allocation_helper:
+        raise ValueError('Allocation helper version, ceiling or fixed rejection differs')
+    constructor = re.search(r'public compat.BoundedResponseBuffer\(int\);.*?    Code:\n(.*?)(?=\n  \S|\n})',allocation_helper,re.S)
     if constructor is None or re.findall(r'^\s+\d+:\s+(\S+)',constructor[1],re.M) != ['aload_0','iload_1','invokestatic','invokespecial','return'] or 'Method checkLength:(I)I' not in constructor[1] or 'java/io/ByteArrayOutputStream."<init>":(I)V' not in constructor[1]:
         raise ValueError('Response size check does not precede superclass allocation')
     verified_methods = {}
@@ -122,6 +124,6 @@ def main():
         'request_inventory':request_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
         'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
-        'limits':'PropertyListUtilities resolver and two request toString methods only. No full application logging, XML expansion/size/depth limits, HTTP allocation limits, real controller fixtures or GUI qualification.'},indent=2))
+        'limits':'Independent preservation of resolver, parser construction delegate, two request diagnostics and response allocation operands. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. No header/framing limits, connection recovery, real controller data, full application output or GUI qualification.'},indent=2))
 
 if __name__ == '__main__': main()

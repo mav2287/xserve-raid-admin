@@ -42,7 +42,8 @@ one send and no reconnect for the new oversized rejection.
   rejects MAX+1 and Integer.MAX_VALUE with the exact fixed exception.
 - Candidate-only actual ACP send and original dispatch code receive empty bodies
   advertising 16777217 or 2147483647 bytes. Tests use a 64 MiB heap and 20-second
-  subprocess bounds; they must reject before body reads/allocation, return -102,
+  subprocess bounds; the bytecode constructor-order check proves rejection before allocation, and
+  the end-to-end empty-body tests prove rejection before body reads, return -102,
   send once, and preserve one callback/context with zero reconnects.
 - Original/candidate existing direct response cases, queue ordering and retry
   observations must match. Both pinned architectures and logging OFF/configured
@@ -57,3 +58,14 @@ and unread body handling after terminal rejection retain existing behavior and a
 not qualified as recovery. Header line/count bounds, HTTP status/framing and shared
 stream desynchronization remain separate open work. No controller, native GUI,
 production volume, firmware transmission or full release qualification is implied.
+
+The allowed ceiling is also exercised end to end with a bounded 16 MiB allocation
+and an empty/truncated body: it retains the original IOException and one injected
+reconnect/resend to a valid reply. The 64 MiB heap prevents a near-2-GiB allocation
+but does not by itself prove that 16 MiB + 1 was never allocated.
+
+Two-command observation: both original and candidate malformed-numeric lengths
+produce terminal -102 for the first and next command, one total send, outstanding
+true and zero reconnects. Candidate oversized input produces the same state.
+The second command is refused before transmission. Recovery is therefore a
+confirmed open functional gap, not just an inference from the private flags.

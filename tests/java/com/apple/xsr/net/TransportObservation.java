@@ -277,6 +277,26 @@ public final class TransportObservation {
             OfflineGuard.assertUntouched();
         }
     }
+    private static void followOn(boolean allocation) throws Exception {
+        final State state=new State();state.rawResponse=reply("HTTP/1.1 200 Fixture","Content-Length: "+(allocation?"2147483647":"fixture")+"\r\n",new byte[0]);
+        final MemoryConnection memory=new MemoryConnection(state);
+        final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);
+        set(manager,"queue",new LinkedList<Object>());set(manager,"system",unsafe().allocateInstance(FakeSystem.class));
+        set(manager,"connection",transport(memory));set(manager,"connected",true);
+        final int[] callbacks={0};final Object[] contexts={new Object(),new Object()};
+        final Field outstanding=HttpConnection.class.getDeclaredField("requestOutstanding");outstanding.setAccessible(true);
+        CommunicationHandler handler=new CommunicationHandler() {
+            public void handleResponse(RaidSystem system,Response response,Object context) {
+                check(response.getType()==Response.TYPE_COMMAND && response.getResultCode()==-102 && callbacks[0]<2 && context==contexts[callbacks[0]],"Follow-on response differs");
+                try {check(outstanding.getBoolean(memory),"Outstanding state changed");}catch(Exception failure){throw new AssertionError("Follow-on inspection failed");}
+                if(++callbacks[0]==2)manager.shutdown();
+            }
+        };
+        AcpxMessageFactory factory=new AcpxMessageFactory();
+        manager.postMessageAsync(handler,factory.newGetStatusRequest(),contexts[0]);manager.postMessageAsync(handler,factory.newGetTimeRequest(),contexts[1]);manager.run();
+        check(callbacks[0]==2 && state.sent.size()==1,"Follow-on sends differ");
+        emit("follow_on "+(allocation?"allocation-limit":"invalid-length")+" results=-102,-102; sends=1; outstanding=true; reconnects=0");
+    }
     private static void allocationPolicy(boolean defaultLogging) throws Exception {
         if(!defaultLogging) org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         Class<?> helper=Class.forName("compat.BoundedResponseBuffer");
@@ -294,6 +314,10 @@ public final class TransportObservation {
             emit("response allocation-"+value+" rejected-before-body");
             dispatch(new AcpxMessageFactory().newGetStatusRequest(),0,false,raw,-102,0,"allocation-"+value);
         }
+        byte[] ceiling=reply("HTTP/1.1 200 Fixture","Content-Length: 16777216\r\n",new byte[0]);
+        responseCase("allocation-ceiling-truncated",ceiling,"io-error");
+        dispatch(new AcpxMessageFactory().newGetStatusRequest(),0,false,ceiling,0,1,"allocation-ceiling-truncated-retry");
+        followOn(true);
         emit("PASS response allocation observations; guarded_operations=0");
     }
     private static void execute(boolean defaultLogging, boolean parserPolicy) throws Exception {
@@ -344,6 +368,7 @@ public final class TransportObservation {
         responses();
         queueResponses();
         queueOrder();
+        followOn(false);
         firmwareStream(false);
         firmwareStream(true);
         OfflineGuard.assertUntouched();

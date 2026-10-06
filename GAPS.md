@@ -94,3 +94,13 @@ G13 refinement: audit.6 explicitly enforces depth 32 and preserves measured acce
 
 
 audit.7 refinement: declared HTTP response body allocation is capped at 16 MiB before allocation using an operand-only buffer substitution and the existing terminal -102 path. Header/status/framing, persistent-stream recovery and real response size compatibility remain open. See [allocation guard](audit/HTTP-ALLOCATION-GUARD.md).
+
+
+## G14 — Terminal response rejection and persistent connection recovery
+
+A guarded two-command fixture confirms that original invalid numeric lengths leave
+requestOutstanding true. The next queued read fails -102 before transmission;
+only one request was sent, with zero reconnects. audit.7 oversized rejection takes
+this same terminal path. This protects against a resend loop but does not recover
+the connection. Header/frame rejection cleanup must be designed explicitly without
+silently replaying potentially mutating requests. See [allocation evidence](audit/HTTP-ALLOCATION-GUARD.md).
