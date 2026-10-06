@@ -16,7 +16,9 @@ audit.3 repairs Java 8 EAWT vs Java 9+ Desktop selection and binds About, Prefer
 
 ## G04 — Credential-bearing logging
 
-Original AbstractRequestMessage.toString includes password, and AcpxRequestTemplate.toString appends the entire payload. audit.4 replaces exactly these two diagnostic methods with a fixed redacted string, including password-change fixtures. ACP headers still carry plaintext credentials; root logger OFF hides errors. Harness allowlisting does not fix app logging. No real credentials were read or emitted. Application-wide confidentiality and visible-error acceptance remains open.
+Original AbstractRequestMessage.toString includes password, and AcpxRequestTemplate.toString appends the entire payload. audit.4 replaces exactly these two diagnostic methods with a fixed redacted string, including password-change fixtures. audit.5 replaces root OFF with ERROR and a dedicated appender that emits only fixed ERROR/FATAL codes, at most one of each per process. Actual-JAR configuration tests cover hostile messages/throwables, NDC/MDC/thread/logger names, DEBUG child categories, reconfiguration, closed appenders and write exceptions. No Console/FileAppender is attached and the guard observes no writes. The full original JAR has only INFO/DEBUG level guards outside log4j; both remain disabled.
+
+The two bounded stderr writes are synchronous and could block error-logging threads on a blocked pipe. RuntimeExceptions are contained; VM Errors are not swallowed. Finder launches may not display stderr; visible in-app failures remain open. No application-wide confidentiality claim is made for other output paths, reflection or externally reconfigured logging. ACP headers still carry plaintext credentials. No real credentials were read or emitted.
 
 ## G05 — XML external resolution
 
@@ -49,8 +51,8 @@ The memory-only fixture now observes two identical sends after one dropped respo
 five after four drops, and one eventual callback with retained context. Parse errors
 produce -103 without requeue. Synthetic single-use firmware streams either throw
 before a second send or produce a zero-length second body, depending on stream
-behavior. See `audit/transport-observation.json`. Real reconnect/backoff, queue
-ordering and actual firmware archive streams remain unqualified. No retry behavior
+behavior. See `audit/transport-observation.json`. The synthetic archive fixture now observes stored-entry streams returning EOF after close, while deflated-entry streams throw I/O errors. Real reconnect/backoff, queue
+ordering and actual firmware packages remain unqualified. No retry behavior
 has been changed.
 
 ## G11 — MRJ folder lookup

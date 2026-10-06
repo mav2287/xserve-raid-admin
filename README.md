@@ -14,25 +14,22 @@ This project contains compatibility patches for the original application. Full f
 
 2. **`com.apple.mrj.MRJApplicationUtils` replacement** — Selects `com.apple.eawt` on Java 8 and `java.awt.Desktop` handlers on Java 9+; forwards original About, Preferences, Quit and file-open callbacks. Headless bridge tests pass; native menu/event qualification remains open.
 
-3. **`com.apple.eio.FileManager` replacement** — Maps old Mac OS folder type constants (`kDesktopFolderType`, `kPreferencesFolderType`) to real macOS filesystem paths.
+3. **`com.apple.eio.FileManager` replacement** — Provides legacy folder mappings, but the runtime class shadows this replacement on tested Corretto 8/11. The verified MRJ caller bridge below handles Desktop lookup.
 
 4. **`Launcher` wrapper** — Applies Swing UIManager fixes for the Aqua Look & Feel tab text rendering on modern macOS before delegating to the original entry point.
 
 5. **`com.apple.mrj.MRJFileUtils` Desktop bridge** — Repairs the null folder lookup used by firmware selection and event-log export. Other stubs remain unchanged. Offline regression and method-preservation checks pass; dialog workflows remain to be qualified.
 
+6. **Plist entity resolver and request diagnostics** — Three hash-locked method substitutions preserve the original embedded DTD, reject external entities, and redact both credential-bearing request diagnostic methods.
+
+7. **Bounded logging adapter** — Emits only fixed ERROR/FATAL signals, at most once per level per process. No message, exception or context is rendered. This is terminal diagnostic support; GUI error handling remains unqualified.
+
 ## Requirements
 
-- macOS 10.15 (Catalina) or later
-- Java 8 or later (Amazon Corretto 8 recommended)
-
-## Install Java (if needed)
-
-```bash
-# Using Homebrew
-brew install --cask corretto8
-
-# Or download directly from https://aws.amazon.com/corretto/
-```
+Pinned runtime candidates include Corretto 8 for the selected architecture and
+need no system Java. Their vendor binaries require macOS 11.0 or later; native UI
+and hardware qualification across OS versions remains open. Development builds
+require the exact compiler and Python versions recorded in the audit locks.
 
 ## Building
 

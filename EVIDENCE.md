@@ -237,3 +237,12 @@ file and directory allowlists independently of a self-consistent local manifest.
 is explicitly not evaluated by this tool; the separate bundle verifier performed
 it. Malformed/deep/oversized manifests and non-regular files fail without echoing
 untrusted metadata. No application or controller is started.
+
+## audit.5 continuation
+
+The root logger now uses a bounded fixed-code appender after a full original-JAR
+logging branch inventory and Claude review. Original config bytes are retained
+except the root assignment and one appended declaration. Request formatting and
+XML hardening remain in place; controller commands, polling and retry code remain
+unchanged. Synthetic archive and logging runtime evidence is recorded separately
+from hardware acceptance, which remains unperformed.

@@ -1,0 +1,5 @@
+{
+  "original_sha256": "807caff9df5eb94bf26f54bbdf43e3d0d0761a480d885e38b71867076dc80d3c",
+  "patched_sha256": "10421a69aa1382a2382deca570207d66068976ab5e00478eacc0b6b54282c56e",
+  "scope": "Root ERROR with bounded fixed-code appender. All original config bytes retained except root assignment; one appender assignment appended."
+}

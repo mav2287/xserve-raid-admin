@@ -10,6 +10,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from audit_support import ROOT, digest, sha
 from diagnose import diagnose
+from baseline import VERSION, BUNDLE_VERSION
 
 
 class BundledDiagnosticTests(unittest.TestCase):
@@ -17,11 +18,10 @@ class BundledDiagnosticTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.output = Path(self.tmp.name)
         reference = json.loads((ROOT/'audit/expected-build.json').read_text())['expected']
-        source = json.loads((ROOT/'audit/security-clean-provenance.json').read_text())
         self.files = dict(reference['files']); self.modes = dict(reference['file_modes'])
         metadata = plistlib.loads((ROOT/'packaging/audit-Info.plist').read_bytes())
         metadata.update(CFBundleIdentifier='org.xserve-raid-admin.audit',
-                        CFBundleShortVersionString=source['compatibility_version'], CFBundleVersion='4',
+                        CFBundleShortVersionString=VERSION, CFBundleVersion=BUNDLE_VERSION,
                         LSMinimumSystemVersion='11.0')
         self.files['Contents/Info.plist'] = hashlib.sha256(plistlib.dumps(metadata,sort_keys=True)).hexdigest()
         self.files['Contents/MacOS/RAIDAdmin'] = sha(ROOT/'packaging/RAIDAdmin')

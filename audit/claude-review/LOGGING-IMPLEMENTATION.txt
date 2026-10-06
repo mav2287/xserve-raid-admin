@@ -1,0 +1,23 @@
+**Verdict: no blocking correctness, security or preservation defects in the reviewed scope.** I only read the code. I didn't run anything or open `audit/logging-patches.json`.
+
+**What checks out**
+- **Appender** (`patches/compat/SafeLogAppender.java`):
+  - It only reads `event.getLevel().toInt()`. It never touches the message, the Throwable, the logger name, the NDC/MDC or the thread name, and it uses no layout.
+  - The once-only flags are static and claimed under a class lock, so the limit holds across new instances after `PropertyConfigurator.configure`. When reconfiguration removes the old appender, log4j 1.2 closes it.
+  - DEBUG, INFO and WARN events reach `append` through additivity when a logger has an explicit level, but `claim` returns false, so nothing is written. A write that fails with a `RuntimeException` is swallowed, and that code is marked as used.
+- **Build** (`tools/baseline.py:91-98`): the original and patched config hashes are pinned, the root line must appear exactly once, and the result is checked against the allowlist. Only `log4j.properties` and the new class change. The leading `\n` on the appended line covers a file with no trailing newline. If the file has CRLF endings, the build stops with an error rather than producing a different config.
+- **Inventory** (`audit/logging-boundaries.json`): it found no static calls in the app that reconfigure logging, so the reconfiguration test is extra protection. The stdout and `rf` appenders are defined but never attached, so they are never created.
+- **Probe** (`tests/java/LoggingProbe.java`):
+  - If anything renders the message or Throwable, the `AssertionError` escapes and the probe fails.
+  - Requiring exact stderr bytes also catches any internal log4j warning output.
+  - In write-failure mode, an exception that escaped would throw out of `logger.log`, so containment really is tested.
+
+**Minor issues (not blocking)**
+1. **The close-path test proves nothing** (`LoggingProbe.java:55-57`). Both codes have already been used by the time the appender is closed, so `logger.error` would print nothing even if `closed` were ignored. To test it, run a separate case that closes the appender before the first ERROR.
+2. **Only `RuntimeException` is caught** (`SafeLogAppender.java:27`). An `Error` from stderr, such as OOM or a custom stream throwing an `AssertionError`, still reaches the app's logging call site. This matches your "don't replace app error handling" intent, but it's worth noting.
+3. **A blocked stderr would stall the app.** `println` runs while both the root category lock and the appender lock are held. If the launcher's stderr pipe filled up, logging threads would block. This can happen at most twice, so the risk is low.
+4. **The probe checks the appender type but not the count.** `appenders()` confirms every appender is a `SafeLogAppender`, but not that root has exactly one. A check for exactly one would catch a duplicate declaration.
+5. **Test cleanup is incomplete.** The NDC/MDC values aren't removed in `finally`. This is harmless in a one-shot probe.
+6. **The inventory's `limits` line is now historical.** It says "No logging configuration was changed", which was true when the inventory was taken but isn't true of this build. Consider noting that it predates the change. I also didn't confirm that `log4j_config_sha256` (`807caff9…`) equals `original_sha256` in `logging-patches.json`, because that file was out of scope. It's worth a one-line check.
+
+Disposition: added independent closed-first process, exact root appender count, and NDC/MDC cleanup. The inventory records the unchanged original configuration, not the candidate; its config hash equals the original logging-patches pin. RuntimeExceptions are contained; VM Errors and synchronous stderr blocking are explicit limitations. No UI-visible failure or application-wide confidentiality claim.

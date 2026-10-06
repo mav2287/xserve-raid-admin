@@ -453,3 +453,13 @@ fixtures, broader malformed-response and queue-order characterization, and
 controlled native UI qualification. App-wide logging, parser resource limits,
 physical Intel qualification, signing/notarization and real controller behavior
 remain open. Production hardware approval has not been given.
+
+## audit.5 offline continuation
+
+Added bounded credential-safe logging signals after full-JAR level-guard inspection
+and Claude design review. This does not close GUI-visible failure handling. Added
+synthetic firmware archive characterization without constructing the updater or
+contacting controllers; stored/deflated closed streams explain the two observed
+retry outcomes. Next safe scope remains firmware preflight validation and broader
+response/queue fixtures, followed by isolated native UI qualification. Full hardware
+and release acceptance remains outstanding.

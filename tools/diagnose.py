@@ -9,7 +9,7 @@ import re
 import socket
 import stat
 from pathlib import Path
-from baseline import tree, ROOT, VERSION
+from baseline import tree, ROOT, VERSION, BUNDLE_VERSION
 from audit_support import modes, digest, sha
 from runtime import directory_modes, runtime_manifest
 
@@ -63,7 +63,7 @@ def diagnose_checked(output):
             bundled.update(architecture=arch, tree_sha256=record['tree_sha256'])
             wanted_files = dict(expected['files']); wanted_modes = dict(expected['file_modes'])
             metadata = plistlib.loads((ROOT/'packaging/audit-Info.plist').read_bytes())
-            metadata.update(CFBundleIdentifier='org.xserve-raid-admin.audit', CFBundleShortVersionString=VERSION, CFBundleVersion='4')
+            metadata.update(CFBundleIdentifier='org.xserve-raid-admin.audit', CFBundleShortVersionString=VERSION, CFBundleVersion=BUNDLE_VERSION)
             import hashlib
             if hashlib.sha256(plistlib.dumps(metadata,sort_keys=True)).hexdigest() != wanted_files['Contents/Info.plist']:
                 raise ValueError('Reviewed plist template differs')
@@ -81,7 +81,7 @@ def diagnose_checked(output):
     commit = provenance.get('source_commit')
     # Do not relay arbitrary strings from manifests, environment, or preference stores.
     return {
-        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2', '1.5.1-modern.audit.3', '1.5.1-modern.audit.4') else 'unrecognized',
+        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2', '1.5.1-modern.audit.3', '1.5.1-modern.audit.4', '1.5.1-modern.audit.5') else 'unrecognized',
         'source_commit': commit if isinstance(commit,str) and re.fullmatch('[0-9a-f]{40}',commit) else 'unknown',
         'architecture': platform.machine() if platform.machine() in ('arm64','x86_64') else 'unrecognized',
         'macos': platform.mac_ver()[0] if re.fullmatch(r'[0-9]+(?:\.[0-9]+)*',platform.mac_ver()[0]) else 'unrecognized',

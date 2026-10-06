@@ -1,0 +1,103 @@
+{
+  "fixture_commit": "d82fa10fc90b88c4b4c7c253ba6a85f11375ce81",
+  "fixture_dirty": true,
+  "host_machine": "arm64",
+  "source_commit": "928a9c674b96cfdc73f35441a4bc0e8702a70759",
+  "source_dirty": true,
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "b6fdfab523768556f2c3c76190704c2319a9038efb43ebac05d66a3afebe70df",
+  "wrapper_entries": [
+    "com/apple/xsr/update/FirmwareBundleConnection.class"
+  ],
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "fixture_sources": {
+    "tests/java/FirmwareArchiveProbe.java": "d538b5c52a5a55c237da9d06435e9f52b1fef1b3bb7f5e427e3b8725232e8f39",
+    "tests/java/fixture/OfflineGuard.java": "910febc23c2d5cae719734ffd3398c2c485dca3c9ef17a410cb2188d38857d9b"
+  },
+  "tool_sha256": "22d3ff8ab397f3ccd5ee7ff7540e7af11170c87e72924c28522b501714eb0e2f",
+  "archives": {
+    "corrupt-local-header.xfb": "42be1679c41e317c3d3f3b1ac71210e09c0474bf25f66d9ea551160bd344879c",
+    "deflated.xfb": "4bb91bee4e7f2e5acc26dfa31c0dff2d2426f299c0d482b10ae1c39875ad1485",
+    "duplicate.xfb": "cbe3d9069454f11429770dcdd7b7a9bbb35241aaf4bfb9fe20e0a2408c9b568d",
+    "malformed.xfb": "8f52d2aaed91afa4cf12712db4fe6e42ab9191f7939ba6c8cd9e9419cccf060a",
+    "no-manifest.xfb": "19f1d9d1551b2279e5997703ef7186fe6c803ba8d5bc4d385b250dd0c6094966",
+    "stored.xfb": "4d2f97af8224df9f011afb00a5d5016338330c577b19e54e77f09675de145a45",
+    "truncated.xfb": "958a1f4777dd9fabacccf22cae1b7b60f7c9871d291d830a31861164577c8acb"
+  },
+  "zlib_version": "1.2.12",
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "runtime_tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "results": [
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ],
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ]
+      ]
+    },
+    {
+      "architecture": "x64",
+      "runtime_tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+      "results": [
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ],
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ]
+      ]
+    }
+  ],
+  "limits": "Synthetic local archive loading through byte-identical wrapper only. Original and candidate share each pinned runtime; this primarily characterizes JDK archive behavior. No real firmware validity, updater/preflight UI, cache changes, transmission, controller access or retry-queue qualification. On an arm64 host, successful x64 execution is inferred to use Rosetta; physical Intel qualification is not established."
+}

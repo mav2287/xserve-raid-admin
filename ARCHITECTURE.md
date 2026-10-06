@@ -11,6 +11,8 @@
 | `patches/com/apple/mrj/MRJApplicationUtils.java` | Modernization: reflective Desktop/EAWT menu registration | audit.3 selects EAWT/modern handler API correctly; original About/Prefs/Quit/OpenFiles callbacks forwarded; native event qualification open |
 | `patches/com/apple/mrj/MRJFileUtils.java` | audit.2 single-method Desktop folder bridge | Other original stubs preserved; GUI callers not yet qualified |
 | `patches/sun/io/MalformedInputException.java` | Modernization: restores exception type required by legacy communications bytecode | Message constructor discards message; no controller implementation |
+| `patches/compat/SafePlistResolver.java` | Original local DTD with external-resolution rejection | XML resource limits and real response compatibility open |
+| `patches/compat/SafeLogAppender.java` | Fixed severity signals without event rendering | Two synchronous writes maximum per process; GUI error states open |
 | `build.sh` | Delegates to the deterministic hash-locked audit builder | Refuses existing output; no signing, install, launch or cleanup |
 | `.gitignore` | Ignores generated builds/classes | New audit tooling also ignores Python caches |
 | `README.md` | Upstream build/usage claims | Claims of all functionality/all firmware support are not qualification evidence |
@@ -93,3 +95,14 @@ path classifications.
 expected user preferences folder, while MRJFileUtils Desktop lookup returns null.
 Runtime shadowing does not prove a broken boundary or favor transformation over
 an overlay; both use the same parent-first loading rules.
+
+## Logging preservation boundary
+
+`audit/logging-boundaries.json` scans 2,844 classes and 24,032 methods across the
+whole original JAR. Outside log4j internals, the only level-dependent direct calls
+are INFO/DEBUG guards in five methods. audit.5 leaves those disabled while
+enabling ERROR through the bounded fixed-code appender. The original logging
+configuration is preserved except its root assignment and an appended appender
+declaration; `audit/logging-patches.json` pins both versions. No other log4j
+class or resource changes. Reflection/external reconfiguration remain outside
+this static result. All controller command, polling and retry code is unchanged.

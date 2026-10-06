@@ -23,7 +23,7 @@ observable expected result, not the absence of an error dialog.
 | Connection | Quit/relaunch and reconnect |  |  |  |  | Not run |
 | Connection | One controller unavailable |  |  |  |  | Not run |
 | Connection | Controller timeout and later recovery |  |  |  |  | Not run |
-| Security | Password absent from all logs and diagnostics | Unsafe toString found statically | audit.4 request diagnostic redaction passes; app-wide logging unresolved | N/A | None | Open — [G04](GAPS.md#g04--credential-bearing-logging) |
+| Security | Password absent from all logs and diagnostics | Unsafe toString found statically | audit.4 request redaction and audit.5 bounded appender fixtures pass; other output paths unresolved | N/A | None | Open — [G04](GAPS.md#g04--credential-bearing-logging) |
 | Security | External XML entity/file/network access blocked | Fail: original and installed guarded fixtures | Pass: audit.4 guarded Reader/InputStream fixtures | N/A | Offline synthetic only; real response compatibility open | Partial — [G05](GAPS.md#g05--xml-external-resolution) |
 | Status | System overview |  |  |  |  | Not run |
 | Status | Both controller status pages |  |  |  |  | Not run |
@@ -153,3 +153,15 @@ and all non-target members. Request hierarchy inspection covers every original
 request diagnostic override. Password-change payloads and credential fields are
 redacted by the candidate. The original embedded DTD and valid plist fixture
 outputs match exactly. No controller operations or real credentials are involved.
+
+## Synthetic archive and logging characterization
+
+- FirmwareBundleConnection class bytes remain identical. Synthetic stored/deflated
+  archives exercise manifest/image attributes, continuation lines, missing manifest
+  and images, duplicates, corrupt local headers and truncation. Original and candidate
+  results match on both pinned runtimes. This does not pass firmware preflight UI,
+  real package validity, cache changes, transfer or restart acceptance rows.
+- The safe appender is tested through the actual candidate JAR configuration, with
+  hostile message/exception objects and synthetic private metadata. Only two fixed
+  codes are emitted per process, including after reconfiguration; write failures
+  do not escape. Other application outputs and visible GUI failures remain open.

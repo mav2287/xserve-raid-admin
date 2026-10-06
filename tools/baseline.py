@@ -23,10 +23,11 @@ PATCH_CLASSES = {
     'com/apple/mrj/MRJApplicationUtils.class',
     'com/apple/mrj/MRJApplicationUtils$Adapter.class',
     'com/apple/mrj/MRJApplicationUtils$RuntimeApi.class', 'sun/io/MalformedInputException.class',
-    'com/apple/mrj/MRJFileUtils.class', 'compat/SafePlistResolver.class',
+    'com/apple/mrj/MRJFileUtils.class', 'compat/SafePlistResolver.class', 'compat/SafeLogAppender.class',
 }
-ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd'}
-VERSION = '1.5.1-modern.audit.4'
+ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd', 'log4j.properties'}
+VERSION = '1.5.1-modern.audit.5'
+BUNDLE_VERSION = '5'
 
 
 def tree_hash(files):
@@ -87,6 +88,14 @@ def main():
             entries[name] = transform(name, entries[name])
             if hashlib.sha256(entries[name]).hexdigest() != security_lock[name]['patched_sha256']:
                 raise ValueError('Transformed method differs from reviewed golden bytes')
+        logging_lock = json.loads((ROOT / 'audit/logging-patches.json').read_text())
+        config = entries['log4j.properties']
+        if hashlib.sha256(config).hexdigest() != logging_lock['original_sha256'] or config.count(b'log4j.rootLogger=OFF\n') != 1:
+            raise ValueError('Original logging configuration changed')
+        config = config.replace(b'log4j.rootLogger=OFF\n', b'log4j.rootLogger=ERROR, safe\n') + b'\nlog4j.appender.safe=compat.SafeLogAppender\n'
+        if hashlib.sha256(config).hexdigest() != logging_lock['patched_sha256']:
+            raise ValueError('Logging configuration differs from reviewed bytes')
+        entries['log4j.properties'] = config
         entries.update(patches)
         entries['META-INF/MANIFEST.MF'] = b'Manifest-Version: 1.0\r\nMain-Class: Launcher\r\n\r\n'
         changes = {n for n, v in entries.items() if before.get(n) != hashlib.sha256(v).hexdigest()}
@@ -102,7 +111,7 @@ def main():
         plist = (ROOT / 'packaging/audit-Info.plist').read_text()
         metadata = plistlib.loads(plist.encode())
         metadata.update(CFBundleIdentifier='org.xserve-raid-admin.audit',
-                        CFBundleShortVersionString=VERSION, CFBundleVersion='4')
+                        CFBundleShortVersionString=VERSION, CFBundleVersion=BUNDLE_VERSION)
         (app / 'Contents/Info.plist').write_bytes(plistlib.dumps(metadata, sort_keys=True))
         launcher = (ROOT / 'packaging/audit-launcher').read_text()
         launchpath = app / 'Contents/MacOS/RAIDAdmin'
@@ -116,7 +125,7 @@ def main():
         files = tree(app)
         file_modes = modes(app)
         commit = subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD'], cwd=ROOT, env=isolated_env(), text=True).strip()
-        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'audit/security-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
+        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'audit/security-patches.json', ROOT / 'audit/logging-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
         provenance = {
             'schema': 2, 'purpose': 'unsigned offline audit build; not a qualified release',
             'apple_version': '1.5.1', 'compatibility_version': VERSION,

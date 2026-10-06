@@ -197,3 +197,26 @@ compiler is the complete hash-locked Java 8 installation; Python is a trusted ho
 prerequisite pinned by version, not independently authenticated executable bytes.
 These checks do not establish application-wide log confidentiality, XML resource
 limits, real controller response compatibility, or a qualified release.
+
+## audit.5 bounded logging milestone
+
+The candidate now attaches a final fixed-code logging appender at root ERROR.
+It emits only `RAID_ADMIN_ERROR` and `RAID_ADMIN_FATAL`, at most once each per
+process across reconfiguration. It never reads event messages, exception details,
+logger names or context. INFO/DEBUG guards remain disabled. No file appender is
+attached. The exact original and new config resource hashes are recorded in
+`audit/logging-patches.json`. Three subprocess modes test normal operation, a
+throwing stderr stream, and closing before the first error.
+
+Candidate JAR SHA-256:
+`b6fdfab523768556f2c3c76190704c2319a9038efb43ebac05d66a3afebe70df`.
+Audit bundle SHA-256:
+`04749cd671e34c1e212b92500514a85efaaa3e8e06953dbc7b3f329619179525`.
+The original logging branch inventory, actual-config fixtures, and Claude review
+are retained. Synchronous stderr may block logging threads; VM Errors are not
+swallowed. GUI failure visibility and other output paths remain unqualified.
+
+Synthetic firmware archive fixtures use only the unchanged archive wrapper. On
+both pinned runtimes, stored streams return EOF after close and deflated streams
+throw an I/O error. Duplicates select the later entry. These observations refine
+retry/preflight risk; they do not authorize or qualify firmware transmission.
