@@ -1,0 +1,14 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "entries": {
+    "com/apple/util/plist/PropertyListUtilities.class": "b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a",
+    "org/apache/xerces/impl/dtd/XMLDTDValidator.class": "201d987866fdf47b5ef6dcee19bd61d14ef36341acd137accbaddedfc02b26c6",
+    "org/apache/xerces/jaxp/SAXParserFactoryImpl.class": "8993a76ff3cb1a8d02df5da667bac34af17cdab85966348eeb06c4c7dc2ab5ca",
+    "META-INF/services/javax.xml.parsers.SAXParserFactory": "a0f46325a0e913acef8dd21eb78308e74cf31675aae1dd4a4acd4668e4d9c722"
+  },
+  "provider": "org.apache.xerces.jaxp.SAXParserFactoryImpl",
+  "facts": {
+    "getParser": "SAXParserFactory.newInstance; setValidating(true); newSAXParser",
+    "validation_stack_defect": "handleStartElement: offset-stack length versus element depth comparison at bytecode280 is if_icmpge to313; iastore at325 uses element depth. Equality skips resize and indexes outside array. Initial length32."
+  }
+}

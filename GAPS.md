@@ -22,7 +22,7 @@ The two bounded stderr writes are synchronous and could block error-logging thre
 
 ## G05 — XML external resolution
 
-Original, installed and earlier audit JARs resolve the known Apple DTD locally but permit external file entities and unknown-DTD network attempts. audit.4 substitutes only the resolver method: the exact original embedded DTD is retained and other external identifiers are rejected. Reader/InputStream fixtures, malformed/truncated inputs and external general/parameter entities pass without file or network access attempts. XML expansion/size/depth limits and real controller response fixtures remain open. Legacy external DTD variants outside the original Apple prefix are intentionally blocked and need real-data compatibility assessment.
+Original, installed and earlier audit JARs resolve the known Apple DTD locally but permit external file entities and unknown-DTD network attempts. audit.4 substitutes only the resolver method: the exact original embedded DTD is retained and other external identifiers are rejected. Reader/InputStream fixtures, malformed/truncated inputs and external general/parameter entities pass without file or network access attempts. XML expansion/size/depth limits and real controller response fixtures remain open. The actual bundled Xerces provider does not recognize the tested JDK controls; lowered-property positive controls affect the JDK parser but not the application parser. See [XML findings](audit/XML-RESOURCE-FINDINGS.md). Legacy external DTD variants outside the original Apple prefix are intentionally blocked and need real-data compatibility assessment.
 
 ## G06 — Controller and UI qualification
 
@@ -78,3 +78,13 @@ Actual authentication UI and controller framing remain unqualified; these
 observations do not establish authentication bypass. Parser limits, large positive
 allocation, persistent-stream desynchronization and visible errors remain open.
 No response interpretation or retry behavior has been changed.
+
+## G13 — Legacy XML validation stack growth
+
+Original and audit.5 reject small valid arrays at nesting 31 and above because
+XMLDTDValidator's offset-stack resize comparison skips equality, then indexes
+outside the array. Runtime SAX unwrapping and independent bytecode identify the
+defect. Depth 30 passes; the 31/32/128 cases fail identically through both input
+paths on both pinned runtimes. This must not be credited as a security quota.
+No bundled library was rewritten or replaced. A narrow parser-construction
+compatibility boundary is under review; [XML findings](audit/XML-RESOURCE-FINDINGS.md).

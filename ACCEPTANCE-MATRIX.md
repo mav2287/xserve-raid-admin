@@ -104,6 +104,7 @@ queried. Failures/open issues use local stable [gap IDs](GAPS.md).
 | Protocol | Two read requests after one response drop | Offline sends first–first–second on connections 1–2–2, callbacks in order with context retained. Concurrency and real reconnect unqualified — [findings](audit/HTTP-RESPONSE-FINDINGS.md) |
 | Harness | Network sockets prohibited in parity fixture | Pass: guard denial verified |
 | XML | Known Apple plist DTD remains local | Pass: all three JARs on locked JDK |
+| XML | Provider, quota controls and bounded nested/entity cases | Characterization complete on both pinned runtimes with JDK positive controls. Bundled parser controls unsupported; legacy depth defect identified. Functional/resource gaps remain open — [findings](audit/XML-RESOURCE-FINDINGS.md) |
 | Classloading | FileManager origin and preferences lookup | Runtime shadows shim on Corretto 8/11; guarded Java 8 preferences lookup passes. Shadowing alone is not a defect; [G02](GAPS.md#g02--runtime-and-classloading) |
 | Menus | Java 8 About/Preferences fallback | API mismatch observed; GUI not run; [G03](GAPS.md#g03--os-lifecycle-and-menus) |
 | Lifecycle | Quit saves state; open-document/open-application hooks | Not run; source no-ops require repair |

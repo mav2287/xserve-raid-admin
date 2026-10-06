@@ -16,6 +16,7 @@ Completed with actual Claude CLI model consultation plus the recorded automated 
 - Apple-served distribution acquisition: its JAR exactly matches the immutable reference.
 - Hash-only reads of the accompanying real firmware package through the unchanged wrapper, without updater/model/command construction.
 - Broader HTTP/ACP error fixtures: 21 direct replies, nine queued replies and two-request retry ordering, on both pinned runtimes. See [HTTP findings](HTTP-RESPONSE-FINDINGS.md); application parser behavior remains unchanged.
+- XML provider/resource characterization with JDK positive controls: bundled Xerces ignores the tested JDK settings. Eleven bounded cases also identify a legacy validation stack-growth defect — [XML findings](XML-RESOURCE-FINDINGS.md). Parser compatibility implementation is under review.
 
 Validation:
 

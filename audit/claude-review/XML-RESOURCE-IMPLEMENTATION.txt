@@ -1,0 +1,47 @@
+Actual Claude CLI read-only consultation.
+
+I found no privacy, provider-origin, input-bound or preservation defects. There is one real gap in how the lowered-property experiment is designed, plus three smaller issues. I only read the three files; I ran nothing.
+
+## Actionable defects
+
+**1. The lowered-property experiment has no positive control.** `check_xml_resources.py:34-35,61` and `PlistResourceProbe.java:82-95`
+
+The script requires output to be the same under default and lowered `jdk.xml.*` settings, and reads that sameness as "these limits don't govern the original parser." But nothing shows the lowered settings had any effect at all in that JVM. The same identical output would appear if:
+- a property name were misspelled, or
+- the pinned 8 runtime ignored one of these properties (for example, `maxElementDepth` only exists in later 8 updates).
+
+So the result can't separate "bundled Xerces 2.0 ignores the JDK limits" from "the experiment didn't work." Your thresholds are well chosen: in lowered mode, every limit except `maxGeneralEntitySizeLimit` (256) is exceeded by at least one case:
+- flat-512 has 512 expansions, against a limit of 32
+- flat-512 produces 3584 characters, against a total limit of 256
+- array depth reaches 129, against a limit of 16
+
+`maxGeneralEntitySizeLimit` is never exceeded. The largest single entity, `c`, expands to only 64 characters.
+
+What's missing is evidence that the JDK's own parser rejects the same input under the same flags.
+
+- **Fix:** In each run, parse one of the over-limit fixtures with the JDK-internal factory, `com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl`. Use `newInstance(className, null)` so the service-provider lookup is bypassed. Print a line saying which limit it hit, and expect different lines for default and lowered mode. To cover the fourth limit, either lower it below 64 or add a case where one entity is larger than 256 characters.
+- **Note:** Without this, the exact-equality check only shows that the output didn't change. It doesn't show that the limits were in force and ignored.
+
+**2. If a limit did fire, the run would be reported as a generic failure.** `check_xml_resources.py:55` vs `:61`
+
+If the bundled parser did enforce a lowered limit, the probe would throw an `AssertionError` or `SAXParseException`. That gives a non-zero exit, so the script raises `'XML resource fixture failed'`. It never reaches the `'XML observations differ; inspect before asserting limit support'` path. The one outcome this experiment exists to detect would be indistinguishable from a broken fixture.
+
+- **Fix:** In lowered mode, catch the parse failure inside `fixture()` and print a fixed line such as `fixture <label> rejected`. The difference then shows up through the comparison you designed for it.
+
+**3. Evidence is accepted from a dirty tree.** `check_xml_resources.py:29,67`
+
+Both new files are untracked, so `fixture_commit` (currently `4f1249a`) doesn't contain the probe that produced the evidence. `source_hashes` does tie the evidence to the exact sources, but your previous commit's message describes its evidence as "clean". If that's the standard, refuse to run when `dirty` is true, or at least exclude the evidence from anything you call clean.
+
+**4. Typos in the recorded `limits` text.** `check_xml_resources.py:72`
+
+The text reads `below131072`, `most3584` and `most128`; each is missing a space. Since this string becomes part of the committed evidence, it's worth fixing now.
+
+## Checked, no defect
+
+- **Privacy:** Raw stdout/stderr is withheld whenever something fails, and output must be ASCII lines in a fixed format. The only values recorded are hashes, the relative source paths in `source_hashes`, and the host architecture. `user.home` points at the temp directory, and log4j and the console streams are captured or silenced.
+- **Provider origin:** The probe checks both the factory class and the reader returned by the app's own `getParser` by class name and by `CodeSource`, against the resolved JAR path. This runs for both the original and the candidate JAR. `java.endorsed.dirs` is empty and `ext.dirs` is pinned. It also confirms validation is on, and that secure processing and the Oracle limit properties are reported as recognized or not.
+- **Input bounds:** The 131,072-character cap is checked on both input and canonical output. The case sizes match your description: flat 512 entities giving 3,584 characters, nested 4×4×4 = 64, depths 8/32/128, 4K/64K strings, and 32,768 × `é`. Each run has `-Xmx64m`, `-Xss1m` and a 20-second timeout. There's no growth loop.
+- **Completeness and preservation:** All nine cases parse through both Reader and InputStream. Re-parsing the canonical output gives the same result, and the Reader and InputStream hashes match. The output lines must be identical across 2 runtimes × 2 JARs × 2 modes. Sources, the candidate, the original, the compiler and the runtimes are all re-verified after the runs. `OfflineGuard` counts blocked operations even if the parser swallows the exception, so an unresolved DTD fetch would be caught. Nothing in these files changes the application's parser or launcher.
+- **Overclaiming:** The `limits` text correctly rules out crash thresholds, exhaustion testing, real controller sizes and UI qualification. It labels the lowered properties as experimental subprocess flags. Its one weakness is the missing control in item 1.
+
+Disposition: Provider override verified in original JAR; original stack bug identified independently. Added JDK-provider positive controls, larger single-entity control, explicit rejected-input categories and direct-readXML cause reproduction. Combined size controls are not separately attributed. Evidence records dirty state during development and is rerun after source commit before being called clean. No production limits changed.

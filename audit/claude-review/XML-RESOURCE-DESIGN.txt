@@ -1,0 +1,82 @@
+Actual Claude CLI read-only consultation.
+
+I read only the four files and ran nothing. **My recommendation: make this milestone characterization plus a regression lock. Don't add a new limit yet.** The only limit that's clearly preservation-compatible is one that rejects inputs the original already fails on. Right now there's no evidence of where those failure points are, or whether the JDK's built-in limits already cover this parser path.
+
+## What the four files do and don't establish
+
+- **Established:** the resolver is the only part patched for XML (`tools/class_patch.py:5-13`). It returns a `StringReader` `InputSource` with no system ID (`SafePlistResolver.java:24`). The embedded DTD is capped at 4096 bytes and uses parameter entities: `class_patch.py:77` matches `<!ENTITY % plistObject`. So every valid parse already performs some entity expansions.
+- **Not established:**
+  - Which `SAXParserFactory`/`XMLReader` implementation `PropertyList` actually uses.
+  - What features it sets: validating, namespaces, explicit secure processing.
+  - Whether `Handler` or `writeXML` recurse.
+  - How a parser limit error surfaces: as `PropertyListException`/-103, or as something that enters the unbounded retry path in G10.
+
+  None of these four files show the parser-construction site. That's the first thing to inspect next: `PropertyList`/`PropertyListUtilities` bytecode.
+
+## Safe JAXP defaults vs. arbitrary behavior changes
+
+| Option | Category | Notes |
+|---|---|---|
+| Keep the JDK built-in limits that are already active by default (expected: about 64000 entity expansions, a total entity size limit, and unlimited depth on JDK 8; **verify on the pinned build**) | Safe default | No change if the evidence shows they already govern this path |
+| Explicit limit values equal to the JDK defaults | Safe default (pinning) | Only guards against overrides from environment or `jaxp.properties` |
+| Build check: no `jaxp.properties`/`jdk.xml.*` overrides in the bundled runtime, and no `META-INF/services` parser override in the app JAR | Safe | Cheap, fits the deterministic build (G08) |
+| Setting `FEATURE_SECURE_PROCESSING` explicitly | **Must be measured** | On JDK 8 the explicit API call also tightens `accessExternalDTD`. A reader-backed resolver result probably bypasses that check, but the Apple-header fixtures have to prove it |
+| `external-general-entities=false` | **Behavior change, and weaker** | Xerces skips the reference without calling the resolver, so `&x;` silently becomes empty text instead of being rejected. This would break the existing `SecurityProbe.java:71` rejection |
+| `load-external-dtd=false` | **Behavior change** | Loses the embedded DTD's defaults (e.g. the `plist` `version` attribute default) and breaks validation if the parser is validating |
+| `disallow-doctype-decl` | **Breaks valid input** | Every plist has a DOCTYPE |
+| `maxElementDepth=N`, or any byte/string/data cap | **Arbitrary unless justified** | Needs evidence (see the criterion below) |
+
+**Preservation criterion for any new limit:** every input it rejects must already fail in the original on the pinned runtime, through an exception, `StackOverflowError` or OOM. A limit like that only turns a crash into a `PropertyListException`. A value below that point needs real controller response fixtures, and G05/G06 say none exist.
+
+## Proposed offline fixtures (new probe in the style of SecurityProbe)
+
+Run each case against the original and the audit candidate, through both the Reader and InputStream paths. Each run happens in a separate subprocess with fixed `-Xmx64m`, `OfflineGuard.install()` and `assertUntouched()`. Record outcomes and canonical digests; don't assert them in advance.
+
+**F: factory and runtime facts (no parsing load)**
+- **F1:** record `java.version`/vendor, the concrete factory/reader classes reached from the `PropertyList` path, any `jdk.xml.*` system properties, whether `jaxp.properties` is present in the pinned runtime, and any service-loader override in the app JAR. If the app bundles its own Xerces, the JDK limits don't apply and the rest of this plan changes.
+- **F2:** read the effective limits through `SAXParser.getProperty` with the Oracle JAXP property names, where supported.
+
+**E: entity expansion (modest; the limit is lowered instead of the input being grown)**
+- **E0:** the existing 9 valid nodes with default limits. This is the baseline.
+- **E1:** Apple header plus an internal subset `[<!ENTITY a "fixture">]` and `<string>&a;</string>`. Does the original accept an internal subset next to the Apple DTD at all?
+- **E2:** 3 nesting levels with fan-out 4, so 64 expansions and well under 1 KB of output.
+- **E3:** in a subprocess, step `-Djdk.xml.entityExpansionLimit` (for example by binary search between 1 and 200) over E0. That gives the minimal limit B the DTD itself needs, which is the headroom evidence. Then show E2 fails just above B. This proves the limit mechanism governs this code path without any large expansion.
+- **E4:** a lowered `totalEntitySizeLimit`/`maxGeneralEntitySizeLimit` (for example 256) with one 512-character entity.
+- **E5:** an internal (not external) parameter entity that declares a general entity.
+
+**D: nested arrays and dicts**
+- **D1:** arrays nested 8, 32, 128, 512 and 1024 deep (about 15 KB at most), plus dicts at 32 and 128. Run parse, canonical output, roundtrip and a root traversal.
+- **D2:** run at the default `-Xss` and record it. If an Error appears, record its type and the depth, and stop escalating; cap the search at 4096.
+- **D3:** `-Djdk.xml.maxElementDepth=16` with depth 32. Does the property exist on the pinned 8u build, and does it surface as `PropertyListException`?
+
+**S: large but bounded string and data**
+- **S1:** ASCII `<string>` of 4 KiB, 64 KiB and 1 MiB.
+- **S2:** 64 KiB containing `é` (multibyte, and the Reader and stream paths differ).
+- **S3:** about 70,000 `&amp;` references and about 70,000 `&#233;` references, roughly 350–420 KB each. Do predefined or character references count toward the expansion limit? If the original already rejects these, that's preservation-neutral, but it has to be known.
+- **S4:** `<data>` with base64 of 3 KiB, 48 KiB and 768 KiB, both with Apple-style 76-column line breaks and without them.
+
+**Q: queue integration (decision gate)**
+- **Q1:** use the existing memory-only HTTP fixture and serve E2 under a lowered limit. Expect -103, one send and no requeue. If a limit error takes the I/O retry path instead, any limit would cause repeated sends (G10). That would block implementation.
+
+## Boundary candidates, ranked
+
+1. **No bytecode change.** If F and E3 show the JDK parser with default limits on this path, lock that with a regression test (implementation class plus lowered-limit proof) and a build check for override files. That closes "expansion" for G05.
+2. **Launcher `-Djdk.xml.*` set to the JDK defaults.** This affects every parser in the process, including any log4j XML configuration. Because the values equal the defaults, behavior is unchanged; it only adds protection against `jaxp.properties` overrides. It only defends anything if F1 shows those vectors are reachable.
+3. **A single hash-locked method substitution at the `PropertyList` parser-construction method,** delegating to a compat factory. The compat factory would reproduce the original configuration exactly and add only `maxElementDepth`, set from the D2 failure threshold. This is only justified if D finds a crash depth and the method is small and self-contained. Two tooling gaps:
+   - `class_patch.py:103-114` supports only two code shapes, and `stack, local = 2, 3` is hardcoded for the resolver. A new delegate shape would need `max_locals` derived from the descriptor and handling of static vs. instance methods.
+   - The delegate must reproduce every original side effect, because the whole method body is replaced.
+
+   Patching `Handler.startElement` for depth would not be a straight-line replacement, so I'd rule it out.
+4. **Byte, string or data size caps: defer.** JAXP doesn't bound plain document text. The real control point is the HTTP body allocation (G12), and choosing a value there needs controller evidence. S1 and S4 give a memory-scaling ratio, not a limit.
+
+## Evidence needed before implementing anything
+
+1. F1/F2 show the parser implementation, and E3 proves the limit mechanism is active on the path, with the baseline B recorded.
+2. All known valid fixtures pass with headroom on both the original and the candidate. Synthetic fixtures only for now; record that gap explicitly.
+3. D2 shows whether the original fails at some depth. Note that the stack size of the parsing thread (queue thread vs. EDT) affects this and must be identified.
+4. Q1 shows a limit error maps to -103 without a retry.
+5. Results are recorded per pinned 8u build, because the available limit properties have changed across 8u updates.
+
+If gates 1 and 4 pass and D finds no crash, the milestone ends at candidate 1 and G05 should record "expansion bounded by JDK defaults (evidence); depth and size open pending real fixtures."
+
+Disposition: Provider override verified in original JAR; original stack bug identified independently. Added JDK-provider positive controls, larger single-entity control, explicit rejected-input categories and direct-readXML cause reproduction. Combined size controls are not separately attributed. Evidence records dirty state during development and is rerun after source commit before being called clean. No production limits changed.
