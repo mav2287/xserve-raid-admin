@@ -1,0 +1,14 @@
+{
+  "security": "a36bfe30841b0968a4c216e59dbed37e81dec2deadae50b709c379329afecab7",
+  "transport": "7b663a49e099ac00923d21512e1c5a6ab461b7c0444756d2aabd20d59a451589",
+  "runtime": "fbe577c8a4f93752ea83c1fb33238c9ffc9a9629aa749421c70f9f86ca659ffd",
+  "resources": "8d3eb36999d4d948c948e8ce12fff2770fcba750b70572025cafacbfe38cb743",
+  "shared": "af2a6041c3db1928bf7e3ee33e71bb65d0b26c1a2e3a40ff33f3abbbd44a233b",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "source_commit": "53e902e",
+  "fixture_packager_commit": "e22e837",
+  "python_tests_passed": 60
+}

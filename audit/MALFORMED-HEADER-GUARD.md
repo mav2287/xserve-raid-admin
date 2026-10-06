@@ -79,3 +79,25 @@ requires the header corpus; IO comparison unit tests require explicit fixed/lega
 vectors; metadata describes sync/CLI/outcome limits. Colonless-only flag/codec/
 logger variants are distinguished from empty-name pair/direct coverage. Clean
 qualification reruns all prior candidate-only transport restrictions.
+
+## Clean artifact record
+
+Clean application source `53e902e`, fixture/package anchor `e22e837`. Two app
+builds have identical JAR SHA-256
+`744efeba288e16aac97cf5bd53b2b87300fe7469bda59e16533df8e20fd63f6b`
+and audit bundle digest
+`27f28438190bc844c345463a2b8bb5d73efc084858e670f7e30120d44234b2ed`.
+Both repeated runtime packages match, including modes and vendor signatures.
+Arm64 bundle: `20f197766d5a582bbbd93dcc30fccdaded59a2ed5ce51ae593e61e696f32f56e`.
+x64 bundle: `808f6f7729f97613d62d5ad24b250d893a997f8ae49f08067cd046ca8679163c`.
+Exactly 25 JAR entries differ from the immutable original.
+
+Clean [security](invalid-header-clean-security.json),
+[transport](invalid-header-clean-transport.json),
+[runtime](invalid-header-clean-runtime.json),
+[XML resources](invalid-header-clean-resources.json),
+[shared stream](invalid-header-clean-shared.json) and
+[packages](invalid-header-bundle-results.json) qualify this artifact locally.
+[Integrity](invalid-header-final-integrity.json) confirms fixture/tool hashes,
+60 passing Python tests, immutable original digest and installed reference
+contents/modes unchanged. Java 11 was not rerun for this milestone.
