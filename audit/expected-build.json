@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "daccae254c6096f79e659b64b551e4b397c656a66e910b9b40b83e835ba51952",
-  "reason": "Development audit.14 anchor for reviewed security-session containment; clean reproduction pending",
+  "previous_record_sha256": "29bcaefc2d90bf8aa83a9bbb00d76187db09e44935184d09e52e44a3bd575bea",
+  "reason": "Reviewed audit.14 exact-security-marker local session containment; two clean builds from 028165a match and ordinary IO replay remains unqualified",
   "schema": 1,
-  "source_commit": "8b03eadd033c5087b733fd448313df2af007791e",
-  "source_dirty": true
+  "source_commit": "028165ae5553c333b29c724b17e03a28326a932d",
+  "source_dirty": false
 }
