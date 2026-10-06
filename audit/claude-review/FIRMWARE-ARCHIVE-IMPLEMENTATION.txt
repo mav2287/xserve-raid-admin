@@ -1,0 +1,22 @@
+I reviewed both files. Everything you asked me to confirm checks out, and I found five defects, all low severity. I didn't run anything or read the helper modules (`audit_support`, `runtime`, `verify_builds`, `baseline`), so this assumes they do what their names say.
+
+**Confirmed**
+- **Guard order:** `OfflineGuard.install()` runs first, and `assertUntouched()` is in `finally` (`FirmwareArchiveProbe.java:50,73`). Referencing `FirmwareBundleConnection.class` beforehand doesn't initialize the class.
+- **Synthetic fixtures only:** everything is built in a temp dir, and the symlink/non-file check runs before hashing. Nothing touches real firmware, `FirmwareUpdater`, the app or controller models, or the network.
+- **Wrapper unchanged:** the wrapper class bytes match between original and candidate (`check_firmware_archives.py:56-58`). The probe also checks at runtime that the class was loaded from the jar it was given (`:52-53`).
+- **Build gate:** `check_artifact` must match `EXPECTED` before the candidate is used.
+- **Runtime pins:** each runtime is identified by its contents, then checked again after both runs (`:67-72,85`).
+- **Fixed error labels:** failures and timeouts raise fixed messages and withhold stderr, and the probe maps exceptions to fixed labels (`ZIP_ERROR`, `MISSING_ENTRY`, `IO_ERROR`).
+
+**Defects**
+1. **The guard and probe classes can be replaced by classes in the jar** (`check_firmware_archives.py:79`). The classpath puts the jar first, then the compiled classes. If the jar contains `fixture/OfflineGuard` or `FirmwareArchiveProbe`, the JVM loads that copy instead. The probe checks where the wrapper came from, but not where it and the guard came from. Fix: put the compiled classes directory first (the wrapper check still catches a substituted wrapper), or also check the guard's and probe's load location.
+2. **The wrapper comparison only goes one way** (`:57-58`). It only checks the class names that exist in the original jar. An extra `FirmwareBundleConnection*.class` in the candidate wouldn't be noticed. Fix: compare the full set of matching names in both jars, then the bytes.
+3. **Nothing makes sure both architectures ran.** The script accepts a single `--runtime`, or the same runtime twice. That both pinned runs passed is your report; the tool doesn't enforce it. Fix: require exactly one runtime for each of `aarch64` and `x64`, with no repeats.
+4. **One error path skips the fixed labels** (`:83`). `stdout.decode('ascii')` can raise an uncaught `UnicodeDecodeError`, and that message includes a raw byte value. Fix: catch it and raise a fixed label.
+5. **Two lines claim more than they've checked:**
+   - The `limits` text always says the x64 runtime ran under Rosetta, whatever the host was or which runtimes actually ran (`:91`).
+   - The probe prints `guarded_operations=0` before `assertUntouched()` runs (`:72`). A guard failure still fails the run (non-zero exit plus stderr), so this only matters for how the output reads.
+
+One more point: the probe, the tool and `OfflineGuard` aren't committed yet, and the report's `source_commit` refers to the build, not to them. Their SHA-256 hashes in the report are the only record of which versions ran, so commit them before using the result as evidence.
+
+Disposition: fixture directory precedes candidate and wrapper code-source identity is verified; complete wrapper entry sets are compared; both distinct pinned architectures required; decoding errors fixed-label; host architecture and fixture commit/dirty recorded; success is printed only after final guard assertion. The guard itself was already committed in 631b638. Final evidence is regenerated from committed fixture source.

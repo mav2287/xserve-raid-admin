@@ -1,0 +1,34 @@
+I read only `tests/java/fixture/OfflineGuard.java` and `tools/check_transport.py`. The overall scope is sound: use only the original wrapper, a synthetic ZIP, and no updater, model or socket code. I found four scope problems and three guard problems that should be settled before the tool is written.
+
+## Scope problems
+
+1. **The differential mostly tests the JDK, not the candidate.** `FirmwareBundleConnection` only passes calls through to `JarURLConnection`. If its class bytes are confirmed unchanged and both jars run on the same locked JDK (as `check_transport.py` does with one `--jdk`), matching results are almost guaranteed. They show little about the candidate. The comparison only means something if "both runtimes" means the two different bundled JREs (original vs candidate). If that's the intent, the tool must take and verify both runtime identities, not one `--jdk`. If it isn't, the `limits` text should say this is a characterization of the JDK's archive loading through an unchanged wrapper.
+
+2. **"Gates the candidate using a reviewed expected artifact" isn't an existing convention.** `check_transport.py` only runs `verify_original` and compares the shim's bytes (`tools/check_transport.py:18,27`). It never checks the candidate against an expected hash, so the new tool needs its own check against a reviewed lock. The byte comparison should also cover:
+   - `com/apple/xsr/update/FirmwareBundleConnection.class`
+   - any `FirmwareBundleConnection$*.class` inner classes
+   - the existing `sun/io/MalformedInputException.class` shim, if the fixture puts it on the classpath.
+
+3. **The fixture directory can shadow the jar under test.** The convention puts `tmp` before the jar on the classpath (`check_transport.py:30`). If the fixture is compiled into the `com.apple.xsr.update` package, it could shadow the class. Put the fixture in its own package. Have Java report the wrapper class's code source location and have Python assert that it equals the jar under test.
+
+4. **Exception messages won't be stable labels.** Messages from malformed or missing archives include absolute paths and differ between JDK zip implementations (native before JDK 9, Java after). Record only the exception class name, normalized to a fixed set of labels. Manifest `Attributes` is a hash map, so sort keys before hashing.
+
+## Guard problems
+
+1. **Write the archives before the JVM starts.** `checkWrite` and `checkDelete` deny everything (`OfflineGuard.java:24-25`). That's correct, so Python must create every archive before launching Java. Python should also confirm each fixture path is a regular file and not a symlink. `checkRead` normalizes paths without resolving symlinks (`OfflineGuard.java:19`), so a symlink could read a preferences file without tripping the guard.
+
+2. **Install the guard as the first statement in `main`, and assert in a `finally`.** Installing it before the wrapper class loads covers any static initializer. Calling `assertUntouched()` in a `finally` block means a caught `SecurityException` can never show up as a normal result label.
+
+3. **Remote URLs are only partly covered.** `openConnection` on a `jar:http:` URL doesn't connect, so the guard won't fire unless something later calls `connect`. Limit constructor-rejection tests to non-jar strings like `file:` and plain paths. If a remote URL is ever used, a denial from `checkConnect` is the expected safety net, not a result.
+
+Also, any JDK from 18 on needs `-Djava.security.manager=allow` for `System.setSecurityManager`. That only matters if a bundled runtime is that new.
+
+## Test recommendations
+
+- **Cache isolation.** `JarURLConnection` caches `JarFile` objects per URL by default, and the closed-stream behavior depends on that cache. Use a separate file name per case, or one JVM per case, so results don't depend on test order. If you call `URLConnection.setDefaultUseCaches`, record it and apply it the same way in both runs.
+- **Both URL forms.** Test `jar:file:…!/` (no entry: `getAttributes`/`getEntryName` return null) and `jar:file:…!/entry`. A missing entry fails at connect time, on the first `getManifest` or `getInputStream`, not in the constructor. Record which call throws.
+- **Manifest layout.** Put the three keys in the main section. Put the version/date attributes in named `Name:` sections that match the entries exactly. Add one case where a named section has no matching entry, and one with a 72-byte continuation line.
+- **Archive variants.** Cover stored and deflated entries, duplicate entry names, a valid central directory with a corrupt local header (fails on read, not open), and a file truncated inside the central directory. Leave out zip bombs and zip64.
+- **No signing files.** Make sure there are no `META-INF/*.SF`/`.RSA` files, so jar signature verification isn't exercised by accident.
+- **Reproducible archives.** Fix `ZipInfo.date_time` and the entry order so fixture hashes are reproducible. Record those hashes alongside `fixture_sources`.
+- **Output and `limits`.** Keep the `{jar_sha256, results}` output shape and the `-Djava.awt.headless=true`, `-Duser.home`, `timeout=` conventions. Keep the ZIPs in a subdirectory of `tmp` that isn't on the classpath. The `limits` text should say: archive loading only, same/different JDK as applicable, wrapper bytes verified identical, no updater, preflight UI or real-firmware validity.
