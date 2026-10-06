@@ -1,0 +1,319 @@
+{
+  "source_full_sha256": "7af1e025cd95ec096ad4b5920c43993b06228f9433c699df5a56a6a19730b630",
+  "selected_sha256": "e49ff57917a0679e7602de71865f86e6c5cf29616a74fc59315e7ea3001c4888",
+  "methods": [
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public com.apple.xsr.net.HttpConnection(java.lang.String) throws java.io.IOException, java.net.UnknownHostException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public com.apple.xsr.net.HttpRequest newRequest(java.lang.String) throws java.io.IOException, java.net.MalformedURLException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public com.apple.xsr.net.HttpResponse getResponse() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void connect() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void disconnect() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void open() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void close() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public boolean isConnected();"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void setPersistent(boolean);"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public boolean isPersistent();"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void setTimeout(int) throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public int getTimeout() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "java.io.OutputStream getOutputStream() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "java.io.InputStream getInputStream() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "void setRequestOutstanding(boolean);"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "void setRequestSent(boolean);"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "private void createSocket(int) throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "static java.lang.Class class$(java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "static {};"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public com.apple.xsr.net.AcpxConnection(java.lang.String) throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public void close() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public void disconnect() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public com.apple.util.plist.PropertyList send(com.apple.xsr.net.RequestMessage) throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public java.lang.String getHostAddress();"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public java.lang.String getHost();"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public void setPersistent(boolean);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public void setEncrypted(boolean);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "private void createConnection() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "private void addHeaders(com.apple.xsr.net.HttpRequest, com.apple.xsr.net.RequestMessage);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "static java.lang.Class class$(java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "static {};"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public com.apple.xsr.net.AbstractRequestMessage();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public com.apple.xsr.net.AbstractRequestMessage(com.apple.xsr.net.RequestMessage$Target, int, java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public com.apple.xsr.net.AbstractRequestMessage(com.apple.xsr.net.RequestMessage$Target, int, java.lang.String, java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public com.apple.xsr.net.RequestMessage$Target getTargetController();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setTargetController(com.apple.xsr.net.RequestMessage$Target);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public int getTimeout();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setTimeout(int);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String getPath();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String getCommand();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setUser(java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String getUser();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setPassword(java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String getPassword();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setShutdownConnection(boolean);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public boolean getShutdownConnection();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setRestartConnection(boolean, int);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public int getRestartConnection();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public void setRequestProperty(java.lang.String, java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String getRequestProperty(java.lang.String);"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String[] getRequestProperties();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.String toString();"
+    },
+    {
+      "class": "com.apple.xsr.net.AbstractRequestMessage",
+      "method": "public java.lang.Object clone();"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager$SyncSender",
+      "method": "public com.apple.xsr.net.CommunicationsManager$SyncSender(com.apple.xsr.net.CommunicationsManager, com.apple.xsr.net.RequestMessage);"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager$SyncSender",
+      "method": "public synchronized void handleResponse(com.apple.xsr.som.RaidSystem, com.apple.xsr.net.Response, java.lang.Object);"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager$SyncSender",
+      "method": "public synchronized com.apple.xsr.net.Response getResponse();"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage) throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "public synchronized void shutdown();"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "public void run();"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "private void doConnect(com.apple.xsr.net.CommunicationHandler);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxMessageFactory",
+      "method": "public com.apple.xsr.net.AcpxMessageFactory();"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxMessageFactory",
+      "method": "public com.apple.xsr.net.AcpxMessageFactory(int);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxMessageFactory",
+      "method": "public int getDefaultTimeout();"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxMessageFactory",
+      "method": "public void setDefaultTimeout(int);"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxMessageFactory",
+      "method": "public com.apple.xsr.net.RequestMessage newUpdateFirmwareRequest(int, int, java.lang.String) throws java.io.FileNotFoundException;"
+    },
+    {
+      "class": "com.apple.xsr.update.FirmwareUpdater$UpdateThread",
+      "method": "public void run();"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "public synchronized void updateImmediately();"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "public void run();"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "public synchronized void terminate();"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "public synchronized void shutdown();"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doPowerStateUpdate() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doStandbyUpdate() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doSystemControllerUpdate() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doTimeUpdate() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doEventLogUpdate() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doDeviceUpdate() throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doRaidControllerUpdate(int) throws java.io.IOException;"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doThermalUpdate() throws java.io.IOException;"
+    }
+  ],
+  "scope": "Complete selected source methods, not runtime calls."
+}

@@ -6,7 +6,7 @@ Facts below derive from the hash-verified candidate JAR, its `javap -c -p -const
 
 ## Transport
 
-- `HttpConnection`: scheme `http`, port 80, connection timeout 5,000 ms, default socket timeout 30,000 ms. No TLS transport is implemented. This does not prove that every possible firmware lacks another endpoint.
+- `HttpConnection`: scheme `http`, port 80, no explicit application connect deadline, normally 30,000 ms per socket read (setup-error caveat in [source correction](audit/TRANSPORT-TIMEOUTS.md)). No TLS transport is implemented. This does not prove that every possible firmware lacks another endpoint.
 - `HttpRequest`: defaults to POST, HTTP/1.1 and `Content-Type: application/xml`. Credentials are carried by `AcpxConnection.addHeaders` as `ACP-User` and `ACP-Password`; never log their values.
 - `AcpxConnection` defaults to persistent and unencrypted; adds `Apple-Xsync` when a target is present and `Connection: close` for shutdown/restart/nonpersistent requests. Optional `Content-Encoding: acp-crypt` is body handling, not TLS and does not protect credential headers.
 - Important fidelity detail: `HttpRequest` defaults its user agent to `Apple-Xserve_RAID_Admin/1.5.1`, but `AcpxConnection.addHeaders` overrides it to **`Apple-Xserve_RAID_Admin/1.6.0`**. Preserve this discrepancy until reviewed wire evidence justifies changing it.

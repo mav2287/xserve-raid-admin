@@ -1,0 +1,71 @@
+I re-read the original-JAR bytecode for U1–U4 in read-only mode, without running commands or making edits. The result: the alternate design is safer and more faithful to the original than calling the handler immediately on the caller's thread. I recommend it, with three conditions and a few remaining blockers below. The real UI's runtime behaviour is still unqualified.
+
+## U1–U4 closure
+
+- **Who can reach the Manager [fact]:** across the whole JAR, the only fieldrefs typed as `CommunicationsManager` are `SyncSender.this$0`, `RaidSystem.comms` and `RaidSystemAgent.comms`. Each is read only inside its own class. No `monitorenter` in the dump is on a Manager. **U2 is closed.**
+- **Constructor publication [fact]:** `RaidSystem`, `RaidController`, `SystemController` and `RaidSystemAgent` only use `putstatic` in static initializers, and none registers a listener in its constructor. `CommunicationsManager(RaidSystem)` (`post-exit-final-source.javap:9747`) sets `system` and then starts its own `CommMgr` thread with `this`. That `this` reaches only its own thread, and `Thread.start` makes the fields visible to it. Nothing global holds the Manager. **U4 is closed.**
+- **`putValue` [fact]:** `AbstractShutdownAction` and `AbstractServiceIDAction` don't override it; their constructors just call it three times (`:4`, `:72`). They extend `javax.swing.AbstractAction` directly. **Closed.**
+- **Which thread runs dismissal:**
+  - **[fact]** `AquaAlert$1` is an `ActionListener` that calls `access$000`. `AnimateUpThread.run` animates on its own thread and then calls `invokeLater(AquaAlert$4)` (`:310-323`).
+  - **[inference]** Both auth `allowAquaAlertToBeDismissed` and `aquaAlertDismissed` therefore run on the EDT.
+  - **[unresolved]** The body of `AquaAlert$4.run` isn't in either dump.
+- **Selection listeners [fact]:**
+  - `SystemTable.setSelectedSystem` calls `stopCellEditing` and `setRowSelectionInterval` (`:8509`).
+  - The registered listeners are:
+    - `SystemTable$4`: `cancelPopup`
+    - `SystemMonitorWindow$1`: `getSelectedSystems`, `Action.setEnabled`, `SystemInfoPane.setSystem`
+    - `SystemMonitorController$10`: `updateMenuActionStatus`
+  - `updateMenuActionStatus` returns early if the menu bar is disabled. Otherwise it calls the unsynchronized getters `getPowerState`, `getServiceIdState` and `getManagementPasswordSaved`, plus `setEnabled`/`putValue`.
+  - **[unresolved]** `SystemInfoPane.setSystem`, the inherited `getEmailNotificationStatus`, and the cell editors' `stopCellEditing`.
+- **Agent wrappers [fact]:** the handler the Manager actually receives from `connect`/`authenticate` is `RaidSystemAgent$1` or `$2`. On -102 these log "Unexpected response", forward to the principal handler if it isn't null, and don't post again (`full.javap:27907`, `:28133`). `ManagementAuthenticationListener` on -102 only hides the clock and stops its timer. `ManagementSessionAuthenticationListener` does nothing. `AddSystemAction` only calls `setSelectedSystem` when `systemsAdded==1`.
+
+## Lock-cycle risk with the immediate callback
+
+- **[fact]** The Agent thread holds the Agent monitor only around flag writes. `setChanged`/`notifyObservers` run without it (`:22941`, `:23047`).
+- **[fact]** `RaidSystem.clear()` is synchronized and calls `setChanged` → `notifyObservers` while holding the `RaidSystem` monitor. It is reached from `updateImmediately(true)`.
+- **[inference]** No source path shows a thread holding the tree lock or the `RaidSystem` monitor and then calling a synchronized Agent method. So a deadlock is unlikely. But under the immediate design, the EDT holds the Agent monitor while it runs `setVisible(false)` (which takes the tree lock), the full selection-listener chain, and code I couldn't see (`SystemInfoPane.setSystem`, `getEmailNotificationStatus`, any `clear()` observers). The source can't close that.
+
+## The alternate design: yes, with conditions
+
+**Why it's better:**
+- **Lock edge:** under the Agent monitor, a refusal only takes the queue monitor and `EventQueue`'s internal lock. The Agent → tree lock and Agent → `RaidSystem` edges go away, and so do callbacks re-entering from inside `allowAquaAlertToBeDismissed` or the `AddSystemAction` connect loop. The unresolved Swing methods then run on the EDT without the Agent monitor, as the original code intended.
+- **Ordering:** in the original, callbacks ran after the poster returned. The deferred callback keeps that order:
+  - `AddSystemAction`: the callback runs after the menu bar is re-enabled at PC176. `updateMenuActionStatus` then runs fully instead of returning early at PC41, as it did in the immediate design.
+  - `ShutdownAction` (PC131) and `ServiceIDAction` (PC89): their model writes after posting happen before the relabel, which fixes the order mismatch noted in the previous closure.
+- **Thread:** every known handler's -102 branch touches Swing, so the EDT is the right thread for it. The original's `CommMgr`-thread callbacks broke Swing threading. After a stop the `CommMgr` thread is gone, so the "original thread" isn't available for refused posts anyway.
+- **Sync path [fact]:** `SyncSender.handleResponse` takes only its own monitor. Called before the constructor's `monitorenter` at PC23, it sets `handled`, so there's no wait. `postMessage` then rethrows a `CommShutdownException`, the same result as the PC1 check.
+
+**Behaviour change to document:** -102 responses after a stop now arrive on two threads. Requests already queued drain on `CommMgr`; refused ones arrive on the EDT. This is safe for the known handlers. It is not claimed for arbitrary plugin handlers.
+
+## Minimal patch shape
+
+1. **`postMessageAsync(handler, msg, ctx)`:**
+   - Inside `synchronized(queue)`, read the existing **volatile** stopped field. Don't call `isStopped()` there: `shutdown` takes the Manager monitor and then the queue monitor, so that would invert the lock order.
+   - If stopped and `Thread.currentThread() != thread`, set a local flag. Otherwise enqueue and `notifyAll`, as today. The worker stays exempt and drains as it does now.
+   - After `monitorexit`, if the flag is set, call `refuseStopped(handler, ctx)`.
+2. **`private void refuseStopped(CommunicationHandler h, Object ctx)`:**
+   - Return if `h == null`.
+   - Build `r = new BasicResponse(2, null, -102, new CommShutdownException())`. This is the same form the worker uses at `:10093-10103`.
+   - If `h instanceof CommunicationsManager$SyncSender`, call `h.handleResponse(system, r, ctx)` on the caller's thread.
+   - Otherwise call `SwingUtilities.invokeLater(new CommunicationsManager$StoppedCallback(h, system, r, ctx))`.
+3. **New `CommunicationsManager$StoppedCallback implements Runnable`:** four final fields. `run()` calls `h.handleResponse(...)` and catches `RuntimeException`, sending it to `logger.error`. Catching is my design choice; it keeps a handler exception off the EDT.
+
+Nothing else changes. Pin the class SHA, check with `-Xverify:all`, and confirm the `javap` diff touches only those two methods plus the new class.
+
+## Tests
+
+1. **Sync, both threads:** after `disconnect`, `postMessage` throws `CommShutdownException` immediately. For the race, construct `SyncSender` on a stopped Manager by reflection. It must return without a thread parked in `Object.wait`, and `postMessage` must throw `CommShutdownException`.
+2. **Async, not null:** the handler is not called before `postMessageAsync` returns. It is called exactly once, `isEventDispatchThread()` is true, the code is -102, the exception is a `CommShutdownException`, and `system` and `ctx` are the same objects.
+3. **Null handler:** no callback. Check with an `invokeAndWait` sentinel that nothing was queued.
+4. **Negative control:** `connect`/`authenticate` after `disconnect`, from the EDT and from another thread, while a third thread holds `getTreeLock()` and calls `agent.isPolling()`. `findDeadlockedThreads` must be empty.
+5. **Worker exemption:** a post made from inside a handler on `CommMgr` during shutdown is drained on `CommMgr`, not the EDT.
+6. **Stop/post stress:** every handler that isn't null completes exactly once, through either the drain or the EDT. None is lost or duplicated.
+7. **Ordering:** for `AddSystemAction`, the actions are enabled after the callback. For `ShutdownAction`/`ServiceIDAction`, the final label matches the model.
+8. **Re-posting handler:** a handler that posts again on -102 must not recurse on the stack and must stay bounded.
+
+## Remaining blockers
+
+- I haven't re-read the current Phase A `postMessageAsync` and its volatile field. Confirm the stopped check happens inside the queue monitor before you rely on condition 1.
+- Re-check the -102 bodies of `ShutdownAction$1`, `$13`, `$14` and `ManagementController$1` in `post-exit-gui-closure-selected.javap`: no posting again, no sync `postMessage`, and no read of the model that relies on immediate ordering.
+- `AquaAlert$4.run` is still unresolved. It's no longer needed for lock safety, only to confirm the `AddSystemAction` dismissal runs on the EDT.
+- Runtime qualification of the real UI is still outstanding.

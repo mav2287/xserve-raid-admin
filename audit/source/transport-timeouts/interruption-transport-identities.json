@@ -1,0 +1,15 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_sha256": {
+    "com/apple/xsr/net/HttpConnection.class": "c8a632a9c5c76e94fe1c3a9e23b6e362d8e50fff75eeb26ee7379ab6c7159303",
+    "com/apple/xsr/net/AcpxConnection.class": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",
+    "com/apple/xsr/net/AbstractRequestMessage.class": "609356596df9a6bcec557bc79407e440ff3633b0e1611f144faa4ce743689e44",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "com/apple/xsr/net/CommunicationsManager.class": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+    "com/apple/xsr/net/AcpxMessageFactory.class": "cfcf1c8f7d662e8bd63b0a33c49b2da043783fec8b1b47a436b35c04e7e9c439",
+    "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class": "b236f7d954791f1c32339d9675972e33908c690a633a554672b2f8a7b230ec67",
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb"
+  },
+  "bytecode_sha256": "7af1e025cd95ec096ad4b5920c43993b06228f9433c699df5a56a6a19730b630",
+  "limits": "Complete source disassembly, no live transport, caller cancel or firmware operations."
+}

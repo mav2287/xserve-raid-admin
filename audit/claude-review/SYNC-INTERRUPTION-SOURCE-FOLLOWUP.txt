@@ -1,0 +1,68 @@
+I read the four new artifacts plus `tests/fixtures/stop-lock-candidate.javap`. I made no edits and ran no commands. Several statements in `build/SYNC-INTERRUPTION-DESIGN.txt` need correcting. The recommended design holds, with one new semantic change you need to decide on.
+
+## Gaps now resolved
+- **JAR identity:** the inventory's `5505d8d9…` is the same as `original_jar_sha256` in `interruption-transport-identities.json`. All 8 classes are major version 47, so there is no StackMapTable to update.
+- **No-arg factory default is 0.** Both constructors store `defaultTimeout=0` (selected.javap:2255–2259 and 2273–2277), and the getter and setter are plain field access. You're right that the golden 0 rows came from an explicit `setDefaultTimeout(0)`. The bytecode now independently shows 0 is also the GUI default.
+- **`HttpConnection.setTimeout(int)` (:244–289):** a value of 0 is replaced with **30000**. Any other value goes to `Socket.setSoTimeout` unchanged, in milliseconds. The call does nothing if the value equals the cached `timeout` field, which the constructor initialises to 30000.
+  - Correction: send-path reads are **never unlimited**. The default is 30 s per blocking read, not per response. The number of reads is unbounded, so a slow-trickling peer can keep it going.
+- **`createSocket(int)` ignores its argument** (:398–427). It calls `new Socket(host, 80)`, which has no connect timeout, then `setSoTimeout(this.timeout)` (30000 by default).
+  - Correction: there is no 5 s anywhere. EVIDENCE.md's "≈5 s connection" is wrong; "≈30 s socket" holds for reads only.
+- **New edge case:** if that `setSoTimeout` throws SocketException, it is only logged (:417–420). The socket then stays at 0 (infinite) while the field says 30000, so a later `setTimeout(0)` returns early and reads become unbounded.
+- **Extra unbounded connect points inside the claimed window:** `HttpConnection.getOutputStream`/`getInputStream` call `connect()` lazily, in addition to `send` PC 21.
+- **Negative timeouts:** `Socket.setSoTimeout` throws IllegalArgumentException, which is not the caught SocketException. It reaches `run`'s Exception handler at 462, which calls `report`.
+
+## Still unknown
+- **Where bytes hit the wire.** `HttpRequest` and its output stream are not in the extract. The Content-Length is logged after `close()` and `getResponse` requires `requestSent`, which hints the body is buffered and written on close, but that's an inference.
+- **This doesn't block the milestone.** The claim happens before `send` starts, so "before claim, nothing of this request was transmitted" holds either way.
+
+## Firmware `UpdateThread.run` (:3151–3184)
+- Each cache disable and re-enable has its own `catch Exception`. A failed re-enable sets `access$1702(true)`.
+- **Re-enable only runs when the flash succeeds.** A non-zero flash status returns through the finally block (`jsr 1704; return` at 283–286). An IOException or PropertyListException from the flash goes to 1622 or 1650, then the finally. Both paths skip the re-enables.
+- The finally block (1704–1759) runs `clear`, `authenticate(...)` and `setPollingEnabled(true)`. It never re-enables caches.
+- So caches can stay disabled after any flash failure **today**, regardless of interrupts. Point 4 in the design should say M adds a session shutdown that also breaks the finally's `authenticate` post.
+- Every sleep and poll catches and swallows InterruptedException, so no interrupt status survives in this thread. Nothing in scope interrupts it.
+
+## Agent facts confirmed
+- `updateImmediately` only interrupts when `pollingEnabled && sleeping`.
+- The stale window is real: `sleep` returns at PC 325, but `sleeping=false` isn't set until 421–424, under the Agent lock. In that case the `updateImmediately` flag also stays true.
+- `postMessage` rewraps the interrupt as a plain IOException, which goes to the handler at 539: message index 5, then re-poll at PC 2 without sleeping.
+- ConnectException goes to 493 (polling disabled). CommShutdownException goes to 520, then 565 ("Terminating Updates").
+
+## Bytecode seams, corrected
+**Manager `run` (candidate, Code length 595):**
+- PC 241–246 (`aload_1; getMessage; astore 5`, 6 bytes) is confirmed a dead store. Register 5 is only written afterwards: at 287, by each handler (307, 337, 462), and by the `nullMessage` result at 563 that goes on to 462. Nothing reads it after 489 or at the top of the loop.
+- No monitor is held at 241; the queue lock is released at 68. `claim()` therefore adds no lock-order edge.
+- Constant-pool #30 is the SyncSender class in the original (`postMessage new #30`). Pin that in the candidate check; I didn't see the candidate's `postMessage`.
+- The trampoline is 27 bytes at 595–621. Add exception entry `[595,622) → 462 java/lang/Exception`.
+- The skip path reaches 489 with register 4 = null (set at 213), so no callback is sent and 514 resets `connectionFailureSent`.
+- **These offsets only apply to the candidate.** The original `run` ends at 552 and its 337 handler is different.
+- `claim()` must not be private. Version 47 has no nestmates, so the outer class can't call a private method on the inner class.
+
+**SyncSender constructor (simpler than the design says):**
+- Leave the code bytes alone. Retarget the exception entry `31 55 58 InterruptedException` to an appended T at PC 109:
+  - `astore 4`
+  - `handled` set → `goto_w 96` (keep the real response)
+  - `claimed` set → `goto_w 24` (wait again; the range 31–55 still catches the next interrupt)
+  - otherwise → `goto_w 60` (existing failure response plus `handled=true`)
+- Add `[109, Tend) → 101 any` so the monitor is released on any exception. The original 58–59 becomes unreachable, which the version-47 verifier accepts.
+- Interrupt status stays swallowed, as before.
+- `handleResponse` guard: `if (handled) return;` with no `notifyAll` needed. This also makes `postMessage`'s separate `getResponse` deterministic.
+
+## New semantic issue: connect-failure callback before the claim
+`doConnect` calls the handler's `handleResponse` with a -101 ConnectException *before* the claim. That happens at 401–414 (no valid address, then return) and 578–596 (connect failure, then it keeps retrying until connected or stopped). For a sync caller this sets `handled`, so `postMessage` throws ConnectException.
+
+- **Today:** after a later reconnect, `run` still sends the orphaned request. In the no-valid-address case it calls `send` on a null or stale connection; a null one throws NPE → 462 → `report` stops the session.
+- **With the claim:** it's refused because `handled` is set, so no send and no stop.
+- That's an improvement, but it's a behaviour change. In the sync no-address case the session is no longer torn down, and the next post retries `doConnect`. Async handlers are unaffected (the `instanceof` check).
+- **You need to accept this explicitly.**
+
+## Behaviour of the narrow milestone (no bounds claimed)
+- **Before the claim**, whether queued or anywhere inside `doConnect` including its backoff sleeps: the interrupt cancels, the caller gets an IOException, and the session is untouched. No bytes of this request were sent by this client.
+- **After the claim**, the caller waits for the worker's real answer. That window covers a possible unbounded connect, unbounded writes, a 30 s-per-read default with an unlimited number of reads (infinite in the SO_TIMEOUT edge case), cleanup and the callback. **The app doesn't bound it, and neither does this design.**
+
+## Residuals
+- If the worker dies after the claim (an Error, or `report`'s "stop failed" exception at 464–467, which has no handler), the interrupted caller hangs.
+- A sync post from inside a handler callback (constructor 31–50) throws after it was already enqueued. The worker later claims and sends it.
+- The `isStopped` check at 234 runs before the claim, so a shutdown that lands between them still lets the send go ahead.
+- Interrupters outside the inventoried code are still unknown, and so are the GUI caller threads (inventory lines 14763, 14808, 15340, 26936).
+- The `UpdateFirmwareRequest` timeout isn't visible because its constructor isn't extracted. Any value of 0 still becomes 30000.

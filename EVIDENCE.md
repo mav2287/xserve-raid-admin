@@ -273,3 +273,14 @@ controller model and command classes are not constructed by this probe.
 Release notes confirm LUN Masking was removed from the Advanced panel and that
 firmware updates alter caches and restart the RAID. These refine preservation
 requirements and restricted-operation scope; no such operation was performed.
+
+
+## 2026-10-06 original transport timeout correction
+
+The earlier approximately five-second connection timeout is disproved by
+original bytecode: `createSocket(int)` ignores its parameter and constructs
+`Socket(host, 80)` without an explicit connect deadline. The usual read timeout
+is 30000 milliseconds per blocking read, rather than a whole-operation limit.
+An ignored socket-timeout setup failure can leave reads unlimited. See
+[Transport timeout source evidence](audit/TRANSPORT-TIMEOUTS.md). These are source
+facts and a possible error path; no production controller timing test was run.
