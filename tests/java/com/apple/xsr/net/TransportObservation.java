@@ -130,12 +130,28 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
+        boolean defaultLogging = args.length == 1 && args[0].equals("default-logging");
+        PrintStream previous = System.err;
+        ByteArrayOutputStream captured = new ByteArrayOutputStream();
+        try {
+            System.setErr(new PrintStream(captured,true,"UTF-8"));
+            execute(defaultLogging);
+            check(captured.toString("UTF-8").equals(defaultLogging ? "RAID_ADMIN_ERROR\n" : ""), "Unexpected logging output");
+        } finally {
+            System.setErr(previous);
+            OfflineGuard.assertUntouched();
+        }
+    }
+    private static void execute(boolean defaultLogging) throws Exception {
+        if (!defaultLogging) {
+        org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.CommunicationsManager").setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.AcpxConnection").setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.HttpConnection").setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.HttpRequest").setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.HttpResponse").setLevel(org.apache.log4j.Level.OFF);
+        }
         AcpxMessageFactory factory = new AcpxMessageFactory();
         RequestMessage request = factory.newGetStatusRequest();
         request.setUser("synthetic-user"); request.setPassword("synthetic-not-a-credential");
@@ -149,7 +165,7 @@ public final class TransportObservation {
         check(wire.contains("ACP-Password: synthetic-not-a-credential\r\n"), "Password header missing");
         check(wire.contains("User-Agent: Apple-Xserve_RAID_Admin/1.6.0\r\n"), "User agent differs");
         check(wire.contains("Apple-Xsync: top\r\n"), "Target header differs");
-        System.out.println("ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values; application logging OFF");
+        System.out.println("ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values");
         dispatch(factory.newGetStatusRequest(), 1, false);
         dispatch(factory.newSetTimeRequest(new Date(0)), 1, false);
         dispatch(factory.newSetTimeRequest(new Date(0)), 4, false);

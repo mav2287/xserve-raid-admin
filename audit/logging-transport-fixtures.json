@@ -1,15 +1,17 @@
 {
+  "tool_sha256": "2a50865f387ebf3ab393d286f236473999fa24c9f1081bf797825398f4f5bf1c",
   "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
   "fixture_sources": {
     "tests/java/fixture/OfflineGuard.java": "910febc23c2d5cae719734ffd3398c2c485dca3c9ef17a410cb2188d38857d9b",
-    "tests/java/com/apple/xsr/net/TransportObservation.java": "524b29297a72afba74326894b3076aa46c301e4e975ca1c35f87242200df48c0",
+    "tests/java/com/apple/xsr/net/TransportObservation.java": "0f4c56e832b3ddc0cf5804f2925e8398b0c36ecc85d40a45acc5d5bf0d1ba298",
     "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f"
   },
   "observations": [
     {
       "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "application_logging": "forced-off",
       "results": [
-        "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values; application logging OFF",
+        "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
         "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
         "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
         "dispatch drops=4 malformed=false sends=5 terminal_callbacks=1",
@@ -21,8 +23,23 @@
     },
     {
       "jar_sha256": "b6fdfab523768556f2c3c76190704c2319a9038efb43ebac05d66a3afebe70df",
+      "application_logging": "forced-off",
       "results": [
-        "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values; application logging OFF",
+        "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+        "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+        "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+        "dispatch drops=4 malformed=false sends=5 terminal_callbacks=1",
+        "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+        "synthetic firmware stream throws_after_close=false memory_sends=2",
+        "synthetic firmware stream throws_after_close=true memory_sends=1",
+        "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+      ]
+    },
+    {
+      "jar_sha256": "b6fdfab523768556f2c3c76190704c2319a9038efb43ebac05d66a3afebe70df",
+      "application_logging": "candidate-configured; fixed stderr code verified",
+      "results": [
+        "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
         "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
         "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
         "dispatch drops=4 malformed=false sends=5 terminal_callbacks=1",

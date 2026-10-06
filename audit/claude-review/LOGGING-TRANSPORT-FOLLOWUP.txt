@@ -1,0 +1,20 @@
+I found no blocking defects in the two methods I reviewed. There are a few gaps between what the code checks and what the claims say.
+
+**What holds**
+- **Guard order:** `OfflineGuard.install()` runs first in `main` (`TransportObservation.java:132`), before stderr is swapped and before any log4j use. It is checked again in `finally` (`:142`), so it runs even when the fixture fails.
+- **Capture timing:** `setErr` happens before `execute`, so log4j sets itself up later and its console appender writes into the in-memory buffer. If the config fails to load, log4j's own warnings also land in the buffer, which makes the exact-match check fail.
+- **No raw output leaks:** the check at `:139` only reports a fixed message, never the captured text.
+- **Original stays forced OFF:** Python only adds the `default-logging` run when `jar != original` (`check_transport.py:33`).
+- **Stdout comparison:** every run, including the configured ones, is compared against the original forced-OFF run (`:37`). That covers the shared command/retry/callback output.
+
+**Defects and gaps**
+1. **The "no raw output emitted" claim only covers stderr.** If the candidate config writes logs through a file appender, nothing catches it. Logging to stdout would be caught, but only by the stdout comparison. All runs also share the same `tmp` as `user.home` (`:30`, `:34`), so a log file written there by one run stays for the next and is never checked. Either narrow the claim to stderr, or add a check that `tmp` holds only the compiled classes after each run.
+2. **Forced OFF doesn't silence every logger.** `setLevel(OFF)` on the root and five named loggers doesn't override a child logger that has its own level in the candidate config. Running the candidate in forced-OFF mode could then still log. Today that fails loudly through the `""` check rather than passing silently, so it's a robustness problem, not a false pass. `LogManager.getLoggerRepository().setThreshold(Level.OFF)` would make OFF absolute.
+3. **The `"\n"` match depends on the platform.** It holds on macOS, but a layout using `%n` would produce `\r\n` on Windows.
+4. **Python never checks the real stderr itself.** Only the Java assertion checks stderr. Python could also assert that the configured run's real stderr is empty. Whether `run_jdk` returns or merges stderr and checks the exit code is outside what I read.
+5. **A failing guard check can hide the real error.** If `assertUntouched()` throws inside `finally`, its exception replaces the original one from `execute`.
+6. **Original-jar detection compares paths as written.** `jar != original` is a plain path comparison, so passing the original jar under a different spelling would treat it as a candidate. In practice that would most likely fail at the shim check anyway.
+
+**Unverified (outside the scope you set):** any static initializers in `TransportObservation` run before `main`, and so before the guard. If they load app or log4j classes, the claim that the guard is installed before config loading would not hold. I didn't read those parts or `run_jdk`.
+
+Disposition: fixture OFF now sets the repository threshold as well as known logger levels; candidate paths are normalized. The existing OfflineGuard denies and counts every filesystem write, including file appenders, and is asserted in finally. A guard violation intentionally takes priority. Static initializer only constructs a constant UTF-8 XML byte array, with no application/log4j initialization. run_jdk captures stdout/stderr and withholds raw output on failure; fixture stdout comparison prevents unexpected output from being emitted by the Python tool. Exact LF is appropriate to this macOS-only fixture. This remains bounded synthetic evidence, not app-wide confidentiality.

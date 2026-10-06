@@ -13,7 +13,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', required=True, type=Path)
     parser.add_argument('jars', nargs='+', type=Path)
+    parser.add_argument('--default-logging', action='store_true', help='Also require candidate configured logging to emit only one fixed error code')
     args = parser.parse_args()
+    args.jars = [jar.resolve() for jar in args.jars]
     verify_python(); lock = verify_jdk(args.jdk)
     original = ROOT / 'original/RAID_Admin_original.jar'; verify_original(original)
     sources = [ROOT / p for p in ('tests/java/fixture/OfflineGuard.java',
@@ -28,10 +30,14 @@ def main():
                     raise RuntimeError('Fixture shim differs from candidate shim')
             result = run_jdk(args.jdk, 'java', ['-Djava.awt.headless=true','-Duser.home=' + tmp,
                 '-cp',tmp + ':' + str(jar.resolve()),'com.apple.xsr.net.TransportObservation'], timeout=20)
-            observations.append({'jar_sha256': sha(jar), 'results': result.splitlines()})
+            observations.append({'jar_sha256': sha(jar), 'application_logging':'forced-off', 'results': result.splitlines()})
+            if args.default_logging and jar != original:
+                configured = run_jdk(args.jdk, 'java', ['-Djava.awt.headless=true','-Duser.home=' + tmp,
+                    '-cp',tmp + ':' + str(jar.resolve()),'com.apple.xsr.net.TransportObservation','default-logging'], timeout=20)
+                observations.append({'jar_sha256':sha(jar),'application_logging':'candidate-configured; fixed stderr code verified','results':configured.splitlines()})
     if any(o['results'] != observations[0]['results'] for o in observations):
         raise RuntimeError('Transport observations differ')
-    print(json.dumps({'jdk_tree_sha256': lock['tree_sha256'],
+    print(json.dumps({'tool_sha256':sha(Path(__file__)), 'jdk_tree_sha256': lock['tree_sha256'],
         'fixture_sources': {str(p.relative_to(ROOT)): sha(p) for p in sources}, 'observations': observations,
         'limits': 'Original queue and ACP send with memory HttpConnection; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. No TCP, hardware, polling, or real reconnect/backoff qualification.'}, indent=2))
 
