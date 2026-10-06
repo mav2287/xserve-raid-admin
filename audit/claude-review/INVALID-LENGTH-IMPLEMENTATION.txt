@@ -1,0 +1,66 @@
+Actual Claude CLI read-only implementation review; reviewer executed nothing.
+
+I found no defect in the patch itself. Third-operand verification, the fixed-message/no-cause failure, and valid-parse preservation all hold from reading the sources. The issues below are about evidence quality and coverage. I ran nothing; the passing results on both pinned runtimes are your claim, not something I checked.
+
+Labels: **Obs** = read directly in the files, **Inf** = my reasoning from them, **Unexec** = depends on running something.
+
+## Verified
+
+**Third parse operand**
+- **Obs:** The original getBody matches the patcher's pinned window `2c b8 0015 3c 2a 1b b5 0016` at offsets 13–22 (`build/http-response-allocation-bytecode.txt:67-72`). Constant #21 resolves to `Integer.parseInt:(Ljava/lang/String;)I`.
+- **Obs:** The protected region starts at offset 32 (`:153`), so both the parse at 14 and the allocation at 28 sit outside the finally that runs the cleanup reset at 183. That confirms the original defect.
+- **Obs:** Before the transform, `class_patch.py:137-139` pins the window and the #21 owner, name and descriptor.
+- **Obs:** After the transform, `:235-239` requires opcode `0xb8` at offset 14 and a Methodref to `compat/BoundedResponseBuffer.parseLength:(Ljava/lang/String;)I`. `:250-252` masks only the bytes at 14+15, 14+24 and 14+29, then requires the rest of the Code attribute to be byte-identical. That includes the exception table, the subattributes and the opcode at 14.
+- **Obs:** The independent javap check (`check_security.py:73-76`) requires exactly three changed lines, at 14, 23 and 28. For line 14 it also requires the original to have referenced `java/lang/Integer.parseInt`.
+- **Obs:** Both send call sites of `getInputStream` (offsets 201 and 214, `acpx-response-callers-bytecode.txt:161,166`) fall inside the marker range `[32,271)`. Constant #55 is `PropertyListException` (`:244`), which closes the design review's R3.
+
+**Fixed-message, no-cause failure**
+- **Obs:** `BoundedResponseBuffer.java:9-10` catches only `NumberFormatException`, discards it, and throws the marker with a constant message. The marker's only constructor takes a single `String` (`UntrustedResponseException.java:5`), so it can't carry a cause.
+- **Obs:** `checkLength` rejects negative values with the same message.
+- **Inf:** The original handlers in send are `jsr`/`finally` handlers, not try-with-resources, so no suppressed exceptions get attached. The escaped trace can't carry the header value.
+
+**Valid parsing preserved**
+- **Inf:** For valid input, `parseLength` returns exactly what `Integer.parseInt` returns. `-0` → 0 is the same as the original, not a change.
+- **Obs:** The `ifnull` at offset 10 still skips the parse when the header is missing.
+- **Obs:** For negative values, the `putfield` at 20 still runs before the rejection at 28. For invalid strings, the field is still never assigned.
+
+**Intentional-difference comparison**
+- **Obs:** `common_observations` (`check_transport.py:25-32`) requires the exact ordered list of security lines and rejects the legacy line when they are present. Without them it requires exactly one legacy line. Everything else must match the original.
+- **Inf:** A candidate with only part of the change wired fails. Example: `parseLength` exists but the offset-14 edit is missing. NFE still produces `invalid-length`, but only the negative-length security line appears, so the exact-list check fails.
+
+## Issues
+
+1. **The catch inventory has no generator or provenance (medium, evidence).** **Obs:** Nothing in the repo produces or references `build/length-original-number-catches.json`. It records no JAR hash, no tool, and no statement of what was scanned (only typed `NumberFormatException` rows, or all classes?). **Obs:** Its contents support the doc: there are no `com/apple/xsr/net` entries and no DefaultHandler entries. The one CLI-adjacent entry is `CommandDispatcher$SetPropertyHandler.createRequestMessage` at 20–31, on the request side. **Obs:** The CLI catch rows in `cli-send-bytecode.txt:100,319-321` are all `PropertyListException`. But `INVALID-LENGTH-GUARD.md:51` presents the "full original catch-table scan" as evidence that can't currently be reproduced.
+
+2. **`check_security.py` doesn't statically check the new helper code (low–medium).** **Obs:** Lines 135-139 still check only the 16 MiB constant, `if_icmple`, the too-large string and the constructor order. Nothing checks:
+   - that `parseLength` exists;
+   - that its exception table catches only `java/lang/NumberFormatException`;
+   - the `Response length is invalid` literal;
+   - the negative branch in `checkLength`.
+
+   Right now only the behavioural fixtures cover these. The `limits` text at `:181` also still describes only "response allocation operands".
+
+3. **The transport fixture's security line claims more than it checks (low).** **Obs:** `TransportObservation.java:118-119` emits `fixed-marker; closed; no-input-or-cause`. It checks the class, the message, `cause==null` and the label, but never checks that the connection closed (`MemoryConnection.disconnect` is a no-op, `:79`). Closing is only verified in `RecoveryObservation.direct` (`closes==1`).
+   - `security_length follow-on qualified by recovery fixture` (`:401`) is emitted whenever reflection finds `parseLength`. It's a pointer to other evidence, not an observation.
+   - `check_transport` doesn't link to or require the `--recovery` result.
+   - It also doesn't require a candidate to show the policy at all. A JAR without `parseLength` passes as legacy, and `check_transport` checks no build identity, unlike `check_security.py:126`.
+
+4. **The parse-operand mutation test only reaches one check (low).** **Obs:** `test_class_patch.py:43-45` writes `0x0017` (a Class constant) to the operand, so only the "Methodref tag" check fires. Two cases would exercise the other checks:
+   - restoring #21 (a revert to `Integer.parseInt`) would hit the owner check;
+   - pointing at the constructor Methodref (same owner, `<init>`) would hit the name check.
+
+   No test flips the opcode at 14+14. **Inf:** The pre-transform checks at `:137-139` can't be reached by negative tests because the hash lock rejects any modified input first. Also, an out-of-range operand raises `KeyError` rather than `ValueError` at `:236`.
+
+5. **The invalid-input gate assumes the runtime rejects rather than comparing (low).** **Obs:** `RecoveryObservation.java:121` compares valid strings against `Integer.parseInt` on the running JVM. `:122-123` asserts the invalid strings produce the marker but never confirms that `Integer.parseInt` itself throws on them. Parity is only half-checked.
+
+6. **The doc is slightly broader than the fixtures (low).**
+   - **Obs:** The stack-trace check for the synthetic token (`:123`) runs only on `parseLength` called directly by reflection, not on an exception that escapes through `send`. That is the trace `INVALID-LENGTH-GUARD.md:42-43` implies.
+   - **Obs:** The connection-flag cases, the legacy body-codec cases, and the queued pairs with close failures or logger failures run only on `cases[0..1]` (the earlier ceiling cases), not on the four new length cases (`:142-147`). The new cases get one queued pair plus direct sends, persistent and non-persistent, each with close failures 0–2.
+   - **Inf:** Both failure points sit inside the same `getInputStream` call, so this is likely fine. It is still unobserved.
+
+7. **Nits.** **Obs:** The `followOn(true)` branch in `TransportObservation.java:290-291` is dead code. `check_architectures.py`'s recovery count of 78 matches the fixture's own arithmetic (1 + 1 + 8×7 + 8 + 1 + 6 + 2 + 1 + 1 + PASS line).
+
+## Still open
+These need a run (**Unexec**): JVM verification of the patched class under `-Xverify:all`, the actual results on both pinned runtimes, the golden hashes in `audit/security-patches.json`, and CLI lifecycle and UI behaviour with the new exception. Hardware, real TCP and physical Intel are unqualified, as the doc already says.
+
+Disposition: reproducible hash-anchored inventory_exceptions.py now scans every original class Code table and records generator/harness hashes and counts. Independent helper checks verify public parseLength delegation, exact NFE-only handler, fixed invalid marker and negative gate. Transport now checks acp.connection is null before emitting closed, and --length-policy requires every candidate to show the complete intentional difference list. Its follow-on label is explicitly a reference to separate recovery evidence. Parse opcode/owner/name mutation cases added. Invalid gate inputs are independently confirmed to throw from the executing JVM Integer.parseInt. Direct actual-send exceptions now verify no cause and no sentinel in escaped traces. Extra flag/body-codec/logger-failure variations remain scoped to ceiling sites. 45 Python tests pass; app bytes remain unchanged by this verifier/fixture refinement.

@@ -11,4 +11,6 @@ class TransportComparisonTests(unittest.TestCase):
         self.assertEqual(common_observations(legacy),common_observations(security))
         for bad in (security[:-2]+['PASS'],security+['security_length invented'],['normal','PASS']):
             with self.assertRaises(ValueError):common_observations(bad)
+        with self.assertRaises(ValueError):common_observations(legacy,True)
+        self.assertEqual(common_observations(security,True),common_observations(legacy))
         self.assertNotEqual(common_observations(legacy),common_observations(['changed']+security[1:]))

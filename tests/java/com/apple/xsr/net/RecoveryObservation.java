@@ -61,7 +61,7 @@ public final class RecoveryObservation {
     private static byte[][] cases()throws Exception {
         StringBuilder line=new StringBuilder("HTTP/1.1 200 X\r\nX: ");for(int i=0;i<65534;i++)line.append('x');line.append("\r\n");
         StringBuilder count=new StringBuilder("HTTP/1.1 200 X\r\n");for(int i=0;i<129;i++)count.append("X: x\r\n");
-        return new byte[][]{("HTTP/1.1 200 X\r\nContent-Length: 2147483647\r\n\r\n").getBytes("US-ASCII"),line.toString().getBytes("US-ASCII"),count.toString().getBytes("US-ASCII"),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII"),lengthReply("synthetic-invalid"),lengthReply("2147483648"),lengthReply("-1"),lengthReply("-2147483648")};
+        return new byte[][]{("HTTP/1.1 200 X\r\nContent-Length: 2147483647\r\n\r\n").getBytes("US-ASCII"),line.toString().getBytes("US-ASCII"),count.toString().getBytes("US-ASCII"),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII"),lengthReply("DO_NOT_RENDER_SYNTHETIC_HEADER"),lengthReply("2147483648"),lengthReply("-1"),lengthReply("-2147483648")};
     }
     private static final class Recorder extends AppenderSkeleton {
         final boolean throwing;int events;String owner,method;boolean safe;
@@ -109,7 +109,7 @@ public final class RecoveryObservation {
         Throwable caught=null;
         RequestMessage request=new AcpxMessageFactory().newGetStatusRequest();if(flag==1)request.setShutdownConnection(true);if(flag==2)request.setRestartConnection(true,0);
         try{a.send(request);throw new AssertionError("Rejection absent");}
-        catch(IllegalArgumentException expected){caught=expected;check(expected.getClass().getName().equals("compat.UntrustedResponseException"));}
+        catch(IllegalArgumentException expected){caught=expected;check(expected.getClass().getName().equals("compat.UntrustedResponseException")&&expected.getCause()==null&&Arrays.asList("Response length is invalid","Response length exceeds limit","Response headers exceed limit").contains(expected.getMessage()));StringWriter text=new StringWriter();expected.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}
         check(state.sent.size()==1&&state.closes==1);
         Method handler=Class.forName("compat.RejectionRecovery").getMethod("sendFailure",Throwable.class,AcpxConnection.class);
         check(handler.invoke(null,caught,(AcpxConnection)null)==caught);
@@ -120,7 +120,7 @@ public final class RecoveryObservation {
         Class<?> helper=Class.forName("compat.BoundedResponseBuffer");Method parse=helper.getMethod("parseLength",String.class),gate=helper.getDeclaredMethod("checkLength",int.class);gate.setAccessible(true);
         for(String value:new String[]{"0","-0","+0","1","+1","0001","16777215","16777216","2147483647","-2147483648"})check(((Integer)parse.invoke(null,value)).intValue()==Integer.parseInt(value));
         String[] invalid={null,""," "," 1","1 ","+","-","1x","2147483648","-2147483649","DO_NOT_RENDER_SYNTHETIC_HEADER"};
-        for(String value:invalid){try{parse.invoke(null,value);throw new AssertionError();}catch(InvocationTargetException failed){Throwable actual=failed.getCause();check(actual.getClass().getName().equals("compat.UntrustedResponseException")&&actual.getCause()==null&&"Response length is invalid".equals(actual.getMessage()));StringWriter text=new StringWriter();actual.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}}
+        for(String value:invalid){try{Integer.parseInt(value);throw new AssertionError("Runtime accepted presumed invalid input");}catch(NumberFormatException expected){}try{parse.invoke(null,value);throw new AssertionError();}catch(InvocationTargetException failed){Throwable actual=failed.getCause();check(actual.getClass().getName().equals("compat.UntrustedResponseException")&&actual.getCause()==null&&"Response length is invalid".equals(actual.getMessage()));StringWriter text=new StringWriter();actual.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}}
         for(int value:new int[]{-1,Integer.MIN_VALUE})try{gate.invoke(null,value);throw new AssertionError();}catch(InvocationTargetException failed){check(failed.getCause().getClass().getName().equals("compat.UntrustedResponseException")&&"Response length is invalid".equals(failed.getCause().getMessage())&&failed.getCause().getCause()==null);}
         out.println("length gates: runtime parseInt parity, malformed/overflow/negative fixed markers; no-input-or-cause");
     }

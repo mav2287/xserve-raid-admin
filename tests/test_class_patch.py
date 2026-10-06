@@ -47,6 +47,17 @@ class ClassPatchTests(unittest.TestCase):
             changed=bytearray(after);changed[offset]^=1
             with self.subTest(offset=offset),self.assertRaises(ValueError):assert_allocation_operands(before,bytes(changed))
 
+    def test_parse_operand_checks_opcode_owner_and_method(self):
+        entry='com/apple/xsr/net/HttpResponse.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='getBody');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
+        changed=bytearray(after);changed[begin+14+14]^=1
+        with self.assertRaises(ValueError):assert_allocation_operands(before,bytes(changed))
+        constructor=after[begin+14+29:begin+14+31]
+        for reference in (b'\x00\x15',constructor):
+            changed=bytearray(after);changed[begin+14+15:begin+14+17]=reference
+            with self.subTest(reference=reference),self.assertRaises(ValueError):assert_allocation_operands(before,bytes(changed))
+
     def test_header_insertion_preserves_original_constructor_and_rejects_changes(self):
         entry='com/apple/xsr/net/HttpResponse.class'
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)

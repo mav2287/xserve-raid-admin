@@ -59,5 +59,10 @@ No polling interval or controller command serialization is altered.
 These are bounded offline fixtures, not hardware, real TCP timing or production
 volume tests. x64 uses Rosetta; physical Intel and full operational acceptance
 remain open. HTTP remains plaintext. Original JAR and installed app stay unchanged.
-Actual Claude design review preceded implementation; implementation review and
-clean evidence are pending.
+Actual Claude design review preceded implementation. Its implementation review
+found no patch defect and prompted reproducible catch-inventory provenance,
+additional helper static checks, parse operand mutation coverage and explicit
+transport policy requirements. New direct-send tests check the escaped trace,
+absent cause and closed connection; flags/body-codec/logger-failure variations
+remain measured on the earlier ceiling sites, rather than claimed for every new
+length case. Final clean evidence is pending.

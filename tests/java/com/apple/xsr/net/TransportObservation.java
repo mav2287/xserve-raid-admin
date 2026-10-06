@@ -104,8 +104,9 @@ public final class TransportObservation {
     private static void responseCase(String label, byte[] raw, String expected, boolean idle) throws Exception {
         State state = new State(); state.rawResponse = raw; state.idleOpen = idle;
         String outcome;
+        AcpxConnection acp=transport(new MemoryConnection(state));
         try {
-            com.apple.util.plist.PropertyList parsed = transport(new MemoryConnection(state)).send(new AcpxMessageFactory().newGetStatusRequest());
+            com.apple.util.plist.PropertyList parsed = acp.send(new AcpxMessageFactory().newGetStatusRequest());
             if (parsed == null) outcome = "empty";
             else {
                 BasicResponse response = new BasicResponse(Response.TYPE_COMMAND, parsed);
@@ -115,7 +116,7 @@ public final class TransportObservation {
           catch (NumberFormatException e) { outcome = "invalid-length"; }
           catch (IllegalArgumentException e) {
               if(e.getClass().getName().equals("compat.UntrustedResponseException")) {
-                  check(lengthPolicy() && Arrays.asList("invalid-length","negative-length","overflow-length").contains(label) && "Response length is invalid".equals(e.getMessage()) && e.getCause()==null,"Invalid marker differs");
+                  check(lengthPolicy() && Arrays.asList("invalid-length","negative-length","overflow-length").contains(label) && "Response length is invalid".equals(e.getMessage()) && e.getCause()==null && acp.connection==null,"Invalid marker differs");
                   emit("security_length "+label+" fixed-marker; closed; no-input-or-cause");outcome=expected;
               }else outcome="negative-length";
           }
