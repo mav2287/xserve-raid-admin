@@ -24,6 +24,12 @@ This project contains compatibility patches for the original application. Full f
 
 7. **Bounded logging adapter** — Emits only fixed ERROR/FATAL signals, at most once per level per process. No message, exception or context is rendered. This is terminal diagnostic support; GUI error handling remains unqualified.
 
+8. **Secure plist parser boundary** — Uses the pinned bootstrap JDK provider with
+   explicit verified resource quotas and external-access denial, retaining the
+   original plist Handler, DTD and serializer. Custom entity expansion is bounded
+   to 1 MiB. These are deliberate security restrictions; real-response compatibility
+   remains open. See [audit.6 evidence](audit/XML-PARSER-COMPATIBILITY.md).
+
 ## Requirements
 
 Pinned runtime candidates include Corretto 8 for the selected architecture and

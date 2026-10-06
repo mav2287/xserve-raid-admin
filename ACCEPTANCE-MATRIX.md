@@ -169,4 +169,8 @@ outputs match exactly. No controller operations or real credentials are involved
   codes are emitted per process, including after reconfiguration; write failures
   do not escape. Other application outputs and visible GUI failures remain open.
 
+## audit.6 XML security
+
+| Scope | Requirement | Evidence | Status |
+|---|---|---|---|
 | XML security | Explicit provider, quota readback and external-access denial | audit.6 bounded differential and policy probes; original/candidate accepted hashes, mixed/container depth boundaries and entity quota rejection | Partial — real responses and exhaustive provider semantics remain open; [scope](audit/XML-PARSER-COMPATIBILITY.md) |

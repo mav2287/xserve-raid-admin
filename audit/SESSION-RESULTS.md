@@ -45,3 +45,11 @@ Hardware available is production/mounted RAID. No controller was contacted, no f
 was transmitted, no production-volume test was performed, and the installed app was
 not modified. Restricted operations still require immediate explicit confirmation.
 The Phase 0 hardware/wire-evidence exit gate and full operational acceptance remain open.
+
+
+Completed audit.6: verified bootstrap XML parser, explicit bounded entity policy,
+independent quota rejection codes, accepted-value/depth differential, queue failure
+mapping, repeated clean source and architecture bundles. Installed app and immutable
+JAR remain unchanged. See [final evidence](XML-PARSER-COMPATIBILITY.md).
+Next safe security scope is the original HTTP Content-Length preallocation; its
+Claude design review is in progress. No controller contact is needed for this work.

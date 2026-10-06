@@ -81,3 +81,24 @@ Additional independent policy probes cover near-boundary accepted general and
 parameter entities and rejection above their respective bounds; entity replacement
 accepts 40000 nodes and rejects a bounded 104000-node expansion, under count and
 total-size quotas, with JAXP00010007. Hostile flags cover every tightened quota.
+
+## Final clean artifact identities
+
+Application source `3044651d9eef5648e00d2ffc285bda66149213ce`; runtime packager
+`075642b`. Repeated source builds `build/parser-final-clean-3` and `-4` match.
+Final JAR SHA-256: `2066d144ee1a86a1bd64afb26296536ae417c7e1099d08e516abbd31639a8b58`.
+Unsigned audit bundle digest: `ddf1317dbabc4eb87c4c653c0a0e6f4efd73f1c60b3ac6f6a17abf963061fb9d`.
+Pinned-runtime bundle digests (including file/directory modes):
+
+- arm64: `cc6b5b9aff5c689524bac1f602fcbce8be7d3b24836bb7b4f929267ad4f0d928`.
+- x64: `6f05a4d6dcc397a65721ab9a9138d21b69f41be7c50786bfaed7f83361a4a731`.
+
+[Clean resource probes](parser-clean-resources.json),
+[queue failure mapping](parser-clean-transport.json),
+[independent bytecode checks](parser-clean-security.json),
+[bundled-runtime regressions](parser-clean-runtime.json), and
+[Java 11 accepted-value/security/logging observations](parser-clean-java11.json)
+record their separate scopes. Java 11 quota/hostile-setting enforcement is not
+qualified by these accepted-value observations. The 38 Python tests pass.
+[Final integrity](parser-final-integrity.json) confirms the immutable reference
+and installed application remain unchanged.

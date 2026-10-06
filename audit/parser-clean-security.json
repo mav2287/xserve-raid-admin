@@ -1,0 +1,73 @@
+{
+  "source_commit": "3044651d9eef5648e00d2ffc285bda66149213ce",
+  "source_dirty": false,
+  "request_inventory": {
+    "request_types": 7,
+    "diagnostic_overrides": [
+      "com.apple.xsr.net.AbstractRequestMessage",
+      "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate"
+    ]
+  },
+  "independent_preservation": "PASS",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "2066d144ee1a86a1bd64afb26296536ae417c7e1099d08e516abbd31639a8b58",
+  "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "verifier_sources": {
+    "tools/check_security.py": "af3ca546c5d8d97b13ddb6174e1c04de0f2c7cff2faaa3e83ce3345b8b787b43",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6"
+  },
+  "fixture_sources": {
+    "tests/java/SecurityProbe.java": "52ed9a9bc12fc3c60d600574ede4c5a0ec5af86ba66c59ae2e17e3a00a214241",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec"
+  },
+  "javap_verified_methods": {
+    "com/apple/util/plist/PropertyListUtilities.class": [
+      "invokestatic",
+      "areturn"
+    ],
+    "com/apple/util/plist/PropertyListUtilities$Handler.class": [
+      "aload_1",
+      "aload_2",
+      "invokestatic",
+      "areturn"
+    ],
+    "com/apple/xsr/net/AbstractRequestMessage.class": [
+      "ldc_w",
+      "areturn"
+    ],
+    "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class": [
+      "ldc_w",
+      "areturn"
+    ]
+  },
+  "observations": [
+    [
+      "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+      "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+      "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+      "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+      "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+      "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+      "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+      "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+      "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+      "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+      "PASS fixed=false; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+    ],
+    [
+      "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+      "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+      "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+      "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+      "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+      "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+      "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+      "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+      "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+      "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+      "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+    ]
+  ],
+  "limits": "PropertyListUtilities resolver and two request toString methods only. No full application logging, XML expansion/size/depth limits, HTTP allocation limits, real controller fixtures or GUI qualification."
+}

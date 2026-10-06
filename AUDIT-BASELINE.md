@@ -1,10 +1,11 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current candidate: **audit.5**, clean application source `13ac370`, clean runtime
-packager `b0c1c18`. Both architecture bundles reproduce and pass the recorded
-offline fixtures. See `audit/logging-bundle-results.json`,
-`audit/official-firmware-fixtures.json`, and `audit/apple-distribution-confirmation.json`.
-The earlier intake/audit.1 sections below are retained historical observations.
+Current candidate: **audit.6**, clean application source `3044651`, clean runtime
+packager `075642b`. Both architecture bundles reproduce and pass bounded offline
+fixtures. See [parser policy](audit/XML-PARSER-COMPATIBILITY.md),
+[audit.6 build/runtime identities](audit/parser-bundle-results.json), and
+[clean source provenance](audit/parser-clean-provenance.json). Earlier intake,
+audit.1 and audit.5 sections below are retained historical observations.
 This remains an unsigned, operationally unqualified candidate.
 
 ## Result and scope
