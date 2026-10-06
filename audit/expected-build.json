@@ -49,9 +49,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "f7ea235c2317eea20df767e732a43c55529c61a829b751ba56c5655284db0c62",
-  "reason": "Parser constructor-only delegate with measured depth32 boundary and explicitly pinned FSP quotas; public Java9+ default factory API avoids module-internal reflection while Java8 selects bootstrap directly",
+  "previous_record_sha256": "7f9a1d320f5aa4ab70ca8e6e9dd10b3bc545ba85f869f0fae20a69cc6c8db7b3",
+  "reason": "audit.6 clean source builds: explicit bootstrap XML parser with verified quotas and unchanged measured accepted-value/depth boundaries; independent bytecode checks and bounded offline tests pass.",
   "schema": 1,
-  "source_commit": "0c259b2c83f693d1ce685468486b23ee5ac88e3a",
-  "source_dirty": true
+  "source_commit": "37e642b6e1fa91642d208fce6c2e5d522d0291aa",
+  "source_dirty": false
 }
