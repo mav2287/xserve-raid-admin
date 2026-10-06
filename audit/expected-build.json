@@ -50,9 +50,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "c3c09752b60c5db6cfc86d3293f6c8f1033dd55e25d9cf6f0ac8155f13a0b1bd",
-  "reason": "Review refinement: stronger operand destination and helper ceiling verification; production bytes unchanged, transformer source identity updated. Development fixture validation pending clean evidence.",
+  "previous_record_sha256": "c27c1ec1b5aabd681c43956fa21295831965538f0efba805c6256f088b0ab7fa",
+  "reason": "Clean reviewed allocation guard with strengthened operand resolution and independent ceiling/version checks; application bytes unchanged. Explicit ceiling retry and post-rejection two-command state now characterized.",
   "schema": 1,
-  "source_commit": "6882337fe6d08dbba111723474fd9560e6f0cdb5",
-  "source_dirty": true
+  "source_commit": "7c1d9da9dd21d93d06e69962fd27f86f340373c2",
+  "source_dirty": false
 }
