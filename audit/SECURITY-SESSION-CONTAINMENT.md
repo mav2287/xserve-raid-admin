@@ -73,3 +73,32 @@ security-marker sequencing regression, not completion of the broader replay fix.
 found no blocker to committing the code/matrix and qualifying clean builds.
 Current build input hashes were checked against the development anchor before
 commit; no development observation is committed as clean evidence.
+
+
+## Clean qualification
+
+Application commit `028165a` and fixture/package anchor `e8a83ad` were clean.
+Two baseline builds matched JAR, files and modes. The reviewed JAR digest remains
+fe14078408670f4fd28ca53b2dccc48366338e37fbd5bda4ab01d7eee3761b4c.
+The audit bundle tree is 64627bc03d2d9f0d77730207c08b5475bd671d063182ae6e0a36f988153a1709.
+
+- [Independent bytecode/XML/security check](session-containment-clean-security.json)
+- [Full transport/security-policy regression](session-containment-clean-transport.json)
+- [Both runtime architecture/API/parser/header/recovery regressions](session-containment-clean-runtime.json)
+- [Bounded parser resource regressions](session-containment-clean-resources.json)
+- [Shared-stream association regression](session-containment-clean-shared.json)
+- [Strict 116-row/six-case factory regression](session-containment-clean-factory.json)
+
+Both packaged architectures reproduced files, file modes and directory modes:
+aarch64 tree 304e4d754ad037a9054c6c2d036b887fc06ade4385caef852b56a8c577aa716b;
+x64 tree 49e966a87bc553183877fd661dc229630c5f0e912271dd78dfb72c7af02bc1c8.
+[Package records](session-containment-bundle-results.json) retain vendor signature
+verification before/after byte-only copying. Application signing/notarization was
+not performed. Allowlisted diagnostics matched both manifests and reviewed output,
+but their version label remains an identified stale allowlist issue.
+[Integrity record](session-containment-final-integrity.json) verifies source hashes,
+81 Python tests, immutable original JAR and installed application bytes/modes.
+No controller contact, installed-app modification, firmware transmission or
+production-volume test occurred. All earlier development observations remain
+excluded from clean qualification. Broader IO replay and operational acceptance
+remain open.

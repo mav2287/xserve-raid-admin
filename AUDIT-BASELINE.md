@@ -1,12 +1,12 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current clean qualified candidate: **audit.13**, application source `f2ec1cf`,
-fixture/package anchor `a3a1687`. See [terminal null-message recovery](audit/NULL-IO-RECOVERY.md),
-[build/runtime identities](audit/null-io-bundle-results.json), and
-[integrity record](audit/null-io-final-integrity.json). Earlier intake and candidate
-sections remain historical. This is unsigned and operationally unqualified;
-broader IO replay, incorrect lengths, HTTP status, native UI and hardware
-acceptance remain open.
+Current clean fixture-qualified candidate: **audit.14**, application source
+`028165a`, fixture/package anchor `e8a83ad`. See [security-session containment](audit/SECURITY-SESSION-CONTAINMENT.md),
+[build/runtime identities](audit/session-containment-bundle-results.json), and
+[integrity record](audit/session-containment-final-integrity.json). Earlier intake
+and candidate sections remain historical. This is unsigned and operationally
+unqualified; broader IO replay, incorrect lengths, HTTP status, native UI and
+hardware acceptance remain open.
 
 ## Result and scope
 
