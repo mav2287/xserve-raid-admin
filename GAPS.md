@@ -216,6 +216,6 @@ it is not the current containment behavior or whole-workflow qualification.
 
 [Ambiguous I/O containment](audit/AMBIGUOUS-IO-NO-REPLAY.md) removes the original
 non-prefix IOException resend path and stops the local session. It intentionally
-also restricts failed reads. Clean qualification is pending. Prefix -103 and
+also restricts failed reads. Clean qualification passes on both pinned runtimes; production/GUI acceptance remains open. Prefix -103 and
 generic exception paths can still permit dependent queued writes; synchronous
 post/exit cancellation and complete GUI recovery remain open.

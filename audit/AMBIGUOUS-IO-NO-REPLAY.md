@@ -1,6 +1,7 @@
 # Audit.15: stop after ambiguous I/O without automatic resend
 
-Status: development checks and 93 Python tests passed; clean build qualification pending. This closes
+Status: clean offline qualification passed on commit `6427120`; 93 Python tests
+and all six regression gates pass. This closes
 one demonstrated resend path. It does not certify the application as fully secure
 or operational against production hardware.
 
@@ -18,7 +19,7 @@ then audit.14's local session shutdown before logging/callbacks. This is a Java
 communications-session stop, not a controller shutdown command. No request bytes,
 controller commands, polling intervals, initial connection timing or successful
 response semantics are changed. The legacy retry region PC 380–458 is retained
-byte for byte but is unreachable. Code length remains 578, with the same constant
+byte for byte but is unreachable. Relative to audit.14, code length remains 578, with the same constant
 pool and 12 exception handlers. The feature constant is a fixture selector;
 qualification independently checks the actual branch, retained bytes and CFG.
 
@@ -126,3 +127,45 @@ kill the worker outside its cleanup handler; GUI/liveness acceptance remains ope
 approved committing this narrow claim before clean qualification. Its remaining
 conditions require clean source/fixture identities, full policy flags, both runtime
 architectures and independently bound Python test sources in the final record.
+
+## Clean qualification
+
+Source, fixture and package commit `6427120` was clean. Baseline clean3/4 match
+the reviewed identity. JAR SHA-256:
+`4fb45ef850687309834fd9f082f47819ea7deadc5866108115f8a2ac5c1311bd`.
+Audit bundle tree:
+`1774aceee45aea35c84311e7aa1f4e081f585fdc6133c09aab020443268f10ac`.
+
+- [Independent source/bytecode/security gate](terminal-io-clean-security.json)
+- [Full transport policy and 11-case terminal fault matrix](terminal-io-clean-transport.json)
+- [Both runtime API/parser/header/retained-marker regressions](terminal-io-clean-runtime.json)
+- [Bounded parser resources](terminal-io-clean-resources.json)
+- [Shared-stream association](terminal-io-clean-shared.json)
+- [116 body serialization rows/metadata and six clone cases](terminal-io-clean-factory.json)
+- [93 Python tests and committed test-source hashes](terminal-io-clean-tests.json)
+
+The transport record includes both architectures, both logging modes for parser,
+allocation and headers, interpreted/compiled fault matrices, semantic negative
+controls and original/candidate drop differentials. The architecture record's
+143-line matrix is retained security-marker evidence, not non-prefix I/O evidence.
+
+Both packaged architectures reproduce files, modes and directory modes:
+aarch64 tree `23c0462a4b0f7b449c5f16bbf13b3b35d01d7a10a88d5bbd66d31d361280b3b7`;
+x64 tree `fa997ee933b8f314af624be5699cb176b751a51b8f2ac227b1e05160913fc666`.
+[Package records](terminal-io-bundle-results.json) retain vendor signature
+verification before/after byte-only runtime copying. Diagnostics match reviewed
+artifact and manifest and correctly report audit.15 on
+[arm64](terminal-io-diagnostics-aarch64.json) and [x64](terminal-io-diagnostics-x64.json).
+Application signing/notarization was not performed.
+
+[Final integrity](terminal-io-final-integrity.json) verifies recorded fixture
+sources against committed bytes and confirms the immutable original JAR and
+installed application files/modes are unchanged. No controller contact, production
+volume test, installed-app modification or restricted operation occurred. x64 on
+this arm64 host is Rosetta, not a physical Intel acceptance result. Development
+records are excluded from this clean proof.
+
+[Claude clean-evidence review](claude-review/AMBIGUOUS-IO-TERMINAL-CLEAN-EVIDENCE.txt)
+found no blocker. Its read-only limits are supplemented by the actual successful
+gate exit codes, empty stderr checks, record checksum verification and committed
+source-hash verification in the final integrity record.

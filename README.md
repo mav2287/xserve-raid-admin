@@ -141,6 +141,6 @@ it is not the current containment behavior or whole-workflow qualification.
 [Ambiguous I/O containment](audit/AMBIGUOUS-IO-NO-REPLAY.md) intentionally removes
 automatic resend for non-prefix I/O failures and stops the local session, including
 failed reads. This supersedes audit.14 statements that ordinary nonnull I/O still
-retries. Healthy replies and prefix -103 behavior remain original. Development
-checks pass; clean qualification is pending. Prefix/generic failure sequencing,
+retries. Healthy replies and prefix -103 behavior remain original. Clean qualification passes on both pinned runtimes. See the linked evidence
+for the 93-test suite, deterministic artifacts and narrowly stated limits. Prefix/generic failure sequencing,
 synchronous cancellation/liveness, UI recovery and hardware acceptance remain open.

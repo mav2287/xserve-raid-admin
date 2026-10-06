@@ -1,0 +1,34 @@
+{
+  "source_commit": "6427120380f43c1d050c986de62e952dc07b7bf2",
+  "fixture_commit": "6427120380f43c1d050c986de62e952dc07b7bf2",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "records": {
+    "security": "794c6370bbd0acf07285277fcf53b182669b581b1799051c91e062d090e295e1",
+    "transport": "d9b991577c96f5eeee1995faeff7ce4aacc7afbaebced28e4f49bceb41762792",
+    "runtime": "f924c4aae5c60f6fa8752810f4018821ce082a502e1529fac9c67d5a28bb35a5",
+    "resources": "32d156e7e0deaeab0d21b6fbce2db24eadcff403c24d24200e9943d28c51e9fb",
+    "shared": "ee5a593402c709b939f656b97043c9aa031bb60d365ff536fd88e73acc5e7e25",
+    "factory": "e4e468a5a118886188efd975454ef98128bfc7636459a2817acdbdce05e4c937"
+  },
+  "candidate_jar_sha256": "4fb45ef850687309834fd9f082f47819ea7deadc5866108115f8a2ac5c1311bd",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "python_test_record_sha256": "875678d9744c10966b0a96b2c7dafc06aed47b46e763869b78d7f39444b9e954",
+  "python_tests_passed": 93,
+  "terminal_fault_matrix_cases": 11,
+  "terminal_fault_execution_modes": [
+    "-Xint",
+    "-Xcomp"
+  ],
+  "architectures": [
+    "aarch64",
+    "x64"
+  ],
+  "x64_execution": "Rosetta, not physical Intel",
+  "controller_contact": false,
+  "installed_application_modified": false
+}

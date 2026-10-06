@@ -1,12 +1,12 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current clean fixture-qualified candidate: **audit.14**, application source
-`028165a`, fixture/package anchor `e8a83ad`. See [security-session containment](audit/SECURITY-SESSION-CONTAINMENT.md),
-[build/runtime identities](audit/session-containment-bundle-results.json), and
-[integrity record](audit/session-containment-final-integrity.json). Earlier intake
-and candidate sections remain historical. This is unsigned and operationally
-unqualified; broader IO replay, incorrect lengths, HTTP status, native UI and
-hardware acceptance remain open.
+Current clean fixture-qualified candidate: **audit.15**, source/fixture/package
+commit `6427120`. See [ambiguous I/O no-replay](audit/AMBIGUOUS-IO-NO-REPLAY.md),
+[build/runtime identities](audit/terminal-io-bundle-results.json), and
+[integrity record](audit/terminal-io-final-integrity.json). Earlier intake and
+candidate sections remain historical. This is unsigned and operationally
+unqualified; prefix/generic failure sequencing, synchronous cancellation/liveness,
+incorrect lengths, HTTP status, native UI and hardware acceptance remain open.
 
 ## Result and scope
 
@@ -303,6 +303,6 @@ it is not the current containment behavior or whole-workflow qualification.
 [Ambiguous I/O containment](audit/AMBIGUOUS-IO-NO-REPLAY.md) intentionally removes
 automatic resend for non-prefix I/O failures and stops the local session, including
 failed reads. This supersedes audit.14 statements that ordinary nonnull I/O still
-retries. Healthy replies and prefix -103 behavior remain original. Development
-checks pass; clean qualification is pending. Prefix/generic failure sequencing,
+retries. Healthy replies and prefix -103 behavior remain original. Clean qualification passes on both pinned runtimes. See the linked evidence
+for the 93-test suite, deterministic artifacts and narrowly stated limits. Prefix/generic failure sequencing,
 synchronous cancellation/liveness, UI recovery and hardware acceptance remain open.

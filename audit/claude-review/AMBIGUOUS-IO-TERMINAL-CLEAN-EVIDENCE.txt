@@ -1,0 +1,32 @@
+**No blockers found.** The evidence looks ready to commit. I only read files and ran no commands, so I could not recompute any hashes.
+
+**Consistency checks that passed**
+- **Commit:** every record has `fixture_commit` 6427120 with `fixture_dirty:false`. The final-integrity record has full 40-character source and fixture commits, which is better than the old short hashes in `audit/session-containment-final-integrity.json`.
+- **JAR identity:** the candidate is 4fb45ef8 in security, transport, runtime, resources and factory. The original is 5505d8d9 and the installed JAR is aa5de223, the same as earlier final-integrity records. Clean builds 3 and 4 both give bundle 1774acee and JAR 4fb45ef8.
+- **Bundles:** each architecture was built twice with matching digests (aarch64 23c0462a, x64 fa997ee9). Both say `compatibility_version` `1.5.1-modern.audit.15`, and both verifications PASS.
+- **Shared inputs:** helper tool hashes (`audit_support`, `baseline`, `class_patch`, `runtime`, `verify_builds`) and the shared fixtures `OfflineGuard.java` (all records), `MalformedInputException.java` (all except security) and `SecurityProbe`/`HeaderObservation` (two records each) are identical wherever they appear. The compiler/JDK tree da86c7df matches too.
+- **Transport:** both architectures have baseline runs, forced-off and candidate-configured logging, and both modes of parser, allocation and header. Each architecture has the 11 terminal cases under -Xint and -Xcomp, one semantic negative control, the null-IO verifier negative control, and IO characterization. Every original-vs-candidate difference fits the stated intentional differences.
+- **Runtime:** the recovery matrix has exactly 143 lines per architecture (`terminal-io-clean-runtime.json:107-249` and `:330-472`). The record correctly says it covers retained markers and not non-prefix IO, and the same wording is in `tools/check_architectures.py:191`.
+- **Factory:** 116 rows per JAR and architecture, which is 58 invoked × 2 timeout states, plus one firmware exclusion per sweep. `guarded_operations` is 0 everywhere.
+- **Tests:** 93 passed. 20 test or fixture sources are hashed, including the two javap fixtures.
+
+**The metadata changes make sense**
+- `tools/check_security.py:272,285` now record fixture identities (`SecurityProbe`, `OfflineGuard`).
+- The `CommunicationsManager.run` description (`check_security.py:258`) now names the two-byte non-prefix branch and says the legacy resend region is unreachable while the prefix path is kept. That matches the record's `limits` text.
+- The runtime record's `terminal_io_scope` sends non-prefix qualification to `check_transport` instead of overclaiming.
+- Transport's `terminal_io_scope` lists prefix -103, generic exception continuation and sync-post/exit liveness as open gaps.
+- No record claims GUI, real-controller, TCP or physical Intel qualification, and x64 is marked as Rosetta throughout. None of the records I read print header values, request bodies or credentials.
+
+**Things that look odd but aren't blockers**
+1. The runtime record's tree hashes (278ffbb3 and a4747957) differ from the ce517f50 and 6aa1fb2c used elsewhere. Every earlier `*-clean-runtime.json` uses the same split, so it is a long-standing, consistent difference in what that tool measures, not drift.
+2. `EVIDENCE.md:18` and `audit/requirements/EVIDENCE.md:18` show a 62-character digest (`…a1adcac066…`). That matches the `recorded_jar_digest` in `audit/intake-provenance.json:112` and sits next to the correct 64-character `actual_jar_sha256`, so it looks like a deliberately preserved vendor typo. It is not new.
+3. The transport and runtime `tool_sha256` fields don't name the tool file, and those records have only `fixture_commit`, with no `source_commit`. The integrity record's source fields cover this, so it's fine for this commit, but naming the tool would help next time.
+4. The terminal-IO observations record the execution mode but not the logging mode. Your claim (no automatic non-prefix resend, queued writes blocked) doesn't depend on logging mode, so this is a wording point only.
+
+**What I couldn't check without running commands**
+- That the integrity record's hashes of the six records match the files.
+- That the test source hashes match git.
+- That `check_security.py` really hashes to 6c18bc6b.
+- Exit codes and the contents of the stderr files.
+
+If you want that last bit of confirmation before committing, one short hashing pass covering these would do it.
