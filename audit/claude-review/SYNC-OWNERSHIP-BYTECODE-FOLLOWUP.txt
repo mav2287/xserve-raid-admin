@@ -1,0 +1,49 @@
+**Verdict: yes, the revised Manager resolves my earlier removal objection, and I found no new blocker.** I only read the three files; I ran nothing and wrote nothing.
+
+## Correction to my earlier review
+`#47` is `CommunicationsManager$Transaction.getMessage()` (javap line 55). The real send is `#65 AcpxConnection.send` at 255, inside the 247–270 block, which neither version touches. So my claim that "nothing is sent" was wrong. The original 241–247 window was only a getter call whose result goes into local 5 and is never read; nothing at 247–270 reads local 5. Two other details in that review were also wrong:
+- **Branch offset:** my suggested `ifeq +16` was off. The code correctly uses `+13`.
+- **Refinement 2:** I said only `(462,#76)` covers the window. Four entries cover it, and the revised patch correctly copies all four.
+
+## Tail bytes 595–623 match the javap
+| PC | Instruction | Check |
+|---|---|---|
+| 241 | `goto_w +354` | goes to 595 ✓; 246 is a `nop` |
+| 595 | `aload_2; instanceof #30` | local 2 is the handler (`getHandler`, stored by `astore_2` at 209) ✓ |
+| 599 | `ifeq +13` | goes to 612: non-SyncSender handlers go straight to the window ✓ |
+| 602 | `aload_2; checkcast #30; invokevirtual #407` | `#407` = `SyncSender.claim()Z`, 0x197 ✓ |
+| 609 | `ifeq -120` | goes to 489: cancellation skip, stack empty ✓ |
+| 612 | `aload_1; invokevirtual #47; astore 5` | the original window, byte for byte ✓ |
+| 618 | `goto_w -371` | goes to 247 ✓ |
+
+The code length is 595 + 28 = 623, and javap shows `stack=6, locals=9` unchanged. The tail needs only one stack slot.
+
+## Locals
+- **Local 1** is the Transaction (stored at 66).
+- **Local 3** is null (from 211) when 247 is reached.
+- **Local 4** is null (from 213):
+  - On the skip path, 489 → `ifnull 514` means `handleResponse` isn't called. It then reaches `connectionFailureSent=false` and goes back to 0. That's the same tail every completed iteration runs.
+  - At the handler entry points, a null local 4 merges with `BasicResponse` without a type conflict. Every handler path stores local 4 before 489 reads it.
+- **Local 5** is set to a RequestMessage before 247, as in the original. Handlers 337 and 462 store local 5 before they use it. The only behaviour change is that the dead getter call now runs after `claim()`.
+
+## Handler identity and priority
+The original entries covering [241,247) are, in table order:
+- `215–304 → 462` `#69 MalformedInputException`
+- `215–304 → 337` `#35 IOException`
+- `215–304 → 462` `#76 Exception`
+- `0–522 → 525` `#79 InterruptedException`
+
+The monitor entries (7–75, 385–431) and the `534–548` entry don't cover the window, so excluding them is correct. The four new `595–623` entries (javap lines 1004–1007) copy the handler PC and class index of each original entry, in the same order. No other entry overlaps 595–623, so appending them after the original 12 keeps the original priority. `end_pc` 623 equals the code length, which is valid. The `covering` check in `transform_manager` at `tools/sync_ownership_patch.py:110` refuses to patch if that original set or order ever differs.
+
+## Normalization
+`normalize_manager` (`tools/sync_ownership_patch.py:118`) checks:
+- pool count 408 and frame `00060009`;
+- the appended pool is exactly `claim`/NameAndType(405:171)/Methodref(30:406), which matches javap #405–#407;
+- the code is 623 bytes, the entry is at 241 and the tail is at 595;
+- the table count is 16, and the last four entries plus `attributes_count` match.
+
+It then puts the window back at 241, cuts the code to 595, removes the last 32 table bytes, sets the count back to 12, cuts the pool at `pool_boundary(405)`, and checks the whole-class SHA. `transform_manager` refuses its own output unless that round trip reproduces the input. The one leftover refinement from before still applies: an input with a pool count below 408 is returned without a hash check.
+
+## Remaining blockers (unchanged)
+- An abnormal worker exit is still an explicit blocker.
+- There's no baseline integration or release qualification for this build yet.

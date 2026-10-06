@@ -1,0 +1,37 @@
+I found no concrete blockers. The experiment positively shows all four legacy flaws and the matching fixed behaviour. A timeout, non-zero exit or any stderr output stops the run before a result counts. I ran nothing; this review is from reading the code only.
+
+## Does each scenario prove what it claims?
+
+| Scenario | Legacy flaw shown | Fixed behaviour shown | Notes |
+|---|---|---|---|
+| queued | The caller gets `IOException("communications shutdown")` and `handled==true`. After the caller has been joined, the cancelled request is still sent (2 sends). Its body matches the restart request byte for byte. | 1 send, and its body matches the follow-on request byte for byte. | Solid. |
+| active | The worker is blocked inside `onSend`, which runs before `requests.add`, so the send is in progress. The caller fails with `IOException` before the reply. After release the request is still sent exactly once. | The caller is seen waiting again on the sender's own monitor (`waitedCount` went up). `claimed` is true and `handled` false. After release the caller gets the sender's own `response` object back, with 1 send. | Small gap: see refinement 2. |
+| notify-race | The test holds the sender's monitor and waits until the caller shows as BLOCKED on that monitor, owned by the main thread. That means the interrupt had already pulled the caller out of the wait before `handleResponse` ran, so the order is fixed. The legacy caller gets `IOException`. | The fixed caller gets back the exact `answer` object. | Deterministic. Solid. |
+| first-reply | A second `handleResponse` replaces the first. | The first reply is kept. `claim()` returns false on an answered sender, and true then false on a fresh one. | This is a direct unit test on a sender built without its constructor, not a real late callback from the worker. |
+
+On the other points you asked about:
+- **No socket or controller data:** the transport is a memory shadow, the host is `192.0.2.1` (a reserved test address), and `OfflineGuard` blocks connect, listen and DNS. Its denial count is checked at the end, so even a blocked attempt that the app swallowed would still fail the run.
+- **Identity checks:** the runtime checks the CodeSource and the loaded resource hash of Manager, Sender and `AcpxConnection`. The Python side pins the reference JAR and class hashes, rebuilds the originals exactly from the patched classes, and checks the set of changed entries. It also verifies the compiler and runtime file trees against their locks, re-checks each runtime after use, and checks source hashes before and after.
+- **Stderr, timeout and errors:** `run_jdk` raises on a non-zero exit or any stderr output. `subprocess.TimeoutExpired` is not caught, so a timeout ends the run.
+- **Fixture checks:** all are explicit `throw`s, so they don't depend on `-ea`. Exceptions in the caller and worker threads are captured and checked, and any uncaught one would print to stderr and fail the run.
+
+## Refinements (not blockers)
+
+1. **Turning log4j off hides errors the app catches itself.** `setThreshold(OFF)` means an exception caught and logged by `run()`'s handlers is never seen, so the empty-stderr check doesn't cover it. Instead, attach an in-memory appender and require zero WARN/ERROR events. Today the outcome checks plus the pinned `ifeq 489` jump target cover this, so it isn't a false positive.
+2. **The active (fixed) wait check has a theoretical false-pass window.** A spurious wakeup between reading `waits` and `interrupt()` could make the "waiting again" check pass before the interrupt is handled. The later `error==null` check still passes in that case. Fix: record `Thread.currentThread().isInterrupted()` inside the caller after `postMessage` returns and require it to be false. This proves the wait actually consumed the interrupt. It also documents that the fixed code clears the interrupt flag and doesn't restore it, which is worth stating in the doc.
+3. **Request identity and bodies are checked by type, not instance.** Bodies are compared against freshly built requests, which only shows the right kind of request was sent. Add `requests.get(0)==cancelled` for legacy queued and identity checks for the follow-on and active requests. Active and notify-race also check no body at all.
+4. **Two scenarios don't check send or connect counts.**
+   - notify-race leaves its request queued, then calls `shutdown()` and `run()`. Nothing checks `requests.size()` afterwards (legacy and fixed could behave differently there) or `constructors==1`.
+   - No scenario checks `constructors`, so a reconnect path would go unnoticed.
+5. **Some checks are looser than the others.**
+   - Legacy active doesn't check the exception message or `handled==true` (queued does both).
+   - `waitingSender` checks WAITING without checking which lock the caller is waiting on.
+   - The legacy `claim_once=false` label is printed but never observed; assert `NoSuchMethodException` for `claim` on the legacy class.
+6. **Some identity checks are missing.**
+   - At runtime nothing checks the CodeSource or hash of `AcpxConnection$1` or of the compiled fixture classes, and they aren't pinned. Only the build-time allowlist and the no-shadow check cover them.
+   - The compiler JDK isn't re-verified after use, unlike the runtimes.
+   - If the pinned compiler is newer than JDK 8, `-source 8 -target 8` without `--release 8` compiles against the newer class library.
+7. **Doc accuracy.**
+   - "Late callbacks replacing it" overstates first-reply, which is a direct synthetic double call.
+   - "Exact byte bodies" means `RequestMessage.writeTo` output only, not the real transport's on-wire framing.
+   - The "32 vectors passed" claim has no archived JSON output to back it.

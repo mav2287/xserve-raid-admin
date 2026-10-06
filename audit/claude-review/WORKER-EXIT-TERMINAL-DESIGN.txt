@@ -1,0 +1,82 @@
+# Worker-exit design: recommendation and blockers
+
+I only read the four files you listed, plus `tools/check_sync_ownership.py`, the SyncSender javap and the `doConnect`/`shutdown` sections of the fixture. Nothing was run or changed.
+
+## Why the worker is stranded today
+
+`run()`'s exception table catches only `InterruptedException` over 0–522, and `Exception` only over 215–304 and the 595–617 claim tail. That leaves these ways for the worker to die with `stopped=false` and no callback sent:
+
+- **A throw from `handleResponse` at 509.** Even a plain `RuntimeException` from an async handler kills the worker.
+- **An `Error` from send or `doConnect`.** This includes an `Error` thrown by the connect-failure callback at `doConnect` 586.
+- **A failed stop.** `RejectionRecovery.report`/`retire` throws `IllegalStateException` when `shutdown()` fails.
+- **A throw from the debug logging at 77–202.** This happens after `removeFirst`, so the transaction is lost.
+- **A normal `InterruptedException` exit (wait at 28 → 525).** The epilogue closes the connection but never sets `stopped`. Queued transactions are then stranded, and later posts are still accepted.
+
+## Recommendation: rename `run` to `dispatchLoop` and add a bytecode wrapper (no `Method.invoke`)
+
+The edits to the manager class:
+
+1. **Rename the original method.** `run()V` becomes `private dispatchLoop()V`. Only the name index and access flags change; its code bytes stay identical apart from edits 3 and 4.
+2. **Add a new `public run()V`.** It needs no StackMapTable because the class version is old.
+   ```
+   0  aload_0; invokespecial dispatchLoop()V
+   4  aconst_null; astore_1; goto 9
+   8  astore_1                         // table: 0 4 8 any
+   9  aload_0; aload_0 getfield queue; aload_0 getfield active; aload_1
+      invokestatic compat/WorkerExit.exit(LCommunicationsManager;Ljava/util/LinkedList;Ljava/lang/Object;Ljava/lang/Throwable;)V
+      return
+   ```
+3. **Track the active transaction under the queue lock.** Add a field `private Object active`. Replace the 6 bytes at 63–68 (`checkcast; astore_1; aload_2; monitorexit`) with `goto_w`+`nop`. The new tail runs `checkcast #21; astore_1; aload_0; aload_1; putfield active; aload_2; monitorexit; goto_w 69`. Append a table entry `(tail, tail_end) → 72 any` so the monitor-exit coverage stays the same as before.
+4. **Clear `active` at 489, not at 514.** Replace the 6 bytes at 489–494 (`aload_2; ifnull 514; aload 4`) with a jump to a tail that sets `active=null` and then redoes the original tests.
+   - Every outcome path reaches 489 first: lines 304, 334, 459 and the claim-false skip at 609.
+   - Clearing at 514 would be wrong. If a callback throws, a handler that already got its real reply would get a second, "unconfirmed" callback.
+   - From 489 on, the worker has already decided the outcome, so a throw from the callback is the handler's own fault and should not be redelivered.
+
+### Why this is less invasive than the exception-table trampoline
+
+- **One trivially auditable catch.** It covers a single `invokespecial`, and the original 617-byte table's ordering and semantics are untouched.
+- **No dependence on `local1`.** Slot 1 is a Transaction at 66 but a Throwable at 525/551, and it is unassigned at entry. The trampoline would need a null-init at offset 0, carefully chosen ranges that exclude the 522–552 epilogue, and correct verifier type-merging across the whole method.
+- **Every exit reaches the helper.** That includes a normal return after an `InterruptedException` with `stopped=false`. The trampoline would need a separate hook at 526 for that.
+- **No `Method.invoke`.** Reflective invocation would wrap throwables in `InvocationTargetException`, add `setAccessible` failure modes before dispatch starts, and add extra frames.
+- **Cost:** stack traces show a `dispatchLoop` frame under `run`. Logged traces (for example at 316) will look different.
+
+`Transaction` and `SyncSender` are `private` inner classes, so `compat` cannot link to their methods. The helper still needs exact-shape reflection for `Transaction.getHandler`/`getContext` and the `SyncSender` `Class`. That metadata should be resolved once in a non-throwing `WorkerExit.prepare()` called inside the wrapper's try range, not for the first time on a failure path. If the shape check fails, dispatch should still run normally, and on exit the helper only stops and logs a marker.
+
+## `WorkerExit.exit(manager, queue, active, cause)`
+
+Steps, in order:
+
+1. **Stop locally first.** Call `manager.shutdown()`, then set `connected=false` under the manager lock (the first half of `retireConnection`). This is not a controller command.
+2. **Snapshot the queue.** Copy and clear it under `synchronized(queue)` only, then release the lock.
+3. **Build responses before any callback.**
+   - The active transaction gets `BasicResponse(TYPE_COMMAND, null, IO_ERR, new UntrustedResponseException("…outcome is unconfirmed"))`. It never uses -101/ConnectException and never says "cancelled".
+   - Pending transactions get `CommShutdownException`, meaning "unsent shutdown".
+   - No replay, and no cause is rendered.
+4. **Complete exact-class `SyncSender`s first, active then pending, outside every lock.** The first-reply guard handles callers that were already cancelled before claim, or already served by `doConnect`'s callback. Callers that were never claimed see `CommShutdownException`. The active caller sees an `IOException` saying "outcome is unconfirmed".
+5. **Then run async callbacks on the worker thread, as the original drain at 273 does.** Wrap each one in its own catch of `Exception` and `LinkageError`, which logs a fixed marker and continues.
+6. **Re-drain, at most N rounds.** Posts from the worker thread are exempt from the stopped refusal (postMessageAsync 63–70), so a callback can enqueue new work after the stop. If the cap is hit, log a marker and stop draining.
+7. **Close last, outside locks, and only if `cause != null`.** On a normal return, the epilogue at 534–548 has already closed the connection.
+8. **Log only a fixed marker** plus a category (Exception, LinkageError, ThreadDeath, VME, other). Never log the message, `toString`, or stack trace.
+
+**Throwable policy:**
+
+- **`Exception` / `LinkageError` / other `Error`:** do full cleanup, then swallow.
+- **`ThreadDeath`:** do cleanup, then rethrow (the default handler is silent for it). If the pinned JDK makes `Thread.stop` unsupported, this is moot.
+- **`VirtualMachineError`:** best effort only, with no promise. Building the responses before any callback (step 3) reduces allocation later. The order gives sync completions the best chance.
+- **Non-`Exception`/`LinkageError` `Error` from an async callback (step 5):** stop the remaining async callbacks with a marker. Sync callers have already been released by then.
+
+## Races and lock order
+
+- **Stopped posts.** `shutdown` writes `stopped`, then takes and releases the queue monitor. Any poster that takes the queue monitor afterwards sees `stopped=true` and goes through `StoppedDelivery`. The helper drains only after `shutdown` returns. So every transaction ends up in exactly one place: refused by its poster, in the snapshot, or `active`. None is lost or delivered twice.
+- **First-reply guard.** A pre-claim interrupt sets `handled=true`, so `claim()` returns false and the worker clears `active` at 489. If the helper later delivers to that sender, the guard drops it. After claim, an interrupt cannot cancel the wait, and the helper's unconfirmed completion is what releases that caller.
+- **Normal `InterruptedException` exit.** The `doConnect` backoff sleep swallows interrupts at 684. If the interrupt hits the wait at 28, `dispatchLoop` returns normally with `stopped=false` and `active=null`. The helper then stops and drains pending transactions as unsent. A normal exit that is already stopped finds an empty queue, so it's a no-op.
+- **Connection close blocking.** Callers shouldn't wait on a close that could block, so close happens last. Setting `connected=false` first keeps `isConnected` responsive and prevents the connection being reused.
+- **Lock order.** The only nesting stays inside `shutdown` (manager → queue). The helper takes manager, queue, each sender monitor, then manager again, one at a time and never nested. While the helper runs, the worker holds no monitors, because the original `any` handlers release them.
+
+## Blockers before installing
+
+1. **Prove the replay block is unreachable.** The checker must prove 380–459 (the `addFirst` replay) and 344–349 are dead: no branch or handler targets them. Otherwise a re-queued "pending" transaction might already have been sent, and labelling it "unsent" would be false.
+2. **Check `AcpxConnection.close` bytecode.** If it writes protocol bytes or can block on a full send buffer, the abnormal path must not call it, or must close only at the socket level.
+3. **Accept or fix a known double-callback.** If the connect-failure callback at `doConnect` 586 throws an `Error`, an async handler gets both the connect failure and "unconfirmed". This needs to be accepted or suppressed.
+4. **Accept the callback order change.** Sync completions now come before async ones, which changes FIFO order on failure paths only. Accept that, or document it.
+5. **Extend the checker:** reverse the rename, wrapper, field and trampolines; pin the exact shapes of `Transaction`/`SyncSender`; and add offline vectors for each throw site listed in the first section, under `-Xint` and `-Xcomp` with `-Xverify:all`. OOM, `ThreadDeath` and async-throwable vectors must be labelled best-effort and not claimed as guarantees.

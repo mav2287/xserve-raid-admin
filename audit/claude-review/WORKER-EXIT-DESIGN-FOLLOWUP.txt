@@ -1,0 +1,47 @@
+I changed nothing. I read `build/WORKER-EXIT-REFINED-DESIGN.txt:19-23`, the constructor, `run` and `doConnect` in `tests/fixtures/sync-ownership-candidate-manager.javap`, and `patches/compat/RejectionRecovery.java`. Two of the four amendments hold as written. The callback redirect is correct but doesn't prevent a second callback inside the loop. The constructor seam needs a different byte range. Before coding there are two blockers and one open question.
+
+## What checks out
+
+**Callbacks at 409 and 586:**
+- **409:** `invokeinterface #78,4` takes exactly five bytes (409–413), and 414 is `return`. Four values are on the stack (handler, system, local 13, null). Offset 401 is only reachable from the `goto_w` at 735, after `retire`/log at 723–732.
+- **586:** the same shape (586–590), resuming at 591. Offset 583 is only reachable from 749, after `retire` at 741.
+- **Exception handlers:** none of `doConnect`'s six rows covers 401–413 or 583–590. A tail with no handler rows is therefore equivalent to the original.
+- **Stack limit:** clearing the field (`aload_0; aconst_null; putfield`) takes the stack from 4 to 6, which is exactly the existing `max_stack=6`. It must not go any deeper.
+- **Verifier:** the class is major version 47, so there are no stack map frames to maintain. The 409 tail can end in `return` instead of jumping back to 414.
+
+**EDT for every helper drain:** this is correct and necessary. At 525, `astore_1` overwrites the transaction with the `InterruptedException`, so only the `active` field still identifies it. Specify `invokeLater` only, never `invokeAndWait`.
+
+**Run wrapper (`stopped`, then `connected`, then snapshot):** the field is `private volatile boolean stopped` (line 440), so writing it directly is legal. `postMessageAsync` reads `stopped` and adds to the queue under the queue lock (56–73). That means any post that took the lock before the snapshot is in the snapshot, and any post after it is refused. The one exception is the worker-thread exemption at 63–70. It stays harmless only because the helper runs no handler code on the worker, which the EDT amendment already guarantees.
+
+There are no nested locks and no new lock-order edges. This candidate reads `stopped` directly at 17 and 44, so `run` has no queue→manager lock edge. `retireConnection` takes only the manager lock. `shutdown` takes the manager lock and then the queue lock, but the helper never holds one while taking the other.
+
+## Blockers
+
+1. **A callback that throws at 409/586 is still delivered a second time inside the loop.** The design says the clear "prevents two async callback attempts", but it only stops the helper from redelivering. Here is the path:
+   - `doConnect` is called from `run` at 231, inside the 215–304 range whose `Exception` handler is at 462.
+   - A `RuntimeException` from the callback lands at 462 and goes to `report`. `report` stops the manager and returns normally.
+   - The code then builds a -102 response at 474 and calls the same handler again at 509.
+
+   There are two ways to resolve it:
+   - **Suppress it:** at the 489 seam, skip the callback when `active==null`. Only the 409/586 tails can null it before 489. This changes behaviour relative to audit.20 and must be declared.
+   - **Accept it:** correct the design text and keep this as a documented second callback.
+
+2. **The constructor seam as written breaks a verifier rule.** Bytes 35–40 are `aload_0; new; dup; aload_0`. Putting them back in a tail and resuming at 41 carries two uninitialized `Thread` references across a backward branch. The inference verifier rules in JVMS 2nd edition §4.9.4 forbid that. I can't confirm offline whether HotSpot's old verifier enforces it, so don't rely on it either way. Use one of these instead:
+   - **Recommended: 30–34** (`aload_0; aload_1; putfield #14`). It is exactly five bytes, `this` is already initialized, nothing branches there, and the constructor has no exception table.
+   - **Or 35–43, resuming at 44.** This keeps `invokespecial` inside the tail.
+
+## Open question before coding
+
+3. **How far does a `prepare` failure spread?** The only call site I found is `RaidSystem.<init>` at 384–390 (`audit/next-session-safety-selected-bytecode.txt:1325`), so a failure escapes `RaidSystem`'s constructor. Two things need checking:
+   - Whether `RaidSystem` makes `this` reachable from elsewhere before offset 384. If it does, a half-built system with `comms==null` survives.
+   - How whoever loads or adds systems handles the exception. A failure could abort loading every saved system.
+
+   Also, the readiness cache must be published safely across threads. Resolving it in a class-initialization holder or under `synchronized` does that. A plain static flag does not.
+
+## Smaller points
+
+- **Move `connected=false` later.** It is under the manager lock before the snapshot, so if any thread held that lock while waiting on the worker, the helper would block before releasing sync callers. Post admission doesn't depend on `connected`, so set it after the sync completions.
+- **State that `active` and `activeStarted` are worker-only.** The tail clears them outside the queue lock, which is only safe if nothing else reads them. The checker should prove that.
+- **No issue with a null handler at 409.** That path has no null check, unlike 533, so a null handler throws a `NullPointerException` after the clear. That ends at 489 with a null handler and no callback, so nothing is lost.
+
+None of this is release qualification. I ran nothing and touched no live app or network.

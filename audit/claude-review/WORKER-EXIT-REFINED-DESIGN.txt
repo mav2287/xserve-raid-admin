@@ -1,0 +1,32 @@
+I've finished the review and nothing was changed. The direction is sound, but I found four things that should be fixed in the design before any code is written.
+
+I read both design files and checked the claims against `tests/fixtures/sync-ownership-candidate-manager.javap` (the `run`/`doConnect` bytecode). Offsets below are from that file.
+
+## The six refinements
+
+| Refinement | Verdict |
+|---|---|
+| **Double callbacks** | Mostly resolved. `handleResponse` is called only at `run` 509 and `doConnect` 409 and 586, which matches the design. Clearing `active` at 489 covers every outcome path. The exact placement inside `doConnect` is still open (blocker 1). |
+| **Pre-claim unsent classification** | Correct. The claim at 595 comes after `doConnect` (231) and its 409/586 callbacks, so any failure before claim really is unsent. Setting `activeStarted` at 612 is conservative: if `getMessage` throws, the request is labelled "unconfirmed" even though nothing was sent. That is acceptable. |
+| **Cap-induced stranding** | Resolved by moving the async callbacks to the EDT, but only on the throwing-exit path (blocker 3). |
+| **Queue/stop ordering** | Correct as long as the helper actually goes through `shutdown()`'s barrier (blocker 4). |
+| **Metadata fail-closed** | Not yet sound (blocker 2). |
+| **Async fatal cleanup on the EDT** | Sound. Sync callers are released on the worker before anything is scheduled, so a blocked EDT can't deadlock this. |
+
+## Blockers
+
+1. **Where `active` is cleared inside `doConnect` must be pinned.** Both callback sites call `RejectionRecovery.retire` first (723 and 741). On the 409 path a `logger.error` (727–732) also runs before the callback. The clear has to go immediately before the handler load, at the 401 and 583 seams, which are reached only via 735 and 749. If it goes earlier, at 718 or 740, a throwing `retire` or appender would leave `active` cleared but undelivered. If `RejectionRecovery.report` at 467 then also throws, that transaction is lost. The design should name these offsets, and the checker should verify them.
+
+2. **Failing closed on metadata can strand callers already queued.** If `prepare` fails inside `run()`, the helper can't call `getHandler`. Any transactions posted before the worker started can then never be completed. Metadata needs to be resolved before the manager accepts any post: in the constructor or `start`, before the thread starts, and a failure should refuse to start. Otherwise, define how queued sync callers are released without the reflected getters.
+
+3. **The normal-return drain (`InterruptedException` with `stopped=false`) needs the same EDT deferral.** The design limits EDT deferral to the "exceptional exit path". But when the helper drains the queue after an interrupt-driven normal return, it runs on the worker thread, which is exempt from the stopped refusal. That brings back the same reentrant-post and stranding problem. Every drain the helper starts, whether `cause` is null or not, should deliver async callbacks on the EDT.
+
+4. **What happens if `shutdown()` throws inside the helper is undefined.** The earlier review already notes that `retire` and `report` throw `IllegalStateException` when `shutdown()` fails. The helper needs a fallback that doesn't depend on `shutdown()`: write `stopped` directly, then take and release the queue monitor, before snapshotting the queue. Otherwise, show that `shutdown()` can't throw on this path. Without this, a failed stop leaves posts admissible while the snapshot is taken.
+
+## Minor points to state in the design
+
+- **EDT delivery:** use a single ordered runnable with a catch around each callback. SyncSenders must never be completed on the EDT.
+- **Close timing:** the abnormal-path close on the worker may now run at the same time as the EDT callbacks. That's fine, but say so.
+- **Checker scope:** besides the manager, it should confirm that `StoppedDelivery`'s refusal callbacks never touch a transaction that was queued. Those posts never enter the queue, so they can't overlap with the helper's snapshot.
+
+I agree with the rest of the design: the bytecode wrapper, the field-based tracking, the lock order, the throwable policy, the close and timeout limits, and the remaining test list. audit.20 stays the qualified baseline. None of this has been tested on production hardware, so the -Xint/-Xcomp and throw-site vectors remain offline-only evidence.

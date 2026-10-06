@@ -284,3 +284,15 @@ See [scope, evidence and remaining gaps](audit/STOPPED-POST-ADMISSION.md).
 Interrupted-wait ownership, abnormal worker exit, stop-versus-active-send,
 native GUI, real hardware and signed release acceptance remain open. Original
 JAR and installed application are preserved; legacy HTTP remains plaintext.
+
+### Ownership experiment — not baseline acceptance
+
+Source and memory fixtures now demonstrate that interrupted synchronous waits can
+leave a command executable, overwrite a real response, and accept a later
+replacement response. The reversible ownership experiment fixes those cases,
+but is not integrated: active worker death would otherwise strand a claimed
+caller. Original queue-wait interruption also exits the worker without setting
+`stopped`, and an async handler exception can kill it outside the original
+exception table. These are local terminal-completion gaps, not evidence of a
+controller failure. See [experiment and controls](audit/SYNC-OWNERSHIP-EXPERIMENT.md)
+and [worker-exit design under review](audit/WORKER-EXIT-DESIGN.md).

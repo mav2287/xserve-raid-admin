@@ -1,0 +1,34 @@
+I found one concrete false positive. Everything else is a minor gap or a provenance nit, and I found no blockers. This is from reading the four files only; I didn't run anything.
+
+**False positive: WARN events never reach the capture appender**
+- At `SyncOwnershipObservation.java:71` the root logger is set to `Level.ERROR`.
+- In log4j 1.x, a `logger.warn(...)` call is dropped by the logger's own level check before any appender sees it. Any logger that inherits the root level counts as zero WARN events, so the "zero WARN/ERROR" claim really only covers ERROR.
+- Fix: `root.setLevel(Level.ALL)` or `Level.WARN`. Your appender doesn't render the event, so this still avoids rendering.
+- Related, and it depends on what the jar contains: `removeAllAppenders()` only clears the root logger. If the application jar has a `log4j.properties`/`log4j.xml` that gives a child logger its own appender with `additivity=false`, those events skip your counter. Console output would still fail the exact stdout/empty-stderr check, but a file appender wouldn't. Worth one look at the jar's resources.
+
+**Minor gaps**
+1. **Interrupt policy is only asserted in one place.** `active` asserts that the interrupt flag is consumed (`!returnedInterrupted`). `notify-race` with the fix applied also returns normally after an interrupt, but doesn't assert the flag state, so the two scenarios could disagree without anything failing. Also, asserting that the flag is consumed goes against the usual Java practice of restoring the interrupt status. If that's deliberate, write it into the limits text so it isn't read as an accident.
+2. **The worker-exit provenance list doesn't cover everything that's imported.** `check_worker_exit.py` imports `check_sync_ownership`, which runs `sync_ownership_structure.py` and `inventory.py` at import time. Neither file is in `names` at `check_worker_exit.py:21`, so they're loaded but not hashed. Add them.
+3. **The worker-exit candidate isn't tied to the sync experiment's candidate.** The worker tool doesn't re-run the predecessor normalization, the entry-delta check, the structural `check(before, after)`, or the `stopped-post-final-integrity.json` ledger check. Its fixed-ownership bytes are linked to the sync experiment's only through the shared, hashed transform source, and its JSON output has no top-level `candidate_jar_sha256`. Per-observation `jar_sha256` and class pins exist, so this is a cross-referencing gap, not a hole in correctness.
+4. **`fixture_dirty` will be true.** The fixture sources are currently untracked, so `fixture_commit` doesn't identify them. `source_hashes` does cover them, so this is fine as long as reviewers know to rely on the hashes and not the commit.
+
+**Checked and found sound**
+- **Sender monitor checks:** the waits (identity hash and `WAITING`/`BLOCKED` state, plus the waited-count increase in `active`) are positively observed.
+- **Notify race:** the legacy overwrite is deterministic, because the interrupt removes the caller from the wait set before `notify`.
+- **Classes under test:** CodeSource and SHA-256 are checked for the Manager, Sender, the memory transport stand-in (shadow), the fixtures and the nested classes. The class allowlists block any fixture class from replacing an application class.
+- **Counts and bodies:**
+  - The constructor count of 1 (0 for `first-reply`) is reset before any test object is built.
+  - The legacy cancelled-request bytes and the active serialized request bytes are checked exactly.
+  - Not asserting input object identity is correct, since the Manager clones requests.
+- **Worker exit:**
+  - Rendering the fault would throw an `AssertionError` that replaces it, and the `workerError.get()==fault` check would then fail, so the identity check also guards against rendering.
+  - The release happens only after the caller is seen still waiting and `callerError==null`, and it's clearly labelled as fixture cleanup.
+  - The claim exposure differs correctly by mode in the fixed-ownership candidate.
+- **Neither tool can report qualification:**
+  - Both hardcode `qualification:False`.
+  - Both raise if output doesn't exactly match the expected lines or if anything is written to stderr.
+  - A timeout or error raises without printing JSON.
+  - Both require both architectures under both `-Xint` and `-Xcomp`.
+  - Both re-verify the runtimes, the compiler and the inputs at the end.
+
+So the only fix I'd make before archiving is the root logger level (item 1 at the top). The rest is optional tightening.

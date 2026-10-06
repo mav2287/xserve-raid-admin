@@ -1,0 +1,50 @@
+**Verdict: the proposed invariant is not sound as written, and the 474 seam can be bypassed.** The fix I'd recommend is to drop the 474 guard and make the run callback at PC509 a test-and-clear point, so there is a single exactly-once gate.
+
+## Findings
+
+**1. Sneaky checked exceptions bypass the 474 guard.**
+- The `[215,304)` region has three handlers: `MalformedInputException→462`, `IOException→337` and `Exception→462` (javap:995-1001). The doConnect call at 231 is inside that region.
+- The JVM doesn't enforce checked exceptions, so a callback at doConnect 409/586 can throw an `IOException` even though `handleResponse` doesn't declare one.
+- If its message starts with `"PropertyListException"`, the path is 337 → 553 → 578 → 586 `retire` → 352. That builds a `-103` response and calls the handler again at 509. It never reaches 474.
+- Any other `IOException` message, or a null message, goes 563 → 464 and does hit the guard.
+- So "the only route to a duplicate is 462→474" is false.
+
+**2. 509 is the better seam.**
+- Every run callback goes through 509. On a legitimate path, `active` is non-null there because it's set at every dequeue. The only thing that clears it beforehand is a doConnect callback seam.
+- At 509 the stack already holds handler, system, response and context (depth 4, max stack 6). Turn the planned clear-before-509 trampoline into a test-and-clear:
+  - `aload0; getfield active; ifnull skip`
+  - `aload0; aconst_null; putfield active`
+  - `invokeinterface #78`, then `goto_w 514`
+  - `skip`: `pop2; pop2; goto_w 514`
+- Peak stack is 6, which fits `stack=6`.
+- This covers 474, 352, the -102 response at 319 and anything else. It keeps report467 and all failure responses whenever `active` is non-null.
+- One difference: `getContext()` (506) still runs on the skip path. That's harmless, but record it.
+- The planned "clear on cancelled/no-handler at 489" must clear only on the branches that go to 514. Otherwise it defeats the test at 509.
+
+**3. If you keep the 474 trampoline anyway, the jump back is risky.**
+- Jumping back to 479 carries two uninitialized `BasicResponse` refs (from the `new` in the tail) across a backward branch. The old inference-verifier rules restrict this, and a ≥50 class would need `uninitialized(tailPC)` frames.
+- Safer: use the four NOPs at 470..473. A 3-byte `goto` to the tail is enough, and the tail then does `goto_w 489` or `goto_w 474`. This leaves `new`/`dup`/`iconst_2` untouched.
+
+## Conditions the invariant still depends on
+
+The invariant is: "active==null at a run-callback seam ⇒ a terminal callback for this txn already began". The checker has to prove these:
+
+1. **Who writes `active`:** only the worker thread. Non-null only at the dequeue seam (56..67, under the queue lock). Null only at the doConnect 409/586 seams, at 509, at the no-callback branches of 489, and in the post-loop helper. No other thread may clear it, or a concurrent clear would suppress a legitimate failure response.
+2. **No send after a doConnect callback:**
+   - 409 returns to run at 234. It relies on `retire` (723) having made `isStopped()` true, so control goes 273 → (`connectionFailureSent` is set) → 304 → 489 instead of 241 → 595 → claim/send.
+   - The 586 path relies on `retire` at 740 so that the check at 599 exits.
+   - I couldn't see `RejectionRecovery.retire` in this file. It must set `stopped` unconditionally and permanently, or a send could run with `active==null` and its real failure would be swallowed.
+3. **Retry path 380..459 is dead,** or the doConnect at 452 is accounted for. It's outside the 462 handler range, so it escapes to the wrapper, which is fine as long as nothing redelivers.
+4. **A throw from 509 itself** (outside `[215,304)`) goes to the wrapper with `active` already cleared, so there's no redelivery.
+
+## Tests needed
+
+For each case, count `handleResponse` calls per txn and assert no `send`:
+- The 409 callback and the 586 callback each throw, separately: `RuntimeException`, a sneaky `IOException("PropertyListException…")`, a sneaky `IOException` with another message, one with a null message, `MalformedInputException`, and an `Error`. Each must produce exactly one call, no send, no wrapper redelivery, and `report` must be idempotent after `retire`.
+- Failure-response parity when `active` is non-null: `RuntimeException` from send gives -102, a plain `IOException` gives -102, the PLE prefix gives -103, `MalformedInput` gives -102, and the shutdown path (280) gives -102. Each produces exactly one callback.
+- A 509 callback that throws must not be redelivered. Normal success produces one callback. After a skip, the next txn starts with `active` freshly set and `connectionFailureSent` reset at 514.
+- A failed claim and the no-handler path must still skip without the clear defeating the 509 test.
+- Bytecode checks: verify with `-Xverify:all` on both architectures under `-Xint` and `-Xcomp`. If you mirror the `0..522→525 InterruptedException` entry, the tail needs a matching exception-table entry at the end of the table. Also check exception-table ordering is preserved, max_stack, and the class-hash roundtrip.
+- A static checker that confirms all of the `active` read/write sites above and the `retire ⇒ stopped` reachability.
+
+This review was read-only. I didn't run any commands or tests and didn't write any files.

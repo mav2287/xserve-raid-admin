@@ -1,0 +1,62 @@
+I found one concrete blocker, and it is in the Manager edit. The sender edits and the sender's reverse reconstruction check out.
+
+## Blocker: the Manager trampoline drops the instructions it replaces
+
+`transform_manager` (`tools/sync_ownership_patch.py:104`) overwrites `code[241:247]`, which was `MANAGER_WINDOW` = `aload_1; invokevirtual #47; astore 5`, with `MANAGER_ENTRY` = `goto_w +354` → 595, followed by a `nop`. `MANAGER_TAIL` decodes as:
+
+```
+595 aload_2
+596 instanceof #30
+599 ifeq +13        -> 612
+602 aload_2
+603 checkcast #30
+606 invokevirtual #407 (claim()Z)
+609 ifeq -120       -> 489
+612 goto_w -365     -> 247
+```
+
+The window instructions never run again. Both paths into 247 skip `aload_1; invokevirtual #47; astore 5`: claim succeeded, and the handler isn't a `SyncSender`. So the operation at #47 is gone, which by your description is presumably the send, and local 5 is never stored before 247. At best this changes behaviour (nothing is sent, including non-sync messages). At worst the old inference verifier throws a VerifyError if anything at or after 247 reads local 5. Exact reconstruction doesn't catch this, because the reverse direction is internally consistent.
+
+I didn't confirm what #47 actually is, because the Manager javap is outside the requested scope. The conclusion doesn't depend on it, though: the bytes show the window being removed and not re-executed.
+
+**Fix:** put the window back into the tail between the claim check and the jump back:
+
+```
+595 2c c1001e 990010      ; ifeq +16 -> 612 (non-SyncSender still sends)
+602 2c c0001e b60197 99ff88   ; claim false -> 489
+612 2b b6002f 3a05        ; original send window
+618 c8 fffffe8d           ; goto_w -371 -> 247
+```
+
+That makes the tail 28 bytes, so the code length becomes 623 and the new exception entry becomes `(595,623,462,76)`. Update the 617 constants in `normalize_manager` to match. The claim still comes before the send.
+
+## Sender: no blockers
+
+- **Interrupt trampoline (138–159, 21 bytes):**
+  - `astore 4`.
+  - `ifne` at 144 → 96 (handled: monitorexit and keep the real response).
+  - `ifne` at 151 → 24 (claimed: loop back and `wait` again until the actual response arrives).
+  - `goto_w` at 154 → 60 (before claim: build the shutdown `InterruptedIOException` response and set `handled`).
+
+  Each target matches its offset. The stack is empty at 60, and local 4 is set on both paths. The original handler at 58 is now unreachable, which the class-47 inference verifier accepts.
+- **Exception table:** `(31,55,138,InterruptedException)`, `(24,98,101,any)`, `(101,105,101,any)`, `(138,159,101,any)`. The trampoline runs with the monitor held, because `wait` reacquires the monitor before throwing. The new entry routes any throw from the trampoline to 101, which does `monitorexit` on local 3. Max stack/locals of 7/7 is enough.
+- **Locking:**
+  - `handleResponse` keeps `ACC_SYNCHRONIZED`. Its guard (`getfield handled; ifeq 8; return`) jumps to the right place, and the original 15 bytes are preserved.
+  - `claim()` has flags `0x0020` (synchronized, package-private). Its two `ifne` → 21 checks reject when `handled || claimed`, then it sets `claimed=true`.
+  - The constructor uses `monitorenter` on `this`, so all three code paths synchronize on the same object. A handled response always wins over interruption, and a cancellation before claim makes `claim()` return false.
+- **Pool, field and method bytes:** #73–#77, the `claimed` field (`0002 0049 0019 0000`), the field/method count edits and the `claim` Code attribute (stack 2, locals 1, 23 bytes, no table, no attributes) all match the javap.
+- **Reverse reconstruction:** `normalize_sender`:
+  - removes table entry 4 (`[:26]+[34:]`) and sets the count back to 3 and handler 1 back to 58;
+  - takes the guard out of `handleResponse`;
+  - removes the field together with the methods_count;
+  - drops the method and cuts the pool at `pool_boundary(73)`;
+  - and is pinned by the whole-class SHA.
+
+  `transform_sender` refuses its output unless the round trip reproduces the input exactly.
+
+## Refinements (not blockers)
+
+1. `normalize_sender` returns a pool-73 input, and `normalize_manager` returns any input with fewer than 408 entries, without checking the hash. If a caller treats normalize output as already pinned, add the SHA check on those pass-through paths too.
+2. `transform_manager` assumes the tail should be covered only by `(462, #76)`. It should check that exactly that one entry covers the original `[241,247)`, so the tail reproduces every original entry over the window, in order.
+3. After claim, the interrupt is cleared by `wait` and never set again, so the caller gets the real response with no interrupt flag. This matches "after claim waits actual response". If you want callers to still see the interrupt, document it or restore it.
+4. Within this scope I can't verify that local 2 at 595 holds the handler, or that 489 is the right "skip send" target. Both depend on the Manager `run()` bytecode outside these two files.

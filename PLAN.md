@@ -700,3 +700,16 @@ See [scope, evidence and remaining gaps](audit/STOPPED-POST-ADMISSION.md).
 Interrupted-wait ownership, abnormal worker exit, stop-versus-active-send,
 native GUI, real hardware and signed release acceptance remain open. Original
 JAR and installed application are preserved; legacy HTTP remains plaintext.
+
+### Next security milestone: ownership plus terminal worker exit
+
+The user authorizes closing the security hole conservatively. Implement and
+qualify interrupted-request ownership together with worker-exit completion before
+promoting the next baseline. A claimed operation must remain unconfirmed when
+its worker dies; it must never be replayed or reported as safely cancelled.
+Unclaimed queued operations are unsent shutdowns. Stop admission before callbacks,
+avoid double callback attempts including doConnect failure publication, and keep
+new boundary signals free of arbitrary throwable data. Exceptional callback
+thread/order changes must be documented and tested. The current
+[audit.20 baseline](AUDIT-BASELINE.md) remains qualified; the
+[ownership experiment](audit/SYNC-OWNERSHIP-EXPERIMENT.md) is not acceptance.
