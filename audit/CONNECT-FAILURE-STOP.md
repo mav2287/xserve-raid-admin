@@ -1,7 +1,8 @@
 # Audit.18 reported initial connection failure
 
-Status: development; clean qualification pending. The current qualified release
-remains audit.17 until the full clean gate and packaging records are archived.
+Status: clean qualification passed at source/fixture/package commit `7aa02c5`.
+The scoped current candidate is audit.18; native GUI, hardware and release
+acceptance remain open. Actual Claude clean-evidence review and follow-up are archived below.
 
 Fact: a single-host constructor failure, or the second failed host attempt on a
 dual-host system, produces TYPE_CONNECT -101. The original worker can subsequently
@@ -46,8 +47,8 @@ entries; final qualification must independently check this statement.
 Testing scope: real Manager/SyncSender with strict test-only AcpxConnection shadow,
 CodeSource and resource-hash checks, exact fixture/shadow class allowlists,
 interpreted/compiled verified JVM execution, and a 35-second parent watchdog per
-scenario. Original controls include a byte-identical compatibility shim. Three
-verifier-valid mutants restore each stop window and must demonstrate unsafe
+scenario. Original controls include a byte-identical compatibility shim. Two
+verifier-valid mutants restore the stop windows and one reverses stop/callback ordering. All must demonstrate unsafe
 semantics; errors, verifier failures and timeouts never count as a negative pass.
 Fake polling-enable calls do not establish real polling-agent behavior. No fixture
 interrupts the worker: original shutdown only sets stopped and notifies the queue.
@@ -73,6 +74,67 @@ proof by themselves. The nonexistent PropertyListDictionary suggestion was corre
 using the original PropertyList(Object) constructor with a synthetic dictionary.
 Failed development runs and tests that hit guards are excluded from qualification.
 
-[Claude code review](claude-review/CONNECT-FAILURE-CODE-REVIEW.txt) requested in-callback single/dual assertions, a stop-order mutant, independently archived audit.17 class derivation, and explicit disclosure of synchronous enqueue/exit hanging. Those checks and disclosures are implemented; follow-up review and clean qualification pending.
+[Claude code review](claude-review/CONNECT-FAILURE-CODE-REVIEW.txt) requested in-callback single/dual assertions, a stop-order mutant, independently archived audit.17 class derivation, and explicit disclosure of synchronous enqueue/exit hanging. Those checks and disclosures are implemented; follow-up review and clean qualification completed below.
 
 [Claude follow-up](claude-review/CONNECT-FAILURE-CODE-FOLLOWUP.txt) confirmed callback and mutant arithmetic. Its metadata tuple blocker was already fixed by the time the review returned; the historical characterization now also asserts the measured audit.17 Manager class equals the reconstruction pin. Earlier failed metadata and development runs remain excluded.
+
+## Clean qualification
+
+Two clean source builds reproduce the candidate JAR. Nine gates passed with exit 0
+and empty stderr at `7aa02c5`: [security](connect-stop-clean-security.json),
+[transport](connect-stop-clean-transport.json), [runtime](connect-stop-clean-runtime.json),
+[resources](connect-stop-clean-resources.json), [shared stream](connect-stop-clean-shared.json),
+[request factory](connect-stop-clean-factory.json), [posting](connect-stop-clean-posting.json),
+[connection stop](connect-stop-clean-connect.json), and
+[historical characterization](connect-stop-clean-characterization.json).
+The last gate intentionally uses the clean audit.17 reference from source `47166ed`
+and current `7aa02c5` fixtures. It asserts the measured Manager class against the
+reconstruction pin. Original and audit.17 controls expose the held command's later
+execution; the current candidate blocks it. Current gate results use 36 interpreted/
+compiled positives and six semantic controls, three per architecture. The added
+callbacks prove stop ordering from inside single/dual notices and preserve the
+reported-callback Exception identity. The reorder control is verifier-valid and
+observes the notice before stop. [112 Python tests](connect-stop-clean-tests.json)
+include every stop-window/tail byte and other-method/frame mutations.
+
+The unchanged 143-line recovery matrix and 116-row factory table pass.
+[Package evidence](connect-stop-bundle-results.json) reproduces files, file modes
+and directory modes twice per architecture while preserving verified vendor
+runtime signatures. [Arm64 diagnostics](connect-stop-diagnostics-aarch64.json)
+and [x64 diagnostics](connect-stop-diagnostics-x64.json) identify the reviewed
+candidate. x64 executes under Rosetta, not physical Intel.
+
+[Final integrity](connect-stop-final-integrity.json), SHA-256
+`3e59d807f3ac22fef16eeba047b7414b125fd247c00a584604b70262d9532b67`,
+maps archive filenames to hashes, checks committed fixture sources and preserves
+original mode 444 plus installed-app files/modes. Only Manager.class and the
+recovery feature constant class differ from audit.17 JAR entries; the manifest
+entry is unchanged. No new dependency, controller contact, production/mounted
+volume test, installed-app modification, signing or notarization occurred.
+Runtime.jdk and Contents/Home hash scopes are recorded separately.
+
+Excluded development runs include the initial guard-triggering experiments,
+incomplete fixture identities, a metadata tuple error, and a run whose expected-
+build input changed while qualification anchors were being prepared. None is
+represented as clean passing evidence. This archival documentation does not change
+any `7aa02c5` qualification input.
+
+[Claude clean review](claude-review/CONNECT-FAILURE-CLEAN-EVIDENCE.txt) read the gate
+records while final integrity was still being generated; the missing-ledger
+finding is resolved by the archived final integrity and JAR-entry comparison.
+[Run results](connect-stop-run-results.json) explicitly archive the orchestrator's
+observed exit codes, empty-stderr measurements and gate output hashes. The mutant
+wording is corrected to two window bypasses plus one stop-order mutant. Diagnostics
+contain only filtered local interface names, no addresses/credentials; their hashes
+and scope are included in final integrity. Claude compared recorded values;
+executed qualification and integrity checks supply checksum verification.
+
+[Clean follow-up](claude-review/CONNECT-FAILURE-CLEAN-FOLLOWUP.txt) requested complete
+runtime hash formulas and an explicit audit.17 baseline for entry comparisons.
+Final integrity now includes fresh files-only, Home files-only, and files-plus-
+file-modes runtime measurements; the last matches the vendor lock and gate/package
+records. It records the audit.17 reference JAR hash, each changed entry's before/
+after hashes and byte-identical manifest hash. Those changes are evidence metadata,
+not new application or fixture changes. All named qualification inputs remain the
+committed `7aa02c5` bytes. Interface names in diagnostics are filtered identifiers,
+not addresses or secrets. No publication or release deployment was performed.

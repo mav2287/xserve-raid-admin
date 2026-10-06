@@ -659,3 +659,15 @@ normal synchronous response identity and clone counts. This does not establish
 original GUI reachability or fix interrupted waits and TYPE_CONNECT failure/later
 transmission. Claude reviewed the design, implementation and clean evidence; seven gates and
 108 tests pass at clean source/fixture/package commit `47166ed`. See [scoped evidence](audit/SYNC-CALLBACK-PREENQUEUE.md).
+
+### Audit.18 initial connection failure stop (clean fixtures)
+
+The worker now stops locally before publishing an initial connection failure,
+preventing the held command from later executing after its caller receives an
+error. The first silent dual-host fallback and retries with no published notice
+remain; a stopped session requires a fresh Manager. Native GUI recovery is not
+qualified. Nine gates, 112 Python tests and duplicate packages per architecture
+pass at clean source/fixture/package commit `7aa02c5`; x64 runs under Rosetta.
+See [scope and evidence](audit/CONNECT-FAILURE-STOP.md). No controller or installed
+app was modified. Interrupted waits, synchronous enqueue/exit hangs, late async
+posts, callback cleanup, lock ordering and hardware/release acceptance remain open.

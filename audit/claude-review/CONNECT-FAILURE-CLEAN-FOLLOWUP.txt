@@ -1,0 +1,31 @@
+I found three remaining blockers: one hash-ledger gap and two wording fixes in the doc. I only read files and compared the values written in them; I recomputed no checksums.
+
+## Remaining blockers
+
+1. **The final integrity file doesn't cover the runtime hash most records use.**
+   - `connect-stop-final-integrity.json:60-69` gives the runtime hashes as `Runtime.jdk` = e599…/bddb… and `Contents/Home` = 278f…/a474….
+   - But the bundled-runtime hash in the connect gate (`clean-connect.json:44-46`), the bundle record (`bundle-results.json:19,576`) and both diagnostics files is ce51…/6aa1…. Neither integrity scope lists it.
+   - e599…/bddb… appears in no connect-stop record. It appears only in the older `worker-stop-` and `sync-preenqueue-final-integrity.json` files, so it looks carried over rather than measured for this run.
+   - So the doc's claim that the runtime hash scopes are "recorded separately" (`CONNECT-FAILURE-STOP.md:114`) is true, but it doesn't link the hash the gates actually used to anything in the integrity file.
+   - **Fix:** add ce51…/6aa1… as a named scope (for example, the bundled JRE tree), and say whether e599…/bddb… was measured in this run.
+
+2. **The claim of exactly two changed JAR entries has no baseline in the integrity file.**
+   - `changed_jar_entries_from_audit17` lists the two class names only. It doesn't record the audit.17 JAR SHA-256 it compared against, or the before/after hash of each entry.
+   - The doc also says "the manifest entry is unchanged" (`:111-112`), but the integrity file has no field for that.
+   - **Fix:** add the audit.17 JAR hash and per-entry hashes, or soften the doc wording to match what's recorded.
+
+3. **The doc has a stale status line and a garbled sentence.**
+   - `:5` still says "Actual Claude clean-evidence review is pending archival", but `:122` links to that review and the integrity file pins its hash (dc1e…).
+   - `:51` reads "All and must demonstrate unsafe semantics". It's missing a word, probably "All three must demonstrate…".
+
+## Resolved
+- **Exit 0 and empty stderr:** `connect-stop-run-results.json` now records them for all nine gates. Each gate's output hash there matches the hash for the same record in the integrity file.
+- **Links between records:** the integrity file now holds the hashes of all nine gate records, the tests and bundle records, both diagnostics files and the run-results file.
+- **Mutant wording:** it now reads two window bypasses plus one stop-order mutant, matching the connect record.
+- **Source commit:** 7aa02c5, clean.
+
+## Not blocking
+- **The run-results file only records stderr for the nine gates and diagnostics.** Python tests and bundle builds have exit codes but no stderr fields. The doc only claims empty stderr for the gates, so this is fine as long as the wording stays that way.
+- **The diagnostics files contain no IP addresses.** I checked the aarch64 file. It does list this machine's interface names, including VM bridge and tunnel names. Whether to publish those is your call.
+- **The characterization record still doesn't hash the derivation file in its own `source_hashes`.** The ledger's `checked_source_hash_entries: 126` doesn't say whether that file is among them.
+- **The qualification files are still untracked.** The archive commit has to add them, along with the review text whose hash (dc1e…) the integrity file pins.

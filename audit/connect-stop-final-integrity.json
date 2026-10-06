@@ -1,0 +1,96 @@
+{
+  "source_commit": "7aa02c5e6540efc4b86c13c8cc452405c23961f9",
+  "fixture_commit": "7aa02c5e6540efc4b86c13c8cc452405c23961f9",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "historical_characterization_source_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "records": {
+    "security": "71d6047a5dd34e64daa67982232341b1722a5b4b03b849b47744e5883301fc16",
+    "transport": "78d7d59d856b23ff953f59c352d1ad948641749e5e64d3a8ccc7cfc2a1a535c0",
+    "runtime": "570a5a72fd90fa48d75e9f32b9893f046463804a228b566ab186cbdb63e0d2f5",
+    "resources": "7f974c9b3b87d7f26c7b1807510de242602bbb0eb6c64266ce82896158fbe3d7",
+    "shared": "343ed9fe5157799cdca9a5509958d0c623485052e0696e88ff3c1ed752c73e40",
+    "factory": "c259be06144593e9aad5835f0481a513afb58d63178a3196ed81b4fa925c526c",
+    "posting": "385a0b313ffa143de39ee689f5bd76d65c9afc21b6ceb32a535407523a6c052f",
+    "connect": "3b4c79e8cf5776ed482205f6ea96cc4e19d0908f6c2502345f06212ef0214e3c",
+    "characterization": "b5cbe152d2d2ac126f9113cb496e8c4be3846382575c6c79888b13dca7bfea7b"
+  },
+  "record_files": {
+    "security": "connect-stop-clean-security.json",
+    "transport": "connect-stop-clean-transport.json",
+    "runtime": "connect-stop-clean-runtime.json",
+    "resources": "connect-stop-clean-resources.json",
+    "shared": "connect-stop-clean-shared.json",
+    "factory": "connect-stop-clean-factory.json",
+    "posting": "connect-stop-clean-posting.json",
+    "connect": "connect-stop-clean-connect.json",
+    "characterization": "connect-stop-clean-characterization.json"
+  },
+  "supplemental_records": {
+    "connect-stop-clean-tests": "e94963eceb647ce10062d522b79b6671d3d18aa6f83dd9d871a3437bf3ce054a",
+    "connect-stop-bundle-results": "d360fc09469260a7004240b7225b3b7212de7db387bf5533a3b771cd3c8d3eac",
+    "connect-stop-diagnostics-aarch64": "0f728f27b689c55ff853a3e84adec995730b184b8ebf9a9dcc858222b33e4227",
+    "connect-stop-diagnostics-x64": "ddf07fe8230e537373e0491fa8b25931bc5e9eba1ee756f63ef80239ef81cc31",
+    "connect-stop-run-results": "8293e0c813d1b16a327127fad5fcc9c942bb28751fe4704d127fe38038274142"
+  },
+  "candidate_jar_sha256": "d1d09ce03e39b507225eb11c1704925161a03d0440518ef94fab5d97e998bfd6",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "checked_source_hash_entries": 126,
+  "python_tests_passed": 112,
+  "connection_stop_records": 42,
+  "interpreted_compiled_connection_positives": 36,
+  "semantic_mutants_per_architecture": 3,
+  "historical_characterization_records": 8,
+  "changed_jar_entries_from_audit17": [
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "compat/RejectionRecovery.class"
+  ],
+  "architectures": [
+    "aarch64",
+    "x64"
+  ],
+  "x64_execution": "Rosetta, not physical Intel",
+  "controller_contact": false,
+  "production_or_mounted_volume_tests": false,
+  "installed_application_modified": false,
+  "runtime_hash_scopes": {
+    "aarch64": {
+      "Runtime.jdk": "e599cb3abe9ac6b09164cec18f6fca71625a16522d186ba7148e08a218d354c0",
+      "Runtime.jdk/Contents/Home": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2",
+      "Runtime.jdk files and file_modes": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187"
+    },
+    "x64": {
+      "Runtime.jdk": "bddb573491588b48dee81e1b2461fb71765a0dbeb005ddb9337e211f52fc6d39",
+      "Runtime.jdk/Contents/Home": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d",
+      "Runtime.jdk files and file_modes": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    }
+  },
+  "limits": "Native GUI recovery, hardware behavior, physical Intel, signing/notarization and outstanding posting/exit/interruption/callback/lock races remain unqualified.",
+  "claude_clean_review_sha256": "dc1e1b3c998a32810c2ea377db209796eb54a095631c724fa8a9972285deff86",
+  "runtime_hash_scope_definitions": {
+    "Runtime.jdk": "Fresh measurement in this run: digest(file path -> content SHA256 map), excluding modes",
+    "Runtime.jdk/Contents/Home": "Fresh measurement in this run: digest(Home file path -> content SHA256 map), excluding modes",
+    "Runtime.jdk files and file_modes": "Fresh measurement in this run: digest({files: file hash map, file_modes: mode map}); exact vendor runtime-lock/gate/package digest. Directory modes additionally checked separately by verify_runtime."
+  },
+  "audit17_reference_jar_sha256": "948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a",
+  "changed_entry_sha256_from_audit17": {
+    "com/apple/xsr/net/CommunicationsManager.class": {
+      "before": "7c07f4c31a6104f52ee151e07141296d5b59ef33fa5105b895c6504c58ac2a1c",
+      "after": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893"
+    },
+    "compat/RejectionRecovery.class": {
+      "before": "111079f81b948afa81f83bc51d399399d1eb03a5fd728f3f94758d4927fdf47e",
+      "after": "e288eb83a4df7720aee6bc10d6acbd4d5eabb1101d555ba6d7ef42972eb15b97"
+    }
+  },
+  "manifest_entry_unchanged_from_audit17": {
+    "entry": "META-INF/MANIFEST.MF",
+    "sha256": "33c12af863951b01abc7f8fd9f283bac409d7a63af4c2901358abf88371c005a",
+    "byte_identical": true
+  },
+  "claude_clean_followup_sha256": "20ffee4f8e30bc06cdd006524f5edb9f5a26927bedb10d1316c3af0b2eb44157"
+}

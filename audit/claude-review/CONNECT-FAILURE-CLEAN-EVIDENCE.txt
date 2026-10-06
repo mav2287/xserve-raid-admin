@@ -1,0 +1,32 @@
+## Audit18 connect-stop clean evidence review
+
+I only read files. I ran nothing, computed no checksums and touched no hardware. Where I say hashes match, I compared the values written in the records against each other; I did not recompute any of them.
+
+### Blockers
+
+1. **`build/connect-stop-final-integrity.json` is missing.** That leaves three gaps:
+   - **Exit 0 and empty stderr are not recorded anywhere.** None of the nine gate records, the tests record or the bundle record has an exit-code or stderr field. That claim currently rests on your word, not on archived evidence.
+   - **Nothing binds the gate records to one another.** No archived file records their own hashes.
+   - **The doc's own check hasn't been done.** `audit/CONNECT-FAILURE-STOP.md:43-44` says final qualification must independently check that only Manager and the recovery constant changed from the audit.17 JAR entries. No reviewed record does that. The security gate's `independent_preservation: PASS` compares against the original JAR (5505…), not audit.17 (948c…).
+2. **Mutant wording in the doc is wrong.** `CONNECT-FAILURE-STOP.md:50` says "Three verifier-valid mutants restore each stop window". The records show two window bypasses (`verify-nohost` and `reported`) plus one stop-order mutant (`late-stop`). The `limits` text in `connect-stop-clean-connect.json:558` describes this correctly. The doc should match it.
+3. **Status lines still say pending.** Lines 3, 76 and 78 still read development / qualification pending. You said you'll update these after review, and that's fine as long as it happens after blocker 1 is resolved.
+
+### Checked and consistent
+- **Commits:** every gate, the tests record and the bundles are at 7aa02c5 and clean. The historical characterization source is 47166ed (clean) with 7aa fixtures, as intended. The derivation pin (948c… and 7c07…) matches the audit.17 class measured in the characterization run.
+- **Connect gate, 42 records:**
+  - 36 positive: 9 modes × `-Xint`/`-Xcomp` × 2 architectures, all with JAR d1d0… and Manager a928…, matching the doc.
+  - 6 negative controls: 3 per architecture, each with a distinct mutant hash. They correctly show unsafe behaviour (`then_sent=1`, `stop_inside_callback=false`).
+- **Characterization, 8 records:** original and audit.17 single/dual on both architectures, all `-Xint`. Both show `then_sent=1`, i.e. the held request is still sent after the failure is reported.
+- **Tests:** `tests: 112`, `passed: true`, at 7aa clean.
+- **Bundles:** two copies per architecture with repeated digests. The vendor signature is verified, copied byte-for-byte and never re-signed. App signing is null and notarization was not performed. `installed_application_modified: false` and `controller_contact: false`. The purpose field says "not a qualified release". The bundled JAR is d1d0….
+- **Limits are stated:** x64 runs are Rosetta, not physical Intel. GUI, TCP, controller, hardware and polling-agent behaviour are listed as unqualified, as are the posting/exit race and the stranded waiters.
+- **Excluded runs:**
+  - The `connect-stop-development*` records are at eec58fa and dirty, or say `qualification: false`.
+  - Four development files are empty.
+  - Nothing under `audit/` refers to any of them.
+
+### Non-blocking notes
+- **Some records carry no source commit.** The transport, runtime, shared and factory records are tied to the build only through the JAR hash d1d0… and the 7aa fixtures. The final integrity file should make that link explicit.
+- **Different runtime-tree hashes in the runtime record.** `connect-stop-clean-runtime.json` uses 278f…/a474… where every other record uses ce51…/6aa1…. The same 278f…/a474… values appear in earlier audit runtime records, so this looks like a different measurement convention, not a mismatch. Still worth naming it in the final integrity file.
+- **The characterization record doesn't hash the derivation file.** Its `source_hashes` lack `audit/connect-stop-reference-derivation.json`, even though that file says the characterization tool checks it. The connect record does hash it (6064…).
+- **Diagnostics files are outside the evidence set.** `connect-stop-diagnostics-{aarch64,x64}.json` (7aa) list this machine's local network interfaces and record that the app was not launched. They aren't in the reviewed set, so don't cite them, and check their contents before publishing.
