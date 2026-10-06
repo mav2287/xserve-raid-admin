@@ -39,13 +39,18 @@ This project contains compatibility patches for the original application. Full f
 10. **Bounded response headers** — A per-response stream wrapper caps line,
     field-count and aggregate header input while preserving the original parser.
     Unsafe input fails once without resend; audit.9 retires the rejected connection.
-    see [audit.8 evidence](audit/HTTP-HEADER-GUARD.md).
+    See [audit.8 evidence](audit/HTTP-HEADER-GUARD.md).
 
 11. **Security rejection recovery** — Exact-marker handling closes the rejected
     connection, preserves one failure callback and lets the next distinct command
     use the original reconnect path. Cleanup failures cannot trigger a resend.
-    Invalid numeric/negative lengths remain the next refinement; see
+    Invalid numeric/negative lengths are refined in audit.10. See
     [audit.9 evidence](audit/REJECTION-RECOVERY.md).
+
+12. **Invalid length rejection** — Malformed, overflowing and negative response
+    lengths use the same safe retirement path, with a fixed message and no raw
+    header value/cause. Valid runtime numeric parsing remains unchanged. See
+    [audit.10 evidence](audit/INVALID-LENGTH-GUARD.md).
 
 ## Requirements
 

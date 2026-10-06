@@ -66,3 +66,33 @@ transport policy requirements. New direct-send tests check the escaped trace,
 absent cause and closed connection; flags/body-codec/logger-failure variations
 remain measured on the earlier ceiling sites, rather than claimed for every new
 length case. Final clean evidence is pending.
+
+
+## Clean evidence
+
+Application source `cdcc98c`, packager `b1c4040`; repeated clean builds match bytes,
+modes and inputs. JAR SHA-256: `1526b6a5e6cb4be8515c74b8cf36271b405d19c7d9a4266378c5811785b9bdc1`.
+Audit bundle digest: `44225bd52f2ea9b86e92cf716cf424b8b8dc6a28c50a4a16a698fdfadce8b640`.
+Repeated runtime package digests:
+
+- arm64: `f2def8812ee6a989af8d21ead3dbbd5d7f5860776276ab2290616d268f79fc59`.
+- x64: `2b24b89e28e66855881aa255822834e760e22f4c434eb7307ecbd3c58bf1fe09`.
+
+[Independent preservation/helper checks](length-clean-security.json),
+[required length-policy transport](length-clean-transport.json),
+[runtime/recovery fixtures](length-clean-runtime.json),
+[XML regressions](length-clean-resources.json),
+[reproducible catch inventory](length-clean-catch-inventory.json),
+[source provenance](length-clean-provenance.json),
+[package repetition/diagnostics](length-bundle-results.json) and
+[installed/original integrity](length-final-integrity.json) record their scopes.
+45 Python tests pass. Final fixture/verifier source `dea3f0d` records 78 recovery
+output lines on each runtime. Catch inventory regeneration is byte-identical and
+its tool/source hashes were checked against the tracked files. Reproduce it with
+`python3 tools/inventory_exceptions.py` at this source version.
+
+Actual Claude [follow-up](claude-review/INVALID-LENGTH-FOLLOWUP.txt) found no blocker.
+Only explicitly scoped low-severity fixture/verifier nits remain. These results
+close demonstrated malformed/negative-length stale-state behavior in bounded
+fixtures, not full release acceptance or every controller/security gap. G10/G12,
+CLI lifecycle, real TCP, physical Intel and native UI remain open.

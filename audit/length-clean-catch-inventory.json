@@ -1,0 +1,495 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "code_method_count": 21649,
+  "filter": "Typed java/lang/NumberFormatException entries only; all class Code handler tables scanned",
+  "generator_sha256": "201e6e7b633720d30d5abb0f2e38aed6d6b144f78a372a372d7bdca63070f0fc",
+  "source_hashes": {
+    "tools/class_patch.py": "3a90e60beb5975081e515bf37c0afd2c050a138ba8ca5c88b8e625eb520d8f3f",
+    "tools/baseline.py": "9e4078cae223ff10a2522d0e334b9b086bdf1d7b69c07734a93271c02c7f1126",
+    "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e"
+  },
+  "handlers": [
+    {
+      "class": "com/apple/util/VersionNumber$AcsVersionNumber.class",
+      "method": "parse",
+      "descriptor": "(Ljava/lang/String;)V",
+      "range": [
+        56,
+        80
+      ],
+      "handler": 83
+    },
+    {
+      "class": "com/apple/util/VersionNumber$AcsVersionNumber.class",
+      "method": "parse",
+      "descriptor": "(Ljava/lang/String;)V",
+      "range": [
+        136,
+        166
+      ],
+      "handler": 169
+    },
+    {
+      "class": "com/apple/xsr/ManagementNetworkPane$ManagementNetworkPaneInner.class",
+      "method": "validateAddressField",
+      "descriptor": "(Ljavax/swing/JTextField;Ljavax/swing/JLabel;)Z",
+      "range": [
+        2,
+        25
+      ],
+      "handler": 28
+    },
+    {
+      "class": "com/apple/xsr/ManagementNetworkPane$ManagementNetworkPaneInner.class",
+      "method": "validateIPAddressSubnetConflicts",
+      "descriptor": "()Z",
+      "range": [
+        2,
+        82
+      ],
+      "handler": 85
+    },
+    {
+      "class": "com/apple/xsr/advanced/AdvancedSlicingPane.class",
+      "method": "validateUI",
+      "descriptor": "(Lcom/apple/xsr/DataModel;)Z",
+      "range": [
+        27,
+        44
+      ],
+      "handler": 47
+    },
+    {
+      "class": "com/apple/xsr/cli/CommandDispatcher$SetPropertyHandler.class",
+      "method": "createRequestMessage",
+      "descriptor": "([Ljava/lang/String;)Lcom/apple/xsr/net/RequestMessage;",
+      "range": [
+        20,
+        31
+      ],
+      "handler": 34
+    },
+    {
+      "class": "com/apple/xsr/cli/CommandLineOption.class",
+      "method": "argIntegerValue",
+      "descriptor": "(I)Ljava/lang/Integer;",
+      "range": [
+        15,
+        29
+      ],
+      "handler": 32
+    },
+    {
+      "class": "com/apple/xsr/cli/CommandLineUtils.class",
+      "method": "parseMembers",
+      "descriptor": "(Ljava/lang/String;)[Ljava/lang/Integer;",
+      "range": [
+        284,
+        294
+      ],
+      "handler": 297
+    },
+    {
+      "class": "edu/stanford/ejalbert/BrowserLauncher.class",
+      "method": "<clinit>",
+      "descriptor": "()V",
+      "range": [
+        42,
+        144
+      ],
+      "handler": 147
+    },
+    {
+      "class": "java_cup/Main.class",
+      "method": "parse_args",
+      "descriptor": "([Ljava/lang/String;)V",
+      "range": [
+        237,
+        246
+      ],
+      "handler": 249
+    },
+    {
+      "class": "javax/jmdns/JmDNS.class",
+      "method": "init",
+      "descriptor": "(Ljava/net/InetAddress;Ljava/lang/String;)V",
+      "range": [
+        411,
+        511
+      ],
+      "handler": 514
+    },
+    {
+      "class": "javax/jmdns/JmDNS.class",
+      "method": "checkService",
+      "descriptor": "(Ljavax/jmdns/ServiceInfo;)V",
+      "range": [
+        94,
+        201
+      ],
+      "handler": 204
+    },
+    {
+      "class": "org/apache/html/dom/HTMLButtonElementImpl.class",
+      "method": "getTabIndex",
+      "descriptor": "()I",
+      "range": [
+        0,
+        10
+      ],
+      "handler": 10
+    },
+    {
+      "class": "org/apache/html/dom/HTMLElementImpl.class",
+      "method": "getInteger",
+      "descriptor": "(Ljava/lang/String;)I",
+      "range": [
+        0,
+        5
+      ],
+      "handler": 5
+    },
+    {
+      "class": "org/apache/html/dom/HTMLInputElementImpl.class",
+      "method": "getTabIndex",
+      "descriptor": "()I",
+      "range": [
+        0,
+        10
+      ],
+      "handler": 10
+    },
+    {
+      "class": "org/apache/html/dom/HTMLObjectElementImpl.class",
+      "method": "getTabIndex",
+      "descriptor": "()I",
+      "range": [
+        0,
+        10
+      ],
+      "handler": 10
+    },
+    {
+      "class": "org/apache/log4j/chainsaw/Main.class",
+      "method": "setupReceiver",
+      "descriptor": "(Lorg/apache/log4j/chainsaw/MyTableModel;)V",
+      "range": [
+        14,
+        19
+      ],
+      "handler": 22
+    },
+    {
+      "class": "org/apache/log4j/helpers/OptionConverter.class",
+      "method": "toInt",
+      "descriptor": "(Ljava/lang/String;I)I",
+      "range": [
+        9,
+        16
+      ],
+      "handler": 17
+    },
+    {
+      "class": "org/apache/log4j/helpers/OptionConverter.class",
+      "method": "toFileSize",
+      "descriptor": "(Ljava/lang/String;J)J",
+      "range": [
+        105,
+        115
+      ],
+      "handler": 116
+    },
+    {
+      "class": "org/apache/log4j/helpers/PatternParser.class",
+      "method": "extractPrecisionOption",
+      "descriptor": "()I",
+      "range": [
+        11,
+        49
+      ],
+      "handler": 52
+    },
+    {
+      "class": "org/apache/log4j/lf5/viewer/LogBrokerMonitor.class",
+      "method": "setMaxRecordConfiguration",
+      "descriptor": "()V",
+      "range": [
+        28,
+        36
+      ],
+      "handler": 39
+    },
+    {
+      "class": "org/apache/log4j/net/SimpleSocketServer.class",
+      "method": "init",
+      "descriptor": "(Ljava/lang/String;Ljava/lang/String;)V",
+      "range": [
+        0,
+        7
+      ],
+      "handler": 10
+    },
+    {
+      "class": "org/apache/log4j/net/SocketServer.class",
+      "method": "init",
+      "descriptor": "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+      "range": [
+        0,
+        7
+      ],
+      "handler": 10
+    },
+    {
+      "class": "org/apache/log4j/varia/Roller.class",
+      "method": "init",
+      "descriptor": "(Ljava/lang/String;Ljava/lang/String;)V",
+      "range": [
+        4,
+        11
+      ],
+      "handler": 14
+    },
+    {
+      "class": "org/apache/regexp/RECompiler.class",
+      "method": "bracket",
+      "descriptor": "()V",
+      "range": [
+        134,
+        148
+      ],
+      "handler": 151
+    },
+    {
+      "class": "org/apache/regexp/RECompiler.class",
+      "method": "bracket",
+      "descriptor": "()V",
+      "range": [
+        395,
+        417
+      ],
+      "handler": 420
+    },
+    {
+      "class": "org/apache/xalan/processor/XSLTAttributeDef.class",
+      "method": "processPRIORITY",
+      "descriptor": "(Lorg/apache/xalan/processor/StylesheetHandler;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;",
+      "range": [
+        0,
+        6
+      ],
+      "handler": 6
+    },
+    {
+      "class": "org/apache/xalan/serialize/SerializerToHTML.class",
+      "method": "isHHSign",
+      "descriptor": "(Ljava/lang/String;)Z",
+      "range": [
+        2,
+        10
+      ],
+      "handler": 13
+    },
+    {
+      "class": "org/apache/xalan/templates/ElemNumber.class",
+      "method": "getNumberFormatter",
+      "descriptor": "(Lorg/apache/xalan/transformer/TransformerImpl;I)Ljava/text/DecimalFormat;",
+      "range": [
+        88,
+        121
+      ],
+      "handler": 124
+    },
+    {
+      "class": "org/apache/xalan/xsltc/dom/NodeCounter.class",
+      "method": "setFormatting",
+      "descriptor": "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+      "range": [
+        21,
+        30
+      ],
+      "handler": 33
+    },
+    {
+      "class": "org/apache/xalan/xsltc/dom/NodeSortRecord.class",
+      "method": "numericValue",
+      "descriptor": "(I)Ljava/lang/Double;",
+      "range": [
+        30,
+        39
+      ],
+      "handler": 42
+    },
+    {
+      "class": "org/apache/xalan/xsltc/runtime/BasisLibrary.class",
+      "method": "sumF",
+      "descriptor": "(Lorg/apache/xalan/xsltc/NodeIterator;Lorg/apache/xalan/xsltc/DOM;)D",
+      "range": [
+        0,
+        33
+      ],
+      "handler": 33
+    },
+    {
+      "class": "org/apache/xalan/xsltc/runtime/BasisLibrary.class",
+      "method": "stringToReal",
+      "descriptor": "(Ljava/lang/String;)D",
+      "range": [
+        0,
+        8
+      ],
+      "handler": 8
+    },
+    {
+      "class": "org/apache/xalan/xsltc/runtime/BasisLibrary.class",
+      "method": "stringToInt",
+      "descriptor": "(Ljava/lang/String;)I",
+      "range": [
+        0,
+        5
+      ],
+      "handler": 5
+    },
+    {
+      "class": "org/apache/xerces/impl/XMLScanner.class",
+      "method": "scanCharReferenceValue",
+      "descriptor": "(Lorg/apache/xerces/util/XMLStringBuffer;Lorg/apache/xerces/util/XMLStringBuffer;)I",
+      "range": [
+        247,
+        270
+      ],
+      "handler": 273
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/dtd/ListDatatypeValidator.class",
+      "method": "<init>",
+      "descriptor": "(Lorg/apache/xerces/impl/dv/dtd/DatatypeValidator;Ljava/util/Hashtable;Z)V",
+      "range": [
+        116,
+        125
+      ],
+      "handler": 128
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/dtd/ListDatatypeValidator.class",
+      "method": "<init>",
+      "descriptor": "(Lorg/apache/xerces/impl/dv/dtd/DatatypeValidator;Ljava/util/Hashtable;Z)V",
+      "range": [
+        237,
+        246
+      ],
+      "handler": 249
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/dtd/ListDatatypeValidator.class",
+      "method": "<init>",
+      "descriptor": "(Lorg/apache/xerces/impl/dv/dtd/DatatypeValidator;Ljava/util/Hashtable;Z)V",
+      "range": [
+        318,
+        327
+      ],
+      "handler": 330
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/dtd/StringDatatypeValidator.class",
+      "method": "<init>",
+      "descriptor": "(Lorg/apache/xerces/impl/dv/dtd/DatatypeValidator;Ljava/util/Hashtable;Z)V",
+      "range": [
+        131,
+        140
+      ],
+      "handler": 143
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/dtd/StringDatatypeValidator.class",
+      "method": "<init>",
+      "descriptor": "(Lorg/apache/xerces/impl/dv/dtd/DatatypeValidator;Ljava/util/Hashtable;Z)V",
+      "range": [
+        252,
+        261
+      ],
+      "handler": 264
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/dtd/StringDatatypeValidator.class",
+      "method": "<init>",
+      "descriptor": "(Lorg/apache/xerces/impl/dv/dtd/DatatypeValidator;Ljava/util/Hashtable;Z)V",
+      "range": [
+        333,
+        342
+      ],
+      "handler": 345
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/xs/DoubleDV.class",
+      "method": "dValueOf",
+      "descriptor": "(Ljava/lang/String;)Ljava/lang/Double;",
+      "range": [
+        0,
+        5
+      ],
+      "handler": 8
+    },
+    {
+      "class": "org/apache/xerces/impl/dv/xs/FloatDV.class",
+      "method": "fValueOf",
+      "descriptor": "(Ljava/lang/String;)Ljava/lang/Float;",
+      "range": [
+        2,
+        7
+      ],
+      "handler": 10
+    },
+    {
+      "class": "org/apache/xerces/impl/xs/traversers/XSAttributeChecker.class",
+      "method": "validate",
+      "descriptor": "(Ljava/lang/String;Ljava/lang/String;ILorg/apache/xerces/impl/xs/traversers/XSDocumentInfo;)Ljava/lang/Object;",
+      "range": [
+        176,
+        189
+      ],
+      "handler": 192
+    },
+    {
+      "class": "org/apache/xerces/impl/xs/traversers/XSAttributeChecker.class",
+      "method": "validate",
+      "descriptor": "(Ljava/lang/String;Ljava/lang/String;ILorg/apache/xerces/impl/xs/traversers/XSDocumentInfo;)Ljava/lang/Object;",
+      "range": [
+        748,
+        761
+      ],
+      "handler": 764
+    },
+    {
+      "class": "org/apache/xerces/util/URI.class",
+      "method": "initializeAuthority",
+      "descriptor": "(Ljava/lang/String;)V",
+      "range": [
+        220,
+        227
+      ],
+      "handler": 230
+    },
+    {
+      "class": "org/apache/xml/utils/URI.class",
+      "method": "initializeAuthority",
+      "descriptor": "(Ljava/lang/String;)V",
+      "range": [
+        220,
+        227
+      ],
+      "handler": 230
+    },
+    {
+      "class": "org/apache/xpath/compiler/XPathParser.class",
+      "method": "Number",
+      "descriptor": "()V",
+      "range": [
+        8,
+        19
+      ],
+      "handler": 22
+    }
+  ],
+  "limits": "Static inventory only; does not trace reflective/dynamic invocation or establish CLI lifecycle behavior."
+}

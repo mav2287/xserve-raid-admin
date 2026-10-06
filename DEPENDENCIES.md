@@ -82,3 +82,16 @@ G14 is partially addressed: ordinary invalid numeric/negative lengths still leav
 stale state and require the next security refinement. CLI direct-send lifecycle,
 idle/paused polling, real TCP timing and controller behavior remain unqualified.
 No third-party dependency is added. See [scope and evidence](audit/REJECTION-RECOVERY.md).
+
+
+## audit.10 malformed length security refinement
+
+Malformed, overflowing and negative exact Content-Length declarations now fail
+once through the reviewed retirement path, with no resend and a fixed secret-free
+message. The next distinct queued command succeeds through a fresh memory
+connection. Valid Integer.parseInt parsing and original ordinary IO retries remain.
+G14's demonstrated length-rejection stale state is addressed in bounded fixtures;
+real/idle reconnect timing and CLI lifecycle remain unqualified. G10/G12 framing
+and ambiguous IO replay remain open. Both runtime packages reproduce; no hardware,
+installed-app modification or third-party dependency change occurred. See
+[scope and evidence](audit/INVALID-LENGTH-GUARD.md).

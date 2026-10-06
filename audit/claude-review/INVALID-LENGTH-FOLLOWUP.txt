@@ -1,0 +1,62 @@
+Actual Claude CLI read-only follow-up review.
+
+I found nothing that blocks this. The issues the earlier review raised are resolved or deliberately scoped, and what's left is low severity: mostly evidence linkage and some narrow fixture assertions. I read the sources only and ran nothing, so I haven't confirmed that "45 Python tests pass", the inventory's recorded hashes, or results on either runtime.
+
+Labels: **Obs** = read in the files, **Inf** = my reasoning from them, **Unexec** = depends on running something.
+
+## Resolved
+
+1. **Catch inventory provenance: resolved.**
+   - **Obs:** `tools/inventory_exceptions.py` checks the original JAR's hash before and after the scan. It scans every class's Code exception table and requires each catch type to be a Class constant.
+   - **Obs:** It records the JAR hash, class and method counts, the filter, its own hash and the hashes of the tools it imports. `build/length-reviewed-catch-inventory.json` has the same structure (2844 classes, 21649 Code methods). It has no `com/apple/xsr/net` and no DefaultHandler rows. Its only CLI rows are `SetPropertyHandler.createRequestMessage`, `CommandLineOption.argIntegerValue` and `CommandLineUtils.parseMembers`.
+   - **Inf:** Filtering on the exact `NumberFormatException` type is enough. `check_security.py:151` pins the marker as `extends java.lang.IllegalArgumentException`, which is also `NumberFormatException`'s parent. So any broader catch (`IllegalArgumentException`, `RuntimeException`, `Exception`, `Throwable`) catches both the old and the new exception. Only exact `NumberFormatException` catches change behaviour.
+   - **Inf:** The Code-attribute offsets (`begin+10` for the code length, `begin+14` for the code start) match how `class_patch.py:235` indexes the same attribute.
+   - **Unexec:** I didn't check that `generator_sha256` and the other recorded hashes match the current files.
+
+2. **Static checks on the new helper code: resolved.** **Obs:** `check_security.py:140-145` now checks:
+   - that `public static int parseLength(String)` exists, with an exact opcode sequence;
+   - that its exception table is exactly one row, `0 4 5 java/lang/NumberFormatException`;
+   - that it calls `Integer.parseInt`, uses the `Response length is invalid` literal and calls the marker constructor;
+   - that `checkLength` starts with `iload_0; ifge` and throws the same literal.
+
+   The `limits` text at `:187` has been updated to match.
+
+3. **Transport security line overclaiming: mostly resolved.**
+   - **Obs:** Before emitting "closed", `TransportObservation.java:119` now requires `acp.connection==null`. `AcpxConnection.close()` calls `HttpConnection.close` and then sets `connection` to null (`build/acpx-response-callers-bytecode.txt:52-63`). `sendFailure` reaches it through `close()`. **Inf:** So a null `connection` does show the close path ran, even though `MemoryConnection.disconnect` does nothing.
+   - **Obs:** `--length-policy` (`check_transport.py:124-126`) requires every non-original observation to show the exact list of security lines. The output states that follow-on coverage refers to the separate recovery results (`:138`).
+   - **Obs:** The `test_transport_comparison.py` unit test covers four failure modes: a missing line, an invented line, the policy missing when required, and an ordinary (non-security) difference.
+
+4. **Parse-operand mutation tests: resolved.** **Obs:** `test_class_patch.py:50-59` now covers:
+   - flipping the opcode at 14 (`0xb8`→`0xb9`);
+   - restoring constant #21, which is `Integer.parseInt` (owner check);
+   - pointing at the `BoundedResponseBuffer.<init>` Methodref (name check).
+
+   **Inf:** The tests only assert `ValueError`, without checking the message. But because the final comparison masks only the operand bytes, the owner/name check at `class_patch.py:239` is the only check that can reject the two operand swaps.
+
+5. **Invalid-input parity: resolved.** **Obs:** `RecoveryObservation.java:123` now requires the running JVM's `Integer.parseInt` to throw `NumberFormatException` on each invalid input before it checks the marker.
+
+6. **Stack-trace check through `send`: resolved.** **Obs:** `direct()` (`:112`) checks for no cause and no `DO_NOT_RENDER_SYNTHETIC_HEADER` in the trace of the exception that actually escaped `send`. It runs for all eight cases, persistent and non-persistent, with close failures 0–2. The doc (`:65-67`) now limits the flag, legacy body-codec and logger-failure variations to the earlier ceiling cases.
+
+## Remaining concerns (all low)
+
+- **A. The doc doesn't cite the new inventory evidence (Obs).** `INVALID-LENGTH-GUARD.md:51` still says "Full original catch-table scanning" without naming `tools/inventory_exceptions.py` or the reviewed JSON. The old file with no provenance, `build/length-original-number-catches.json`, is still next to the new one. When you link the clean evidence (the doc says it's still pending, `:68`), cite the reviewed inventory and stop relying on the old file. No test or tool regenerates the inventory or compares it to the saved output, so it can only be reproduced by running it by hand.
+
+- **B. `check_transport.py` still doesn't check the build's identity (Obs).** Unlike `check_security.py:125-127`, it accepts any candidate JAR and only records its `jar_sha256`. The policy is enforced only when someone passes `--length-policy`. The final evidence should show `required_length_policy: true` and a `jar_sha256` equal to the reviewed candidate's hash. **Unexec.**
+
+- **C. The specific invalid-length message isn't checked on every real `send` path (Obs).** `direct()` accepts any of the three fixed messages for any case, and `pair()` checks only the -102 result.
+  - Through a real `send`, the exact `Response length is invalid` message is checked only in `TransportObservation.responseCase`, for the malformed, -1 and overflow inputs.
+  - The int-minimum case (`-2147483648`) gets its exact message checked only when `checkLength` is called directly by reflection (`:124`), not through `send`.
+  - **Inf:** The static `checkLength` check makes it very unlikely the wrong message comes out. This is a gap in the fixture's assertions, not a suspected defect.
+
+- **D. Unchanged nits (Obs).**
+  - `class_patch.py:236` still raises `KeyError` instead of `ValueError` for an out-of-range parse operand. No test triggers it, and either way the check fails safely.
+  - The `followOn(boolean)` overload (`TransportObservation.java:291-293`) is still dead code.
+
+## Still Unexec
+- `-Xverify:all` and fixture results on both pinned runtimes.
+- The recovery output count still being 78. **Inf:** These changes add no output lines, so the arithmetic is unchanged.
+- The golden hashes in `audit/security-patches.json`.
+- Running the inventory and getting the same output as the saved JSON.
+- CLI lifecycle and UI behaviour, hardware, real TCP and physical Intel. The doc already says these are unqualified.
+
+Disposition: no blocker found. Final evidence will link the reproducible generator and JSON, require length policy true, and assert recorded candidate identities match the reviewed JAR. Remaining message specificity for int-minimum and assertion exception-type normalization are low-risk fixture/verifier nits; source and gate behavior are independently checked. Legacy dead helper remains unused and is not counted as coverage. No additional application-byte change was required.
