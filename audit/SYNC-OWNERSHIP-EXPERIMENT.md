@@ -117,3 +117,17 @@ synthetic-fault constructor removes that unnecessary generated class.
 129 Python tests pass, including full byte-mutation rejection and independent
 javap negative controls. Clean source replay and archived result hashes follow
 in separate evidence records; none of these experiments is release acceptance.
+
+### Clean source-bound evidence
+
+The source anchor is `6d26fbea04eb3f9e56b1ce3113430f26f6c3592f` with a clean tree.
+[Ownership replay](ownership-clean-experiment.json) contains all 32 Cartesian
+cases; [worker-death characterization](worker-exit-clean-characterization.json)
+contains all 16 cases; [Python results](ownership-clean-tests.json) record 129
+passing tests. Every recorded tool/fixture input matches that committed source,
+both records agree on compiler/runtime identities and the ownership JAR, and the
+original reference remains mode 0444. The
+[integrity record](ownership-experiment-integrity.json) hashes the evidence.
+Its `qualification` remains false: these records do not promote a baseline or
+prove native GUI/controller behavior. Later worker-cleanup prototypes are
+separate development artifacts and are not covered by this source anchor.

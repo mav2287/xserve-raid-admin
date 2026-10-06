@@ -1,0 +1,34 @@
+{
+  "source_commit": "6d26fbea04eb3f9e56b1ce3113430f26f6c3592f",
+  "source_dirty": false,
+  "qualification": false,
+  "status": "clean source-bound ownership experiment and positive characterization; baseline remains audit20",
+  "records": {
+    "ownership": {
+      "record_file": "ownership-clean-experiment.json",
+      "sha256": "3eef8fbbbb30d6ff79d3bbd9a5ea03a8379f857c140efdd1925705083748d85c",
+      "observations": 32,
+      "source_hash_entries": 15
+    },
+    "worker-exit": {
+      "record_file": "worker-exit-clean-characterization.json",
+      "sha256": "209c1ebe667db7256072ebc3f455e2e86220feb8aab88a060666eca75819da64",
+      "observations": 16,
+      "source_hash_entries": 16
+    }
+  },
+  "tests_record_sha256": "e05ce4996cb914dfee563f77485bab4f21fe8d8d235acfad7951725ec89e3728",
+  "candidate_jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+  "reference_jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "controller_contact": false,
+  "installed_application_modified": false,
+  "production_or_mounted_volume_tests": false,
+  "scope": "Action attestations from guarded fixture source/results, not global packet capture. No baseline promotion. x64 is Rosetta; native GUI/hardware unqualified."
+}

@@ -1,0 +1,251 @@
+{
+  "qualification": false,
+  "status": "positive characterization of unfixed worker exit; fixture manually releases caller after observation",
+  "fixture_commit": "6d26fbea04eb3f9e56b1ce3113430f26f6c3592f",
+  "fixture_dirty": false,
+  "reference_jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+  "candidate_jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/xsr/net/WorkerExitObservation.java": "6377ce58cc9a2cb4c77b9ca536f09d69b5efb1fc8a57410b9e1b715f5c463cb3",
+    "tests/java/ownershipfixture/AcpxConnection.java": "a5cacb494ccebef36356dfd3e6ad34a287dcff345b5727b48ca1d35cc647b25d",
+    "tools/check_worker_exit.py": "e174d9926e27d0199882b0db7c544f96eaa08c2bc6046f08f217fe916f9f5b33",
+    "tools/check_sync_ownership.py": "d864f7c0637e0cd333a500a5b76da98b7fec525624fc08c7f83325e67b883cef",
+    "tools/sync_ownership_structure.py": "d3e27d11b2c2814beb983456a564df17236e495409e89bab09c76bb4ccf8176d",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "audit/stopped-post-final-integrity.json": "dfb3a801123c95e459e3c0f7f05ae5fbda2e0acb46ec49454de9bf355f5ab87f",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/class_patch.py": "a125c58f3f4b7614ad3b9bbd67eaeab2157c3890236407e4a8cf3cec9f290aeb",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/baseline.py": "e1fb2c8a4cbcb6457bc4d833f11ce3df513324dbaf0b6fdac2742a1c295206d1",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+  },
+  "fixture_class_hashes": {
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be",
+    "com/apple/xsr/net/WorkerExitObservation.class": "ba82fedf7b2988556c38c9d0444cf637bb60db423c772429152db9877d506422",
+    "com/apple/xsr/net/WorkerExitObservation$SyntheticFault.class": "1f8e75a20ecf1fd87dda9a2ba1dee7de75647c60628a56c46386266100f20159"
+  },
+  "shadow_class_hashes": {
+    "com/apple/xsr/net/AcpxConnection.class": "f6d6704fe96b5dbf66d0badb13faab51e089f1a2fb9dc4a183d8f44e348f5e5a",
+    "com/apple/xsr/net/AcpxConnection$1.class": "0376929fd98e8714682df5c6a9ff7f0bdf95680c9a9cddc47f781c6d01776df1"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "send-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit send-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "callback-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit callback-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "legacy",
+      "scenario": "send-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit send-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "legacy",
+      "scenario": "callback-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit callback-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed-ownership",
+      "scenario": "send-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit send-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed-ownership",
+      "scenario": "callback-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit callback-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed-ownership",
+      "scenario": "send-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit send-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed-ownership",
+      "scenario": "callback-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit callback-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "send-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit send-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "callback-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit callback-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "legacy",
+      "scenario": "send-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit send-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "legacy",
+      "scenario": "callback-error",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "manager_class_sha256": "ddd62642900262d6c99b14777c79ddd22a54b97ef506e7984daff46b3bb7bbfd",
+      "sender_class_sha256": "9313aae6769e648e0611e1590de96e0826bf77a45feda06608fbc5abb881170c",
+      "lines": [
+        "worker_exit callback-error ownership=false actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed-ownership",
+      "scenario": "send-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit send-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed-ownership",
+      "scenario": "callback-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit callback-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed-ownership",
+      "scenario": "send-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit send-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=0 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed-ownership",
+      "scenario": "callback-error",
+      "jar_sha256": "05a6ce59ba13a811a1e46478b1b2477bdf575ae66a14bb700933f8e13422aa38",
+      "manager_class_sha256": "19506d7f3b50bb5a227226ec82547b391bb1bcc38a076e4860c70e766ce5ddce",
+      "sender_class_sha256": "c1c9e2f4db9a6436a30e1aaf43c08c6925499cf75e17184e2541be910d1746f1",
+      "lines": [
+        "worker_exit callback-error ownership=true actual_worker_dead=true stopped=false caller_waiting=true queue=1 outcome=unfixed",
+        "PASS worker exit characterization; guarded_operations=0; fixture cleanup only"
+      ]
+    }
+  ],
+  "limits": "Memory transport and Unsafe constructor bypass only. Original and ownership experiment both fail terminal completion; no product fix is demonstrated here. Actual worker error identity, death, stopped=false and exact waiting Sender positively observed. Fixture manually answers after evidence collected. No controller or production volume contact; x64 is Rosetta."
+}
