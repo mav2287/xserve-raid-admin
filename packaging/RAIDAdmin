@@ -4,6 +4,7 @@ PATH=/usr/bin:/bin
 export PATH
 unset BASH_ENV ENV CDPATH JAVA_TOOL_OPTIONS _JAVA_OPTIONS JDK_JAVA_OPTIONS CLASSPATH JAVA_HOME
 unset DYLD_INSERT_LIBRARIES DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH DYLD_FALLBACK_LIBRARY_PATH DYLD_FALLBACK_FRAMEWORK_PATH LD_PRELOAD
+unset JAVA_LIBRARY_PATH _JAVA_SPLASH_FILE _JAVA_SPLASH_JAR _JAVA_VERSION_SET _JAVA_LAUNCHER_DEBUG
 DIR="$(cd -P -- "$(/usr/bin/dirname -- "$0")" && pwd)" || exit 1
 CONTENTS="$(/usr/bin/dirname -- "$DIR")"
 RESOURCES="$CONTENTS/Resources"
@@ -17,10 +18,11 @@ runtime_error() {
 
 [ -x "$JAVA" ] && [ -f "$RESOURCES/RAID_Admin.jar" ] || runtime_error
 # Validates startup/linking without opening the application or reading its saved targets.
-"$JAVA" -Djava.ext.dirs="$RUNTIME/jre/lib/ext" -Djava.endorsed.dirs= -version >/dev/null 2>&1 || runtime_error
+"$JAVA" -Djava.ext.dirs="$RUNTIME/jre/lib/ext" -Djava.endorsed.dirs= -Djava.library.path="$RUNTIME/jre/lib" -version >/dev/null 2>&1 || runtime_error
 exec "$JAVA" \
     -Djava.ext.dirs="$RUNTIME/jre/lib/ext" \
     -Djava.endorsed.dirs= \
+    -Djava.library.path="$RUNTIME/jre/lib" \
     -Xmx256m \
     -Xdock:name="RAID Admin" \
     -Xdock:icon="$RESOURCES/AppIcon.png" \

@@ -19,15 +19,15 @@ def extract_archive(archive, destination, expected_root):
         for member in tar.getmembers():
             path = PurePosixPath(member.name)
             if (path.is_absolute() or '..' in path.parts or not path.parts or
-                    path.parts[0] != expected_root or str(path) in seen or
+                    path.parts[0] != expected_root or str(path).casefold() in seen or
                     not (member.isfile() or member.isdir()) or member.mode & 0o7022):
                 raise ValueError('Unsafe runtime archive entry')
-            seen.add(str(path))
+            seen.add(str(path).casefold())
         tar.extractall(destination, filter='data')
         # Python's data filter adds owner-write permission to read-only files.
         # Restore the reviewed vendor's exact ordinary permission bits.
         for member in tar.getmembers():
-            if member.isfile():
+            if member.isfile() or member.isdir():
                 (Path(destination) / member.name).chmod(member.mode)
 
 
@@ -40,8 +40,11 @@ def verify_runtime(root, record):
         raise ValueError('Runtime differs from reviewed vendor contents or modes')
     if digest({'files': record['files'], 'file_modes': record['file_modes']}) != record['tree_sha256']:
         raise ValueError('Invalid runtime lock digest')
+    if 'directory_modes' in record and directory_modes(root) != record['directory_modes']:
+        raise ValueError('Runtime directory modes differ from vendor archive')
     if record.get('signature_team'):
-        result = subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(root)],
+        requirement = 'anchor apple generic and certificate leaf[subject.OU] = "' + record['signature_team'] + '"'
+        result = subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', '-R', requirement, str(root)],
                                 env=isolated_env(), capture_output=True, timeout=30)
         detail = subprocess.run(['/usr/bin/codesign', '-dv', '--verbose=4', str(root)],
                                 env=isolated_env(), capture_output=True, timeout=30)
@@ -50,6 +53,12 @@ def verify_runtime(root, record):
                 'TeamIdentifier=' + record['signature_team'] not in lines or
                 'Identifier=' + record['signature_identifier'] not in lines):
             raise ValueError('Vendor runtime signature or identity does not verify')
+
+
+def directory_modes(root):
+    root = Path(root)
+    return {str(p.relative_to(root)): p.stat().st_mode & 0o7777
+            for p in [root] + sorted(root.rglob('*')) if p.is_dir() and not p.is_symlink()}
 
 
 def obtain_runtime(cache, architecture, *, fetch=False):

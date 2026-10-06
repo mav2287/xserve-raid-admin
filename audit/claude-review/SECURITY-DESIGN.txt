@@ -1,0 +1,71 @@
+I only read `GAPS.md` and `tools/baseline.py`. I made no edits and ran nothing, so the facts below about the original bytecode are things to confirm, not things I've checked.
+
+## Is the transformer justified?
+
+**Yes.** Copying the legacy classes means decompiling or rewriting about 3000 lines of plist code plus the request hierarchy. Any change in behaviour from that copy would be invisible to your current parity tests. The transformer is different: its output is the original bytes with a few spliced regions you can name, and you can check every byte that is supposed to stay the same. It also fits the pattern you already use: `verify_original` hash lock, a pinned patch-class allowlist, and `entry_changes` provenance.
+
+The one real cost is a small classfile writer you now have to maintain. Keep it small in the ways listed below.
+
+## Critical pitfalls
+
+**Class-file mechanics**
+1. **`ldc` vs `ldc_w`.** In a large class, an appended String constant will almost certainly sit at a constant-pool index above 255. The `toString` body must use `ldc_w` (`13 hi lo`). The gate should check that the String constant's index fits the opcode used.
+2. **StackMapTable and version.** Don't change the class version. Keep both new bodies straight-line so they need no stack map frames in any version:
+   - `resolveEntity`: `aload_1; aload_2; invokestatic Helper.resolve:(Ljava/lang/String;Ljava/lang/String;)Lorg/xml/sax/InputSource;; areturn`, with max_stack=2, max_locals≥3, an empty exception table, and no sub-attributes.
+   - `toString`: `ldc_w; areturn`, with max_stack=1, max_locals≥1.
+   
+   Drop LineNumberTable, LocalVariableTable and StackMapTable from the replaced Code attribute. Don't copy them over.
+3. **Constant-pool parsing.** Long and Double entries take two slots. The new pool count is old count + number of appended entries, and must stay under 65535. Use `Methodref`, not `InterfaceMethodref`. Reuse the existing `"Code"` Utf8 index; the gate should check it points to Utf8 `Code`. Appended strings must be ASCII, which sidesteps modified-UTF-8 problems.
+4. **Target selection.** Match on exact name and descriptor. Require exactly one match, not abstract or native, with exactly one Code attribute. Keep the method's other attributes (`Exceptions`, `Signature`, etc.) byte-identical.
+5. **Helper placement.** If the helper is in a different package it must be public. Add it to `PATCH_CLASSES` and pin its bytes. If the original manifest declares packages as `Sealed`, adding a class to `com.apple.*` would fail. Your build already replaces the manifest, but say so explicitly.
+
+**Resolver semantics**
+
+6. **EntityResolver2 bypass.** This is the biggest silent failure. If `Handler` extends `DefaultHandler2` (or implements `EntityResolver2`), JDK parsers call the 4-argument `resolveEntity` and `getExternalSubset`. Your 2-argument fix would never run. Check the superclass chain and interfaces in all three JARs, and fail the gate if the class has EntityResolver2 in its hierarchy.
+7. **Every parse path must actually use this Handler.** Check that `parse(..., handler)` or `setEntityResolver(handler)` is used everywhere. Inventory any other `EntityResolver`, `DocumentBuilder`, `XMLReader`, `XMLDecoder` or `Transformer` use in all three JARs. Scope your claim to the "PropertyListUtilities parse paths" that inventory confirms.
+8. **Legacy DOCTYPE.** Pre-10.4 Apple plists used `<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">`. Xserve RAID firmware of that era, or files the app saved, may emit it. Your design throws on that DOCTYPE, so it could break real controller responses with no visible error, because logging is OFF. Search the firmware and JAR strings and any real fixtures for it before release. If it's found, add an exact-string mapping to the embedded DTD, not a prefix match and not a fallback.
+9. **Exact output parity.** The helper must return an InputSource identical to the original's: same stream type (byte vs character), encoding, and systemId/publicId set or not set. Byte-identical DTD content is not enough. Prefer reading the DTD from the same original source (static field or JAR resource) over a duplicated literal. Also confirm the embedded DTD itself contains no external references.
+10. **Inputs to `resolve`.** A null systemId, or a publicId-only call, must throw the fixed SAXException, not an NPE. A relative systemId with Reader input may be absolutized against the working directory; that's fine as long as the check is a prefix check on the final string. Keep the message fixed, with no systemId in it.
+11. **Callers' handling of the new exception.** Find out what callers do with a SAXException from parse. If they catch it and return null, you get an NPE further down. Document whatever happens, since G03 and G04 both note there's no visible error path.
+12. **Parser implementation.** Check whether any JAR ships its own SAX implementation (e.g. a `META-INF/services` SAXParserFactory, Crimson or Xerces). This doesn't change your fix, but it does decide whether JDK entity-expansion limits apply at all, which matters for the "does not claim" statement.
+
+**toString**
+
+13. **Subclass overrides.** Any `AbstractRequestMessage` subclass that overrides `toString` bypasses the fix. List all overrides across the JARs, and any that call `super.toString()` and add fields.
+14. **Functional use of toString.** Confirm through bytecode that no serializer, dispatch, cache, `equals`/`hashCode` or UI path uses the request's string form. Look for `toString`, `String.valueOf(Object)` and `StringBuffer`/`StringBuilder.append(Object)` in request and transport classes. Packet parity won't detect a toString used as a map key.
+15. **Claim scope.** This redacts `AbstractRequestMessage.toString` only. Password getters, ACP headers and exception messages are untouched, so G04 stays open.
+
+## The gate (better than hashing per region)
+
+Check that the output bytes equal a reconstruction:
+- magic and version are identical, and the new constant-pool count is old count + k;
+- the original constant-pool bytes are a verbatim prefix, followed by the exact appended entries in a fixed order;
+- access flags, this/super, interfaces, fields and class attributes are identical slices;
+- every method's bytes are identical except the target method's Code attribute.
+
+On top of that, pin:
+- the SHA-256 of each input class entry, in addition to the JAR hash;
+- golden SHA-256 values for each output class;
+- a negative test showing that a one-byte change to the input fails before anything is written.
+
+Then cross-check with an independent parser: run `javap -v` on the original and the output and confirm the only difference is the target bodies plus the appended constants.
+
+## Best tests
+
+- **Verifier:** load the transformed classes with `-Xverify:all` (or `-XX:+BytecodeVerificationLocal`) on Java 8 and the newest runtime you support, on both architectures.
+- **Differential against the original JAR:**
+  - For the known DTD (Reader and InputStream inputs), the InputSource fields and DTD bytes are identical.
+  - Scalar, dict, array, data and date round-trips produce equal object graphs.
+  - Packet and serializer bytes are identical for every request type you have a fixture for.
+- **Blocked before any IO**, with your guard recording every file and network attempt and requiring zero:
+  - an unknown systemId;
+  - Apple's publicId paired with an attacker's systemId;
+  - an external general entity;
+  - an external parameter entity in the internal subset;
+  - `https://` and different-case variants of the Apple URL;
+  - the legacy `file://localhost` DOCTYPE, so its behaviour is decided deliberately (see pitfall 8);
+  - a null systemId.
+- **Malformed input:** truncated, malformed, and empty documents, plus a DOCTYPE with no root element. Assert the exception type and the caller-visible result.
+- **Allowed path:** a systemId that has the Apple prefix but a strange suffix still returns the embedded DTD and does no IO.
+- **toString:** the fixed string comes back for every concrete subclass, or for every subclass that has no override if overrides exist. Check that no password or username substring appears, using a sentinel credential.
+- **Determinism:** two builds give identical output class bytes, and `entry_changes` lists exactly the two target classes plus the helper.

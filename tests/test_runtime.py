@@ -12,7 +12,7 @@ from audit_support import digest, tree, modes
 class RuntimeTests(unittest.TestCase):
     def test_archive_rejects_escape_and_links(self):
         for name, kind in [('../escape', tarfile.REGTYPE), ('/escape', tarfile.REGTYPE),
-                           ('jdk/link', tarfile.SYMTYPE), ('other/file', tarfile.REGTYPE),
+                           ('jdk/hard', tarfile.LNKTYPE), ('jdk/link', tarfile.SYMTYPE), ('other/file', tarfile.REGTYPE),
                            ('jdk/pipe', tarfile.FIFOTYPE)]:
             with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:
                 archive = Path(tmp) / 'archive.tar'

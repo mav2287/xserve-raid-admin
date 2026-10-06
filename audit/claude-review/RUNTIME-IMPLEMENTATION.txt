@@ -1,0 +1,80 @@
+I've finished reading the scoped files and am writing up the findings now.
+
+# Review: pinned runtime and packaging (static reading only)
+
+I didn't run, build or edit anything. For `audit/runtime-lock.json` I read only the header, the `aarch64` record's structure and its signature, `_CodeSignature`, `libjli` and `ext` entries.
+
+**Verdict:** I found no critical bug. Archive extraction, vendor mode restoration, byte-verified copying, keeping the candidate JAR unchanged, the expected-build gate and verify-only `codesign` all fail closed. The findings below are hardening fixes or gaps in what the provenance actually proves.
+
+## Holds up
+
+- **Archive handling** (`tools/runtime.py:85`): the archive's SHA-256 is checked before extraction. The member checks then reject absolute paths, `..`, a foreign root, duplicate names, links, special files and `0o7022` mode bits. Because the archive hash is pinned, these checks are a second line of defense. That also covers the gap noted in point 7 below.
+- **Mode restoration** (`runtime.py:29-31`): this correctly undoes the `data` filter's forced owner read/write. `verify_runtime` then compares the exact `S_IMODE` of every file against the lock.
+- **Moving the extracted runtime into the cache** (`runtime.py:97`): renaming out of a `TemporaryDirectory` is safe, because the cleanup ignores `FileNotFoundError`. It is a bit fragile, though; `mkdtemp` plus explicit cleanup would be clearer.
+- **Copying** (`bundle.py:15-30`): each file is hashed from the same bytes that get written, opened with exclusive create (`'xb'`), and its mode comes from the manifest, not the source. This closes the race between verifying and copying.
+- **Signature check:** `codesign` only verifies, on the copy at `Runtime.jdk`. It matches whole `-dv` output lines, so a partial string can't pass.
+- **JAR and bundle checks:** the `changed` and `additions` sets plus the per-file mode checks (`bundle.py:66-76`) guarantee `RAID_Admin.jar` and all other build files are byte- and mode-identical, apart from the launcher and `Info.plist`.
+- **Launcher:** the `#!/bin/bash -p` line is what actually blocks `BASH_ENV`, `ENV` and exported functions. Line 5 runs too late for `BASH_ENV`, and the test correctly exercises this. All external commands use absolute paths.
+
+## Findings, by severity
+
+**1. Medium: `java.library.path` still reads ambient and user-writable locations** (`packaging/RAIDAdmin:20-22`)
+- Restricting `java.ext.dirs` doesn't cover native libraries. JDK 8 on macOS builds `java.library.path` from the `JAVA_LIBRARY_PATH` environment variable, `~/Library/Java/Extensions`, `/Library/Java/Extensions`, `/Network/…`, `/System/…`, `/usr/lib/java` and `.` (the current directory).
+- This matters only if the JAR or patched classes call `System.loadLibrary` for a library the vendor runtime doesn't ship. JDK-internal libraries resolve through `sun.boot.library.path` first.
+- **Fix:** add `-Djava.library.path="$RUNTIME/jre/lib"` to both the probe and the `exec`. Don't use an empty value: JDK 8 turns `""` into a search of `/`.
+
+**2. Low–medium: incomplete launcher environment cleanup** (`RAIDAdmin:5`)
+- Also unset `JAVA_LIBRARY_PATH`, `_JAVA_SPLASH_FILE`, `_JAVA_SPLASH_JAR`, `_JAVA_VERSION_SET` and `_JAVA_LAUNCHER_DEBUG`.
+- The splash variables can make the JDK 8 launcher decode an arbitrary image file in native code before `main`, if the manifest doesn't set a splash image.
+
+**3. Medium: bundle directory modes depend on the packager's umask** (`bundle.py:27`, and `runtime.py:26`, whose `data` filter leaves directory modes unset)
+- Directory modes are neither set nor verified, and `bundle_tree_sha256` covers files only. With umask `002`, the output gets group-writable directories that the provenance never shows.
+- **Fix:** call `os.umask(0o022)` at the start of `main()`. Alternatively, `chmod(0o755)` each created directory and record directory modes.
+
+**4. Medium: packager provenance can be steered by the environment** (`bundle.py:83-84`)
+- `git` is looked up through the ambient `PATH` and inherits `GIT_DIR`, `GIT_WORK_TREE` and `GIT_INDEX_FILE`, so it can report the wrong `packager_commit` or `packager_dirty`.
+- **Fix:** use `['/usr/bin/git', '-C', str(ROOT), ...]` with `env=isolated_env()`.
+- Also, if `--output` is inside the repo, it makes `packager_dirty` true on its own because the output directory is created first (line 50). Compute git state before `mkdir`.
+- Note: `bundle.py` and `runtime.py` are currently untracked, so any bundle produced now will correctly record `packager_dirty: true`.
+
+**5. Low–medium: the "clean source" claim is self-attested** (`bundle.py:45`)
+- `source_dirty` and `source_commit` come from the build directory's `provenance.json`. That file is checked against the tree contents but nothing ties it to git, and the bundle then hard-codes `'source_dirty': False`.
+- The expected-build gate still guarantees the output bytes, so this affects how honest the provenance is, not what ships.
+- **Fix:** confirm `source_commit` exists (`git cat-file -e <commit>^{commit}`). Optionally, compare `git show <commit>:<path>` hashes against the build's `input_hashes`.
+
+**6. Low: input hashes are taken after the inputs are used** (`bundle.py:57,59` versus 86)
+- `packaging/RAIDAdmin` and `packaging/AppIcon.png` are read at one point and hashed later.
+- **Fix:** assert `files['Contents/MacOS/RAIDAdmin'] == input_hashes['packaging/RAIDAdmin']`, and the same for the icon. Also add `audit/python-lock.json` to `inputs`, since `verify_python()` gates on it.
+
+**7. Low: `Info.plist` edits aren't constrained** (`bundle.py:60-68`)
+- The checks only require that `Info.plist` changed.
+- **Fix:** assert that the plist with `LSMinimumSystemVersion` removed equals the original with it removed, and that `CFBundleExecutable == 'RAIDAdmin'`.
+
+**8. Low: the signature check has no designated requirement** (`runtime.py:44`)
+- **Fix:** add `-R='anchor apple generic and certificate leaf[subject.OU] = "94KV3E626L"'` so the check enforces an Apple-anchored Developer ID chain, rather than relying on parsed `-dv` text. The pinned tree hash already prevents substitution, so this is defense in depth.
+
+**9. Low: case-insensitive name collisions** (`runtime.py:22`)
+- `seen` compares names case-sensitively, but APFS is usually case-insensitive, so two entries differing only in case would overwrite each other.
+- The pinned archive SHA plus the exact tree comparison already block this. Comparing `str(path).casefold()` would make the check say what it means.
+
+## Test gaps
+
+**`tests/test_runtime.py`** has no tests for:
+- rejection of setuid or group/other-write modes
+- duplicate or `./`-normalized names
+- hard links (`LNKTYPE`)
+- the `obtain_runtime` paths: existing destination, symlinked cache, checksum mismatch
+
+**`tests/test_launcher.py`** doesn't cover:
+- exported-function import (`BASH_FUNC_cd%%=…`)
+- that the `DYLD_*` variables are unset
+- that `-Djava.endorsed.dirs=` is present
+- the probe-failure path. This would currently run `osascript`, so it needs a way to stub the dialog first.
+
+**`bundle.py`** has no tests at all. Useful ones: `copy_verified` hash mismatch, an existing destination file, and the `changed`/`additions` checks.
+
+## Out of scope, as you stated
+Native GUI behavior, Gatekeeper and quarantine handling of the unsigned app, and hardware behavior can't be judged by reading code. One related UX point: on an Apple Silicon Mac without Rosetta, the x64 bundle shows the generic "cannot run" dialog. macOS won't offer to install Rosetta because the main executable is a script. Mentioning Rosetta in that dialog would help.
+
+
+Disposition: restricted native library path and splash/debug environment; recorded and enforced directory modes; isolated git and verified source-commit input hashes; copied input hashes cross-checked; plist delta constrained; Developer ID designated requirement checked; archive names compared case-insensitively. Added copy integrity/mode/no-overwrite tests and vendor read-only-mode regression. Bundles remain unsigned local candidates.

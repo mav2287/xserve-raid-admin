@@ -55,6 +55,8 @@ def main():
                 raise ValueError('This observation supports Java 8 and 11 only')
             extension_path = str(runtime / 'jre/lib/ext') if args.vendor_extensions else ''
             extension_flags = ['-Djava.ext.dirs=' + extension_path, '-Djava.endorsed.dirs='] if version[1].startswith('1.8.') else []
+            if args.vendor_extensions:
+                extension_flags += ['-Djava.library.path=' + str(runtime / 'jre/lib')]
             def run(jar, entry, *arguments):
                 # These flags work on both Java 8 and 11. This is a runtime observation,
                 # separate from the Java-8-only reproducible build environment.
