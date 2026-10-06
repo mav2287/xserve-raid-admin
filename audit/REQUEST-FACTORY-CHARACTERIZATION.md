@@ -89,7 +89,12 @@ hashes; qualification also rechecks the commit and clean tree at completion.
 74 Python tests pass. [Final gate review](claude-review/REQUEST-FACTORY-FINAL-GATES.txt)
 found no code blocker and required bootstrap completion before committing. That
 completion and four-observation equality were checked after the review, before
-commit. Clean qualification follows the committed fixture.
+commit. [Clean qualification](request-factory-clean-results.json) ran from commit fab6114
+with a clean tree and final commit/source/runtime identity rechecks. Original and
+audit.13 exactly matched the reviewed table on aarch64 and x64/Rosetta: four
+observations, 116 rows each, six enqueue cases each and zero guarded operations.
+The application JAR remains 3f39352faf7b0fe0b117d04af0b2455efd81b4511fc522617743f7d169793175;
+this characterization introduces no application code change.
 Caller/wrapper/control-flow, dual-target writes, chained UI operations and direct
 CLI outcomes remain open. Shared RPC bodies and headers mean measured identical
 replay bytes cannot be generalized. No retry policy changes are made here.
