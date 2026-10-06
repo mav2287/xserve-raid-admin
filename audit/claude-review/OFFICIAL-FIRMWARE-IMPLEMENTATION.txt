@@ -1,0 +1,19 @@
+I found no concrete defects in the two scoped pieces. I only read the files; I didn't run anything.
+
+**What I checked and found correct**
+- **Pinning:** the package's size and SHA-256 are pinned. The member list is pinned exactly. Member sizes and hashes are worked out by Python and are fixed indirectly through the package hash, not stored as constants. `tools/check_firmware_archives.py:144` re-checks the whole chain at the end, which catches the package changing mid-run.
+- **Acquisition gate (`:27-35`):** the marker and container must be regular files, not symlinks. The marker is size-capped, and the container's size and SHA are pinned. The marker's `archive_sha256`, selected `sha256` and `cache_file` must all match. A malformed marker raises KeyError or TypeError, so the check fails rather than passing.
+- **Cache location (`:23`):** the path must not be a symlink, must resolve under `build/`, and must be a regular file.
+- **Hash comparison:** the Java output must match Python's line for line, for both the original and candidate JARs, on each pinned runtime. Any return code or stderr fails the run, and raw output is never shown. `command[:-3]` correctly swaps in the new main class and arguments.
+- **Wrapper unchanged:** the original and candidate `FirmwareBundleConnection*.class` files are compared byte for byte. The probe checks that the class's code source is the expected JAR, compared as canonical paths.
+- **Guard:** `OfflineGuard.install()` is the first statement, before the wrapper class is first used. `assertUntouched()` runs in `finally`, and PASS only prints after it.
+- **Probe scope:** the only object it creates is the wrapper itself, from `jar:file:` URLs. Reads are capped at 16 MiB, and the full-image key is asserted absent.
+
+**Minor notes, not defects**
+1. `OfficialFirmwareProbe.java:42`: the "closed stream throws" check only holds for deflated members. On JDK 8, a closed stored-entry stream returns `-1` instead of throwing, so this check would fail on a stored member. It's fine for this pinned package, but Python already records `compression` (`:45`) without checking it. Asserting `compress_type == ZIP_DEFLATED` there would make the assumption explicit.
+2. `:31`: `marker.read_text()` has no `encoding=` set, so it uses the host's locale. That's harmless as long as the marker is ASCII.
+3. Nothing closes the wrapper connections or the manifest connection. That's harmless in a short-lived JVM. Whether opening them touches the JDK's jar-file cache depends on how the wrapper implements `connect()`, which I didn't read because it was out of scope. If the guard doesn't already cover that, your "no cache operations" claim relies on it.
+
+Since the completed-acquisition-marker gate came after your two passing runs, the planned rerun is still needed to confirm it on both runtimes.
+
+Disposition: explicit deflated-entry assertion and UTF-8 acquisition-marker decoding added. JarURLConnection retains its ordinary per-process archive cache; no controller cache-policy operation is constructed or invoked. Final fixture rerun follows the committed source and completed acquisition gate.
