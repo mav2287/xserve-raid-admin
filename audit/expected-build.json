@@ -46,9 +46,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "94d7d14108d148fce49e23f5fd3120f7df345cbcf1e95486a92d9b2874037ee4",
-  "reason": "audit.4: reviewed three Code-only resolver/request diagnostic substitutions, original embedded DTD, helper, and consolidated deterministic builder; offline security qualification in progress",
+  "previous_record_sha256": "a550fe9b36d16c7c56daad961c9579e37d300ae80e2858d0d968237ed3940f9e",
+  "reason": "audit.4 reviewed security/build implementation: identical clean rebuilds from 631b638; independent full-JAR hierarchy, javap preservation and guarded security fixtures pass",
   "schema": 1,
-  "source_commit": "14446f76d685683d02401ddbb3875077eae51ddc",
-  "source_dirty": true
+  "source_commit": "631b6380f8d7e973b29e11c29510e6c9897b9d89",
+  "source_dirty": false
 }
