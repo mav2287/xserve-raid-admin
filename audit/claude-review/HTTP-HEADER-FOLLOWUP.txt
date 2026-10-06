@@ -1,0 +1,51 @@
+Actual Claude CLI scoped read-only review; reviewer executed nothing.
+
+I found no remaining defect in the header guard itself. Both items are addressed: the corpus blind spot is fully fixed. The candidate-attribute gap is closed for the three table types the reviewer named, but the independent check still uses a deny-list, so it doesn't fully stand on its own (finding 1). I only read files and ran nothing. Anything below about runtime behaviour comes from the source or from the outputs you reported.
+
+## Checked against the original bytecode (`build/http-response-allocation-bytecode.txt`)
+
+- **`readLine` (lines 236–274):** a non-ending byte doesn't reset the newline flag (59–64). The second CR or LF returns (46–51). `-1` returns whatever has been collected (18–31). `BoundedHeaderStream.java:20-33` does the same.
+- **`parseHeaders` (157–234):** an empty status line throws `EOFException`. An empty header line returns. An `indexOf(':')` of 0 or less throws `ProtocolException`. `finish()` matches this: it switches to body mode only when `lines>0 && characters==0`.
+- **Constructor (14–38):** the stream is stored with `putfield` at 36, there's no exception table, and the only branch (10 → 23) lands before the insertion point. So the 3-byte shift can't move any branch target, and the "earlier branch unchanged" claim holds.
+- **Limits:** you can't reach unbounded bytes or lines without non-ending bytes. A blank line after the status line switches to body mode, and a blank status line fails, so `lines` stays at 130 or fewer.
+
+## Corpus blind spot: fixed (source observation)
+
+At every corpus case, `HeaderObservation.java:38-48` checks the final wrapper state against two oracles. One runs the real `parseHeaders` on a wrapped shell. The other calls the real `readLine` on an unwrapped shell, with test code supplying the loop.
+
+- If the wrapper switched to body mode too early, it would stop counting, so `bytes` would fall below `consumed`. A rejected case would also end with `body=true`.
+- If it switched too late, an accepted case would end with `body=false`.
+- The line count and the reset fields are compared as well.
+
+That covers the defect I raised before. The test's loop at `:46` rewrites the loop logic of `parseHeaders`, but `legacy.consumed()==consumed` checks it against the real one. The line count is 1 corpus + 4 accepted + 1 fresh-response + 1 PASS = 7, plus 3 rejections = 10, which matches `check_architectures.py:125`.
+
+## Remaining issues
+
+1. **The independent attribute check is a deny-list (`check_security.py:62`).** It now inspects the candidate `b`, but only looks for four javap labels. Other Code subattributes in the candidate would still pass. For example:
+   - `LocalVariableTypeTable:` doesn't contain the substring `LocalVariableTable:`.
+   - Type-annotation tables aren't on the list.
+   - Neither are attributes javap doesn't recognise.
+
+   None of these produce lines that the instruction regex `^\s+(\d+):` matches. `class_patch.py:228` catches them at byte level, and the build identity is pinned, so this weakens the verifier's independence, not the artifact. Fix: use an allow-list. Require every non-blank line in the candidate constructor's Code block to be either the `stack=` line or an instruction. `HTTP-HEADER-GUARD.md:21-22` and `:67` ("fixed") currently claim more than this delivers.
+
+2. **The header helper's constants still aren't pinned (`check_security.py:112-113`).** Only `major version: 52` is checked. Nothing checks 1048576, 65536, 129 or the message. The allocation helper gets all of these checks. The fixtures do cover behaviour, but this minor item wasn't addressed and the disposition doesn't mention it.
+
+3. **The mutation test only covers part of the Methodref target (`test_class_patch.py:56-58`).** Prefix (+20) and suffix (+44) mutations are covered now. But:
+   - Nothing redirects the `invokestatic` operand to a different valid Methodref, or changes its owner, name or descriptor.
+   - The low byte (+38) isn't mutated.
+   - Flipping the high byte (+37) probably fails as a `KeyError` from an out-of-range pool index, and the test accepts that. So the owner/name/descriptor checks at `class_patch.py:230-234` are never shown to fire.
+
+4. **Boundary coverage uses only canonical CRLF.** The `lines>=129`, 65536 and 1 MiB boundaries are tested only with `\r\n` framing. Non-standard endings (lone LF, or CR, data, CR) are checked by the corpus only up to 16 bytes, far short of any limit. The automaton is the same code at every length, so the risk is low, but the tests don't show it.
+
+## Wording nits (docs)
+
+- `HTTP-HEADER-GUARD.md:43-45` says the corpus checks run against "actual unchanged private parseHeaders/readLine invocations". More precisely: the real `parseHeaders` runs on the wrapped shell, and the oracle runs the real `readLine` inside a test-side loop.
+- The review file's note that there's "no readLine listing in the repo" is now out of date. The listing exists, and it confirms the automaton.
+
+## Not reviewed (outside the scope you gave)
+
+- I didn't read `TransportObservation.java`, so I haven't verified the queue claims (−102 for all three violations, with logging off and configured).
+- I didn't confirm that the 174,762 per-case reflection checks finish within the 30 s subprocess timeout under Rosetta; your reported 7/10 output implies they do.
+- After a rejection, a later response gets a fresh budget and reads the leftover bytes on the same connection. That belongs to the connection-recovery work you've left open.
+
+Disposition: constructor Code verification now allowlists only its frame and instruction lines, rejecting arbitrary attributes (including unknown labels). Header constants/message are independently pinned. Valid Methodref redirection, low operand byte and owner/name/descriptor mutations now exercise resolution checks. 41 Python tests pass. Noncanonical long-boundary coverage remains a low-risk untested extension; the exhaustive short corpus verifies the unchanged automaton and actual counters. Body/framing/recovery scopes remain explicit.

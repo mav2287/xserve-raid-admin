@@ -1,0 +1,75 @@
+Actual Claude CLI scoped read-only review; reviewer executed nothing.
+
+I've reviewed the design. Overall it's sound and narrow, and I recommend going ahead with it after the changes below. Several risks aren't in the design yet, and some of them involve fail-closed behaviour. I didn't run, build or edit anything.
+
+## Facts confirmed from the scoped files
+
+1. **The 10-byte site is real and safe to rewrite.** PC 464–473 is `getstatic logger; aload 5; aload 5; invokevirtual error(Object,Throwable)` (`build/http-communications-bytecode.txt:435-438`). No branch or handler targets any offset from 465 to 473. The replacement `aload_0; aload 5; invokestatic; nop×4` needs a stack depth of 2, which is less than the original 3, and adds no locals. Local 5 holds an `Exception` because the handler's catch type is `java/lang/Exception` (`:487`).
+2. **Your marker will reach handler 462.** The `MalformedInputException` and `IOException` handlers are listed first (`:481-482`), but an `IllegalArgumentException` subclass matches neither.
+3. **If `report()` throws, the dispatcher thread dies.** The only other handler around the loop catches `InterruptedException` (`:488`). An escaping exception means the failed command gets no callback, and the original connection close at PC 534 never runs.
+4. **Body rejection skips all of `getBody`'s cleanup.** The allocation at PC 23–31 is before the `try` that starts at 32 (`build/http-response-allocation-bytecode.txt:74-76, 153`). The `finally` and `setRequestOutstanding(false)` never run, and the unread body stays on the socket. `setRequestOutstanding(false)` is only reached on the normal path (`:147`).
+5. **`AcpxConnection.send` doesn't disconnect after a rejection on a persistent connection.** Its `finally` only disconnects when the connection isn't persistent or the request is a shutdown/restart (`build/acpx-response-callers-bytecode.txt:228-238`). `persistent` defaults to true (`:33-34`).
+6. **`doConnect` replaces the connection without closing the old one** (`http-communications-bytecode.txt:684-689`). It also uses the old connection's host to decide which controller to try first (`:534-560`).
+7. **Only the dispatcher thread reads or writes `connection`.** Other threads only see `connected` through the synchronized `isConnected()`. So the only race to handle is visibility of `connected`; nobody else can use the connection at the same time.
+8. **There's an existing lock-order inversion.** `run` holds the `queue` lock while calling the synchronized `isStopped()` (`:218-225`), and `shutdown()` takes the manager lock and then `queue`. This predates the patch; the helper just must not make it worse.
+
+## Risks, most serious first
+
+**R1. The helper must never throw for ordinary exceptions or after cleanup (fact 3).** Wrap the marker cleanup so that `Exception` and `LinkageError` are contained. For ordinary exceptions, make the log call exactly as the original does and add no try/catch, so their behaviour stays identical.
+
+**R2. The marker can be lost, and then the rejected request is replayed.** This is an inference from the bytecode. For a non-persistent connection, or a request with shutdown/restart set, the `finally` in `AcpxConnection.send` calls `HttpConnection.disconnect()`. If that throws an `IOException`, it replaces the marker. The exception then goes to handler 337, which puts the failed transaction back at the front of the queue (`addFirst`, `:404-417`) and resends it. Those are exactly the commands where replay is most dangerous. The design can't fix this without patching `AcpxConnection`, so record it as a known remaining gap and add a test fixture that pins the current behaviour.
+
+**R3. The recovery changes some visible behaviour; pin these in fixtures.**
+- `isConnected()` now returns false before the -102 callback runs (it was true before).
+- The next command goes through `doConnect`, which calls `setHostAddress`, `setPollingEnabled(true)` and the retry/backoff loop.
+- If `connection` is set to null, `doConnect` tries the primary controller first. The original `IOException` path leaves the reference in place, so it alternates to the other controller.
+
+**R4. Moving the log call into the helper changes log location info.** With `category.error(e, e)` called from the helper, `%C`/`%L`/`%M` would show `RejectionRecovery`. Use `logger.log(RejectionRecovery.class.getName(), Level.ERROR, e, e)` on `Logger.getLogger(CommunicationsManager.class)` instead, so log4j attributes the line to `CommunicationsManager.run`. I'm assuming the bundled log4j is 1.2, which I didn't verify.
+
+**R5. Holding the manager lock while closing would block other threads.** `isConnected`, `isStopped` and `shutdown` are synchronized and called from other threads. Write `connected` under `synchronized(manager)`, then close the connection after releasing the lock. Never take the `queue` lock inside the helper.
+
+**R6. Make the marker hard to forge and match it exactly.** Make it `final` in package `compat` with a package-private constructor, and keep the existing messages unchanged (the tests check them). Match with `e.getClass() == UntrustedResponseException.class`, not `instanceof`, and don't walk the cause chain.
+
+## Recommended cleanup sequence
+
+1. **Log first.** Do `try { log(e) } finally { if (marker) cleanup(manager) }`. The legacy log line always comes first, and the socket still gets closed even if an appender throws.
+2. **Check everything before changing anything.** Confirm:
+   - `manager.getClass() == CommunicationsManager.class`.
+   - `connected` exists and is a private, non-static, non-final `boolean`.
+   - `connection` exists with type exactly `AcpxConnection.class` and the same modifiers.
+   - `setAccessible(true)` succeeds on both fields.
+
+   Do this once, cache the result, and remember a failure.
+3. **If any check fails, call the public `manager.shutdown()` and log one fixed diagnostic.** Don't throw or retry, and don't leave the stale state in place silently. Shutting down uses no reflection, and I traced what follows through the original code:
+   - The failed command still gets its normal -102 callback.
+   - Each queued command takes the stopped branch (`:320-353`), so nothing is sent and each one gets a -102 `CommShutdownException`.
+   - The loop exits, and PC 534–545 closes the connection, ignoring any errors.
+
+   The cost is that this manager stays stopped. That's acceptable for a branch the hash pin should make unreachable.
+4. **Mutate:** under the lock, set `connected = false`, mirroring PC 380–393. I recommend keeping the `connection` reference rather than setting it to null. The original transport-failure path does the same, it's one fewer private write, and it keeps the controller alternation (R3). The closed object is never reused: `isConnected()` is false, so `run` calls `doConnect`, which replaces it. If you'd rather detach it as the design says, that's also safe, but pin primary-first ordering in a fixture.
+5. **Close** `AcpxConnection.close()` after releasing the lock (it's public, so no reflection needed). Catch `Exception` and log a fixed message containing no exception text, since that text could include host details. Even if the close fails, the old connection is never used again.
+
+On your helper-location question: you're right that putting the helper in `com.apple.xsr.net` gains nothing, because the fields are private. It could also hit sealed-package or signer checks, so keep it in `compat`.
+
+## Patcher and test additions
+
+- **Patcher:**
+  - Assert the `CommunicationsManager` class version. I couldn't see it because the dumps lack `-v`; `HttpResponse` is 47. If it's below 50, there's no `StackMapTable` and the `nop`s are fine.
+  - Assert the exact original bytes `b2 0026 1905 1905 b6 0046`.
+  - Add a byte-diff check, like `assert_allocation_operands`, so only PC 464–473 can change.
+  - The new constant must be a `Methodref` (tag 10) to `compat/RejectionRecovery.report(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V`.
+- **Fixtures to add to your list:**
+  - A linkage failure, for example a forced field mismatch through a test seam. Expect `shutdown`, -102 for every command, one send, and the connection closed.
+  - A logger that throws on a marker. Expect cleanup to still happen.
+  - The R2 case where the marker is lost. Pin it as current behaviour.
+  - `isConnected()` observed from inside the -102 callback.
+  - An ordinary `RuntimeException`, checked byte-for-byte for unchanged log output, including location info.
+
+## Not verified (inference only)
+
+- I didn't see `HttpConnection`'s bytecode. Its `newRequest` refusal, `getResponse` exception handling, `close`/`disconnect` behaviour and its `requestOutstanding` semantics come from the test expectations (`TransportObservation.java:291-302, 313-314`), not from code.
+- That the header marker reaches `run` without being wrapped also relies on that test, and I didn't run the test.
+- The log4j version and the `CommunicationsManager` class version are unknown.
+- As the design says, real sockets, backoff timing and a live controller remain unqualified.
+
+Disposition: preserve controller alternation by retaining the closed connection reference; connected=false prevents reuse. Contain marker cleanup/logging failures and use shutdown on reflective linkage failure. Original exception behavior stays unchanged. The potential cleanup-masks-marker path will be addressed with a separate narrow AcpxConnection marker handler, reviewed before implementation. No claim that this path was exercised against real hardware.

@@ -13,6 +13,14 @@ from verify_builds import check_artifact, EXPECTED
 from inventory import disassemble_entries
 
 
+def plain_constructor_code(text):
+    """The original constructor has only a frame line and instructions."""
+    code = re.search(r'^    Code:\n(.*?)(?=^    \S|\Z)', text, re.M | re.S)[1]
+    lines = [line.strip() for line in code.splitlines() if line.strip()]
+    if not lines or not re.fullmatch(r'stack=\d+, locals=\d+, args_size=\d+', lines[0]) or any(not re.fullmatch(r'\d+:\s+.*', line) for line in lines[1:]):
+        raise ValueError('Unexpected constructor Code table or attribute')
+
+
 def independent_preservation(jdk, original, candidate, entry, target, descriptor):
     before, after = [disassemble_entries(jdk, jar, [entry], verbose=True) for jar in (original,candidate)]
     def sections(text):
@@ -51,6 +59,7 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
             return re.search(r'^  com\.apple\.xsr\.net\.HttpResponse\(com\.apple\.xsr\.net\.HttpConnection\).*?(?=^  \S|^})',text,re.M|re.S)[0]
         a,b=ctor(before),ctor(after)
         instructions=lambda text:re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)
+        plain_constructor_code(a); plain_constructor_code(b)
         ai,bi=instructions(a),instructions(b)
         expected=[]
         for offset,rest in ai:
@@ -110,7 +119,8 @@ def main():
     if constructor is None or re.findall(r'^\s+\d+:\s+(\S+)',constructor[1],re.M) != ['aload_0','iload_1','invokestatic','invokespecial','return'] or 'Method checkLength:(I)I' not in constructor[1] or 'java/io/ByteArrayOutputStream."<init>":(I)V' not in constructor[1]:
         raise ValueError('Response size check does not precede superclass allocation')
     header_helper=disassemble_entries(args.jdk,args.jar,['compat/BoundedHeaderStream.class'],verbose=True)
-    if '  major version: 52' not in header_helper:raise ValueError('Header helper requires unexpected JVM version')
+    if '  major version: 52' not in header_helper or not all(re.search(pattern,header_helper) for pattern in (r'ldc\s+#\d+\s+// int 1048576',r'ldc\s+#\d+\s+// int 65536',r'sipush\s+129',r'// String Response headers exceed limit')):
+        raise ValueError('Header helper version, budgets or fixed rejection differs')
     verified_methods = {}
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)

@@ -41,8 +41,8 @@ both with a header terminator suffix and directly at EOF. Original and candidate
 constructor outcomes, header maps and consumed positions match. Because short
 inputs alone cannot expose a premature switch out of header counting, the
 candidate also checks wrapper bytes, phase, line count and reset fields against
-actual unchanged private parseHeaders/readLine invocations on isolated Unsafe
-shells for every case. Claude identified this original test blind spot; it was
+the unchanged parseHeaders on a wrapped Unsafe shell and unchanged readLine
+inside a test-side loop on an unwrapped shell for every case. Claude identified this original test blind spot; it was
 fixed before acceptance.
 
 Both pinned runtime architectures cover exact line/count/byte acceptance,
@@ -84,4 +84,9 @@ Repeated runtime bundle digests:
 [clean source provenance](header-clean-provenance.json),
 [repeated package verification](header-bundle-results.json) and
 [installed/original integrity](header-final-integrity.json) record their scopes.
-40 Python tests pass. These results qualify bounded offline behavior only.
+41 Python tests pass after follow-up verifier hardening. These results qualify bounded offline behavior only.
+
+Claude [follow-up review](claude-review/HTTP-HEADER-FOLLOWUP.txt) found no guard
+defect and prompted a strict Code-line allowlist, constant checks and valid
+Methodref target mutation tests. Long noncanonical line-ending boundary tests
+remain unmeasured; the exhaustive short corpus qualifies automaton tracking.

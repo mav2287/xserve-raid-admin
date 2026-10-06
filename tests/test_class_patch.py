@@ -53,9 +53,16 @@ class ClassPatchTests(unittest.TestCase):
         after=transform(entry,before);assert_header_insertion(before,after)
         cls=ClassFile(after);method=next(m for m in cls.methods if m['name']=='<init>')
         _,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
-        for offset in (begin+6,begin+14+20,begin+14+36,begin+14+37,begin+14+44,end-1):
+        for offset in (begin+6,begin+14+20,begin+14+36,begin+14+37,begin+14+38,begin+14+44,end-1):
             changed=bytearray(after);changed[offset]^=1
             with self.subTest(offset=offset),self.assertRaises((ValueError,KeyError)):assert_header_insertion(before,bytes(changed))
+
+        changed=bytearray(after);changed[begin+14+37:begin+14+39]=b'\x00\x0e'
+        with self.assertRaises(ValueError):assert_header_insertion(before,bytes(changed))
+        for value in (b'compat/BoundedHeaderStream',b'wrap',b'(Ljava/io/InputStream;)Ljava/io/InputStream;'):
+            offset=after.rfind(value);self.assertGreaterEqual(offset,0)
+            changed=bytearray(after);changed[offset]^=1
+            with self.subTest(target=value),self.assertRaises(ValueError):assert_header_insertion(before,bytes(changed))
 
     def test_dtd_is_exact_embedded_literal_with_no_external_declarations(self):
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:
