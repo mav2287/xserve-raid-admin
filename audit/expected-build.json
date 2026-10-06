@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "8d95bce07cbffd9f4d9f6f81713d5348e684b1d86741b5e0bb701bba35fa62ea",
-  "reason": "audit.13 Claude-reviewed null-message IO terminal recovery, preserved nonnull classification, twelve-handler Code tail and verifier negative control",
+  "previous_record_sha256": "d42d300eb35b0ecf354fa16edf84e9a38c455a5a20754fc715ac26cc989e67d4",
+  "reason": "audit.13 clean Claude-reviewed null-message terminal recovery and full regression gates",
   "schema": 1,
-  "source_commit": "51bf9eaf2660a977de5c2f705875bdde99b90466",
-  "source_dirty": true
+  "source_commit": "f2ec1cf469919b0b6506014ef520b5e258956396",
+  "source_dirty": false
 }
