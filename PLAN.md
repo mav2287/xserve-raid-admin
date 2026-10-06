@@ -543,3 +543,20 @@ both pinned runtimes (x64 via Rosetta); no TCP or hardware qualification is clai
 The characterization changes no application bytes. Narrow framing policy is the
 next reviewed security milestone. See [evidence](audit/SHARED-RESPONSE-FRAMING.md)
 and [clean observations](audit/shared-stream-clean-results.json).
+
+
+## audit.11 explicit response framing
+
+One ASCII-case-insensitive Content-Length is accepted; missing or duplicate
+lengths and any Transfer-Encoding use a fixed terminal marker, close the
+connection and return one -102 without failed-command replay in measured
+send/dispatch fixtures. Single lowercase length now parses the actual plist;
+canonical replies, legitimate zero length, ACP error codes and original ordinary
+IO retries remain. Two same-length HttpResponse call substitutions and one small
+helper implement the boundary. No third-party dependency is added.
+
+G12 is only partially addressed: declared-zero with extra bytes remains a
+measured association gap, status handling and malformed ordinary IO remain
+legacy behavior, and no firmware capture proves single-length compatibility.
+The HTTP protocol is plaintext. Native UI, physical Intel, hardware, signing and
+release acceptance remain open. See [reviewed scope](audit/RESPONSE-FRAMING-POLICY.md).

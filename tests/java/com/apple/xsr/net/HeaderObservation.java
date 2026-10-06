@@ -107,13 +107,14 @@ public final class HeaderObservation {
             }
             out.println("corpus cases="+cases+" sha256="+hex(digest.digest()));
             String start="HTTP/1.1 200 X\r\n";
-            accepted(out,"line-65536",bytes(start+"X: "+repeat("x",65533)+"\r\n\r\n"),new byte[0]);
-            accepted(out,"fields-128",bytes(start+repeat("X: x\r\n",128)+"\r\n"),new byte[0]);
+            // Body-read budget controls carry one explicit zero length on both JARs.
+            accepted(out,"line-65536",bytes(start+"Content-Length: 0\r\nX: "+repeat("x",65533)+"\r\n\r\n"),new byte[0]);
+            accepted(out,"fields-128",bytes(start+"Content-Length: 0\r\n"+repeat("X: x\r\n",127)+"\r\n"),new byte[0]);
             accepted(out,"bytes-1048576",bytes(totalHeader(1048576)),new byte[0]);
             byte[] body=bytes(repeat("x",1048577)+repeat("\r\n",256));
             ByteArrayOutputStream raw=new ByteArrayOutputStream();raw.write(bytes(start+"Content-Length: "+body.length+"\r\n\r\n"));raw.write(body);
             accepted(out,"body-pass-through",raw.toByteArray(),body);
-            byte[] one=bytes(start+repeat("X: x\r\n",128)+"\r\n");
+            byte[] one=bytes(start+"Content-Length: 0\r\n"+repeat("X: x\r\n",127)+"\r\n");
             ByteArrayOutputStream pair=new ByteArrayOutputStream();pair.write(one);pair.write(one);
             Source shared=new Source(pair.toByteArray());Memory connection=new Memory(shared);
             HttpResponse first=new HttpResponse(connection);check(first.getBody().length==0&&shared.consumed()==one.length);

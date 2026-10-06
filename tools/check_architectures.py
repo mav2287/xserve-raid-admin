@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 import subprocess
 import tempfile
+import zipfile
 
 from audit_support import ROOT, digest, isolated_env, run_jdk, sha, tree, verify_jdk, verify_python
 from baseline import verify_original
@@ -25,6 +26,7 @@ def main():
     parser.add_argument('--parser', action='store_true', help='Compare accepted XML boundaries and values')
     parser.add_argument('--recovery', action='store_true', help='Candidate marker cleanup and no-replay fixtures; ordinary original logging parity')
     parser.add_argument('--headers', action='store_true', help='Compare bounded header corpus and candidate-only limits')
+    parser.add_argument('--framing-policy', action='store_true', help='Require response framing class and expanded recovery coverage')
     args = parser.parse_args()
     verify_python()
     compiler = verify_jdk(args.compiler)
@@ -33,6 +35,8 @@ def main():
     if args.jar.is_symlink() or not args.jar.is_file():
         raise ValueError('Candidate must be a regular file, not a symlink')
     candidate_sha = sha(args.jar)
+    with zipfile.ZipFile(args.jar) as archive: framing_policy='compat/ResponseFraming.class' in archive.namelist()
+    if args.framing_policy and (not args.recovery or not framing_policy):raise ValueError('Required framing recovery policy missing')
     sources = [ROOT / 'tests/java/ApiProbe.java', ROOT / 'tests/java/com/apple/xsr/net/OfflineParity.java']
     if args.folders:
         sources += [ROOT / 'tests/java/FolderProbe.java', ROOT / 'tests/java/fixture/OfflineGuard.java']
@@ -133,7 +137,7 @@ def main():
             if args.recovery:
                 a=run(original,'com.apple.xsr.net.RecoveryObservation','false').splitlines()
                 b=run(args.jar,'com.apple.xsr.net.RecoveryObservation','true').splitlines()
-                if len(a)!=2 or not b or a[0]!=b[0] or a[-1]!='PASS recovery fixed=false; guarded_operations=0' or b[-1]!='PASS recovery fixed=true; guarded_operations=0' or len(b)!=78:
+                if len(a)!=2 or not b or a[0]!=b[0] or a[-1]!='PASS recovery fixed=false; guarded_operations=0' or b[-1]!='PASS recovery fixed=true; guarded_operations=0' or len(b)!=(113 if framing_policy else 78):
                     raise RuntimeError('Recovery coverage incomplete or ordinary logger parity differs')
                 if expected_recovery is None:expected_recovery=b
                 if b!=expected_recovery:raise RuntimeError('Recovery observations differ across runtimes')
@@ -145,11 +149,11 @@ def main():
     if sha(args.jar) != candidate_sha:
         raise RuntimeError('Candidate changed during observation')
     print(json.dumps({'tool_sha256':sha(Path(__file__)), 'compiler_tree_sha256': compiler['tree_sha256'],
-                      'host_machine': platform.machine(), 'macos_version': platform.mac_ver()[0],
+                      'required_framing_policy':args.framing_policy,'host_machine': platform.machine(), 'macos_version': platform.mac_ver()[0],
                       'original_sha256': sha(original), 'candidate_sha256': candidate_sha,
                       'fixture_sources': {str(p.relative_to(ROOT)): sha(p) for p in sources},
                       'observations': observations,
-                      'recovery_limits': 'Actual dispatch/send with bounded memory replies; 8 security violations plus parse gates, persistent/nonpersistent close IO/runtime failures, marker identity, retained callback contexts, distinct next-command send on fresh connection, logger throw containment, metadata failure shutdown and ordinary logger location parity. Invalid-address callback injects reconnection; no TCP or real retry/controller qualification.' if args.recovery else None,
+                      'recovery_limits': 'Actual dispatch/send with bounded memory replies; '+('13 security violations (8 prior bounds/length cases plus 5 framing cases)' if framing_policy else '8 security violations')+' plus parse gates, persistent/nonpersistent close IO/runtime failures, marker identity, retained callback contexts, distinct next-command send on fresh connection, logger throw containment, metadata failure shutdown and ordinary logger location parity. Invalid-address callback injects reconnection; no TCP or real retry/controller qualification.' if args.recovery else None,
                       'header_limits': '174762 bounded short-input/EOF constructor cases; candidate counters and phase independently compared with unchanged private parseHeaders/readLine on isolated Unsafe shells. Exact line/count/aggregate boundaries, fresh per-response budget and body pass-through above 1 MiB. Three candidate-only overlimit rejections; no real socket framing or recovery qualification.' if args.headers else None,
                       'menu_limits': 'Real interface proxies and API metadata; synthetic backend callbacks only. No native singleton registration, real event construction or AppleEvent delivery.' if args.menus else None,
                       'limits': 'Base parity covers headless serializer and simple HTTP 200 Content-Length replay. Additional flagged fixtures qualify only their separately recorded scopes. No GUI/Aqua, JNI, app launcher, preferences, controller, or physical Intel Mac qualification. x86_64 JVM on the recorded arm64 host uses Rosetta; translation status is inferred, not separately probed.'}, indent=2))

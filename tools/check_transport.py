@@ -22,7 +22,21 @@ def completed(result, parser_policy=False, allocation_policy=False, header_polic
     return lines
 
 
-def common_observations(lines, require_length_policy=False):
+def common_observations(lines, require_length_policy=False, require_framing_policy=False):
+    framing_map={
+        'response missing-length framing-rejected':'response missing-length empty',
+        'response missing-length-idle framing-rejected':'response missing-length-idle empty',
+        'response duplicate-last-valid framing-rejected':'response duplicate-last-valid result=0',
+        'response duplicate-last-zero framing-rejected':'response duplicate-last-zero empty',
+        'response chunked framing-rejected':'response chunked empty',
+        'response lowercase-length result=0':'response lowercase-length empty',
+        'queue_response lowercase-length-parsed-success result=0 sends=1 terminal_callbacks=1':'queue_response lowercase-length-empty-success result=0 sends=1 terminal_callbacks=1',
+    }
+    has_framing=any(line in framing_map for line in lines)
+    if require_framing_policy and not has_framing:raise ValueError('Required framing policy missing')
+    if has_framing:
+        if any(lines.count(line)!=1 for line in framing_map) or any(line in lines for line in framing_map.values()):raise ValueError('Intentional framing security coverage differs')
+        lines=[framing_map.get(line,line) for line in lines]
     legacy='follow_on invalid-length results=-102,-102; sends=1; outstanding=true; reconnects=0'
     security=[line for line in lines if line.startswith('security_length ')]
     expected=['security_length '+label+' fixed-marker; closed; no-input-or-cause' for label in ('invalid-length','negative-length','overflow-length')]+['security_length follow-on qualified by recovery fixture']
@@ -42,6 +56,7 @@ def main():
     parser.add_argument('--parser-policy', action='store_true', help='Candidate-only quota/depth/blocked XML queue failure tests')
     parser.add_argument('--allocation-policy', action='store_true', help='Candidate-only oversized response rejection before allocation; original never receives oversized fixture')
     parser.add_argument('--length-policy', action='store_true', help='Require candidate malformed/negative-length markers; recovery separately recorded')
+    parser.add_argument('--framing-policy', action='store_true', help='Require candidate explicit unambiguous length policy')
     parser.add_argument('--header-policy', action='store_true', help='Candidate-only header line/count/aggregate rejection and follow-on state')
     args = parser.parse_args()
     if any(jar.is_symlink() or not jar.is_file() for jar in args.jars):
@@ -124,6 +139,9 @@ def main():
     if args.length_policy:
         for observation in observations:
             if observation['jar_sha256']!=sha(original):common_observations(observation['results'],True)
+    if args.framing_policy:
+        for observation in observations:
+            if observation['jar_sha256']!=sha(original):common_observations(observation['results'],True,True)
     if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in sources} or tool_hash != sha(Path(__file__)):
         raise ValueError('Fixture source changed during observation')
     if helper_hashes != {str(p.relative_to(ROOT)): sha(p) for p in helpers}:
@@ -135,8 +153,9 @@ def main():
         'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for arch in seen},
         'fixture_sources': source_hashes, 'harness_sources':helper_hashes, 'observations': observations,'parser_observations':parser_observations,'allocation_observations':allocation_observations,'header_observations':header_observations,
         'required_length_policy':args.length_policy,
+        'required_framing_policy':args.framing_policy,
         'length_recovery_scope':'Follow-on coverage is a reference to separately recorded architecture --recovery results, not a transport-tool claim.',
-        'intentional_differences': 'When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. All remaining transport observations must match.',
+        'intentional_differences': 'When ResponseFraming exists, five missing/duplicate/chunked direct cases reject and one lowercase direct/queue case parses its plist; complete exact-line coverage is required. When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. All remaining transport observations must match.',
         'limits': 'Original queue and ACP send with bounded synthetic memory HttpConnection replies; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Two-request ordering observed after one injected drop, not concurrency or indefinite retry qualification. ACP status decoding through BasicResponse, not authentication UI or real controller. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. Each reply uses a fresh stream; shared-socket residual bytes/desynchronization and real EOF/timeout timing are not qualified. Synthetic idle streams throw immediately after their scripted bytes. Per-process 20-second timeout is the outer bound. Candidate-only allocation probes use empty bodies with advertised 16777217 and 2147483647 bytes, 64 MiB heap, terminal -102 and zero reconnects; original JAR is never passed these oversized declarations. Boundary gate exercised without allocating ceiling-sized buffers. Candidate header-policy tests cover line 65537, field 129, aggregate 1048577, sticky rejection and terminal -102 without resend; follow-on security recovery is recorded separately by the architecture recovery fixture. No TCP, hardware, polling, or real reconnect/backoff qualification. x64 on this arm64 host is Rosetta, not physical Intel qualification.'}, indent=2))
 
 if __name__ == '__main__': main()

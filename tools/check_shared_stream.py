@@ -20,10 +20,23 @@ EXPECTED = [
     'shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked',
     'PASS shared-stream association; guarded_operations=0',
 ]
+FRAMING_EXPECTED = [EXPECTED[0],
+    'framing canonical first=first second=second; sends=2; pending=0; closes=0',
+    'framing lowercase first=first second=second; sends=2; pending=0; closes=0',
+    'framing zero first=empty second=second; sends=2; pending=0; closes=0',
+    'framing missing fixed-marker; retired; sends=1; no-cause',
+    'framing duplicate-identical fixed-marker; retired; sends=1; no-cause',
+    'framing duplicate-mixed-case fixed-marker; retired; sends=1; no-cause',
+    'framing duplicate-last-zero fixed-marker; retired; sends=1; no-cause',
+    'framing transfer-encoding fixed-marker; retired; sends=1; no-cause',
+    'framing uppercase-turkish first=first second=second; sends=2; pending=0; closes=0',
+    'framing transfer-encoding-turkish fixed-marker; retired; sends=1; no-cause',
+    'framing connection-close original-source-close; sends=1; pending=0; closes=1',
+    EXPECTED[5], 'PASS framing policy; guarded_operations=0']
 
-def completed(output):
+def completed(output, framing=False):
     lines = output.splitlines()
-    if lines != EXPECTED:
+    if lines != (FRAMING_EXPECTED if framing else EXPECTED):
         raise ValueError('Unexpected shared-stream observations; raw output withheld')
     return lines
 
@@ -33,6 +46,7 @@ def main():
     parser.add_argument('--jdk', required=True, type=Path)
     parser.add_argument('--runtime', required=True, action='append', type=Path)
     parser.add_argument('--candidate-sha256', required=True)
+    parser.add_argument('--framing-policy', action='store_true')
     parser.add_argument('candidate', type=Path)
     args = parser.parse_args()
     verify_python(); compiler = verify_jdk(args.jdk)
@@ -66,13 +80,14 @@ def main():
         run_jdk(args.jdk, 'javac', ['-source', '8', '-target', '8', '-cp', str(original), '-d', tmp]+[str(p) for p in sources])
         for jar in (original, candidate):
             for arch, root in roots.items():
+                framing=args.framing_policy and jar==candidate
                 output = run_jdk(root/'Contents/Home', 'java', ['-Xverify:all', '-Xmx64m',
                        '-Djava.awt.headless=true', '-Duser.home='+tmp, '-cp', tmp+':'+str(jar),
-                       'com.apple.xsr.net.SharedResponseObservation'], timeout=20)
-                lines = completed(output)
-                if observations and lines != observations[0]['results']:
+                       'com.apple.xsr.net.SharedResponseObservation']+(['framing-policy'] if framing else []), timeout=20)
+                lines = completed(output,framing)
+                if any(o['mode']==('framing-policy' if framing else 'baseline') and lines!=o['results'] for o in observations):
                     raise ValueError('Shared-stream observations differ')
-                observations.append({'jar_sha256': identities[jar], 'architecture': arch, 'results': lines})
+                observations.append({'jar_sha256': identities[jar], 'architecture': arch, 'mode':'framing-policy' if framing else 'baseline', 'results': lines})
                 verify_runtime(root, lock['architectures'][arch])
     if hashes != {str(p.relative_to(ROOT)): sha(p) for p in inputs} or identities != {jar: sha(jar) for jar in identities}:
         raise ValueError('Inputs changed during observation')
@@ -80,7 +95,8 @@ def main():
     print(json.dumps({'fixture_commit': commit, 'fixture_dirty': dirty, 'host_machine': platform.machine(),
           'compiler_tree_sha256': compiler['tree_sha256'], 'runtime_trees': runtimes,
           'sources': hashes, 'observations': observations,
-          'limits': 'One synthetic persistent InputStream per two actual ACP sends; replies appended only after request serialization. Chunked case has a third blocked send attempt with no output acquisition. Exhaustion throws immediate synthetic timeout, close is terminal: these are fixture controls, not measured legacy timeout handling. Peer EOF and Connection: close replies are not modeled. At most 8192 bytes per reply, 16384 read calls per source, 64 MiB heap and 20 second subprocess bound. No TCP, timing, controller, UI, authentication, polling or queue-retry qualification. No raw requests, peer content, credentials or exception messages printed. x64 here uses Rosetta, not physical Intel. Original and candidate have identical characterized framing gaps; stricter framing cannot encrypt or authenticate legacy HTTP.'}, indent=2))
+          'required_framing_policy':args.framing_policy,
+          'limits': 'One synthetic persistent InputStream per two actual ACP sends; replies appended only after request serialization. Chunked case has a third blocked send attempt with no output acquisition. Exhaustion throws immediate synthetic timeout, close is terminal: these are fixture controls, not measured legacy timeout handling. Peer EOF is not modeled. Baseline mode does not model Connection: close; framing-policy mode tests one valid-length close reply and performs no follow-on socket operation. Uppercase Content-Length under Turkish locale is a case-folding control; uppercase Transfer-Encoding contains I and exercises the Turkish locale hazard. At most 8192 bytes per reply, 16384 read calls per source, 64 MiB heap and 20 second subprocess bound. No TCP, timing, controller, UI, authentication, polling or queue-retry qualification. No raw requests, peer content, credentials or exception messages printed. x64 here uses Rosetta, not physical Intel. Without policy mode original/candidate baseline gaps match. Policy mode verifies explicit unambiguous length, locale independence and retirement, and retains declared-zero extra-body association as a known gap. Stricter framing cannot encrypt or authenticate legacy HTTP.'}, indent=2))
 
 
 if __name__ == '__main__': main()

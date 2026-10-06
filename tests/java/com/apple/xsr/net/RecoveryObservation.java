@@ -61,7 +61,12 @@ public final class RecoveryObservation {
     private static byte[][] cases()throws Exception {
         StringBuilder line=new StringBuilder("HTTP/1.1 200 X\r\nX: ");for(int i=0;i<65534;i++)line.append('x');line.append("\r\n");
         StringBuilder count=new StringBuilder("HTTP/1.1 200 X\r\n");for(int i=0;i<129;i++)count.append("X: x\r\n");
-        return new byte[][]{("HTTP/1.1 200 X\r\nContent-Length: 2147483647\r\n\r\n").getBytes("US-ASCII"),line.toString().getBytes("US-ASCII"),count.toString().getBytes("US-ASCII"),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII"),lengthReply("DO_NOT_RENDER_SYNTHETIC_HEADER"),lengthReply("2147483648"),lengthReply("-1"),lengthReply("-2147483648")};
+        byte[][] legacy=new byte[][]{("HTTP/1.1 200 X\r\nContent-Length: 2147483647\r\n\r\n").getBytes("US-ASCII"),line.toString().getBytes("US-ASCII"),count.toString().getBytes("US-ASCII"),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII"),lengthReply("DO_NOT_RENDER_SYNTHETIC_HEADER"),lengthReply("2147483648"),lengthReply("-1"),lengthReply("-2147483648")};
+        try{Class.forName("compat.ResponseFraming");}catch(ClassNotFoundException absent){return legacy;}
+        String[] framing={"","Content-Length: 0\r\nContent-Length: 0\r\n","Content-Length: 0\r\ncontent-length: 0\r\n","Transfer-Encoding: chunked\r\n","Content-Length: 0\r\ntRaNsFeR-EnCoDiNg: identity\r\n"};
+        byte[][] result=Arrays.copyOf(legacy,legacy.length+framing.length);
+        for(int i=0;i<framing.length;i++)result[legacy.length+i]=("HTTP/1.1 200 X\r\n"+framing[i]+"\r\n").getBytes("US-ASCII");
+        return result;
     }
     private static final class Recorder extends AppenderSkeleton {
         final boolean throwing;int events;String owner,method;boolean safe;
@@ -109,7 +114,7 @@ public final class RecoveryObservation {
         Throwable caught=null;
         RequestMessage request=new AcpxMessageFactory().newGetStatusRequest();if(flag==1)request.setShutdownConnection(true);if(flag==2)request.setRestartConnection(true,0);
         try{a.send(request);throw new AssertionError("Rejection absent");}
-        catch(IllegalArgumentException expected){caught=expected;check(expected.getClass().getName().equals("compat.UntrustedResponseException")&&expected.getCause()==null&&Arrays.asList("Response length is invalid","Response length exceeds limit","Response headers exceed limit").contains(expected.getMessage()));StringWriter text=new StringWriter();expected.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}
+        catch(IllegalArgumentException expected){caught=expected;check(expected.getClass().getName().equals("compat.UntrustedResponseException")&&expected.getCause()==null&&Arrays.asList("Response length is invalid","Response length exceeds limit","Response headers exceed limit","Response length is missing","Response length is ambiguous","Response transfer encoding is unsupported").contains(expected.getMessage()));StringWriter text=new StringWriter();expected.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}
         check(state.sent.size()==1&&state.closes==1);
         Method handler=Class.forName("compat.RejectionRecovery").getMethod("sendFailure",Throwable.class,AcpxConnection.class);
         check(handler.invoke(null,caught,(AcpxConnection)null)==caught);

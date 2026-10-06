@@ -1,0 +1,61 @@
+# Review of the audit.11 response framing implementation (read-only)
+
+**Verdict:** I found no correctness blocker in the patch, the bytecode edits or the runtime behaviour. Clean acceptance is blocked by evidence gates. One recovery check can pass without the framing policy being present, and several result files contain wording that the new evidence makes untrue. All the fixes below are narrow and none of them touch the patched bytecode.
+
+I only read files. I did not run, build or edit anything, and I did not open any hardware profile, credential or installed app.
+
+## Blockers before clean acceptance
+
+1. **The architecture recovery check picks its own mode, so it can pass without framing.** `tools/check_architectures.py:37` expects 113 recovery lines if `compat/ResponseFraming.class` is in the JAR, and 78 if it is not. `RecoveryObservation.cases()` (`:65`) decides the same way using `Class.forName`. If a build loses `ResponseFraming`, the check still passes with 78 lines. The transport and shared-stream checks avoid this with a required `--framing-policy` flag.
+   - **Fix:** add a `--framing-policy` flag. When it is set, require the class to be present and `len(b)==113`, and write `required_framing_policy` into the JSON. Without the flag, keep today's behaviour.
+
+2. **Result files contain wording that is now untrue.** These files will be cited as evidence, so the text needs to match what was actually checked.
+   - **`check_security.py:172` and `:195`:** the `HttpResponse` description leaves out `lengthHeader` at `getBody` offset 5 and `setHeader` at `parseHeaders` offset 93. The limits still say "No HTTP framing qualification", which `build/framing-local-security.json:27,75` shows.
+   - **`check_shared_stream.py:98`:** in framing mode the limits still say "Original and candidate have identical characterized framing gaps" and "Connection: close replies are not modeled". The `closeResponse` case now models exactly that. Make the limits text depend on the mode.
+   - **`check_transport.py:158`:** `intentional_differences` describes only the length policy. It should also list the framing rejections and the lowercase-length change.
+   - **`check_architectures.py:154`:** "8 security violations" is now 13 when framing is present.
+
+3. **The `parseHeaders` check in `check_security.py` doesn't confirm what the original instruction was.** Line 97 only requires `'93: invokevirtual'` on the original line. Also require `Method setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V`, the same way `getBody` checks `Method getHeaderField:`.
+
+4. **Clean pair:** these steps are already in your plan, listed here as gates. Commit the untracked `patches/compat/ResponseFraming.java`. Check that `audit/expected-build.json` (the `ResponseFraming.java` hash) and the `HttpResponse` hash in `audit/security-patches.json` match the committed tree. Then regenerate the build pair and the security, transport, shared and runtime results. All current results show `dirty: true` at `d91a818`, with candidate `ada1cc2b…`. The two local builds agree with each other.
+
+## Low-cost hardening (recommended, not blocking)
+
+- **`check_security.py:154` only looks for strings in the helper.** Also assert that the `ResponseFraming` disassembly contains no `toLowerCase`, `toUpperCase`, `equalsIgnoreCase`, `Locale` or `StringBuilder`/`StringBuffer`, and has exactly two public static methods. That pins the ASCII-only name folding and the fixed messages that never include header values, without running anything.
+- **The shared-stream framing cases leave out the original exploit.** That is the case with two different length values (`Content-Length: N` then `Content-Length: 0`, with leftover bytes). `TransportObservation` already covers it (`duplicate-last-valid`/`last-zero`). Adding it to `SharedResponseObservation.policy()` would show directly, in the stream-association evidence, that the baseline mix-up now fails closed.
+- **The `uppercase-turkish` case doesn't exercise Turkish locale handling.** `CONTENT-LENGTH` contains no `I`. Only `transfer-encoding-turkish` hits the dotted-I problem. Either rename the case or say this in the limits. The code itself is fine, because `header()` never depends on the locale.
+
+## Confirmed
+
+- **Byte windows match the disassembly.**
+  - `getBody` 2–8: `2a 12 13 b6 00 14 4d`.
+  - `parseHeaders` 88–98: `2a 19 04 19 05 b6 00 36 19 04 b6`, with code length 158.
+  - Pool entries #19, #20 and #54 resolve to the right targets on `HttpResponse`.
+  - Only bytes 5–7 and 93–95 are unmasked. Opcode `b8` is asserted at both sites, with the exact `compat/ResponseFraming` Methodref.
+  - The stack shapes are the same, the class is version 47 so there is no StackMapTable to fix, and `this` is already initialised when `parseHeaders` runs.
+  - `check_security` independently requires exactly four changed lines in `getBody`, one in `parseHeaders`, and identical `stack`/`locals`.
+- **Exactly one stored length, compared ASCII-only.**
+  - Names are already trimmed before `setHeader`, and `readLine` only produces characters 0–255, so non-ASCII case folding can't come into play.
+  - Every case variant is stored under `"Content-Length"`.
+  - The inventory shows the only response-side readers are `getBody` (`getHeaderField`) and `parseHeaders` (`setHeaderField`). Storage is a plain `HashMap` that starts empty.
+- **Rejections.**
+  - Any second length is rejected, even if the value is identical.
+  - Any `Transfer-Encoding` value is rejected, including `identity`.
+  - A missing length now throws in `lengthHeader`. The old `ifnull 23` branch is dead code.
+  - An empty value goes to `parseLength("")`, which gives the fixed "invalid" message. `lengthGates` covers this.
+- **Terminal marker, connection retirement and no replay.**
+  - Marker: the class is final with a package-private constructor, the messages are fixed and never include values, and the cause is null.
+  - Throw path: the throw at `getBody` offset 5 happens before the try range starts at 32, the same as the existing `parseLength` precedent. The constructor path has no exception table.
+  - Fixtures:
+    - `rejected()` shows `connection==null`, the stream closed, and `inputs`/`outputs==1`.
+    - `direct()` shows `sends=1` and `closes=1` for persistent and non-persistent connections and all close-failure modes.
+    - `pair()` shows result -102, then a different second command on a fresh connection (ordinals 1, 2), so the failed command is not resent.
+- **Raw output stays contained.** The fixtures fail on any captured stdout or stderr, the tools print only fixed lines and say "raw output withheld" on mismatch, and no `DO_NOT_RENDER` text leaks.
+- **The known gap is kept and labelled.** The declared-zero case gives identical output in baseline and framing mode. There are no `available()`, timing or polling changes.
+
+## Remaining limits to carry forward (not blockers)
+
+- **Wider replay risk:** prior scans checked only who calls `getResponse` and `getInputStream`. A caller of `AcpxConnection.send` other than `CommunicationsManager.run` could still choose to resend after the marker. The connection itself is retired inside `send`, and this marker path was already accepted with the length policy. If replay is meant as a whole-program claim, a scan of `send` call sites would close it.
+- **Raw header text in ordinary errors:** a `ProtocolException` for a bad header still includes the raw header line in its message and still doesn't retire the connection. This is unchanged legacy behaviour (limit 4 in the design note).
+- **How `readLine` splits lines:** it never resets its line-end flag, so a single bare CR or LF joins two lines. The duplicate check works on the same parsed lines that `getBody` uses, so the two can't disagree. It's worth one sentence in the limits.
+- **Compatibility gate stays open:** no captures prove that every firmware sends exactly one length. The "missing length" rejection is the change that could break working behaviour today, specifically empty or auth-failure replies that carry no length.

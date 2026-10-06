@@ -98,11 +98,23 @@ public final class TransportObservation {
         try{Class.forName("compat.BoundedResponseBuffer").getMethod("parseLength",String.class);return true;}
         catch(ClassNotFoundException absent){return false;}catch(NoSuchMethodException absent){return false;}
     }
+    private static boolean framingPolicy()throws Exception {
+        try{Class.forName("compat.ResponseFraming");return true;}catch(ClassNotFoundException absent){return false;}
+    }
     private static void responseCase(String label, byte[] raw, String expected) throws Exception {
         responseCase(label, raw, expected, false);
     }
     private static void responseCase(String label, byte[] raw, String expected, boolean idle) throws Exception {
         State state = new State(); state.rawResponse = raw; state.idleOpen = idle;
+        boolean framing=framingPolicy();
+        String framingMessage=null;
+        if(framing) {
+            if(label.equals("missing-length")||label.equals("missing-length-idle"))framingMessage="Response length is missing";
+            if(label.equals("duplicate-last-valid")||label.equals("duplicate-last-zero"))framingMessage="Response length is ambiguous";
+            if(label.equals("chunked"))framingMessage="Response transfer encoding is unsupported";
+            if(framingMessage!=null)expected="framing-rejected";
+            if(label.equals("lowercase-length"))expected="result=0";
+        }
         String outcome;
         AcpxConnection acp=transport(new MemoryConnection(state));
         try {
@@ -116,8 +128,11 @@ public final class TransportObservation {
           catch (NumberFormatException e) { outcome = "invalid-length"; }
           catch (IllegalArgumentException e) {
               if(e.getClass().getName().equals("compat.UntrustedResponseException")) {
+                  if(framingMessage!=null){check(framingMessage.equals(e.getMessage())&&e.getCause()==null&&acp.connection==null,"Framing marker differs");outcome="framing-rejected";}
+                  else {
                   check(lengthPolicy() && Arrays.asList("invalid-length","negative-length","overflow-length").contains(label) && "Response length is invalid".equals(e.getMessage()) && e.getCause()==null && acp.connection==null,"Invalid marker differs");
                   emit("security_length "+label+" fixed-marker; closed; no-input-or-cause");outcome=expected;
+                  }
               }else outcome="negative-length";
           }
           catch (java.net.SocketTimeoutException e) { outcome = "synthetic-idle-timeout"; }
@@ -228,7 +243,7 @@ public final class TransportObservation {
             byte[] body = ("<plist><dict><key>status</key><integer>" + code + "</integer></dict></plist>").getBytes("UTF-8");
             dispatch(factory.newGetStatusRequest(), 0, false, reply("HTTP/1.1 200 Fixture", "Content-Length: " + body.length + "\r\n", body), code, 0, "acp-" + code);
         }
-        dispatch(factory.newGetStatusRequest(), 0, false, reply("HTTP/1.1 200 Fixture", "content-length: " + XML.length + "\r\n", XML), 0, 0, "lowercase-length-empty-success");
+        dispatch(factory.newGetStatusRequest(), 0, false, reply("HTTP/1.1 200 Fixture", "content-length: " + XML.length + "\r\n", XML), 0, 0, framingPolicy()?"lowercase-length-parsed-success":"lowercase-length-empty-success");
         dispatch(factory.newGetStatusRequest(), 0, false, reply("HTTP/1.1 200 Fixture", "Content-Length: fixture\r\n", XML), -102, 0, "invalid-length");
         dispatch(factory.newGetStatusRequest(), 0, false, reply("HTTP/1.1 200 Fixture", "Content-Length: " + XML.length + "\r\n", Arrays.copyOf(XML, XML.length - 1)), 0, 1, "truncated-retry-then-valid");
     }

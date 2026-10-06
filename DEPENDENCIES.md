@@ -95,3 +95,20 @@ real/idle reconnect timing and CLI lifecycle remain unqualified. G10/G12 framing
 and ambiguous IO replay remain open. Both runtime packages reproduce; no hardware,
 installed-app modification or third-party dependency change occurred. See
 [scope and evidence](audit/INVALID-LENGTH-GUARD.md).
+
+
+## audit.11 explicit response framing
+
+One ASCII-case-insensitive Content-Length is accepted; missing or duplicate
+lengths and any Transfer-Encoding use a fixed terminal marker, close the
+connection and return one -102 without failed-command replay in measured
+send/dispatch fixtures. Single lowercase length now parses the actual plist;
+canonical replies, legitimate zero length, ACP error codes and original ordinary
+IO retries remain. Two same-length HttpResponse call substitutions and one small
+helper implement the boundary. No third-party dependency is added.
+
+G12 is only partially addressed: declared-zero with extra bytes remains a
+measured association gap, status handling and malformed ordinary IO remain
+legacy behavior, and no firmware capture proves single-length compatibility.
+The HTTP protocol is plaintext. Native UI, physical Intel, hardware, signing and
+release acceptance remain open. See [reviewed scope](audit/RESPONSE-FRAMING-POLICY.md).

@@ -52,6 +52,12 @@ This project contains compatibility patches for the original application. Full f
     header value/cause. Valid runtime numeric parsing remains unchanged. See
     [audit.10 evidence](audit/INVALID-LENGTH-GUARD.md).
 
+13. **Explicit response framing** — Accepts one Content-Length regardless of
+    ASCII letter case. Missing/duplicate lengths and unsupported Transfer-Encoding
+    fail through the same safe retirement path. This is an intentional security
+    restriction with controller compatibility still unqualified. See
+    [audit.11 evidence](audit/RESPONSE-FRAMING-POLICY.md).
+
 ## Requirements
 
 Pinned runtime candidates include Corretto 8 for the selected architecture and

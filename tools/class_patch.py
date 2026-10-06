@@ -134,6 +134,12 @@ def transform(entry, data):
         if u2(data,6) != 47: raise ValueError('Unexpected legacy verifier version')
         _, begin, end = codes[0]
         start = begin + 14
+        if data[start+2:start+9]!=bytes.fromhex('2a1213b600144d'):raise ValueError('Response length lookup window differs')
+        for index,expected_name,expected_descriptor in ((20,'getHeaderField','(Ljava/lang/String;)Ljava/lang/String;'),(54,'setHeaderField','(Ljava/lang/String;Ljava/lang/String;)V')):
+            tag,member=cls.pool[index];ot,ov=cls.pool[u2(member,0)];nt,nv=cls.pool[u2(member,2)]
+            if tag!=10 or ot!=7 or cls.text(u2(ov,0))!='com/apple/xsr/net/HttpResponse' or nt!=12 or cls.text(u2(nv,0))!=expected_name or cls.text(u2(nv,2))!=expected_descriptor:raise ValueError('Original framing method target differs')
+        st,sv=cls.pool[19]
+        if st!=8 or cls.text(u2(sv,0))!='Content-Length':raise ValueError('Original length lookup key differs')
         if data[start+13:start+23]!=bytes.fromhex('2cb800153c2a1bb50016'):raise ValueError('Response parse instruction window differs')
         pt,pv=cls.pool[21];ot,ov=cls.pool[u2(pv,0)];nt,nv=cls.pool[u2(pv,2)]
         if pt!=10 or ot!=7 or cls.text(u2(ov,0))!='java/lang/Integer' or nt!=12 or cls.text(u2(nv,0))!='parseInt' or cls.text(u2(nv,2))!='(Ljava/lang/String;)I':raise ValueError('Original response parser target differs')
@@ -153,6 +159,12 @@ def transform(entry, data):
         parse_signature=append(12,word(utf8('parseLength'))+word(utf8('(Ljava/lang/String;)I')))
         parse_reference=append(10,word(owner)+word(parse_signature))
         replacement = bytearray(data[begin:end])
+        framing_owner=append(7,word(utf8('compat/ResponseFraming')))
+        length_signature=append(12,word(utf8('lengthHeader'))+word(utf8('(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;)Ljava/lang/String;')))
+        length_reference=append(10,word(framing_owner)+word(length_signature))
+        set_signature=append(12,word(utf8('setHeader'))+word(utf8('(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V')))
+        set_reference=append(10,word(framing_owner)+word(set_signature))
+        replacement[14+5:14+8]=b'\xb8'+word(length_reference)
         replacement[14+15:14+17]=word(parse_reference)
         replacement[14+24:14+26] = word(owner)
         replacement[14+29:14+31] = word(constructor)
@@ -170,7 +182,14 @@ def transform(entry, data):
         if original_code[36:44]!=bytes.fromhex('b5000d2ab7000eb1'): raise ValueError('Response stream assignment differs')
         body=data[cb+6:cb+10]+struct.pack('>I',47)+original_code[:36]+b'\xb8'+word(header_reference)+original_code[36:]+bytes(4)
         constructor_replacement=data[cb:cb+2]+struct.pack('>I',len(body))+body
-        edits=sorted([(begin,end,bytes(replacement)),(cb,ce,constructor_replacement)])
+        headers=[m for m in cls.methods if (m['name'],m['descriptor'])==('parseHeaders','()V')]
+        if len(headers)!=1 or headers[0]['access']!=2:raise ValueError('Header parser identity differs')
+        attrs=[a for a in headers[0]['attributes'] if a[0]=='Code']
+        if len(attrs)!=1:raise ValueError('Header parser Code missing')
+        _,hb,he=attrs[0]
+        if u4(data,hb+10)!=158 or data[hb+14+88:hb+14+99]!=bytes.fromhex('2a19041905b600361904b6'):raise ValueError('Header assignment window differs')
+        header_replacement=bytearray(data[hb:he]);header_replacement[14+93:14+96]=b'\xb8'+word(set_reference)
+        edits=sorted([(begin,end,bytes(replacement)),(cb,ce,constructor_replacement),(hb,he,bytes(header_replacement))])
         tail=bytearray();cursor=cls.pool_end
         for eb,ee,value in edits:tail.extend(data[cursor:eb]);tail.extend(value);cursor=ee
         tail.extend(data[cursor:])
@@ -208,7 +227,7 @@ def assert_preserved(before, after, name, descriptor):
     if before[old.pool_end:old.methods[0]['start']] != after[new.pool_end:new.methods[0]['start']]:
         raise ValueError('Original class hierarchy, fields or method count changed')
     for a,b in zip(old.methods,new.methods):
-        if (a['name'],a['descriptor']) == (name,descriptor) or (name=='getBody' and (a['name'],a['descriptor'])==('<init>','(Lcom/apple/xsr/net/HttpConnection;)V')):
+        if (a['name'],a['descriptor']) == (name,descriptor) or (name=='getBody' and (a['name'],a['descriptor']) in (('<init>','(Lcom/apple/xsr/net/HttpConnection;)V'),('parseHeaders','()V'))):
             if before[a['start']:a['start']+8] != after[b['start']:b['start']+8]:
                 raise ValueError('Target signature/access/attribute count changed')
             old_attrs = [before[s:e] for n,s,e in a['attributes'] if n != 'Code']
@@ -221,6 +240,7 @@ def assert_preserved(before, after, name, descriptor):
     if name=='getBody':
         assert_allocation_operands(before,after)
         assert_header_insertion(before,after)
+        assert_framing_assignment(before,after)
 
 
 def assert_allocation_operands(before, after):
@@ -232,6 +252,7 @@ def assert_allocation_operands(before, after):
         _,start,end=attrs[0]
         return bytearray(data[start:end])
     a,b=code(old,before),code(new,after)
+    assert_static_reference(new,b,14+5,'compat/ResponseFraming','lengthHeader','(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;)Ljava/lang/String;')
     if b[14+14]!=0xb8:raise ValueError('Length parse opcode differs')
     tag,value=new.pool[u2(b,14+15)]
     if tag!=10:raise ValueError('Length parser must be Methodref')
@@ -249,7 +270,29 @@ def assert_allocation_operands(before, after):
     if len(a)!=len(b): raise ValueError('Response Code length changed')
     for offset in (14+15,14+24,14+29):
         b[offset:offset+2]=a[offset:offset+2]
+    b[14+5:14+8]=a[14+5:14+8]
     if a!=b: raise ValueError('Response modification outside allocation operands')
+
+
+def assert_static_reference(cls,code,offset,owner,name,descriptor):
+    if code[offset]!=0xb8:raise ValueError('Framing opcode differs')
+    try:
+        tag,value=cls.pool[u2(code,offset+1)];ot,ov=cls.pool[u2(value,0)];nt,nv=cls.pool[u2(value,2)]
+        if tag!=10 or ot!=7 or cls.text(u2(ov,0))!=owner or nt!=12 or cls.text(u2(nv,0))!=name or cls.text(u2(nv,2))!=descriptor:raise ValueError('Framing helper target differs')
+    except (KeyError,struct.error):raise ValueError('Framing helper reference invalid') from None
+
+
+def assert_framing_assignment(before,after):
+    old,new=ClassFile(before),ClassFile(after)
+    def code(cls,data):
+        method=next(m for m in cls.methods if (m['name'],m['descriptor'])==('parseHeaders','()V'))
+        _,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
+        return bytearray(data[begin:end])
+    a,b=code(old,before),code(new,after)
+    assert_static_reference(new,b,14+93,'compat/ResponseFraming','setHeader','(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V')
+    if len(a)!=len(b):raise ValueError('Header parser Code length changed')
+    b[14+93:14+96]=a[14+93:14+96]
+    if a!=b:raise ValueError('Header parser differs outside framing assignment')
 
 
 def assert_header_insertion(before,after):
