@@ -89,7 +89,7 @@ def main():
     sources = list(dict.fromkeys(sources))
     identity_sources=list(sources)
     if session_containment:
-        expected_path=ROOT/('audit/stop-lock-recovery-expected.json' if stop_lock_order else 'audit/connect-stop-recovery-expected.json' if connect_failure_stop else 'audit/sync-preenqueue-recovery-expected.json' if sync_preenqueue else 'audit/worker-stop-recovery-expected.json' if worker_failure_stop else 'audit/terminal-io-recovery-expected.json' if terminal_io_policy else 'audit/session-containment-recovery-expected.json')
+        expected_path=ROOT/('audit/stopped-post-recovery-expected.json' if stop_lock_order else 'audit/connect-stop-recovery-expected.json' if connect_failure_stop else 'audit/sync-preenqueue-recovery-expected.json' if sync_preenqueue else 'audit/worker-stop-recovery-expected.json' if worker_failure_stop else 'audit/terminal-io-recovery-expected.json' if terminal_io_policy else 'audit/session-containment-recovery-expected.json')
         expected_recovery_record=json.loads(expected_path.read_bytes())
         if expected_recovery_record['candidate_jar_sha256']!=candidate_sha:raise ValueError('Session matrix candidate identity differs')
         validate_containment_recovery(expected_recovery_record['lines'],expected_recovery_record['lines'])

@@ -37,14 +37,14 @@ def main():
     original=ROOT/'original/RAID_Admin_original.jar';verify_original(original)
     if a.candidate.is_symlink() or not a.candidate.is_file() or a.candidate.resolve()==original.resolve() or sha(a.candidate)!=a.candidate_sha256:raise ValueError('Candidate identity differs')
     identity,manifest=check_artifact(a.candidate.resolve().parents[3])
-    if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=json.loads((ROOT/'audit/stop-lock-recovery-expected.json').read_text())['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed artifact')
+    if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=json.loads((ROOT/'audit/stopped-post-recovery-expected.json').read_text())['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed artifact')
     if not a.development and manifest['source_dirty']:raise ValueError('Clean application required')
     with zipfile.ZipFile(original) as z:before=z.read(ENTRY)
     with zipfile.ZipFile(a.candidate) as z:entries={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
     assert_stop_lock_order(before,entries[ENTRY])
     reference=json.loads((ROOT/'audit/connect-stop-final-integrity.json').read_text())
     if reference['changed_entry_sha256_from_audit17'][ENTRY]['after']!=AUDIT18_MANAGER_SHA256:raise ValueError('Audit.18 class pin differs from measured qualification ledger')
-    names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StopLockObservation.java','tools/check_stop_lock.py','tools/class_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stop-lock-recovery-expected.json','audit/runtime-lock.json','audit/connect-stop-final-integrity.json')
+    names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StopLockObservation.java','tools/check_stop_lock.py','tools/class_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json','audit/connect-stop-final-integrity.json')
     inputs=[ROOT/n for n in names];hashes={n:sha(ROOT/n) for n in names};runtimes=[];seen=set();lock=runtime_manifest()
     for root in a.runtime:
         arch=None

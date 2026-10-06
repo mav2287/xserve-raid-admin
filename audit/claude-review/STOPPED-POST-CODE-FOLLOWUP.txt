@@ -1,0 +1,35 @@
+I found no blockers. Five of the six items you listed are fixed. The remaining one is the boundary mode: one of its assertions can pass even if the code is wrong. There are also a few doc and record gaps. I only read files: I ran nothing, rebuilt nothing and computed no hashes. So `f6e545bb` and `ddd62642` are taken from the repo's own pins, not checked by me.
+
+## Previous non-blockers: fixed
+
+- **Historical code pass-through:** `tools/class_patch.py:567` now passes the method through only if its bytes equal `POST_CODE` exactly. Anything else must have `pool_count==405`, the exact `admission_code()` and the exact pool tail, and must rebuild to `cfefcc5b`.
+- **Sync never uses the EDT:** `StoppedPostObservation.java:55` checks for `AWT-EventQueue` threads after `join`. Each mode runs in its own JVM, so nothing earlier can have started the EDT.
+- **EDT barrier after the 32 posters:** `:72` joins all posters, waits for the latch, then calls `invokeAndWait`. Any duplicate event was queued before its poster returned, so it runs before the barrier.
+- **Security gate:** `check_security.py:110` now sets `required` when the Manager disassembly mentions `compat/StoppedDelivery`. A Manager with no admission at all still passes this gate, but the build-identity pin covers that. This is acceptable as is.
+- **`security-patches.json:58-77`:** the scope now describes the audit.20 change and the `cfefcc5b` reconstruction, and `postMessageAsync` is listed under `additional_methods`.
+- **Fixture worker identity:**
+  - `runWorker` (`TransportObservation.java:391`) sets `thread` to the thread that actually runs `run()`.
+  - `ioManager` (`:397`) starts with a separate `new Thread()`, like the real constructor, so the poster is never the worker by default.
+  - `fixedFailure` (`:452-461`) runs a real worker thread to exit, then posts late from the main thread. It requires an EDT refusal with `CommShutdownException`, an empty queue and no new sends.
+  - The `RecoveryObservation` initializer (`:59`, current thread) is fine: every post there happens before `m.run()` on the same thread.
+
+## Refinements still needed
+
+1. **The appender-failure part of `boundary` can pass when it shouldn't** (`StoppedPostObservation.java:96-104`). The custom uncaught-exception handler is installed only after the two non-fatal posts.
+   - If `signal()` failed to contain the appender's `RuntimeException`, it would reach the EDT's default handler. That only prints a stack trace to stderr, and `signals` would still be 2.
+   - `run_jdk` checks only the exit code and stdout, so the gate would still see `logger_failure_contained=true`.
+   - The LinkageError and non-Linkage `Error` checks are genuine. LinkageError is checked through the signal count; the fatal `Error` through the handler identity check and the EDT thread name.
+   - **Fix:** install the handler before the first post. Record any unexpected exception in a separate reference that must stay null, rather than sharing `observed`, which the later `fatal` would overwrite.
+2. **The `late_async_stranded` caveat isn't written down.** `ConnectFailureObservation.extra` (`:74`, `:87`, `:93`) sets `thread=currentThread` and then calls `run()` on that same thread. So its late post comes from the recorded worker, and queue size 1 shows the worker exemption. It does not show that a late post from a non-worker thread is stranded. Neither `STOPPED-POST-ADMISSION.md` nor any other audit doc says this. Add it, and point to `fixedFailure` as the real non-worker test.
+3. **Stale numbers and lists in `STOPPED-POST-ADMISSION.md`:**
+   - Line 92 says "three anonymous fixture classes". The allowlist is now `$1..$4`, because the boundary appender adds one.
+   - Line 97 says "34 observations". The current loop gives 38 (8 candidate modes × 2 execution modes + 2 legacy + 1 missing-helper, on each of 2 architectures).
+   - The coverage list at lines 99-102 leaves out the boundary mode and the sync no-EDT check.
+4. **The archived limits string in `check_stopped_post.py:80`** mentions only worker-exemption repost loops. Before a clean run is archived, add what the md already says (`:58-59`, `:65-69`, `:72-74`):
+   - external −102 repost loops through EDT events;
+   - error dialogs and model updates users can now see after stop;
+   - production stderr showing only `RAID_ADMIN_ERROR`.
+
+## Confirmed as still open, out of scope here
+
+Stop racing a send already in progress; the orphaned transaction after an interrupted wait (`TransportObservation.java:770`); abnormal worker exit leaving `stopped=false`; the original native UI, controllers and real Intel hardware. All are untested and make no qualification claim.

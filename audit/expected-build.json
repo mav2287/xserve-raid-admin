@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "b02a180225ba26f7180bd0bb6f7f44f2a8155d37033d5389a6862f5a798eacd4",
+      "Contents/Info.plist": "da2a065293feafcf6961e643cca0031936ff353f361d8f3c9e60261d671153d1",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "f7c829f83735ccd7fd6d36d6b7220bd4be8f82733b38bfa7d150d704f42a6775"
+      "Contents/Resources/RAID_Admin.jar": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "d793cc7e46127965a9ecab6ff3af2a0a5296362a43987d8868f81d068358f8b0",
+      "audit/security-patches.json": "f66fb3a5f95b79a8759ea56058536093ab995dce8c94460632a111cb1e2d4b8e",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -40,11 +40,12 @@
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
       "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
       "patches/compat/SafePlistResolver.java": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d",
+      "patches/compat/StoppedDelivery.java": "daac90b8d4afe50ad01183bc625e081ca24ed50ca2e84559024132cab8038b60",
       "patches/compat/UntrustedResponseException.java": "a7b97d2d51991c78b6e958d21e75df3bbf35914648cfc5f8e9b3dd409c0efa32",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
-      "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "659a93366c95febca3c3c16557284a34be4f27ebfaf284129c165129f4013ff1",
-      "tools/class_patch.py": "7b165c1720172fb304972955fa73e782517ba3f1b143fa0226aa7ff56a177a6f"
+      "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+      "tools/baseline.py": "e1fb2c8a4cbcb6457bc4d833f11ce3df513324dbaf0b6fdac2742a1c295206d1",
+      "tools/class_patch.py": "a125c58f3f4b7614ad3b9bbd67eaeab2157c3890236407e4a8cf3cec9f290aeb"
     },
     "jdk": {
       "architecture": "arm64",
@@ -54,9 +55,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "65e6bdf3d774bfe619ec9e844ac3f20355e2245a6be1674826b2608d73eaee58",
-  "reason": "Audit.19 reviewed stop-lock inversion fix: volatile stop field and two queue-held reads only; original shutdown/callback/admission semantics retained, exact audit.18 class restoration. Final clean fixture/package qualification follows this anchor.",
+  "previous_record_sha256": "bb4aae0425fd35a0a36cdfa308cd6a06e60f27cb3f55a7d01de5fd4f3d9923ee",
+  "reason": "Audit.20 reviewed stopped admission and strict unexpected-stderr observation guard; development artifact pending clean qualification",
   "schema": 1,
-  "source_commit": "78af7d18fccefedab7cbf763e12fc47840223957",
-  "source_dirty": false
+  "source_commit": "abf849b96a8d6a588e0b3562a958b05d9687155e",
+  "source_dirty": true
 }

@@ -19,6 +19,7 @@ from class_patch import TARGETS, transform, embedded_dtd
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL_SHA256 = '5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449'
 PATCH_CLASSES = {
+    'compat/StoppedDelivery.class', 'compat/StoppedDelivery$Callback.class',
     'Launcher.class', 'com/apple/eio/FileManager.class',
     'com/apple/mrj/MRJApplicationUtils.class',
     'com/apple/mrj/MRJApplicationUtils$Adapter.class',
@@ -27,8 +28,8 @@ PATCH_CLASSES = {
     'compat/SafePlistParser.class', 'compat/BoundedResponseBuffer.class', 'compat/BoundedHeaderStream.class', 'compat/UntrustedResponseException.class', 'compat/RejectionRecovery.class', 'compat/ResponseFraming.class',
 }
 ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd', 'log4j.properties'}
-VERSION = '1.5.1-modern.audit.19'
-BUNDLE_VERSION = '19'
+VERSION = '1.5.1-modern.audit.20'
+BUNDLE_VERSION = '20'
 
 
 def tree_hash(files):

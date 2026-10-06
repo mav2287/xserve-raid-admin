@@ -1,0 +1,45 @@
+I found no blockers in the bytecode or the transformer: B1 and B2 are both fixed. There are four non-blocking gaps in the tests and gates, and three things to fix in the docs before archiving. I only read files. I ran no tests, built nothing and computed no hashes, so the claims that the class reconstructs to `cfefcc5b` and that `ddd62642` is the candidate rest on the code's own checks, not on anything I ran.
+
+## B1/B2: resolved
+
+I decoded `admission_code()` (`tools/class_patch.py:537-543`) byte by byte. It matches the fixture (`stopped-post-candidate.javap:543-568`) and `TAIL` in `stopped_post_structure.py`.
+
+- **30/33:** `goto 56` / `nop`. The stack at 56 is `[queue, txn]`.
+- **56–60:** reads `stopped` directly (`getfield #11`, no `isStopped`), then `ifeq 73`.
+- **63–70:** `currentThread` (#398) vs `thread` (#1), then `if_acmpne 80`.
+- **73–77:** `add`, `pop`, `goto 34`. The stack is empty at 34, which matches the original.
+- **80–83:** `pop2` (two single-slot values), then `aload 4` and `monitorexit`.
+- **84–97:** `aload_1` (the handler, at 84 and at 90), `system`, `aload_3`, `instanceof #30`, `invokestatic #404`, `return`. Code length is 98.
+- **Exception table:** `[8,44)`, `[47,52)`, `[56,84)` → 47 `any`. From PC84 on, nothing is covered.
+- **Frame:** max stack reached is 4 (declared 6), locals 6, major version 47, so no StackMapTable is needed.
+- **Constant pool:** CP395–404 match the pinned bytes in `admission_pool()` and the javap rows: Thread #15, NameAndType/Methodref for `currentThread`, then Class/NameAndType/Methodref for `StoppedDelivery.deliver`.
+- **Missing-helper test:** this also confirms B2 in practice. If PC94 were inside a range, handler 47 would run `monitorexit` on a monitor already released at 83. The test would then see `IllegalMonitorStateException` instead of `NoClassDefFoundError`.
+
+**Normalization is strict.** `normalize_stopped_admission` requires `pool_count==405`, the exact Code bytes and the exact 10-entry pool tail. It then rebuilds the class with `pool_count=395` and `POST_CODE` and checks the full audit19 SHA. That proves the only changes are the new Code and the 10 constants, and that run595, doConnect754 and SyncSender138 are unchanged. `stopped_admission` refuses to run unless its input is exactly audit19 with `pool_count==395` and the expected original Code, and it checks the round trip. The order of callers is right: `assert_preserved:306` and `assert_stop_lock_order:505` normalize before the audit18 hash check at 518.
+
+## Concurrency and lifecycle: correct
+
+- **Nothing is left in the queue on a normal stop.** The worker's exit check (run PC34–53) reads `size==0 && stopped` under the queue lock, so a post admitted under that lock is either drained or sees `stopped=true`.
+- **Worker exemption is safe.** The worker always goes back to PC7 after a callback. SyncSender's own same-thread guard rules out synchronous posts from the worker.
+- **SyncSender direct path is safe.** The post happens before the sender's monitor region, at constructor PC14–19 (handlers start at 24). `handled` is set before the check, so `wait()` is never reached.
+- **No new lock-order risk.** The helper runs after `monitorexit`. `invokeLater` doesn't block, so callers that hold a lock, such as the synchronized `RaidSystemAgent.connect`, are fine.
+
+## Non-blockers (with fixes)
+
+1. **Code-length pass-through is too loose** (`class_patch.py:567`). `if u4(data,b+10)==56: return data` skips every check based only on the code-length field. Today every caller re-checks a hash afterwards, so nothing gets through, but that's fragile. Fix: `if data[b:e]==POST_CODE: return data`. This is exact for original/audit17/18/19, since that method and CP≤394 never changed.
+2. **The sync test can't tell the direct path from the EDT path** (`StoppedPostObservation.java:55`). If `instanceof` always gave false, the SyncSender would be notified from the EDT and the test would still pass. Byte pins cover this, but the behaviour test gives a false positive. Fix: in fixed sync mode, after `join`, assert that no `AWT-EventQueue` thread exists, the same check `nullAndClone` uses.
+3. **The concurrency test can miss a late duplicate** (`:72`). A 33rd duplicate event could still be waiting on the EDT when the counts are read. Fix: call `SwingUtilities.invokeAndWait(()->{})` before the final check.
+4. **The containment boundary is untested.**
+   - Nothing shows that a non-Linkage `Error` thrown by a handler reaches the EDT uncaught handler without the fixed log being written.
+   - Nothing shows that an appender throwing a `RuntimeException` inside `signal()` is contained.
+   - Add one mode covering both. Also record that `LinkageError` from a handler is contained (the RejectionRecovery idiom), so "fatal errors propagate" means non-Linkage Errors only.
+5. **The security gate doesn't require the admission** (`check_security.py:110`). It calls `normalize_admission(..., required=False)`, so a Manager without the admission still passes there. `check_stopped_post` passes `True`, and `expected-build.json` pins the build identity, so the risk is small. Consider `required=True` when the field is volatile and CP395+ exists.
+
+## Before archiving
+
+- **Stale entry in `audit/security-patches.json:60-67`.** `patched_sha256` is now `ddd62642`, but `scope` still describes audit.19 ("reconstruct exact audit.18") and `method` lists only `run`. It needs the `postMessageAsync` admission, the 10 appended constants and "reconstructs exact audit.19 `cfefcc5b`".
+- **Repost loops are new for non-worker posts.** The limits only blame the worker exemption. But a handler that reposts on −102 from a refused EDT callback will now cycle through EDT events forever, where audit19 left it in the queue once. Add that to the limits, or first check every `handleResponse → postMessageAsync` path (the `RaidSystemAgent$1/$2/$3` handlers and `RaidSystem` at `post-exit-final-source.javap:18558`).
+- **User-visible change.** After stop, handlers such as `AddSystemAction` now get a −102 and may show error dialogs where audit19 stayed silent. Record this alongside the EDT thread-context change.
+- **Production logging.** The limits should say production stderr shows only `RAID_ADMIN_ERROR`. The fixed literal is checked through the capture appender only (design item 6).
+
+Already well covered: headless mode, `OfflineGuard`, no constructor or socket, CodeSource and class-hash binding, positive legacy observations of the stranded queue and the pending sender, `-Xverify:all` under `-Xint`/`-Xcomp` on both architectures, and the open items you listed (abnormal worker exit, interrupt, stop during a send already in progress, native GUI, no full security claim). With other regression checks still being updated, no clean qualification claim follows from this review either.

@@ -66,7 +66,7 @@ def verify_jdk(jdk):
     return lock
 
 
-def run_jdk(jdk, tool, arguments, *, timeout=60):
+def run_jdk(jdk, tool, arguments, *, timeout=60, require_empty_stderr=False):
     # Callers verify the entire JDK once before invoking this helper.
     options = JAVA_FLAGS if tool == 'java' else ['-J' + flag for flag in JAVA_FLAGS]
     if tool == 'javac':
@@ -76,4 +76,6 @@ def run_jdk(jdk, tool, arguments, *, timeout=60):
     if result.returncode:
         # JVM/compiler messages can contain uncontrolled paths or payloads. Do not relay them.
         raise RuntimeError('Isolated ' + tool + ' failed (output withheld)')
+    if require_empty_stderr and result.stderr:
+        raise RuntimeError('Isolated ' + tool + ' produced unexpected stderr (output withheld)')
     return result.stdout.decode('utf-8')

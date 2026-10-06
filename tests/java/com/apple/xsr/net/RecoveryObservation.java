@@ -56,7 +56,7 @@ public final class RecoveryObservation {
     }
     private static CommunicationsManager manager(AcpxConnection connection)throws Exception {
         CommunicationsManager m=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);
-        set(m,"queue",new LinkedList<Object>());set(m,"system",unsafe().allocateInstance(FakeSystem.class));set(m,"connection",connection);set(m,"connected",true);return m;
+        set(m,"queue",new LinkedList<Object>());set(m,"thread",Thread.currentThread());set(m,"system",unsafe().allocateInstance(FakeSystem.class));set(m,"connection",connection);set(m,"connected",true);return m;
     }
     private static byte[] lengthReply(String value)throws Exception{return ("HTTP/1.1 200 X\r\nContent-Length: "+value+"\r\n\r\n").getBytes("US-ASCII");}
     private static byte[][] cases()throws Exception {

@@ -1,0 +1,30 @@
+I found **no blockers** and no remaining false-positive path in the stopped-post test. I only read the files you named plus `patches/compat/StoppedDelivery.java`, to confirm the mutant seam. I ran nothing, so the 40-observation run itself is still unexecuted.
+
+## Previous false positive: fixed
+
+- **Handler order** (`StoppedPostObservation.java:102`): the default uncaught-exception handler is now installed before the first post (the log appender is attached just before it, at `:98`).
+  - The expected fatal `Error` is accepted only by identity, and only on an `AWT-EventQueue` thread.
+  - In the mutant run, the two appender exceptions are counted only by identity.
+  - Anything else goes into `unexpected`, which is a separate reference that nothing later overwrites.
+- **Checks after barriers** (`:104-105`):
+  - After the two non-fatal posts, an `invokeAndWait` barrier runs, then the test requires `signals==2`, `unexpected==null` and `loggerEscapes==(unsafe?2:0)`.
+  - The fatal step runs `await(done)` and a second barrier, then checks the fatal identity, `escaped==1`, `signals` still 2 and `unexpected` still null.
+  - So a contained run cannot pass if an appender exception escapes, and the mutant cannot pass unless exactly those two escape.
+- **The mutant is a real positive control** (`check_stopped_post.py:69-76`):
+  - The source replacement has to match exactly once, and it removes only the two catch clauses inside `signal()`. `Callback.run`'s catches stay in place, so `signal()` is still called for both the `RuntimeException` and the `LinkageError` paths.
+  - Without the catches, the appender's exception escapes from inside the catch block to the EDT handler. That gives exactly 2 escapes. The fatal `Error` never reaches `signal()`, so `signals` stays at 2.
+  - The mutant compiles to exactly the two helper classes, and the Manager entry is unchanged, so the class-hash argument still matches.
+- **The appender checks its message** (`:99`): if the message or throwable were wrong, it throws an `AssertionError`. `signal()` doesn't catch that, so it lands in `unexpected` and the run fails.
+- **Stderr**: every observation passes `require_empty_stderr=True` (`check_stopped_post.py:80`), and `audit_support.py:79-80` raises without showing the output.
+- **Counts**: 2 architectures × (8 candidate modes × 2 execution modes + 2 restored-Manager + 1 missing-helper + 1 logging-bypass) = 40, which matches your 32/4/2/2 split. The class allowlist is exactly `OfflineGuard`, `StoppedPostObservation` and `$1..$4`, with a shadowing check.
+- **Docs and limits**:
+  - The `late_async_stranded` worker exemption is now stated explicitly (`STOPPED-POST-ADMISSION.md:116-121`).
+  - The limits string (`:92`) now covers external −102 loops, error dialogs and model updates after stop, stderr showing only `RAID_ADMIN_ERROR`, and the empty-JVM-stderr requirement.
+
+## Residual items (none are test errors)
+
+1. **Empty-stderr risk.** Requiring empty JVM stderr can only cause a false *failure*, never a false pass. A log4j "no appenders" warning, any ERROR log from the Manager in the modes that attach no appender, or a VM warning under Rosetta/`-Xcomp` would reject the run. The earlier 34-observation run never checked stderr, so this hasn't been shown to pass yet.
+2. **Doc wording that will go stale.** `STOPPED-POST-ADMISSION.md:116` says the results are "pending", and `:123-125` describe the excluded dirty attempt. Update both once the clean run is archived. The line 98 paragraph ("34 observations") is clearly labelled as the earlier run, so it's fine as it is.
+3. **Minor:** appender escapes in the mutant aren't checked for the EDT thread name, but `Callback.run` only executes on the EDT, so this changes nothing.
+
+Before qualifying, as you planned, refresh the source/build metadata and run from one clean commit. The guards at `:38`, `:43` and `:90-91` will reject the run otherwise.

@@ -1,0 +1,122 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "manager_typed_field_reference_classes": {
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": [
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager$SyncSender",
+        "field": "this$0",
+        "descriptor": "Lcom/apple/xsr/net/CommunicationsManager;"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystem.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "field": "comms",
+        "descriptor": "Lcom/apple/xsr/net/CommunicationsManager;"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent",
+        "field": "comms",
+        "descriptor": "Lcom/apple/xsr/net/CommunicationsManager;"
+      }
+    ]
+  },
+  "direct_ListSelectionListener_implementors": [
+    "com/apple/xsr/NotificationsPane$9.class",
+    "com/apple/xsr/RendezvousPanel$RendezvousBrowserPanel$MoreInfoPanel.class",
+    "com/apple/xsr/RendezvousPanel.class",
+    "com/apple/xsr/SystemMonitorController$10.class",
+    "com/apple/xsr/SystemMonitorWindow$1.class",
+    "com/apple/xsr/SystemTable$4.class",
+    "com/apple/xsr/advanced/AdvancedMaskingPane$5.class",
+    "com/apple/xsr/eventlog/EventLogPane$1.class",
+    "org/apache/log4j/chainsaw/DetailPanel.class",
+    "org/apache/log4j/lf5/viewer/LogTable$LogTableListSelectionListener.class",
+    "org/apache/bcel/verifier/VerifierAppFrame$1.class",
+    "org/apache/bcel/verifier/VerifierAppFrame$3.class",
+    "org/apache/bcel/verifier/VerifierAppFrame$4.class"
+  ],
+  "selection_listener_registration_references": {
+    "com/apple/xsr/SystemMonitorController.class": [
+      {
+        "owner": "com/apple/xsr/SystemMonitorWindow",
+        "method": "addListSelectionListener",
+        "descriptor": "(Ljavax/swing/event/ListSelectionListener;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorWindow.class": [
+      {
+        "owner": "com/apple/xsr/SystemTable",
+        "method": "addListSelectionListener",
+        "descriptor": "(Ljavax/swing/event/ListSelectionListener;)V"
+      }
+    ]
+  },
+  "class_sha256": {
+    "com/apple/xsr/AbstractServiceIDAction.class": "8cf66906bb332337b8f0663c3c07dd0e48c1507d9d1587e1126e31478b44c66c",
+    "com/apple/xsr/AbstractShutdownAction.class": "6fd702eb626151761b5b13fb0476f666fea5fec04f25daad800b27638b8f6869",
+    "com/apple/xsr/AquaAlert$1.class": "4a4da9f40a2aa91b77cc8088de89d0f4d6c06115d3fba4e16a5b1a15166dc368",
+    "com/apple/xsr/AquaAlert$AnimateUpThread.class": "114bf88b3ef434f9961da26032b2d7f5e25cdea8e0b207961f9fc6eb9d88d071",
+    "com/apple/xsr/NotificationsPane$9.class": "6e627bd7a89fd49874fa67f3f1ae3a9247fbcb5cf70ab2012a18d48b4f33bd4e",
+    "com/apple/xsr/RendezvousPanel$RendezvousBrowserPanel$MoreInfoPanel.class": "898a3ad5e5f2d450f15915e49625346b5a004a3eb4628a4820a10f7b18da2e41",
+    "com/apple/xsr/RendezvousPanel.class": "e8c334ee043ca1e777a3d396c7d215d8ad356dffd9619ca0b1fd60cfe20a9a71",
+    "com/apple/xsr/SystemMonitorController$10.class": "d032216ff5cf66e0b991269d97d4aacc257a1bce3179c4c9f2f4f1eb8517f601",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class": "8888cb1658138faaa5b8c274b1c0ac8177cb5987fe989ecc3e7cf20cf867a9ef",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class": "f3b83ccb224c73963cdf9197c09cbdee052eadda1e31878bc58d2ab0994c416c",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener.class": "220b26869589d37c7097372553925640b2f84075fe3f9524088c7963d57bb563",
+    "com/apple/xsr/SystemMonitorController.class": "1251600090f9441a97042a6e1669b5ad16455de91cb4891129e301735f422537",
+    "com/apple/xsr/SystemMonitorWindow$1.class": "6ba38f5475c636f08e1d5fb457b1609895906c56a61b21405a764f5ed5b94678",
+    "com/apple/xsr/SystemMonitorWindow.class": "b7cc713a3112c7675a884ab03c3b2e7f54346f89ee8d2f737af6698f9479dddc",
+    "com/apple/xsr/SystemTable$4.class": "809ef5a2575dafbcc76691e441a0bcc070e02022bcdb89ef8312fdfc2414f91a",
+    "com/apple/xsr/SystemTable.class": "0c81f555205dce1abaf75ac98deb4be237fa67536db481c095d32b8027eb7220",
+    "com/apple/xsr/advanced/AdvancedMaskingPane$5.class": "d315ca9bfbd8c46f69e7a0aa2697cf88affd62614ab3f6902f229b8ca5a96bdb",
+    "com/apple/xsr/eventlog/EventLogPane$1.class": "e640c66c31f126cc80a693a6c2cd9c30cfb04eea4c374c3ac79bbe47926fbcaf",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "com/apple/xsr/net/CommunicationsManager.class": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+    "com/apple/xsr/som/RaidController.class": "a29f9e58fd0ab525f6f569716ac5d93faf471c200dc7a22d980bd029e86ced5f",
+    "com/apple/xsr/som/RaidSystem.class": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb",
+    "com/apple/xsr/som/SystemController.class": "1f0159f8709bad2777c3337624ee06357b2fd83ce34318fa2d93a8112589b56c",
+    "org/apache/bcel/verifier/VerifierAppFrame$1.class": "cf4aa359e9c82c6851f23592e86be4cded61ceda015007ff7b78516c09ebd1ba",
+    "org/apache/bcel/verifier/VerifierAppFrame$3.class": "34b49625bdafde5e7119ad841853e942212d715b17f19b2a695d2d97ef115593",
+    "org/apache/bcel/verifier/VerifierAppFrame$4.class": "9b8818406be75899f985ccb3e9c4de9d13586ccc38770a7071e9cc550a36edd5",
+    "org/apache/log4j/chainsaw/DetailPanel.class": "639963560f13c46a0a50f753a81c1e1e1b0a2d31fafb9720fc46bbe426f01ad3",
+    "org/apache/log4j/lf5/viewer/LogTable$LogTableListSelectionListener.class": "5fa524a51d72a4ee1074e55258011cd6e293d6a19f59428e7e937f0eb2eb4c06"
+  },
+  "bytecode_classes": [
+    "com/apple/xsr/AbstractServiceIDAction.class",
+    "com/apple/xsr/AbstractShutdownAction.class",
+    "com/apple/xsr/AquaAlert$1.class",
+    "com/apple/xsr/AquaAlert$AnimateUpThread.class",
+    "com/apple/xsr/NotificationsPane$9.class",
+    "com/apple/xsr/RendezvousPanel$RendezvousBrowserPanel$MoreInfoPanel.class",
+    "com/apple/xsr/RendezvousPanel.class",
+    "com/apple/xsr/SystemMonitorController$10.class",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener.class",
+    "com/apple/xsr/SystemMonitorController.class",
+    "com/apple/xsr/SystemMonitorWindow$1.class",
+    "com/apple/xsr/SystemMonitorWindow.class",
+    "com/apple/xsr/SystemTable$4.class",
+    "com/apple/xsr/SystemTable.class",
+    "com/apple/xsr/advanced/AdvancedMaskingPane$5.class",
+    "com/apple/xsr/eventlog/EventLogPane$1.class",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class",
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "com/apple/xsr/som/RaidController.class",
+    "com/apple/xsr/som/RaidSystem.class",
+    "com/apple/xsr/som/RaidSystemAgent.class",
+    "com/apple/xsr/som/SystemController.class",
+    "org/apache/bcel/verifier/VerifierAppFrame$1.class",
+    "org/apache/bcel/verifier/VerifierAppFrame$3.class",
+    "org/apache/bcel/verifier/VerifierAppFrame$4.class",
+    "org/apache/log4j/chainsaw/DetailPanel.class",
+    "org/apache/log4j/lf5/viewer/LogTable$LogTableListSelectionListener.class"
+  ],
+  "bytecode_sha256": "dfd1d979de6d7bd08c75d6316a3bc56bd27da6204158288e03998a1fd8733315",
+  "limits": "Complete source bytecode and jarwide method/field/interface references, not arbitrary reflection or GUI runtime proof. Direct interface implementors may require inheritance closure; registration calls and full controller constructor included for source tracing."
+}

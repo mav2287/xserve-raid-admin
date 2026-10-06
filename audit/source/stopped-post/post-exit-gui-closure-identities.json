@@ -1,0 +1,2528 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "raid_system_call_reference_classes": {
+    "com/apple/xsr/DefaultSystemRegistry.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "connect",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/ManagementController$LunMapper.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      }
+    ],
+    "com/apple/xsr/ManagementController$RaidSetCreator.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/ManagementController$RecognizeArrayAction.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      }
+    ],
+    "com/apple/xsr/ManagementController$Restarter.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/ManagementController$Slicer.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/ManagementController.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/ShutdownAction.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$15.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "authenticate",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "connect",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ClearErrorAction.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ClearEventLogAction.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "authenticate",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "authenticate",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ResetRaidAction$ResetThread.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ServiceIDAction.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "authenticate",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystem.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "getCommunicationsManager",
+        "descriptor": "()Lcom/apple/xsr/net/CommunicationsManager;"
+      }
+    ],
+    "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "authenticate",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      }
+    ],
+    "com/apple/xsr/update/FirmwareUpdater.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystem",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      }
+    ]
+  },
+  "handler_constructor_reference_classes": {
+    "com/apple/xsr/ManagementController.class": [
+      {
+        "owner": "com/apple/xsr/ManagementController$1",
+        "descriptor": "(Lcom/apple/xsr/ManagementController;Lcom/apple/xsr/EmailNotifications;)V"
+      }
+    ],
+    "com/apple/xsr/ShutdownAction.class": [
+      {
+        "owner": "com/apple/xsr/ShutdownAction$1",
+        "descriptor": "(Lcom/apple/xsr/ShutdownAction;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ClearErrorAction.class": [
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$13",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController$ClearErrorAction;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController$ServiceIDAction.class": [
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$14",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController$ServiceIDAction;)V"
+      }
+    ],
+    "com/apple/xsr/SystemMonitorController.class": [
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$AddSystemAction",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController;)V"
+      },
+      {
+        "owner": "com/apple/xsr/DefaultSystemRegistry",
+        "descriptor": "()V"
+      },
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/SystemMonitorController$MonitoringAuthenticationSheet;Lcom/apple/xsr/AquaAlert;)V"
+      },
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController;Ljava/lang/String;)V"
+      },
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/SystemMonitorController$ManagementAuthenticationSheet;Lcom/apple/xsr/AquaAlert;)V"
+      },
+      {
+        "owner": "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener",
+        "descriptor": "(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/AuthenticatedMenu;)V"
+      }
+    ],
+    "com/apple/xsr/net/CommunicationsManager.class": [
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager$SyncSender",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationsManager;Lcom/apple/xsr/net/RequestMessage;)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent$1.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent$DelegateHandler",
+        "descriptor": "(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent$2.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent$DelegateHandler",
+        "descriptor": "(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent$3.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent$DelegateHandler",
+        "descriptor": "(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent.class": [
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent$1",
+        "descriptor": "(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent$2",
+        "descriptor": "(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      },
+      {
+        "owner": "com/apple/xsr/som/RaidSystemAgent$3",
+        "descriptor": "(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      }
+    ]
+  },
+  "class_sha256": {
+    "com/apple/xsr/AquaAlert.class": "11bfb454a66086436e9fd8f32ee5a11278bd81c7c25ad594579df275f08b5c50",
+    "com/apple/xsr/AquaProgressClock.class": "0d1eebf2b83ea3f819fd4c841f355dedb13bca260d9fb7febd28826c0cb83afb",
+    "com/apple/xsr/DefaultSystemRegistry.class": "af1f303e4a86133a50aef3268fc34343b17b3966a216a39ff8dd8c1b794042c6",
+    "com/apple/xsr/ManagementController$LunMapper.class": "35339c27d51a378c8d3453561bfc9e1c71b5d8917bdd3327b55bc743ff52ba4f",
+    "com/apple/xsr/ManagementController$RaidSetCreator.class": "bea58eedcc3c67f13bd9697f32d8bc82d01ef3e1f3598cce749f33fdd2aa040e",
+    "com/apple/xsr/ManagementController$RecognizeArrayAction.class": "1d27158d30e2f98a6d965e93b2436a37f3e33a699692acb10f37f57c63a182f4",
+    "com/apple/xsr/ManagementController$Restarter.class": "f787286e9fe41f0fcb5cfadbac2c436bdfbda6ec2d5b5f9621c1b9f3d708a5ab",
+    "com/apple/xsr/ManagementController$Slicer.class": "d0a1338de15dab226b08788e8c9599f3b716f58e7c90a60e3952564fb0bf5115",
+    "com/apple/xsr/ManagementController.class": "c1e417a9e060b4cbd50841305a597b5141ebcbf95e2f2701b4aa48b9fe2d78ac",
+    "com/apple/xsr/ShutdownAction.class": "33d21757bcc030fed68ee950cb08f1ef7ef287a5a11ca4903b5c8976d7821af4",
+    "com/apple/xsr/SystemMonitorController$15.class": "a5914184c44a4632bca9f1aedeecb1bd168742675726b6f20552f2bcce726ff5",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class": "8888cb1658138faaa5b8c274b1c0ac8177cb5987fe989ecc3e7cf20cf867a9ef",
+    "com/apple/xsr/SystemMonitorController$ClearErrorAction.class": "79fd8c970446ed82e99aaa9c2629e0d5d680f03250f0a3cc026ab3ad21590fa6",
+    "com/apple/xsr/SystemMonitorController$ClearEventLogAction.class": "a1caf81d936ddfb0143b0ee15b2c382532b2c9edc36c0a4595d56754cc13e369",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class": "f3b83ccb224c73963cdf9197c09cbdee052eadda1e31878bc58d2ab0994c416c",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener.class": "95783457fbac084123ad18f7a66f585f1ac8c263b4dbe4f42cb28f0e73332363",
+    "com/apple/xsr/SystemMonitorController$ResetRaidAction$ResetThread.class": "0c4d270f56e19ad11424de603abafa11fbadf382579257c66fe6d6a6251cdf8f",
+    "com/apple/xsr/SystemMonitorController$ServiceIDAction.class": "95d0fff4489e6c70e3692b120c09df15beb98671d8852af9744aa163b14fda80",
+    "com/apple/xsr/SystemMonitorController.class": "1251600090f9441a97042a6e1669b5ad16455de91cb4891129e301735f422537",
+    "com/apple/xsr/SystemMonitorWindow.class": "b7cc713a3112c7675a884ab03c3b2e7f54346f89ee8d2f737af6698f9479dddc",
+    "com/apple/xsr/net/CommunicationsManager.class": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+    "com/apple/xsr/som/RaidSystem.class": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+    "com/apple/xsr/som/RaidSystemAgent$1.class": "567b639cbbc8bf4b402bfc19b60383a50ee6c6fd76cef2425350357af85083e6",
+    "com/apple/xsr/som/RaidSystemAgent$2.class": "70ee023cb8e7f841da80aaf4cff73c50365b66a01471f685b9de79753144306a",
+    "com/apple/xsr/som/RaidSystemAgent$3.class": "1abe71e8971d28bc2201054dcc9fcea39c723b15a5fa20dcd6799953db8fe394",
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb",
+    "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class": "b236f7d954791f1c32339d9675972e33908c690a633a554672b2f8a7b230ec67",
+    "com/apple/xsr/update/FirmwareUpdater.class": "890b3e63afbd611da7988deb536bc4152478d46587fd3193cd08d6140f32e8c8"
+  },
+  "bytecode_classes": [
+    "com/apple/xsr/AquaAlert.class",
+    "com/apple/xsr/AquaProgressClock.class",
+    "com/apple/xsr/DefaultSystemRegistry.class",
+    "com/apple/xsr/ManagementController$LunMapper.class",
+    "com/apple/xsr/ManagementController$RaidSetCreator.class",
+    "com/apple/xsr/ManagementController$RecognizeArrayAction.class",
+    "com/apple/xsr/ManagementController$Restarter.class",
+    "com/apple/xsr/ManagementController$Slicer.class",
+    "com/apple/xsr/ManagementController.class",
+    "com/apple/xsr/ShutdownAction.class",
+    "com/apple/xsr/SystemMonitorController$15.class",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class",
+    "com/apple/xsr/SystemMonitorController$ClearErrorAction.class",
+    "com/apple/xsr/SystemMonitorController$ClearEventLogAction.class",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener.class",
+    "com/apple/xsr/SystemMonitorController$ResetRaidAction$ResetThread.class",
+    "com/apple/xsr/SystemMonitorController$ServiceIDAction.class",
+    "com/apple/xsr/SystemMonitorController.class",
+    "com/apple/xsr/SystemMonitorWindow.class",
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "com/apple/xsr/som/RaidSystem.class",
+    "com/apple/xsr/som/RaidSystemAgent$1.class",
+    "com/apple/xsr/som/RaidSystemAgent$2.class",
+    "com/apple/xsr/som/RaidSystemAgent$3.class",
+    "com/apple/xsr/som/RaidSystemAgent.class",
+    "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class",
+    "com/apple/xsr/update/FirmwareUpdater.class"
+  ],
+  "full_bytecode_sha256": "d301756747fb7dbafad1cf8c8414ae020ffa24ad2ed49d206b0330dc60e53a75",
+  "selected_bytecode_sha256": "94cbe953790181c4ad14106aae94a2297d73c9b9c25155c9d8f20126d94c1f1d",
+  "selected_methods": [
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public com.apple.xsr.AquaAlert(javax.swing.JPanel, javax.swing.JButton, javax.swing.JButton, javax.swing.JButton);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public static com.apple.xsr.AquaAlert createStandardAquaAlert(java.lang.String, java.lang.String, java.awt.Image, java.lang.String, java.lang.String, java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "private void setUpActionListenerForButton(javax.swing.JButton, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "private void performButtonOrKeyEquivalentAction(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public java.awt.Dimension getSize();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void dismissSheetOrDialog(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "private void showDialogImpl(javax.swing.JFrame, java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "private void showSheetImpl(javax.swing.JFrame);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void showSheet(javax.swing.JFrame);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void showSheet(javax.swing.JFrame, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void showSheet(javax.swing.JFrame, com.apple.xsr.AquaAlertListener, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void showDialog(javax.swing.JFrame, java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void showDialog(javax.swing.JFrame, java.lang.String, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void showDialog(javax.swing.JFrame, java.lang.String, com.apple.xsr.AquaAlertListener, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void resizeVertically(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void resizeVertically(int, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void resizeVertically(int, com.apple.xsr.AquaAlertListener, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void resizeVertically();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void resizeVertically(java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void resizeVertically(com.apple.xsr.AquaAlertListener, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void addAquaAlertListener(com.apple.xsr.AquaAlertListener);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void removeAquaAlertListener(com.apple.xsr.AquaAlertListener);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "protected void fireAquaAlertWillBeShown(java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "protected void fireAquaAlertSheetVisible(java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "protected void fireAquaAlertDismissed(int, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "protected boolean fireAllowAquaAlertToBeDismissed(int, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "protected void fireAquaAlertResized(java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "private void requestFocusForAButton();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "void animateDownThread();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "void animateUpThread();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "void animateResizeThread(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "void doDelay(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "private void addComponent(java.awt.Component, java.awt.Container, java.awt.GridBagLayout, java.awt.GridBagConstraints);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "protected java.util.Set keyEquivalentsForButtons();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void associateKeyCodeWithButton(int, int, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void associateKeyCodeWithButton(int, int, javax.swing.AbstractButton);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void keyPressed(java.awt.event.KeyEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void keyReleased(java.awt.event.KeyEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "public void keyTyped(java.awt.event.KeyEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "static void access$000(com.apple.xsr.AquaAlert, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "static java.lang.Class class$(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "static javax.swing.JPanel access$200(com.apple.xsr.AquaAlert);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "static void access$500(com.apple.xsr.AquaAlert);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaAlert",
+      "method_declaration": "static java.lang.Object access$600(com.apple.xsr.AquaAlert);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "com.apple.xsr.AquaProgressClock();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public void paint(java.awt.Graphics);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public void startAnimation();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public void stopAnimation();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public void advanceFrame();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public void setSelected(boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public boolean isSelected();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public java.awt.Dimension getMinimumSize();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public java.awt.Dimension getPreferredSize();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "public java.awt.Dimension getMaximumSize();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "static int access$002(com.apple.xsr.AquaProgressClock, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "static int access$000(com.apple.xsr.AquaProgressClock);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/AquaProgressClock",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/DefaultSystemRegistry",
+      "method_declaration": "public com.apple.xsr.DefaultSystemRegistry();",
+      "calls": [
+        "203: invokevirtual #29                 // Method com/apple/xsr/som/RaidSystem.connect:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController$LunMapper",
+      "method_declaration": "public static int map(com.apple.xsr.som.Slice, int);",
+      "calls": [
+        "146: invokevirtual #27                 // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController$LunMapper",
+      "method_declaration": "public static int unmap(com.apple.xsr.som.RaidController, int);",
+      "calls": [
+        "72: invokevirtual #27                 // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController$RaidSetCreator",
+      "method_declaration": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);",
+      "calls": [
+        "376: invokevirtual #40                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "437: invokevirtual #40                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "783: invokevirtual #40                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "837: invokevirtual #40                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "857: invokevirtual #40                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController$RecognizeArrayAction",
+      "method_declaration": "private void changeRaidSetID(com.apple.xsr.som.Disk);",
+      "calls": [
+        "161: invokevirtual #73                 // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController$Restarter",
+      "method_declaration": "public void restart();",
+      "calls": [
+        "44: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "74: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "103: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "132: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "203: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "273: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "317: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "384: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "416: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "484: invokevirtual #20                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController$Slicer",
+      "method_declaration": "public void slice();",
+      "calls": [
+        "675: invokevirtual #53                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "849: invokevirtual #53                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public com.apple.xsr.ManagementController();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public boolean showManagementWindow(com.apple.xsr.som.RaidSystem, java.lang.String, java.awt.Component);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public void managementWindowToFront();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public void closeManagementWindow();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public com.apple.xsr.som.RaidSystem getManagedSystem();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public java.lang.String getManagementPaneType();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public boolean aSystemIsBeingManaged();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "public void actionPerformed(java.awt.event.ActionEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populatePane(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateSystemSetup(com.apple.xsr.ManagementSystemModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateNetworkSetup(com.apple.xsr.ManagementNetworkModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateFibreSetup(com.apple.xsr.ManagementFibreModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populatePerformance(com.apple.xsr.ManagementPerformanceModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateCreateArray(com.apple.xsr.CreateArrayModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateDeleteArray(com.apple.xsr.DeleteArrayModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateNotifications(com.apple.xsr.NotificationsModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateFirstAid(com.apple.xsr.firstaid.FirstAidDataModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateSlicing(com.apple.xsr.advanced.AdvancedSlicingModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateExpansion(com.apple.xsr.advanced.AdvancedExpansionModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void populateMasking(com.apple.xsr.advanced.AdvancedMaskingModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private boolean isValidString(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleCreate();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleCreateRaid(com.apple.xsr.CreateArrayModel);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleCreateJbod(com.apple.xsr.CreateArrayModel);",
+      "calls": [
+        "123: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleDelete();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleDeleteRaid(com.apple.xsr.DeleteArrayModel);",
+      "calls": [
+        "219: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "267: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "356: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleDeleteJbod(com.apple.xsr.DeleteArrayModel);",
+      "calls": [
+        "131: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleNotifications();",
+      "calls": [
+        "183: invokespecial #380                // Method com/apple/xsr/ManagementController$1.\"<init>\":(Lcom/apple/xsr/ManagementController;Lcom/apple/xsr/EmailNotifications;)V",
+        "212: invokevirtual #384                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+        "237: invokevirtual #384                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+        "302: invokevirtual #384                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+        "328: invokevirtual #384                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleTestEmail(com.apple.xsr.TestEmail);",
+      "calls": [
+        "23: invokevirtual #391                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleSetup();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private int handleSystemSetup(int);",
+      "calls": [
+        "829: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "906: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1002: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1041: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1075: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1087: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1131: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1143: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1180: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "1192: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private int handleNetworkSetup(int);",
+      "calls": [
+        "683: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private int handleFibreChannelSetup(int);",
+      "calls": [
+        "241: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "372: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "481: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "597: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private int handlePerformanceSetup(int);",
+      "calls": [
+        "226: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "349: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "488: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "600: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private boolean setDriveCacheForController(int, boolean);",
+      "calls": [
+        "149: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "304: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleFirstAid();",
+      "calls": [
+        "321: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "818: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleSlicing();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleExpansion();",
+      "calls": [
+        "193: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void handleMasking();",
+      "calls": [
+        "204: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "556: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void setDriveCacheForRaidSet(com.apple.xsr.som.RaidSet, boolean);",
+      "calls": [
+        "131: invokevirtual #333                // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void showProgressDialogAndCloseManagementWindow(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private boolean validatePane(com.apple.xsr.ManagementPane, com.apple.xsr.DataModel[]);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "private void initManagementWindow(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "static java.lang.Class class$(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "static com.apple.xsr.ManagementWindow access$202(com.apple.xsr.ManagementController, com.apple.xsr.ManagementWindow);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "static com.apple.xsr.som.RaidSystem access$302(com.apple.xsr.ManagementController, com.apple.xsr.som.RaidSystem);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "static org.apache.log4j.Logger access$400();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ManagementController",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ShutdownAction",
+      "method_declaration": "public com.apple.xsr.ShutdownAction();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ShutdownAction",
+      "method_declaration": "public com.apple.xsr.ShutdownAction(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ShutdownAction",
+      "method_declaration": "public void actionPerformed(java.awt.event.ActionEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ShutdownAction",
+      "method_declaration": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+      "calls": [
+        "41: invokespecial #15                 // Method com/apple/xsr/ShutdownAction$1.\"<init>\":(Lcom/apple/xsr/ShutdownAction;)V",
+        "70: invokevirtual #19                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+        "112: invokevirtual #19                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/ShutdownAction",
+      "method_declaration": "static java.lang.Class class$(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/ShutdownAction",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$15",
+      "method_declaration": "public void run();",
+      "calls": [
+        "20: invokevirtual #6                  // Method com/apple/xsr/som/RaidSystem.authenticate:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$AddSystemAction",
+      "method_declaration": "protected java.util.ArrayList getMonitoredMACAddresses();",
+      "calls": [
+        "15: invokevirtual #29                 // Method com/apple/xsr/DefaultSystemRegistry.getSystems:()Ljava/util/Collection;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$AddSystemAction",
+      "method_declaration": "protected java.util.ArrayList getMonitoredIPAddresses();",
+      "calls": [
+        "15: invokevirtual #29                 // Method com/apple/xsr/DefaultSystemRegistry.getSystems:()Ljava/util/Collection;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$AddSystemAction",
+      "method_declaration": "public void aquaAlertDismissed(int, java.lang.Object);",
+      "calls": [
+        "143: invokevirtual #57                 // Method com/apple/xsr/DefaultSystemRegistry.add:(Lcom/apple/xsr/som/RaidSystem;)V",
+        "154: invokevirtual #59                 // Method com/apple/xsr/som/RaidSystem.connect:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$AddSystemAction",
+      "method_declaration": "public void handleResponse(com.apple.xsr.som.RaidSystem, com.apple.xsr.net.Response, java.lang.Object);",
+      "calls": [
+        "25: invokevirtual #62                 // Method com/apple/xsr/DefaultSystemRegistry.synchronizePrefs:()V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ClearErrorAction",
+      "method_declaration": "private com.apple.xsr.SystemMonitorController$ClearErrorAction(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ClearErrorAction",
+      "method_declaration": "public void actionPerformed(java.awt.event.ActionEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ClearErrorAction",
+      "method_declaration": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+      "calls": [
+        "10: invokespecial #7                  // Method com/apple/xsr/SystemMonitorController$13.\"<init>\":(Lcom/apple/xsr/SystemMonitorController$ClearErrorAction;)V",
+        "37: invokevirtual #11                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V",
+        "53: invokevirtual #11                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ClearErrorAction",
+      "method_declaration": "com.apple.xsr.SystemMonitorController$ClearErrorAction(com.apple.xsr.SystemMonitorController, com.apple.xsr.SystemMonitorController$1);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ClearEventLogAction",
+      "method_declaration": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+      "calls": [
+        "33: invokevirtual #9                  // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V",
+        "50: invokevirtual #9                  // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;ILjava/lang/Object;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener",
+      "method_declaration": "public boolean allowAquaAlertToBeDismissed(int, java.lang.Object);",
+      "calls": [
+        "51: invokevirtual #15                 // Method com/apple/xsr/som/RaidSystem.authenticate:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener",
+      "method_declaration": "public boolean allowAquaAlertToBeDismissed(int, java.lang.Object);",
+      "calls": [
+        "51: invokevirtual #15                 // Method com/apple/xsr/som/RaidSystem.authenticate:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ResetRaidAction$ResetThread",
+      "method_declaration": "public void run();",
+      "calls": [
+        "24: invokevirtual #12                 // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ServiceIDAction",
+      "method_declaration": "private com.apple.xsr.SystemMonitorController$ServiceIDAction(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ServiceIDAction",
+      "method_declaration": "public void actionPerformed(java.awt.event.ActionEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ServiceIDAction",
+      "method_declaration": "public void performMenuSelection(com.apple.xsr.som.RaidSystem, java.lang.String);",
+      "calls": [
+        "63: invokespecial #12                 // Method com/apple/xsr/SystemMonitorController$14.\"<init>\":(Lcom/apple/xsr/SystemMonitorController$ServiceIDAction;)V",
+        "83: invokevirtual #15                 // Method com/apple/xsr/som/RaidSystem.postMessageAsync:(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController$ServiceIDAction",
+      "method_declaration": "com.apple.xsr.SystemMonitorController$ServiceIDAction(com.apple.xsr.SystemMonitorController, com.apple.xsr.SystemMonitorController$1);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public static com.apple.xsr.SystemMonitorController getInstance();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private com.apple.xsr.SystemMonitorController();",
+      "calls": [
+        "10: invokespecial #18                 // Method com/apple/xsr/SystemMonitorController$AddSystemAction.\"<init>\":(Lcom/apple/xsr/SystemMonitorController;)V",
+        "784: invokespecial #116                // Method com/apple/xsr/DefaultSystemRegistry.\"<init>\":()V",
+        "798: invokevirtual #118                // Method com/apple/xsr/DefaultSystemRegistry.addSystemRegistryListener:(Lcom/apple/xsr/SystemRegistryListener;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public com.apple.xsr.SystemMonitorWindow getMonitorWindow();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public void preferenceChanged(com.apple.util.prefs.Preferences$PreferenceChangeEvent);",
+      "calls": [
+        "58: invokevirtual #134                // Method com/apple/xsr/DefaultSystemRegistry.fireSystemUpdated:([Lcom/apple/xsr/som/RaidSystem;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public void showMonitoringAuthenticationSheet();",
+      "calls": [
+        "80: invokespecial #146                // Method com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener.\"<init>\":(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/SystemMonitorController$MonitoringAuthenticationSheet;Lcom/apple/xsr/AquaAlert;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public void showManagementAuthenticationSheet(java.lang.String);",
+      "calls": [
+        "39: invokespecial #151                // Method com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener.\"<init>\":(Lcom/apple/xsr/SystemMonitorController;Ljava/lang/String;)V",
+        "52: invokevirtual #154                // Method com/apple/xsr/som/RaidSystem.authenticate:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V",
+        "143: invokespecial #163                // Method com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.\"<init>\":(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/SystemMonitorController$ManagementAuthenticationSheet;Lcom/apple/xsr/AquaAlert;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "protected void showGlobalDriveCacheNotConfiguredSheet();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public void showManagementAuthenticationSheet(com.apple.xsr.AuthenticatedMenu);",
+      "calls": [
+        "31: invokespecial #173                // Method com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener.\"<init>\":(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/AuthenticatedMenu;)V",
+        "44: invokevirtual #154                // Method com/apple/xsr/som/RaidSystem.authenticate:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V",
+        "135: invokespecial #163                // Method com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.\"<init>\":(Lcom/apple/xsr/SystemMonitorController;Lcom/apple/xsr/SystemMonitorController$ManagementAuthenticationSheet;Lcom/apple/xsr/AquaAlert;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private boolean okToManageNewSystem(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private void showInformationalAlertSheet(java.lang.String, java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "public void updateMenuActionStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private void showBadPassword();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private void showLastChance();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private void showConnectionFailure();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "private void showSystemBusySheet();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static java.lang.Class class$(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static org.apache.log4j.Logger access$000();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static javax.swing.JMenuBar access$1000(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static void access$1100(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static com.apple.xsr.som.RaidSystem access$1200(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static void access$1400(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static void access$1500(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static void access$1600(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static com.apple.xsr.ManagementController access$1800(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static javax.swing.Action access$2000(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorController",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public com.apple.xsr.SystemMonitorWindow(com.apple.xsr.SystemMonitorController);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public void toggleToolbar();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public boolean isToolbarVisible();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public void updatePreferences();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public void registryChanged(com.apple.xsr.SystemRegistryEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public void setSelectedSystem(com.apple.xsr.som.RaidSystem);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public com.apple.xsr.som.RaidSystem getSelectedSystem();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public com.apple.xsr.som.RaidSystem[] getSelectedSystems();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "public void addListSelectionListener(javax.swing.event.ListSelectionListener);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setAddSystemAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setDeleteSystemAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setCreateArrayAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setDeleteArrayAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setSetupAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setNotificationsAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setFirstAidAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "void setAdvancedAction(javax.swing.Action);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "private javax.swing.JComponent createContentPane(com.apple.xsr.SystemTable, com.apple.xsr.SystemInfoPane);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "private javax.swing.JSplitPane createSplitContentPane(javax.swing.JComponent, javax.swing.JComponent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "private javax.swing.JPanel createStandardContentPane(javax.swing.JComponent, javax.swing.JComponent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "static javax.swing.Action access$000(com.apple.xsr.SystemMonitorWindow);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "static com.apple.xsr.SystemInfoPane access$100(com.apple.xsr.SystemMonitorWindow);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "static com.apple.xsr.SystemMonitorController access$200(com.apple.xsr.SystemMonitorWindow);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/SystemMonitorWindow",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/net/CommunicationsManager",
+      "method_declaration": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage) throws java.io.IOException;",
+      "calls": [
+        "29: invokespecial #31                 // Method com/apple/xsr/net/CommunicationsManager$SyncSender.\"<init>\":(Lcom/apple/xsr/net/CommunicationsManager;Lcom/apple/xsr/net/RequestMessage;)V",
+        "34: invokevirtual #32                 // Method com/apple/xsr/net/CommunicationsManager$SyncSender.getResponse:()Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.RaidSystem(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.RaidSystem(com.apple.xsr.som.RaidSystem);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getNativeId();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getId();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setName(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getName();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralRaidSetAndDiskStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralRaidSetStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralDiskStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralComponentStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralNetworkInterfaceStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralHostInterfaceStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralPowerSupplyStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getGeneralFanStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setHostAddress(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getHostAddress();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setPrimaryHostAddress(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getPrimaryHostAddress();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setSecondaryHostAddress(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getSecondaryHostAddress();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getMonitoringUserId();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void setMonitoringPassword(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized java.lang.String getMonitoringPassword();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getManagementUserId();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setManagementPassword(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getManagementPassword();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setManagementPasswordSaved(boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean getManagementPasswordSaved();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setLoggedOn(boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean isLoggedOn();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setPowerState(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getPowerState();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public long getCapacity();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setContact(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getContact();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setDescription(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getDescription();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setLocation(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getLocation();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setServiceIdState(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getServiceIdState();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setLockState(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getLockState();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setTimeOffset(long);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Date getTime();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setUpTime(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getUpTime();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setAutoRebootState(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getAutoRebootState();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setAudibleAlarmState(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getAudibleAlarmState();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String getNtpServerAddress();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void setUpsStatus(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getUpsStatus();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getBackgroundConditioningPriority();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean isBusy();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.eventlog.EventLog getEventLog();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setUserMessageIndex(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getUserMessageIndex();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean getUserMessageIsAsync();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getSystemControllers();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.SystemController getSystemController(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.SystemController getPrimarySystemController();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean allSystemControllersAreAtLeastVersion(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getDriveCacheFlags();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean supportsGlobalDriveCacheFeature();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getRaidControllerCount();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getRaidControllers();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.RaidController getRaidController(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.RaidController getRaidControllerForDiskSlot(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getPowerSupplies();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.PowerSupply getPowerSupply(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void addFan(com.apple.xsr.som.Fan);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "com.apple.xsr.som.Fan removeFan(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getFans();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.Fan getFan(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void addBattery(com.apple.xsr.som.Battery);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "com.apple.xsr.som.Battery removeBattery(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getBatteries();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.Battery getBattery(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean isControllerModulePresent(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getControllerModuleStatus(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getNetworkInterfaces();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.RaidSet getRaidSet(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getRaidSets();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized boolean isRaidSetBeingCreated(com.apple.xsr.som.RaidSet);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void setRaidSetCreationInProgress(int, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void clearRaidSetCreationInProgress();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.DiskSlot getDiskSlot(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getDiskSlots();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.Disk getDisk(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getDisks();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.som.HostInterface getHostInterface(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.util.Collection getHostInterfaces();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean[] getDiskCacheSettings(int) throws java.io.IOException, com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean getRaidControllerCacheEnabled(int) throws java.io.IOException, com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean hasRaidOrJbodDisks();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void stateChanged(com.apple.xsr.som.SystemEvent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void connect(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String, boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void disconnect();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean isConnected();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void authenticate(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String, boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage) throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage, int) throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage, int, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void postMessageAsync(com.apple.xsr.net.CommunicationHandler, com.apple.xsr.net.RequestMessage, java.lang.Object);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public com.apple.xsr.net.MessageFactory getMessageFactory();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void updateImmediately(boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setPollingEnabled(boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public boolean isPollingEnabled();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setPollDelay(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int getPollDelay();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void waitForUpdate() throws java.lang.InterruptedException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void waitForUpdateFinished() throws java.lang.InterruptedException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "synchronized void notifyUpdateStarted();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "synchronized void notifyUpdateFinished();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void pollForRaidControllerOnline(int) throws java.lang.InterruptedException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void waitForRaidControllerOnline(int) throws java.lang.InterruptedException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "synchronized void notifyRaidControllerOnline(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void waitForRaidSetOnline(int, int) throws java.lang.InterruptedException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "synchronized void notifyRaidSetOnline(com.apple.xsr.som.RaidSet);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int translateSliceId(int, int, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public int translateLunId(int, int, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "private int translateId(int, int, int, java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public synchronized void clear();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String paramString();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public java.lang.String toString();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "public void setChanged();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "com.apple.xsr.net.CommunicationsManager getCommunicationsManager();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "void updateGlobalRaidSetIdentifiers();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "private int getGeneralStatus(java.util.Collection);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "private static int getRedundantComponentStatus(com.apple.xsr.som.SystemElement, com.apple.xsr.som.SystemElement);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "private static java.lang.String crypt(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "static java.lang.Class class$(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "static int access$002(com.apple.xsr.som.RaidSystem, int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "static boolean access$102(com.apple.xsr.som.RaidSystem, boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent$1",
+      "method_declaration": "com.apple.xsr.som.RaidSystemAgent$1(com.apple.xsr.som.RaidSystemAgent, com.apple.xsr.net.CommunicationHandler);",
+      "calls": [
+        "3: invokespecial #1                  // Method com/apple/xsr/som/RaidSystemAgent$DelegateHandler.\"<init>\":(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent$2",
+      "method_declaration": "com.apple.xsr.som.RaidSystemAgent$2(com.apple.xsr.som.RaidSystemAgent, com.apple.xsr.net.CommunicationHandler);",
+      "calls": [
+        "3: invokespecial #1                  // Method com/apple/xsr/som/RaidSystemAgent$DelegateHandler.\"<init>\":(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent$3",
+      "method_declaration": "com.apple.xsr.som.RaidSystemAgent$3(com.apple.xsr.som.RaidSystemAgent, com.apple.xsr.net.CommunicationHandler);",
+      "calls": [
+        "3: invokespecial #1                  // Method com/apple/xsr/som/RaidSystemAgent$DelegateHandler.\"<init>\":(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public com.apple.xsr.som.RaidSystemAgent(com.apple.xsr.som.RaidSystem);",
+      "calls": [
+        "55: invokevirtual #26                 // Method com/apple/xsr/som/RaidSystem.getCommunicationsManager:()Lcom/apple/xsr/net/CommunicationsManager;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized void connect(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String);",
+      "calls": [
+        "52: invokespecial #39                 // Method com/apple/xsr/som/RaidSystemAgent$1.\"<init>\":(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized void authenticate(com.apple.xsr.net.CommunicationHandler, java.lang.String, java.lang.String);",
+      "calls": [
+        "77: invokespecial #52                 // Method com/apple/xsr/som/RaidSystemAgent$2.\"<init>\":(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void completeClientRequest(com.apple.xsr.net.CommunicationHandler);",
+      "calls": [
+        "23: invokespecial #56                 // Method com/apple/xsr/som/RaidSystemAgent$3.\"<init>\":(Lcom/apple/xsr/som/RaidSystemAgent;Lcom/apple/xsr/net/CommunicationHandler;)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized void updateImmediately();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public void setPollingEnabled(boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public boolean isPollingEnabled();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized boolean isPolling();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized boolean isStopped();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public void setPollDelay(int);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public int getPollDelay();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public void run();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized void terminate();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "public synchronized void shutdown();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "com.apple.xsr.net.MessageFactory getMessageFactory();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doPowerStateUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doStandbyUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doSystemControllerUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doTimeUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doEventLogUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doDeviceUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doRaidControllerUpdate(int) throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void doThermalUpdate() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private int updatePowerState(com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private int updateStandbyProperties(com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateSystemController(com.apple.xsr.som.SystemController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateSystemStatus(com.apple.xsr.som.SystemController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateUpsStatus(com.apple.util.plist.PropertyList, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateSystemTime(com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateDisks(com.apple.xsr.som.RaidController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateDisk(com.apple.xsr.som.Disk, java.util.Map) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateLockState(com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updatePowerSupply(int, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateBattery(int, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateFan(int, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateSystemControllerLocation(com.apple.xsr.som.SystemController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateDiskHandle(int, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void processPage0(com.apple.xsr.som.RaidController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateDiskChannels(com.apple.xsr.som.RaidController, java.util.List, int) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateHostInterfaces(com.apple.xsr.som.RaidController, java.util.List, int) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateHostInterface(com.apple.xsr.som.HostInterface, java.util.Map) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateLunMasks(com.apple.xsr.som.RaidController, java.util.List) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void processPage1(com.apple.xsr.som.RaidController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateRaidControllerStatus(com.apple.xsr.som.RaidController, java.util.Map) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateRaidSets(com.apple.xsr.som.RaidController, java.util.List) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateRaidSet(com.apple.xsr.som.RaidController, com.apple.xsr.som.RaidSet, java.util.Map) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateRaidSetProgress(com.apple.xsr.som.RaidSet, java.util.Map) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateRaidSetMembers(com.apple.xsr.som.RaidController, com.apple.xsr.som.RaidSet, java.util.List) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateSlices(com.apple.xsr.som.RaidSet, java.util.List) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updatePage1Slots(com.apple.xsr.som.RaidController, java.util.List) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void processPage32(com.apple.xsr.som.RaidController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateLunMap(com.apple.xsr.som.RaidController, java.util.List) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateThermal(com.apple.xsr.som.SystemController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateEventLog(com.apple.xsr.som.SystemController, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateConnectionFailure();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void updateCommunicationsError();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private void sendNoOpMessage() throws java.io.IOException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private java.util.Map getCommandDictionary(com.apple.util.plist.PropertyList, java.lang.String) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "private int getCommandStatus(java.util.Map) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static java.lang.Class class$(java.lang.String);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static int access$000(com.apple.xsr.som.RaidSystemAgent, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException, com.apple.xsr.net.AcpxCommandException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static void access$100(com.apple.xsr.som.RaidSystemAgent, com.apple.xsr.net.CommunicationHandler);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static org.apache.log4j.Logger access$200();",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static void access$300(com.apple.xsr.som.RaidSystemAgent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static void access$400(com.apple.xsr.som.RaidSystemAgent);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static int access$500(com.apple.xsr.som.RaidSystemAgent, com.apple.util.plist.PropertyList) throws com.apple.util.plist.PropertyListException;",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static boolean access$602(com.apple.xsr.som.RaidSystemAgent, boolean);",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent",
+      "method_declaration": "static {};",
+      "calls": []
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater$UpdateThread",
+      "method_declaration": "public void run();",
+      "calls": [
+        "1373: invokevirtual #85                 // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+        "1546: invokevirtual #85                 // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;",
+        "1745: invokevirtual #101                // Method com/apple/xsr/som/RaidSystem.authenticate:(Lcom/apple/xsr/net/CommunicationHandler;Ljava/lang/String;Ljava/lang/String;Z)V"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private int updateRaidController(com.apple.xsr.net.RequestMessage$Target) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "calls": [
+        "211: invokevirtual #167                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private int updateCoprocessor(com.apple.xsr.net.RequestMessage$Target) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "calls": [
+        "127: invokevirtual #167                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private void disableDiskCaches(int) throws java.lang.Exception;",
+      "calls": [
+        "79: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private void reenableDiskCaches(int) throws java.lang.Exception;",
+      "calls": [
+        "87: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private void disableControllerCache(int) throws java.lang.Exception;",
+      "calls": [
+        "56: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private void reenableControllerCache(int) throws java.lang.Exception;",
+      "calls": [
+        "64: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    },
+    {
+      "class": "com/apple/xsr/update/FirmwareUpdater",
+      "method_declaration": "private void debugCurrentVersions();",
+      "calls": [
+        "41: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+        "112: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+        "195: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;",
+        "266: invokevirtual #186                // Method com/apple/xsr/som/RaidSystem.postMessage:(Lcom/apple/xsr/net/RequestMessage;I)Lcom/apple/xsr/net/Response;"
+      ]
+    }
+  ],
+  "limits": "Jar-wide constant pool reference inventory, selected complete javap methods with actual relevant invoke/new comments and all methods in listed transitive GUI classes. Not dataflow proof of every monitor target or listener registration; no runtime GUI/profile/controller access."
+}

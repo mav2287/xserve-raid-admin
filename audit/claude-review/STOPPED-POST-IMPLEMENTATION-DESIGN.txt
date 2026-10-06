@@ -1,0 +1,59 @@
+# Review of the audit20 stopped-post admission design
+
+The design can go ahead once the corrections below are made. There are **two blockers that would produce a wrong or unsafe class**, plus several points the spec needs to pin down before implementation. I checked everything against `tests/fixtures/stop-lock-candidate.javap` (the current `postMessageAsync` and `run`), the original `SyncSender` and the handler classes in `build/post-exit-final-source.javap`, `tools/class_patch.py`, and the two compat sources. I did not edit anything or compute any hashes, so I have not independently checked the audit19 SHA `cfefcc5b…`.
+
+## Blockers
+
+**B1. The local-variable indices are wrong.** In `postMessageAsync(CommunicationHandler, RequestMessage, Object)` the locals are 0=this, **1=handler**, 2=message, 3=context, 4=queue monitor and 5=throwable. You can see this in Transaction construction at PC16–26 (`aload_1`, `aload_2.clone()`, `aload_3`). As written, the design passes the RequestMessage as the handler and runs `instanceof SyncSender` on the message:
+- The refused-path arguments must be `aload_1, aload_0 getfield #14, aload_3, aload_1 instanceof #30, invokestatic deliver`.
+- As written, the descriptor `(CommunicationHandler,…)` won't type-check under the old inference verifier, because RequestMessage is an interface type and the call would pass a message as a handler. If it did load, the SyncSender check would always be false.
+- Also, the method is named `postMessageAsync`, not `postAsyncMessage`. Use the exact name in gates and in the archive text.
+
+**B2. The admission block must lie inside the new catch-all range.** The design describes the range as "[56, after refused monitorexit)". The prose puts the admission label before the refusal ("goto admission label … Else …"), but the admission `add`/`pop` runs while the queue lock is held. If the block is laid out after the refusal's `return`, it falls outside every handler. A Throwable from `add` (for example OOM) would then leave the method with the queue monitor still held. Use one contiguous layout where both locked paths are covered. Here is a proposed layout; the offsets are hand-computed, so pin them with the javap gate:
+
+```
+30: goto 56 ; 33: nop
+56: aload_0; getfield #11 stopped      (direct volatile field; NOT isStopped())
+60: ifeq 73
+63: invokestatic Thread.currentThread
+66: aload_0; getfield #1 thread
+70: if_acmpne 80
+73: invokevirtual #25 LinkedList.add; pop      ← admission
+77: goto 34                                    (offset -43)
+80: pop2; aload 4; monitorexit                 ← refusal
+84: aload_1; aload_0; getfield #14; aload_3; aload_1; instanceof #30; invokestatic deliver
+97: return                                     (code_length 98)
+handlers: [8,44)->47 any, [47,52)->47 any, [56,84)->47 any
+```
+
+The new range should include the refusal's `monitorexit` (javac convention, as at 43) and exclude everything from PC84 onward. Otherwise a helper exception would reach handler 47 and run `monitorexit` on a monitor that isn't held. Max stack reaches 4 (≤6) and locals stay at 6. The class is major version 47, so there is no StackMapTable and dead code at PC33 is fine.
+
+## Required corrections and clarifications
+
+1. **Read the field directly, never call `isStopped()` under the queue lock.** `isStopped` is `synchronized` on the Manager, while `shutdown` holds the Manager lock and then takes the queue lock. Calling it here would bring back the inversion that commit 78af7d1 removed. Add a negative gate: no `invokevirtual #27` anywhere in PC56–84.
+2. **Don't claim ordering against earlier items in the queue.** A poster refused while the worker is still draining gets its −102 before the earlier queued transactions get theirs. For non-SyncSender handlers it also arrives on the EDT instead of the CommMgr thread. Any ordering claim should only say that each refused post is delivered once and the worker drain is unchanged. The −102 callbacks from the drain still come directly from the worker.
+3. **The EDT change is a deliberate thread-context change, so document it.** The original worker calls `handleResponse` on CommMgr. The in-app handlers (`AddSystemAction`, `ManagementAuthenticationListener`, `ManagementSessionAuthenticationListener`) touch Swing directly (`setVisible`, `dismissSheetOrDialog`, `showManagementWindow`), so EDT delivery is safer for them. Still, record it as a behaviour difference, not as preservation.
+4. **The SyncSender direct path is correct**, with this justification: the original constructor (`SyncSender.<init>` PC14–28) posts and then checks `handled` under the sender monitor before `wait()`. A synchronous `handleResponse` that sets `handled=true` before the constructor reaches PC24 therefore cannot lose a wakeup. The sender isn't published yet, so its monitor is uncontended. `postMessage` then rethrows `CommShutdownException` (PC75–86), which matches the precheck path.
+5. **The Runnable's catch clauses should follow the local idiom.** Use `catch(Exception)` plus `catch(LinkageError)`, as `RejectionRecovery` does, instead of `RuntimeException`. `handleResponse` can sneaky-throw a checked exception in bytecode. Wrap the `logger.error` call itself as `signal()` does, so a logging failure can't escape onto the EDT.
+6. **The fixed log literal is never visible in production.** `SafeLogAppender` prints only `RAID_ADMIN_ERROR`, once per process. A callback failure after any earlier ERROR is therefore silent on stderr. Tests must check the literal through a capture appender. The archive should not say production emits `RAID_ADMIN_STOPPED_CALLBACK_FAILED`.
+7. **Scheduling failure is only partly detectable.** Don't catch around `invokeLater`; let its exceptions reach the poster, which is new behaviour for this method and should be documented. An event posted to a disposed AppContext/EventQueue is dropped silently and cannot be detected. Say so explicitly rather than implying that guaranteed delivery has been verified.
+8. **The helper's dependencies need preconditions.** `BasicResponse(int,Object,int,Exception)` and `CommShutdownException()` must be accessible from package `compat`. Those classes aren't in either javap, so add a compile-time or reflective gate that they are public. The `invokestatic deliver` link happens on the poster thread outside the lock, so a `NoClassDefFoundError` goes to the poster. Cover this with a negative-control test.
+9. **Constant-pool and normalization order.**
+   - The new CP entries must be appended strictly after the audit19 entries, the last of which is the `retire` reference. That way, removing exactly that tail and restoring the `pool_count` u2 at offset 8 rebuilds the audit19 SHA. Pin the exact appended bytes: the `currentThread` NameAndType/Methodref reusing Class #15, plus the helper's Class, NameAndType and Methodref.
+   - `assert_preserved` line 299 must strip the admission edit before `assert_stop_lock_order`. Otherwise line 314 rejects `postMessageAsync` as "Non-target method changed" and line 509 fails the audit18 hash.
+   - Do the same in `assert_connect_failure_stop`, and in the javap gate.
+10. **Worker exemption.** The exemption is safe because `thread` is assigned only in the constructor and the worker's final exit check (PC34–53) holds the queue lock, so no worker post can follow it. "Finite reposts" is a property of the handlers, not of the patch: a handler that always reposts on −102 loops forever, exactly as it did in audit19. State that this is inherited behaviour.
+11. **A residual issue to note, not a blocker.** If the worker dies from an uncaught callback exception, `stopped` stays false (`handleResponse` at run PC509 is unguarded), so later posts still strand. This design doesn't address that case, so the archive shouldn't claim stranding is fully fixed.
+
+## Tests (bounded, using positive observations)
+
+- **Verifier and structure.** Load the patched class with `-Xverify:all`. In javap, check that the code length is 98, the three exception-table entries, and that the instructions from PC84 on are outside any range. Check that the reconstruction gives audit19 → 18 → 17 SHAs. As a negative control, corrupt one appended byte or the range end and expect the gate to fail.
+- **Original audit19 stranding vs the candidate.** Use an Unsafe-allocated Manager with `stopped=true` and the worker thread dead or never started. Under audit19, a post leaves `queue.size()==1` and no callback; observe this directly rather than relying on a timeout. Under the candidate the queue stays at 0 and exactly one −102 response arrives with a `CommShutdownException`.
+- **Precheck race.** Use a barrier: SyncSender passes `isStopped()`, then the test sets `stopped`, then the post runs. Expect `postMessage` to throw `CommShutdownException`, with `handled` already true before PC24. Count `wait()` entries at 0, for example through a subclass-free monitor probe or a thread-state check.
+- **Worker exemption.** With the worker as the current thread and `stopped=true`, the post is enqueued (size goes up by 1) and the helper is not called.
+- **Null handler.** No EventQueue events are posted; check this with a pushed custom EventQueue that counts events. No exception.
+- **Lock freedom.** Inside the callback, both SyncSender and the EDT Runnable assert `!Thread.holdsLock(queue)`. For the direct SyncSender call, also assert the poster doesn't hold the queue lock.
+- **Exactly once under concurrency.** N posters hit a stopped manager. Expect exactly N callbacks, each with its own context object compared by identity (`==`), and the queue stays at 0.
+- **Clone order.** A `clone()` that throws propagates out of a stopped post with the monitor released. Check the monitor is free afterwards with a `tryLock`-style probe thread, and that no callback happens.
+- **Hostile exception.** A handler throws an exception whose `toString`/`getMessage` themselves throw or record a canary. The capture appender sees only the literal, the canary is never invoked, and `Error`/`ThreadDeath` propagate.
+- **Scope.** Run everything headless (`java.awt.headless=true`) with no `Main`, profiles, sockets or controller. Use a fake RequestMessage whose `clone` returns itself.

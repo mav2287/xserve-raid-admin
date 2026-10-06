@@ -1,0 +1,102 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "manager_call_reference_classes": {
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": [
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      }
+    ],
+    "com/apple/xsr/net/CommunicationsManager.class": [
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V"
+      },
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "isStopped",
+        "descriptor": "()Z"
+      },
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "shutdown",
+        "descriptor": "()V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystem.class": [
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "shutdown",
+        "descriptor": "()V"
+      },
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      },
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V"
+      }
+    ],
+    "com/apple/xsr/som/RaidSystemAgent.class": [
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "postMessageAsync",
+        "descriptor": "(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;)V"
+      },
+      {
+        "owner": "com/apple/xsr/net/CommunicationsManager",
+        "method": "postMessage",
+        "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/xsr/net/Response;"
+      }
+    ]
+  },
+  "referencing_class_sha256": {
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "com/apple/xsr/net/CommunicationsManager.class": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+    "com/apple/xsr/som/RaidSystem.class": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb"
+  },
+  "handler_types_from_intake": [
+    "com/apple/xsr/DefaultSystemRegistry",
+    "com/apple/xsr/ManagementController$1",
+    "com/apple/xsr/ShutdownAction$1",
+    "com/apple/xsr/SystemMonitorController$13",
+    "com/apple/xsr/SystemMonitorController$14",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender",
+    "com/apple/xsr/som/RaidSystemAgent$1",
+    "com/apple/xsr/som/RaidSystemAgent$2",
+    "com/apple/xsr/som/RaidSystemAgent$3",
+    "com/apple/xsr/som/RaidSystemAgent$DelegateHandler"
+  ],
+  "bytecode_classes": [
+    "com/apple/xsr/DefaultSystemRegistry.class",
+    "com/apple/xsr/ManagementController$1.class",
+    "com/apple/xsr/ShutdownAction$1.class",
+    "com/apple/xsr/SystemMonitorController$13.class",
+    "com/apple/xsr/SystemMonitorController$14.class",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener.class",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener.class",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class",
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "com/apple/xsr/som/RaidSystem.class",
+    "com/apple/xsr/som/RaidSystemAgent$1.class",
+    "com/apple/xsr/som/RaidSystemAgent$2.class",
+    "com/apple/xsr/som/RaidSystemAgent$3.class",
+    "com/apple/xsr/som/RaidSystemAgent$DelegateHandler.class",
+    "com/apple/xsr/som/RaidSystemAgent.class"
+  ],
+  "bytecode_sha256": "58dd141e6329afcd7948c35211607012329fbf0966496290a6592831adf157d7",
+  "limits": "Constant-pool method-reference inventory, not proven call edges or lock holdings. Complete disassembly of referenced classes and known handler closure; no runtime app/controller/profile access."
+}

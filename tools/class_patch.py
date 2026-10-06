@@ -95,6 +95,13 @@ def embedded_dtd(data):
 
 
 def transform(entry, data):
+    result = _transform_reference(entry, data)
+    if entry == 'com/apple/xsr/net/CommunicationsManager.class':
+        result = stopped_admission(result)
+    return result
+
+
+def _transform_reference(entry, data):
     expected, name, descriptor = TARGETS[entry]
     if hashlib.sha256(data).hexdigest() != expected:
         raise ValueError('Original class hash mismatch; refusing method substitution')
@@ -296,6 +303,7 @@ def transform(entry, data):
 
 
 def assert_preserved(before, after, name, descriptor):
+    if name=='run':after=normalize_stopped_admission(after)
     if name=='run':after=assert_stop_lock_order(before,after)
     old, new = ClassFile(before), ClassFile(after)
     if before[:8] != after[:8] or after[10:old.pool_end] != before[10:old.pool_end]:
@@ -494,6 +502,7 @@ def stop_is_volatile(data):
 def assert_stop_lock_order(before,after):
     """Restore two reads and one field flag to reconstruct the entire audit.18 class."""
     if hashlib.sha256(before).hexdigest()!=TARGETS['com/apple/xsr/net/CommunicationsManager.class'][0]:raise ValueError('Original Manager reference differs')
+    after=normalize_stopped_admission(after)
     new=ClassFile(after)
     fields=[f for f in new.fields if f['name']=='stopped' and f['descriptor']=='Z']
     if len(fields)!=1 or fields[0]['access']!=0x42:raise ValueError('Stopped field must be private volatile only')
@@ -507,4 +516,61 @@ def assert_stop_lock_order(before,after):
     for pc in (18,45):restored[b+14+pc:b+14+pc+3]=bytes.fromhex('b6001b')
     restored=bytes(restored)
     if hashlib.sha256(restored).hexdigest()!=AUDIT18_MANAGER_SHA256:raise ValueError('Class differs from audit.18 outside stop lock edits')
+    return restored
+
+
+AUDIT19_MANAGER_SHA256='cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24'
+POST_DESCRIPTOR='(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/net/RequestMessage;Ljava/lang/Object;)V'
+POST_CODE=bytes.fromhex('00a30000005400060006000000382ab4000a593a04c22ab4000abb0015592b2cb900160100c000172db70018b60019572ab4000ab6001a1904c3a7000b3a051904c31905bfb100020008002c002f0000002f0034002f00000000')
+
+
+def admission_pool():
+    # Append ten exact constants after the measured audit.19 pool. Never renumber it.
+    def utf(value):
+        data=value.encode('ascii');return b'\x01'+word(len(data))+data
+    return (utf('currentThread')+utf('()Ljava/lang/Thread;')+b'\x0c'+word(395)+word(396)+
+            b'\x0a'+word(15)+word(397)+utf('compat/StoppedDelivery')+b'\x07'+word(399)+
+            utf('deliver')+utf('(Lcom/apple/xsr/net/CommunicationHandler;Lcom/apple/xsr/som/RaidSystem;Ljava/lang/Object;Z)V')+
+            b'\x0c'+word(401)+word(402)+b'\x0a'+word(400)+word(403))
+
+
+def admission_code():
+    code=bytearray(POST_CODE[14:70]);code[30:34]=bytes.fromhex('a7001a00')
+    # Both add and refusal monitorexit lie inside the new [56,84) cleanup range.
+    code.extend(bytes.fromhex('2ab4000b99000db8018e2ab40001a6000ab6001957a7ffd5581904c32b2ab4000e2d2bc1001eb80194b1'))
+    if len(code)!=98:raise ValueError('Admission code length differs')
+    body=bytes.fromhex('00060006')+struct.pack('>I',98)+code+bytes.fromhex('00030008002c002f0000002f0034002f000000380054002f00000000')
+    return POST_CODE[:2]+struct.pack('>I',len(body))+body
+
+
+def post_code(cls):
+    methods=[m for m in cls.methods if (m['name'],m['descriptor'])==('postMessageAsync',POST_DESCRIPTOR)]
+    if len(methods)!=1 or methods[0]['access']!=1:raise ValueError('Admission target identity differs')
+    attrs=[a for a in methods[0]['attributes'] if a[0]=='Code']
+    if len(attrs)!=1:raise ValueError('Admission Code missing or duplicated')
+    return attrs[0][1:]
+
+
+def stopped_admission(data):
+    if hashlib.sha256(data).hexdigest()!=AUDIT19_MANAGER_SHA256:raise ValueError('Admission reference must be exact audit.19 Manager')
+    cls=ClassFile(data);b,e=post_code(cls)
+    if cls.pool_count!=395 or data[b:e]!=POST_CODE:raise ValueError('Admission reference shape differs')
+    tag,value=cls.pool[15]
+    if tag!=7 or cls.text(u2(value,0))!='java/lang/Thread':raise ValueError('Admission Thread target differs')
+    result=data[:8]+word(405)+data[10:cls.pool_end]+admission_pool()+data[cls.pool_end:b]+admission_code()+data[e:]
+    if normalize_stopped_admission(result)!=data:raise ValueError('Admission reconstruction differs')
+    return result
+
+
+def normalize_stopped_admission(data):
+    cls=ClassFile(data);b,e=post_code(cls)
+    if data[b:e]==POST_CODE:return data  # Exact unchanged historical post Code only.
+    if cls.pool_count!=405 or data[b:e]!=admission_code():raise ValueError('Stopped admission differs from exact reviewed Code')
+    # Pool indices 1..394 and every unrelated byte must reconstruct the full prior class.
+    at=10
+    for index,(tag,value) in cls.pool.items():
+        if index < 395:at+=1+len(value)+(2 if tag==1 else 0)
+    if data[at:cls.pool_end]!=admission_pool():raise ValueError('Admission constant-pool tail differs')
+    restored=data[:8]+word(395)+data[10:at]+data[cls.pool_end:b]+POST_CODE+data[e:]
+    if hashlib.sha256(restored).hexdigest()!=AUDIT19_MANAGER_SHA256:raise ValueError('Class differs outside stopped admission edits')
     return restored

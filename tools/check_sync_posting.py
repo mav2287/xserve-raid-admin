@@ -41,13 +41,13 @@ def main():
     original=ROOT/'original/RAID_Admin_original.jar';verify_original(original)
     if a.candidate.is_symlink() or not a.candidate.is_file() or a.candidate.resolve()==original.resolve() or sha(a.candidate)!=a.candidate_sha256:raise ValueError('Candidate identity differs')
     identity,manifest=check_artifact(a.candidate.resolve().parents[3])
-    if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=json.loads((ROOT/'audit/stop-lock-recovery-expected.json').read_text())['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed complete artifact')
+    if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=json.loads((ROOT/'audit/stopped-post-recovery-expected.json').read_text())['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed complete artifact')
     if not a.development and manifest['source_dirty']:raise ValueError('Clean application source required')
     with zipfile.ZipFile(original) as z:before=z.read(ENTRY)
     with zipfile.ZipFile(a.candidate) as z:entries={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
     assert_preserved(before,entries[ENTRY],'<init>','(Lcom/apple/xsr/net/CommunicationsManager;Lcom/apple/xsr/net/RequestMessage;)V')
     assert_sync_preenqueue(before,entries[ENTRY])
-    sources=[ROOT/name for name in ('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/TransportObservation.java','tests/java/com/apple/xsr/net/HeaderObservation.java','patches/sun/io/MalformedInputException.java','tools/check_sync_posting.py','tools/class_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stop-lock-recovery-expected.json','audit/runtime-lock.json')]
+    sources=[ROOT/name for name in ('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/TransportObservation.java','tests/java/com/apple/xsr/net/HeaderObservation.java','patches/sun/io/MalformedInputException.java','tools/check_sync_posting.py','tools/class_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json')]
     hashes={str(x.relative_to(ROOT)):sha(x) for x in sources}
     runtimes=[];seen=set();runtime_lock=runtime_manifest()
     for root in a.runtime:
