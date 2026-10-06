@@ -46,14 +46,14 @@
   },
   "com/apple/xsr/net/HttpResponse.class": {
     "original_sha256": "e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75",
-    "patched_sha256": "82d8d7cd089edeeae2be033ddebd4a751232c70b8468f93cc428c23d50f89524",
+    "patched_sha256": "c737f32c87a6a756bddab7e10b6d282d8161543b105b639038de41708fe01d82",
     "method": [
       "getBody",
       "()[B"
     ],
     "original_major_version": 47,
     "patched_major_version": 47,
-    "scope": "getBody length lookup at 5, parse/allocation operands at 14/23/28, parseHeaders assignment at 93 and one constructor stream wrapper; all other Code unchanged"
+    "scope": "getBody length lookup at 5, parse/allocation operands at 14/23/28, parseHeaders assignment at 93 and one constructor stream wrapper; all other Code unchanged; parseHeaders invalid-header block 130..156 fixed terminal marker"
   },
   "com/apple/xsr/net/CommunicationsManager.class": {
     "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",

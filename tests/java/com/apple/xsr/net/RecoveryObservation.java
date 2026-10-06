@@ -66,13 +66,20 @@ public final class RecoveryObservation {
         String[] framing={"","Content-Length: 0\r\nContent-Length: 0\r\n","Content-Length: 0\r\ncontent-length: 0\r\n","Transfer-Encoding: chunked\r\n","Content-Length: 0\r\ntRaNsFeR-EnCoDiNg: identity\r\n"};
         byte[][] result=Arrays.copyOf(legacy,legacy.length+framing.length);
         for(int i=0;i<framing.length;i++)result[legacy.length+i]=("HTTP/1.1 200 X\r\n"+framing[i]+"\r\n").getBytes("US-ASCII");
-        return result;
+        try{Class.forName("compat.ResponseFraming").getMethod("invalidHeader");}
+        catch(NoSuchMethodException absent){return result;}
+        byte[][] all=Arrays.copyOf(result,result.length+2);
+        all[result.length]="HTTP/1.1 200 X\r\nContent-Length: 0\r\nDO_NOT_RENDER_SYNTHETIC_HEADER\r\n\r\n".getBytes("US-ASCII");
+        all[result.length+1]="HTTP/1.1 200 X\r\nContent-Length: 0\r\n: DO_NOT_RENDER_SYNTHETIC_HEADER\r\n\r\n".getBytes("US-ASCII");
+        return all;
     }
     private static final class Recorder extends AppenderSkeleton {
         final boolean throwing;int events;String owner,method;boolean safe;
         Recorder(boolean throwing){this.throwing=throwing;}
         @Override protected void append(LoggingEvent event){
             events++;Object value=event.getMessage();safe=value instanceof Exception;
+            check(!event.getRenderedMessage().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));
+            String[] trace=event.getThrowableStrRep();if(trace!=null)for(String line:trace)check(!line.contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));
             owner=event.getLocationInformation().getClassName();method=event.getLocationInformation().getMethodName();
             if(throwing && value!=null && value.getClass().getName().equals("compat.UntrustedResponseException"))throw new IllegalStateException("synthetic appender failure");
         }
@@ -114,7 +121,7 @@ public final class RecoveryObservation {
         Throwable caught=null;
         RequestMessage request=new AcpxMessageFactory().newGetStatusRequest();if(flag==1)request.setShutdownConnection(true);if(flag==2)request.setRestartConnection(true,0);
         try{a.send(request);throw new AssertionError("Rejection absent");}
-        catch(IllegalArgumentException expected){caught=expected;check(expected.getClass().getName().equals("compat.UntrustedResponseException")&&expected.getCause()==null&&Arrays.asList("Response length is invalid","Response length exceeds limit","Response headers exceed limit","Response length is missing","Response length is ambiguous","Response transfer encoding is unsupported").contains(expected.getMessage()));StringWriter text=new StringWriter();expected.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}
+        catch(IllegalArgumentException expected){caught=expected;check(expected.getClass().getName().equals("compat.UntrustedResponseException")&&expected.getCause()==null&&Arrays.asList("Response length is invalid","Response length exceeds limit","Response headers exceed limit","Response length is missing","Response length is ambiguous","Response transfer encoding is unsupported","Response header is invalid").contains(expected.getMessage()));StringWriter text=new StringWriter();expected.printStackTrace(new PrintWriter(text));check(!text.toString().contains("DO_NOT_RENDER_SYNTHETIC_HEADER"));}
         check(state.sent.size()==1&&state.closes==1);
         Method handler=Class.forName("compat.RejectionRecovery").getMethod("sendFailure",Throwable.class,AcpxConnection.class);
         check(handler.invoke(null,caught,(AcpxConnection)null)==caught);
@@ -144,6 +151,11 @@ public final class RecoveryObservation {
             org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.ERROR);ordinaryLogging();
             org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
             if(fixed){lengthGates();byte[][] cases=cases();for(byte[] raw:cases){check(raw.length<=1048577);pair(raw,0,false,false);for(boolean persistent:new boolean[]{true,false})for(int failure=0;failure<=2;failure++)direct(raw,persistent,failure,0);}
+                if(cases.length==15){
+                    for(int flag=1;flag<=2;flag++)for(int failure=1;failure<=2;failure++)direct(cases[13],true,failure,flag);
+                    for(int failure=0;failure<=2;failure++)direct(cases[13],true,failure,0,true);
+                    org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.ERROR);pair(cases[13],0,true,false);org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
+                }
                 for(int i=0;i<2;i++)for(int flag=1;flag<=2;flag++)for(int failure=1;failure<=2;failure++)direct(cases[i],true,failure,flag);markerIdentity();
                 for(int i=0;i<2;i++)for(int failure=0;failure<=2;failure++)direct(cases[i],true,failure,0,true);
                 for(int failure=1;failure<=2;failure++)pair(cases[0],failure,false,false);

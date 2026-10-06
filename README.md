@@ -57,6 +57,9 @@ This project contains compatibility patches for the original application. Full f
     fail through the same safe retirement path. This is an intentional security
     restriction with controller compatibility still unqualified. See
     [audit.11 evidence](audit/RESPONSE-FRAMING-POLICY.md).
+14. **Malformed-header rejection** — Fixed terminal errors for colonless and
+    leading-colon headers prevent peer-text exceptions and command replay on
+    that response path. See [audit.12 evidence](audit/MALFORMED-HEADER-GUARD.md).
 
 ## Requirements
 

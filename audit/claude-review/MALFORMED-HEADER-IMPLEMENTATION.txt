@@ -1,0 +1,49 @@
+I found no blockers and no path where a broken candidate is wrongly accepted. Where the build lacks the edit, or only partly has it, every gate I traced fails closed. There are a few gaps and stale limits texts worth fixing before the clean run. Everything below comes from reading the code and the two dev records; I ran nothing.
+
+## Confirmed sound
+
+- **Patch tool (`class_patch.py`)**
+  - The edit is hash-locked. It checks the exact original bytes at 130..156, `return` at 157, the branch bytes at 58 and 62, and that the method has no exception table and no sub-attributes (`class_patch.py:194`). Constant-pool entries #58/#59/#60 are checked by meaning.
+  - `assert_framing_assignment` (`class_patch.py:293-306`) masks only 93..95 and 130..156, then compares the whole Code attribute. That covers max_stack/max_locals and the code length.
+  - The test flips every byte from 130 to 157.
+- **Independent check (`check_security.py:113-124`)**
+  - It expects exactly 26 instructions in the window: `invokestatic`, `athrow`, 23 `nop`s and `return`.
+  - The rest of `parseHeaders` must match after masking, the branch list must be identical, and nothing may reference #58/#59/#60.
+  - The helper must be exactly `new/dup/ldc/invokespecial/areturn` and must still have 3 public static methods.
+- **Bytecode fact:** `build/http-response-allocation-bytecode.txt:222` shows 130 is the only place `HttpResponse` creates a `ProtocolException`.
+- **Helper:** `invalidHeader()` takes no arguments, creates a fresh object each call and never returns null. The marker's constructor is package-private and takes no cause.
+- **Explicit-mode gates**
+  - `completed_io` expects exact lines in both modes.
+  - The Java fixture detects the mode itself, but it fails closed if the helper is present and the edit is not: the `ProtocolException` branch asserts `!fixed`.
+  - The dev record shows legacy lines for the original jar (5505…) and fixed lines for the candidate (744e…).
+  - The ordinary IO lines are identical across both jars: drop retry, restart replay, the null-message worker NPE and shallow-clone.
+- **Recovery:** 135 lines is the correct count: 1+1+15×7+8+8+1+6+2+1+1+1.
+- **Header corpus:** sha `477ec06…` is identical to the earlier clean header, framing, length and recovery records.
+
+## Gaps and narrow fixes
+
+1. **Header corpus accepts an unpatched `parseHeaders`.** `failureOutcome` (`HeaderObservation.java:38-44`) turns the marker into `"java.net.ProtocolException"`. A real `ProtocolException` also produces that string in fixed mode, so the corpus hash still matches if block 130 was never patched. Other gates would catch that, but the claim that only the exact marker is normalized is currently half true. Fix: when `fixed` and `ResponseFraming.invalidHeader` exists, `check(!(failed instanceof java.net.ProtocolException))`. Since 130 is the only `ProtocolException` site, the hash should not change.
+2. **`--invalid-header-policy` doesn't require `--headers`** (`check_architectures.py:41`). The corpus is part of the claim, so add `or not args.headers`.
+3. **No unit test for the IO gate in fixed mode.** `test_transport_comparison.py` should check three things:
+   - `completed_io(fixed_lines, True)` passes.
+   - `completed_io(legacy_lines, True)` fails.
+   - `completed_io(fixed_lines, False)` fails.
+4. **Some limits and evidence text is stale or missing:**
+   - **`check_transport.py:193` `io_limits`:**
+     - "One invalid-header retry… repeated bad peers" and "synchronous callers… remain unmeasured" now describe only the original jar.
+     - It should say that -102 on the set-time mutation does not mean "not applied".
+     - It should say that the CLI direct path is unqualified.
+   - **`intentional_differences`** (`check_transport.py:195`) doesn't mention invalid-header.
+   - **`check_security.py`:** neither the `limits` text nor the `getBody` `verified_methods` string mentions the 130..156 block, which the tool does verify. Add the known limit that `" : x"` still reaches `setHeader` with an empty name after trimming.
+   - **`recovery_limits`:** the flags, close-IO, codec and logger-throw loops use only the colonless case (`cases[13]`). The empty-name case (`cases[14]`) gets just one pair run and six direct runs. Say so, or add `cases[14]` to the loops.
+   - **`security-patches.json:56`** has a typo: "block130..156".
+5. **What the clean evidence needs to cover:**
+   - The candidate hash changed, but `transport-2` ran without `--default-logging`, `--parser-policy`, `--allocation-policy` or `--header-policy`. Run them against the new candidate, or state that those records belong to the previous one.
+   - No `check_security` output was supplied, so the independent preservation check is reviewed only statically here.
+   - The `check_architectures` output records no commit or dirty flag. It ties to provenance only through the candidate sha, matched against `check_security`/`check_artifact`.
+
+## Residual risks to record, not fix
+
+- **Error while building the marker.** If creating the marker throws an Error (OOM, StackOverflowError), it escapes `run`. The worker dies the same way as with the null-message NPE: closed, with no replay.
+- **CLI direct handlers.** According to `direct-send-reference-inventory.json`, neither `DefaultHandler` nor `$15` catches IOException or RuntimeException around `send`. The checked `ProtocolException` they used to get becomes an unchecked `IllegalArgumentException` that reaches the dispatcher. The message is fixed, but exit behaviour is unqualified. That inventory file is untracked and no gate pins it, so record it as static-only.
+- **Unchanged as intended:** the null-message worker death, the broad IOException requeue rule, and replay after other IO failures such as a truncated body.

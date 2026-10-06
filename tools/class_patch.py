@@ -164,6 +164,8 @@ def transform(entry, data):
         length_reference=append(10,word(framing_owner)+word(length_signature))
         set_signature=append(12,word(utf8('setHeader'))+word(utf8('(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V')))
         set_reference=append(10,word(framing_owner)+word(set_signature))
+        invalid_signature=append(12,word(utf8('invalidHeader'))+word(utf8('()Ljava/lang/RuntimeException;')))
+        invalid_reference=append(10,word(framing_owner)+word(invalid_signature))
         replacement[14+5:14+8]=b'\xb8'+word(length_reference)
         replacement[14+15:14+17]=word(parse_reference)
         replacement[14+24:14+26] = word(owner)
@@ -188,7 +190,13 @@ def transform(entry, data):
         if len(attrs)!=1:raise ValueError('Header parser Code missing')
         _,hb,he=attrs[0]
         if u4(data,hb+10)!=158 or data[hb+14+88:hb+14+99]!=bytes.fromhex('2a19041905b600361904b6'):raise ValueError('Header assignment window differs')
+        code=data[hb+14:hb+14+158]
+        if code[130:157]!=bytes.fromhex('bb003a59bb001c59b7001d123bb6001f2cb6001fb60022b7003cbf') or code[157]!=177 or code[58:61]!=bytes.fromhex('9f0048') or code[62:65]!=bytes.fromhex('9e0044') or data[hb+14+158:he]!=bytes(4):raise ValueError('Invalid header window, branches or metadata differ')
+        ct,cv=cls.pool[58];st,sv=cls.pool[59];mt,mv=cls.pool[60]
+        nt,nv=cls.pool[u2(mv,2)]
+        if ct!=7 or cls.text(u2(cv,0))!='java/net/ProtocolException' or st!=8 or cls.text(u2(sv,0))!='Invalid HTTP header: ' or mt!=10 or u2(mv,0)!=58 or nt!=12 or cls.text(u2(nv,0))!='<init>' or cls.text(u2(nv,2))!='(Ljava/lang/String;)V':raise ValueError('Invalid header original linkage differs')
         header_replacement=bytearray(data[hb:he]);header_replacement[14+93:14+96]=b'\xb8'+word(set_reference)
+        header_replacement[14+130:14+157]=b'\xb8'+word(invalid_reference)+b'\xbf'+bytes(23)
         edits=sorted([(begin,end,bytes(replacement)),(cb,ce,constructor_replacement),(hb,he,bytes(header_replacement))])
         tail=bytearray();cursor=cls.pool_end
         for eb,ee,value in edits:tail.extend(data[cursor:eb]);tail.extend(value);cursor=ee
@@ -290,7 +298,10 @@ def assert_framing_assignment(before,after):
         return bytearray(data[begin:end])
     a,b=code(old,before),code(new,after)
     assert_static_reference(new,b,14+93,'compat/ResponseFraming','setHeader','(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V')
+    assert_static_reference(new,b,14+130,'compat/ResponseFraming','invalidHeader','()Ljava/lang/RuntimeException;')
     if len(a)!=len(b):raise ValueError('Header parser Code length changed')
+    if b[14+133:14+157]!=b'\xbf'+bytes(23):raise ValueError('Invalid header terminal block differs')
+    b[14+130:14+157]=a[14+130:14+157]
     b[14+93:14+96]=a[14+93:14+96]
     if a!=b:raise ValueError('Header parser differs outside framing assignment')
 

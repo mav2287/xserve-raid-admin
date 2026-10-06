@@ -5,6 +5,10 @@ import com.apple.xsr.net.HttpResponse;
 /** Enforces a single explicit length supported by the legacy response reader. */
 public final class ResponseFraming {
     private ResponseFraming() { }
+    /** No peer data can enter this terminal rejection. */
+    public static RuntimeException invalidHeader() {
+        return new UntrustedResponseException("Response header is invalid");
+    }
     private static boolean header(String name,String expected) {
         if(name.length()!=expected.length())return false;
         for(int i=0;i<name.length();i++) {

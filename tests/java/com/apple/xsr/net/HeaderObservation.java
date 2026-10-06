@@ -27,7 +27,7 @@ public final class HeaderObservation {
     }
     private static String repeat(String s,int n){StringBuilder b=new StringBuilder();for(int i=0;i<n;i++)b.append(s);return b.toString();}
     private static byte[] bytes(String s)throws Exception{return s.getBytes("US-ASCII");}
-    private static boolean fixed;
+    private static boolean fixed,invalidHeaderFixed;
     private static java.lang.reflect.Method wrap,parse,line;
     private static java.lang.reflect.Field input,phase,budget,lineCount,characters,newline;
     private static sun.misc.Unsafe unsafe;
@@ -35,11 +35,18 @@ public final class HeaderObservation {
         HttpResponse response=(HttpResponse)unsafe.allocateInstance(HttpResponse.class);
         response.headers=new HashMap();input.set(response,stream);return response;
     }
+    private static String failureOutcome(Throwable failed) {
+        if(failed.getClass().getName().equals("compat.UntrustedResponseException")) {
+            check("Response header is invalid".equals(failed.getMessage())&&failed.getCause()==null);
+            return "java.net.ProtocolException"; // deliberate type change; preserve parse/consumption oracle
+        }
+        check(failed instanceof IOException && !(invalidHeaderFixed && failed instanceof java.net.ProtocolException));return failed.getClass().getName();
+    }
     private static void tracking(byte[] raw,String outcome,int consumed)throws Exception {
         Source source=new Source(raw);InputStream bounded=(InputStream)wrap.invoke(null,source);
         HttpResponse response=shell(bounded);String actual;
         try{parse.invoke(response);actual="accepted:"+new TreeMap(response.headers).toString();}
-        catch(java.lang.reflect.InvocationTargetException failure){check(failure.getCause() instanceof IOException);actual=failure.getCause().getClass().getName();}
+        catch(java.lang.reflect.InvocationTargetException failure){actual=failureOutcome(failure.getCause());}
         check(actual.equals(outcome)&&source.consumed()==consumed&&budget.getInt(bounded)==consumed&&phase.getBoolean(bounded)==outcome.startsWith("accepted:"));
         Source legacy=new Source(raw);HttpResponse oracle=shell(legacy);int calls=1;
         String status=(String)line.invoke(oracle);
@@ -49,7 +56,8 @@ public final class HeaderObservation {
     private static String observation(byte[] raw)throws Exception{
         Source source=new Source(raw);String result;
         try {HttpResponse response=new HttpResponse(new Memory(source));result="accepted:"+new TreeMap(response.headers).toString();}
-        catch(IOException failure){result=failure.getClass().getName();}
+        catch(IOException failure){result=failureOutcome(failure);}
+        catch(IllegalArgumentException failure){result=failureOutcome(failure);}
         if(fixed)tracking(raw,result,source.consumed());
         return result+":"+source.consumed();
     }
@@ -82,6 +90,7 @@ public final class HeaderObservation {
         OfflineGuard.install();check(args.length==1&&(args[0].equals("true")||args[0].equals("false")));
         fixed=Boolean.parseBoolean(args[0]);PrintStream out=System.out,err=System.err;
         if(fixed){
+            try{Class.forName("compat.ResponseFraming").getMethod("invalidHeader");invalidHeaderFixed=true;}catch(ClassNotFoundException absent){}catch(NoSuchMethodException absent){}
             Class<?> helper=Class.forName("compat.BoundedHeaderStream");wrap=helper.getMethod("wrap",InputStream.class);
             input=HttpResponse.class.getDeclaredField("inStream");input.setAccessible(true);
             parse=HttpResponse.class.getDeclaredMethod("parseHeaders");parse.setAccessible(true);

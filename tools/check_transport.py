@@ -22,7 +22,7 @@ def completed(result, parser_policy=False, allocation_policy=False, header_polic
     return lines
 
 
-def completed_io(result):
+def completed_io(result, invalid_header_policy=False):
     expected=[
         'io invalid-header message_has_peer_line=true; direct_sends=1',
         'queue_response invalid-header-read-retry result=0 sends=2 terminal_callbacks=1',
@@ -32,12 +32,21 @@ def completed_io(result):
         'io null-message worker-escaped=NPE; callbacks=0; sends=1; stopped=false; connected=true; later_queue=1',
         'io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1',
         'PASS IO characterization; guarded_operations=0']
+    if invalid_header_policy:
+        expected[:3]=['io invalid-header message_has_peer_line=false; direct_sends=1','queue_response invalid-header-read-terminal result=-102 sends=1 terminal_callbacks=1','queue_response invalid-header-mutation-terminal result=-102 sends=1 terminal_callbacks=1']
+        expected.insert(-1,'io sync invalid-header fixed-IOException; no-peer-or-cause; sends=1')
     lines=result.splitlines()
     if lines!=expected:raise ValueError('IO characterization differs; raw output withheld')
     return lines
 
 
-def common_observations(lines, require_length_policy=False, require_framing_policy=False):
+def common_observations(lines, require_length_policy=False, require_framing_policy=False, require_invalid_header_policy=False):
+    changed='response invalid-header framing-rejected'
+    legacy_header='response invalid-header protocol-error'
+    if require_invalid_header_policy and lines.count(changed)!=1:raise ValueError('Required invalid-header rejection missing')
+    if changed in lines:
+        if lines.count(changed)!=1 or legacy_header in lines:raise ValueError('Invalid-header rejection coverage differs')
+        lines=[legacy_header if line==changed else line for line in lines]
     framing_map={
         'response missing-length framing-rejected':'response missing-length empty',
         'response missing-length-idle framing-rejected':'response missing-length-idle empty',
@@ -72,6 +81,7 @@ def main():
     parser.add_argument('--allocation-policy', action='store_true', help='Candidate-only oversized response rejection before allocation; original never receives oversized fixture')
     parser.add_argument('--length-policy', action='store_true', help='Require candidate malformed/negative-length markers; recovery separately recorded')
     parser.add_argument('--framing-policy', action='store_true', help='Require candidate explicit unambiguous length policy')
+    parser.add_argument('--invalid-header-policy', action='store_true', help='Require fixed terminal malformed-header rejection')
     parser.add_argument('--io-characterization', action='store_true', help='Bounded memory queue/null-message/shallow-clone/restart-request characterization')
     parser.add_argument('--header-policy', action='store_true', help='Candidate-only header line/count/aggregate rejection and follow-on state')
     args = parser.parse_args()
@@ -124,7 +134,7 @@ def main():
                 if args.io_characterization:
                     output=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,
                         '-cp',tmp+':'+str(jar.resolve()),'com.apple.xsr.net.TransportObservation','io-characterization'],timeout=20)
-                    io_observations.append({'jar_sha256':identity,'architecture':architecture,'results':completed_io(output)})
+                    io_observations.append({'jar_sha256':identity,'architecture':architecture,'results':completed_io(output,args.invalid_header_policy and jar!=original)})
                 if args.default_logging and jar != original:
                     configured = run_jdk(home, 'java', ['-Xverify:all','-Djava.awt.headless=true','-Duser.home=' + tmp,
                     '-cp',tmp + ':' + str(jar.resolve()),'com.apple.xsr.net.TransportObservation','default-logging'], timeout=20)
@@ -163,6 +173,10 @@ def main():
     if args.framing_policy:
         for observation in observations:
             if observation['jar_sha256']!=sha(original):common_observations(observation['results'],True,True)
+    if args.invalid_header_policy:
+        if not args.io_characterization:raise ValueError('Invalid-header qualification requires IO observations')
+        for observation in observations:
+            if observation['jar_sha256']!=sha(original):common_observations(observation['results'],True,True,True)
     if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in sources} or tool_hash != sha(Path(__file__)):
         raise ValueError('Fixture source changed during observation')
     if helper_hashes != {str(p.relative_to(ROOT)): sha(p) for p in helpers}:
@@ -174,10 +188,11 @@ def main():
         'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for arch in seen},
         'fixture_sources': source_hashes, 'harness_sources':helper_hashes, 'observations': observations,'parser_observations':parser_observations,'allocation_observations':allocation_observations,'header_observations':header_observations,
         'required_length_policy':args.length_policy,
-        'required_framing_policy':args.framing_policy,
+        'required_framing_policy':args.framing_policy,'required_invalid_header_policy':args.invalid_header_policy,
         'io_observations':io_observations,
-        'io_limits':'Initial G10-a cases only, not classifier qualification; factory/RPC metadata and complete caller/UI/sequencing inventories remain open. Actual send/dispatch with bounded memory responses. Manager constructor is bypassed; a standalone fixture worker calls run, not the constructor-started CommMgr thread. Its custom uncaught handler captures only class/throw site; default thread-group stderr behavior is not measured. Null IOException is injected at the transport seam, not shown to originate from a real socket/parser. One invalid-header retry is bounded only by the scripted valid second reply; repeated bad peers are not qualified. Restart is synthetic serialization on memory output; shutdown_flag reports the request flag, not transport effect or a controller operation. Later async post after worker exit remains queued; synchronous callers and polling blockage remain unmeasured. Header properties are changed synchronously after enqueue, not a parameter-structure or concurrency stress test. Reconnect uses invalid-address callback injection, not TCP/backoff.' if args.io_characterization else None,
+        'io_limits':'Initial G10-a cases only, not classifier qualification; factory/RPC metadata and complete caller/UI/sequencing inventories remain open. Actual send/dispatch with bounded memory responses. Manager constructor is bypassed; a standalone fixture worker calls run, not the constructor-started CommMgr thread. Its custom uncaught handler captures only class/throw site; default thread-group stderr behavior is not measured. Null IOException is injected at the transport seam, not shown to originate from a real socket/parser. Original/audit.11 invalid-header retry is bounded only by the scripted valid second reply; with explicit invalid-header policy the candidate returns -102 after one send. Repeated bad peers and real reconnects are not qualified. Restart is synthetic serialization on memory output; shutdown_flag reports the request flag, not transport effect or a controller operation. Later async post after null-message worker exit remains queued; synchronous callers after that death and polling blockage remain unmeasured. Fixed malformed-header synchronous IOException is measured with explicit policy. Mutation -102 does not mean not applied; outcome is unconfirmed. CLI direct entry/exit remains unqualified. Header properties are changed synchronously after enqueue, not a parameter-structure or concurrency stress test. Reconnect uses invalid-address callback injection, not TCP/backoff.' if args.io_characterization else None,
         'length_recovery_scope':'Follow-on coverage is a reference to separately recorded architecture --recovery results, not a transport-tool claim.',
+        'invalid_header_scope':'Fixed terminal colonless/leading-colon rejection only; unconfirmed controller outcome, ordinary IO replay/null-message failure unchanged.' if args.invalid_header_policy else None,
         'intentional_differences': 'When ResponseFraming exists, five missing/duplicate/chunked direct cases reject and one lowercase direct/queue case parses its plist; complete exact-line coverage is required. When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. All remaining transport observations must match.',
         'limits': 'Original queue and ACP send with bounded synthetic memory HttpConnection replies; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Two-request ordering observed after one injected drop, not concurrency or indefinite retry qualification. ACP status decoding through BasicResponse, not authentication UI or real controller. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. Each reply uses a fresh stream; shared-socket residual bytes/desynchronization and real EOF/timeout timing are not qualified. Synthetic idle streams throw immediately after their scripted bytes. Per-process 20-second timeout is the outer bound. Candidate-only allocation probes use empty bodies with advertised 16777217 and 2147483647 bytes, 64 MiB heap, terminal -102 and zero reconnects; original JAR is never passed these oversized declarations. Boundary gate exercised without allocating ceiling-sized buffers. Candidate header-policy tests cover line 65537, field 129, aggregate 1048577, sticky rejection and terminal -102 without resend; follow-on security recovery is recorded separately by the architecture recovery fixture. No TCP, hardware, polling, or real reconnect/backoff qualification. x64 on this arm64 host is Rosetta, not physical Intel qualification.'}, indent=2))
 

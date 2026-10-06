@@ -1,0 +1,54 @@
+## Verdict
+
+I found no blocking problems in the design. The bytecode edit is sound for a version-47 class, and the recovery route matches what the existing markers already use. Several gates and fixtures **must** change, or the build/check tools will reject the edit or pass for the wrong reason. Those are listed below.
+
+Scope note: I read the eight files you listed. I also searched `build/acpx-response-callers-bytecode.txt` to confirm which errors the `send` catch covers. I did not read `HttpConnection.getResponse`, `build/cli-send-bytecode.txt` or `tools/check_transport.py`. Points that depend on them are marked as inferred.
+
+## Verifier, linkage and offsets: sound
+
+- **Byte window.** PC130..156 is exactly 27 bytes. Using the constant-pool indexes in the disassembly, the original bytes should be `bb003a 59 bb001c 59 b7001d 123b b6001f 2c b6001f b60022 b7003c bf`. Your replacement, `b8 XXXX bf` followed by 23×`00` and the unchanged `b1` at 157, keeps the code length at 158.
+- **Branches.** Only `58: if_icmpeq 130` (`9f0048`) and `62: ifle 130` (`9e0044`) enter the window. Every other branch targets 32, 49 or 157. Since a NOP is one byte, every PC from 133 to 156 starts an instruction. So every original instruction start in the window (130, 133, 134, 137, … 156) is still one, and any LineNumberTable or LocalVariableTable entries inside the Code attribute stay valid. Putting `invokestatic` first, as proposed, is the right choice.
+- **Verifier.** A version-47 class uses the old type-inference verifier, which never visits the unreachable NOPs. `athrow` with a `RuntimeException` on the stack is valid. `max_stack` only needs 1 (it was 4 or more). `parseHeaders` has no exception table. An unchecked throw needs no `throws` entry.
+- **Linkage.** The call crosses packages, so `invalidHeader` must be `public static`. Reuse the `compat/ResponseFraming` class entry that `transform` already appends, and add only a NameAndType and a Methodref. `ResponseFraming` is already linked through `setHeader` at PC93. Its presence in the jar is therefore already proven, but a missing **method** would only show up on the bad-header path. That makes a static check for the method necessary.
+- **Unused constant-pool entries.** #58, #59 and #60 (`ProtocolException` and `"Invalid HTTP header: "`) stay in the pool but nothing references them. That is harmless. Add a check that no instruction in the patched class refers to them.
+- **Cases covered.** The block handles both `indexOf==-1` (no colon) and `indexOf==0` (leading colon, empty name). Call it "colonless or empty-name header" and add a test for each. A line like `" : x"` still goes through `setHeader` with an empty name, as before. That case is out of scope, but list it as a known limit.
+
+## Recovery path: consistent with the existing markers
+
+- `send`'s catch range is 32–271, and `getResponse` is at PC183, so it is covered. The marker catch entry is inserted second, after `PropertyListException` and before the `any` finally entry. The rethrow at 396 lies outside every range, so the finally block cannot catch it again or replace it.
+- In `run`, the marker is not an `IOException`, so the PC462 `Exception` handler catches it. `report` then sets `connected=false` and closes the connection, and the request gets a single -102 response. It is not requeued, so the next request reconnects. This is the same throw site (inside `parseHeaders`, during the `HttpResponse` constructor) and the same exception class as the existing `setHeader` and `BoundedHeaderStream` rejections. That is strong, though indirect, evidence that `getResponse` does not get in the way (inferred: I did not read it).
+- **Helper failure while building the exception.** If creating the exception itself fails (OOM, StackOverflowError, NoSuchMethodError), an Error results. The finally block runs and the error escapes `run`. The worker thread dies, much like the null-message NPE bug. This fails closed with no replay, but it is a residual risk to record. Keep the helper as exactly `new / dup / ldc / invokespecial / areturn`: it must never return null (`athrow null` would become a non-marker NPE), and it should create a fresh instance each call (a shared instance would collect stack traces and suppressed exceptions). Returning `RuntimeException` rather than the marker type is fine.
+- **Direct (CLI) callers.** Code that calls `send` directly used to get a checked `ProtocolException` and will now get an unchecked `IllegalArgumentException`. This puts the invalid-header case in the same unchecked group as the length, header and framing markers, so it is not a new kind of risk. However, the CLI path has to be re-observed for this case, including exit behaviour and whether any peer text appears (inferred: I did not read `cli-send-bytecode.txt`). The synchronous `postMessage` path turns the marker into `IOException(getMessage())`. That message is fixed text, which is acceptable; add a test for it.
+- **Mutations.** Once this lands, a mutation that hits a bad header returns -102 and is not replayed. -102 does not mean "not applied", because the controller may already have acted on the request. Say so in the limits text.
+
+## Secrets
+
+`invalidHeader()` takes no arguments, so it structurally cannot carry the peer line. The PC434 IOException log line, which used to print the peer text, is no longer reached for this case. `report` logs only the fixed message plus stack frames.
+
+## Required gate changes (otherwise the edit is rejected or passes vacuously)
+
+**`tools/class_patch.py`**
+1. In `transform`, check the exact 27-byte original window, `code[157]==0xb1`, the branch bytes at 58 and 62, and #58/#59/#60 by meaning (class `java/net/ProtocolException`, the exact string, the `<init>(Ljava/lang/String;)V` Methodref), in the same style as the existing checks.
+2. `assert_framing_assignment` currently masks only 93..96 and requires everything else to be identical, so it will reject the edit. Extend it to check the exact replacement bytes and use `assert_static_reference(..., 'invalidHeader', '()Ljava/lang/RuntimeException;')`.
+3. Add an instruction walk over the patched `parseHeaders`: every instruction boundary must be valid, the set of branch targets must equal the original set, `max_stack`/`max_locals` must be unchanged, and the exception table must stay empty.
+
+**`tools/check_security.py`**
+4. The `parseHeaders` comparison in `independent_preservation` requires the same number of lines and exactly one change, so it will fail. Rewrite it to drop offsets 130–157 from both listings, compare what remains, and then require exactly `130: invokestatic … ResponseFraming.invalidHeader:()Ljava/lang/RuntimeException;`, `133: athrow`, NOPs at 134–156 and `157: return`.
+5. Raise the framing helper's `public static` count from 2 to 3. Require `"Response header is invalid"` and the new descriptor. Pin the `invalidHeader` opcodes and its Methodref to `UntrustedResponseException."<init>":(Ljava/lang/String;)V`.
+6. Add an inventory showing that the only `HttpResponse.<init>` Methodref is in `HttpConnection.getResponse` (2844 classes), alongside the existing `getResponse` inventory.
+7. Update `EXPECTED` and the `limits` text.
+
+**Fixtures**
+8. **Detection, the most important item.** `framingPolicy()` only checks that the class exists, and the class already exists in the current candidate. If invalid-header expectations depend on self-detection, a build where the edit silently didn't apply would be judged against legacy expectations and pass. Pass the mode explicitly from the driver (original jar means legacy, candidate means fixed), or at least detect the `invalidHeader` method and have `check_transport.py` assert which mode ran.
+9. `TransportObservation`:
+   - `responses()` currently expects `"invalid-header"` to give `protocol-error`. In fixed mode it should be the marker, with the exact message, no cause, `acp.connection==null` and sends=1.
+   - `ioCharacterization` asserts the ProtocolException containing the peer text and replay counts of 1. Keep it running against the **original** jar as before-and-after evidence, and add a fixed-mode version: -102, sends=1, no requeue, for both the read and the mutation case.
+10. `RecoveryObservation`:
+    - Add `"Response header is invalid"` to the allowed messages in `direct()`.
+    - Add `cases()` with `"HTTP/1.1 200 X\r\nContent-Length: 0\r\nDO_NOT_RENDER_SYNTHETIC_HEADER\r\n\r\n"` and with `": DO_NOT_RENDER_SYNTHETIC_HEADER"`. Putting a valid header first shows the rejection isn't hidden behind an earlier one. The stack-trace check for the sentinel string will then cover them.
+    - `pair()` then shows the -102 response, a new connection (connections 1 then 2), a different second request on the wire, and that the sentinel never appears.
+    - The flag, close-failure and legacy-body-codec loops only use `cases[0..1]`. Add at least one invalid-header case to each, because the marker path skips the original finally block that handles the shutdown and restart flags.
+    - Add a run with logging at ERROR and the `Recorder` appender that checks the rendered message and throwable contain no sentinel text.
+11. All runs need `-Xverify:all`, with both the original and the candidate executed.
+
+**Unchanged.** As you stated, the null-message NPE that kills the worker, the broad IOException requeue rule, and replay after other IOExceptions (e.g. a truncated body) are all left as they are. The claim should cover only this one rejection on the in-memory test transport, with no broader security or controller-qualified claim.

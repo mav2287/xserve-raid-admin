@@ -19,9 +19,17 @@ class ClassPatchTests(unittest.TestCase):
             for at in (begin+14+offset,begin+14+offset+1,begin+14+offset+2,begin+7,end-1):
                 changed=bytearray(after);changed[at]^=1
                 with self.subTest(method=name,offset=at),self.assertRaises(ValueError):verifier(before,bytes(changed))
-        for value in (b'compat/ResponseFraming',b'lengthHeader',b'setHeader',b'(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V'):
+        for value in (b'compat/ResponseFraming',b'lengthHeader',b'setHeader',b'invalidHeader',b'()Ljava/lang/RuntimeException;',b'(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V'):
             changed=bytearray(after);at=after.rfind(value);self.assertGreaterEqual(at,0);changed[at]^=1
             with self.assertRaises(ValueError):assert_preserved(before,bytes(changed),'getBody','()[B')
+    def test_invalid_header_block_and_padding_are_locked(self):
+        entry='com/apple/xsr/net/HttpResponse.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);cls=ClassFile(after)
+        method=next(m for m in cls.methods if m['name']=='parseHeaders');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
+        for offset in range(130,158):
+            changed=bytearray(after);changed[begin+14+offset]^=1
+            with self.subTest(offset=offset),self.assertRaises(ValueError):assert_framing_assignment(before,bytes(changed))
     def test_golden_outputs_preserve_every_non_target_method(self):
         golden = json.loads((ROOT/'audit/security-patches.json').read_text())
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:

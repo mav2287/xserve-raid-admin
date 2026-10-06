@@ -31,10 +31,11 @@ def http_response_reference_inventory(original):
                 if tag!=10:continue
                 _,owner=cls.pool[u2(value,0)];_,signature=cls.pool[u2(value,2)]
                 owner=cls.text(u2(owner,0));name=cls.text(u2(signature,0));descriptor=cls.text(u2(signature,2))
-                if (owner,name) in (('com/apple/xsr/net/HttpConnection','getResponse'),('com/apple/xsr/net/HttpResponse','getInputStream')):
+                if (owner,name) in (('com/apple/xsr/net/HttpConnection','getResponse'),('com/apple/xsr/net/HttpResponse','getInputStream'),('com/apple/xsr/net/HttpResponse','<init>')):
                     rows.append({'class':entry,'owner':owner,'method':name,'descriptor':descriptor})
     expected=[{'class':'com/apple/xsr/net/AcpxConnection.class','owner':'com/apple/xsr/net/HttpConnection','method':'getResponse','descriptor':'()Lcom/apple/xsr/net/HttpResponse;'},
               {'class':'com/apple/xsr/net/AcpxConnection.class','owner':'com/apple/xsr/net/HttpResponse','method':'getInputStream','descriptor':'()Ljava/io/InputStream;'}]
+    expected.append({'class':'com/apple/xsr/net/HttpConnection.class','owner':'com/apple/xsr/net/HttpResponse','method':'<init>','descriptor':'(Lcom/apple/xsr/net/HttpConnection;)V'})
     if count!=2844 or rows!=expected:raise ValueError('HTTP response reference inventory differs')
     return {'class_count':count,'methodrefs':rows,'scope':'Exact constant-pool Methodrefs; reflection and invocation reachability are not established.'}
 
@@ -111,8 +112,16 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
             raise ValueError('Independent constructor preservation failed')
         def headers(text):return re.search(r'^  private void parseHeaders\(\).*?(?=^  \S|^})',text,re.M|re.S)[0]
         a,b=headers(before),headers(after)
-        changes=[(x,y) for x,y in zip(a.splitlines(),b.splitlines()) if x!=y]
-        if len(a.splitlines())!=len(b.splitlines()) or len(changes)!=1 or '93: invokevirtual' not in changes[0][0] or 'Method setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V' not in changes[0][0] or not re.fullmatch(r'\s+93: invokestatic\s+#\d+\s+// Method compat/ResponseFraming.setHeader:\(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;\)V',changes[0][1]):raise ValueError('Independent framing assignment differs')
+        ai,bi=instructions(a),instructions(b)
+        window=[(int(offset),rest) for offset,rest in bi if 130<=int(offset)<=157]
+        if len(window)!=26 or window[0][0]!=130 or not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/ResponseFraming.invalidHeader:\(\)Ljava/lang/RuntimeException;',window[0][1]) or window[1:]!=[(133,'athrow')]+[(i,'nop') for i in range(134,157)]+[(157,'return')]:raise ValueError('Independent invalid-header block differs')
+        old_assignment=next(rest for offset,rest in ai if offset=='93')
+        new_assignment=next(rest for offset,rest in bi if offset=='93')
+        if not old_assignment.startswith('invokevirtual') or 'Method setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V' not in old_assignment or not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/ResponseFraming.setHeader:\(Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;\)V',new_assignment):raise ValueError('Independent framing assignment differs')
+        def mask(text):return re.sub(r'^\s+(?:93|13[0-9]|14[0-9]|15[0-6]):.*\n','',text,flags=re.M)
+        if mask(a)!=mask(b):raise ValueError('Header parser differs outside allowed blocks')
+        branches=lambda code:[(offset,rest) for offset,rest in code if re.match(r'(?:if\w*|goto)\s',rest)]
+        if branches(ai)!=branches(bi) or any('#'+str(i)+' ' in rest for _,rest in bi for i in (58,59,60)):raise ValueError('Header branch or peer-text reference differs')
         return
     expected_frame = {'resolveEntity':'stack=2, locals=3, args_size=3', 'getParser':'stack=1, locals=0, args_size=0'}.get(target,'stack=1, locals=1, args_size=1')
     if expected_frame not in new[3] or 'Exception table:' in new[3]:
@@ -171,7 +180,9 @@ def main():
     header_helper=disassemble_entries(args.jdk,args.jar,['compat/BoundedHeaderStream.class'],verbose=True)
     framing_helper=disassemble_entries(args.jdk,args.jar,['compat/ResponseFraming.class'],verbose=True)
     if '  major version: 52' not in framing_helper or not all(value in framing_helper for value in ('public final class compat.ResponseFraming','Response transfer encoding is unsupported','Response length is ambiguous','Response length is missing','descriptor: (Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;Ljava/lang/String;)V','descriptor: (Lcom/apple/xsr/net/HttpResponse;Ljava/lang/String;)Ljava/lang/String;')):raise ValueError('Framing helper linkage or fixed signals differ')
-    if any(value in framing_helper for value in ('toLowerCase','toUpperCase','equalsIgnoreCase','java/util/Locale','java/lang/StringBuilder','java/lang/StringBuffer')) or len(re.findall(r'^  public static ',framing_helper,re.M))!=2:raise ValueError('Framing helper ASCII folding or fixed message boundary differs')
+    if any(value in framing_helper for value in ('toLowerCase','toUpperCase','equalsIgnoreCase','java/util/Locale','java/lang/StringBuilder','java/lang/StringBuffer')) or len(re.findall(r'^  public static ',framing_helper,re.M))!=3:raise ValueError('Framing helper ASCII folding or fixed message boundary differs')
+    invalid=re.search(r'^  public static java.lang.RuntimeException invalidHeader\(\);.*?(?=^  \S|^})',framing_helper,re.M|re.S)
+    if invalid is None or re.findall(r'^\s+\d+:\s+(\S+)',invalid[0],re.M)!=['new','dup','ldc','invokespecial','areturn'] or '// String Response header is invalid' not in invalid[0] or '// Method compat/UntrustedResponseException."<init>":(Ljava/lang/String;)V' not in invalid[0]:raise ValueError('Invalid header fixed fresh marker differs')
     if '  major version: 52' not in header_helper or not all(re.search(pattern,header_helper) for pattern in (r'ldc\s+#\d+\s+// int 1048576',r'ldc\s+#\d+\s+// int 65536',r'sipush\s+129',r'// String Response headers exceed limit')):
         raise ValueError('Header helper version, budgets or fixed rejection differs')
     recovery_helper=disassemble_entries(args.jdk,args.jar,['compat/RejectionRecovery.class'],verbose=True)
@@ -189,7 +200,7 @@ def main():
             verified_methods[entry]='Exact report window / appended marker handler independently verified, original remainder unchanged'
             continue
         if name == 'getBody':
-            verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93 and exact constructor wrapper insertion; independent complete disassembly comparisons'
+            verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons'
             continue
         expected = {'resolveEntity':['aload_1','aload_2','invokestatic','areturn'],'getParser':['invokestatic','areturn']}.get(name,['ldc_w','areturn'])
         if operations != expected: raise ValueError('Independent disassembly differs from intended substitution')
@@ -212,6 +223,6 @@ def main():
         'request_inventory':request_inventory,'http_reference_inventory':http_reference_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
         'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py', ROOT/'tools/class_patch.py']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
-        'limits':'Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment and constructor header wrapper. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
+        'limits':'Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
 
 if __name__ == '__main__': main()

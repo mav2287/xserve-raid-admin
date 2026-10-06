@@ -253,3 +253,15 @@ both pinned runtimes (x64 via Rosetta); no TCP or hardware qualification is clai
 The characterization changes no application bytes. Narrow framing policy is the
 next reviewed security milestone. See [evidence](audit/SHARED-RESPONSE-FRAMING.md)
 and [clean observations](audit/shared-stream-clean-results.json).
+
+
+## audit.12 malformed-header security boundary
+
+Colonless and leading-colon headers now produce a fixed terminal rejection,
+retire the connection and return one -102 callback without command replay in
+bounded memory fixtures. See [audit.12 evidence](audit/MALFORMED-HEADER-GUARD.md).
+The controller outcome is unconfirmed; -102 does not prove a mutation was not applied.
+Valid response behavior and unrelated IO retry paths remain unchanged. Null-message
+IO worker death, other ambiguous mutation retries, incorrect single lengths,
+trailing bytes, status interpretation and real controller/UI/CLI qualification
+remain open. No installed application or production hardware is modified.

@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "5f21eb6db49e7115159f50e3e7dea8cd77d4a13b84630b4157092ec2be575ced",
+      "Contents/Info.plist": "e17330bfc12882d890986eb7d589c82d65e00dda3ee38715cd41ea0de2c7284b",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "ada1cc2b9be545bab67c74098bbb15f0e1e3cf77a881d062eb4ddd0200a3b341"
+      "Contents/Resources/RAID_Admin.jar": "744efeba288e16aac97cf5bd53b2b87300fe7469bda59e16533df8e20fd63f6b"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "4fb79ec9a9bc4561b90c2152765f64965298ba13710c785e7f333902450ceb59",
+      "audit/security-patches.json": "8ce97c37acb72527e676fa5897c16dfece8501ab498da70bf3ae71a5fcfe2bd5",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -36,15 +36,15 @@
       "patches/compat/BoundedHeaderStream.java": "d6481d31e34b4f84d927f764f954f63d55e87d58a9e60c70f04ee2ae24644b8e",
       "patches/compat/BoundedResponseBuffer.java": "abae0d2ffb85dd9314ed1774e5f81b15a4b81967ab2badbe902d3b6c0941b995",
       "patches/compat/RejectionRecovery.java": "47ee08bd46110c0ee27d8bf915e6a172d605dbb1cf8b07c4099ec83f5550225f",
-      "patches/compat/ResponseFraming.java": "4d4a5a524b867bb540e9e7d35f02a1453c562a0ee071476ac111b7820d354b7e",
+      "patches/compat/ResponseFraming.java": "4b8bc91e7616c983e370a779654d15c35a5a721d6cac6eefc2d277a344a60b2e",
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
       "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
       "patches/compat/SafePlistResolver.java": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d",
       "patches/compat/UntrustedResponseException.java": "925844ccffea026b5ed50a3ee097b00c108a4c432b23d82948a01d354be161a4",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "bce0b493bf04959471d36bc28d43bc27b8eac99750246f983c4d19b1e7c132f0",
-      "tools/class_patch.py": "1abfbab82d73f412b067fe242ac10bdecc9d9a62b0867dfd4663fcc183314841"
+      "tools/baseline.py": "7f52c39ece4497c977e16e20d8b271d3d5875fe6795ea62c3c0b110fb7c39a4b",
+      "tools/class_patch.py": "57131e8ef615a386087771cf73c1348dde166e7d82b9c8814e78196d153796e6"
     },
     "jdk": {
       "architecture": "arm64",
@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "1f79c5526f7fcfc281b54660bf2a378096580db7faf43e68ad1ac339450ca98b",
-  "reason": "Clean audit.11: Claude-reviewed explicit response framing; two same-length HTTP calls, one ASCII-only helper, documented compatibility restriction and residual-byte limits.",
+  "previous_record_sha256": "65f8958c7da08347e2e5b0700d8add289068854506c5fb9a4c50f1cec280499d",
+  "reason": "audit.12 Claude-reviewed terminal malformed-header rejection with exact same-length bytecode block and fixed fresh marker",
   "schema": 1,
-  "source_commit": "f962570932fd8f10e394a5b834b4d5d0d11d1d9d",
-  "source_dirty": false
+  "source_commit": "47cb9d54510e82752623eb8c67a4cee9890cf534",
+  "source_dirty": true
 }

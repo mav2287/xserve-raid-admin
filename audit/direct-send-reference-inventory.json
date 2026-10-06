@@ -1,0 +1,30 @@
+{
+  "scope": "All class constant-pool Methodref/InterfaceMethodref locations; not invocation reachability or reflective callers",
+  "classes_scanned": 2844,
+  "references": [
+    {
+      "class": "com/apple/xsr/cli/CommandDispatcher$15.class",
+      "sha256": "58d0afa65efb0bdd6d7ba2873b35d26e92c172377ad9e74cd0962b0ffb5a0722",
+      "constant_pool_index": 26,
+      "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
+    },
+    {
+      "class": "com/apple/xsr/cli/CommandDispatcher$DefaultHandler.class",
+      "sha256": "1c37afac5f82b9214585d19a244405cace63f0f2b2f3216d447209ae8700f7ea",
+      "constant_pool_index": 25,
+      "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
+    },
+    {
+      "class": "com/apple/xsr/net/CommunicationsManager.class",
+      "sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+      "constant_pool_index": 65,
+      "descriptor": "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
+    }
+  ],
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "bytecode_sha256": "b07f1ba0ecc8ae83ade4b619664d0238b6f7c1ac783324c216b3167fa124d360",
+  "method_observations": [
+    "DefaultHandler.handle has one send at136 and catches only PropertyListException from writeTo [145,151); no local IOException/RuntimeException handler around send.",
+    "CommandDispatcher$15.handle has sends at140 and226; catches only PropertyListException in response interpretation [149,187), [235,273) and output [381,387); no local IOException/RuntimeException handler around send."
+  ]
+}

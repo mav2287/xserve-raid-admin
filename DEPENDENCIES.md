@@ -123,3 +123,15 @@ updater calls, controller/cache operation or transmission change. This is partia
 preflight groundwork: generic validation, Java send-time binding, confirmation
 UI and hardware/version qualification remain open. See
 [scope and review](audit/FIRMWARE-PREFLIGHT-FOUNDATION.md).
+
+
+## audit.12 malformed-header security boundary
+
+Colonless and leading-colon headers now produce a fixed terminal rejection,
+retire the connection and return one -102 callback without command replay in
+bounded memory fixtures. See [audit.12 evidence](audit/MALFORMED-HEADER-GUARD.md).
+The controller outcome is unconfirmed; -102 does not prove a mutation was not applied.
+Valid response behavior and unrelated IO retry paths remain unchanged. Null-message
+IO worker death, other ambiguous mutation retries, incorrect single lengths,
+trailing bytes, status interpretation and real controller/UI/CLI qualification
+remain open. No installed application or production hardware is modified.

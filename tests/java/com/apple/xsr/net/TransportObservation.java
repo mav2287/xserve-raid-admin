@@ -100,6 +100,10 @@ public final class TransportObservation {
         try{Class.forName("compat.BoundedResponseBuffer").getMethod("parseLength",String.class);return true;}
         catch(ClassNotFoundException absent){return false;}catch(NoSuchMethodException absent){return false;}
     }
+    private static boolean invalidHeaderPolicy()throws Exception {
+        try{Class.forName("compat.ResponseFraming").getMethod("invalidHeader");return true;}
+        catch(ClassNotFoundException absent){return false;}catch(NoSuchMethodException absent){return false;}
+    }
     private static boolean framingPolicy()throws Exception {
         try{Class.forName("compat.ResponseFraming");return true;}catch(ClassNotFoundException absent){return false;}
     }
@@ -110,6 +114,7 @@ public final class TransportObservation {
         State state = new State(); state.rawResponse = raw; state.idleOpen = idle;
         boolean framing=framingPolicy();
         String framingMessage=null;
+        if(label.equals("invalid-header")&&invalidHeaderPolicy()){framingMessage="Response header is invalid";expected="framing-rejected";}
         if(framing) {
             if(label.equals("missing-length")||label.equals("missing-length-idle"))framingMessage="Response length is missing";
             if(label.equals("duplicate-last-valid")||label.equals("duplicate-last-zero"))framingMessage="Response length is ambiguous";
@@ -341,22 +346,39 @@ public final class TransportObservation {
         check(wire.contains("X-Fixture: after\r\n")&&!wire.contains("X-Fixture: before\r\n"),"Queued property not shared");
         emit("io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1");
     }
+    private static void synchronousInvalidHeader(byte[] invalid)throws Exception {
+        State state=new State();state.rawResponse=invalid;
+        final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);
+        set(manager,"queue",new LinkedList<Object>());set(manager,"system",unsafe().allocateInstance(FakeSystem.class));
+        set(manager,"connection",transport(new MemoryConnection(state)));set(manager,"connected",true);
+        final Throwable[] escaped={null};Thread worker=new Thread(new Runnable(){public void run(){manager.run();}},"fixture-sync-worker");
+        worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
+        worker.start();
+        try {
+            try{manager.postMessage(new AcpxMessageFactory().newGetStatusRequest());throw new AssertionError("Sync malformed header accepted");}
+            catch(IOException failed){check("Response header is invalid".equals(failed.getMessage())&&failed.getCause()==null,"Sync fixed message differs");}
+            check(state.sent.size()==1&&!manager.isConnected(),"Sync rejection state differs");
+        } finally {manager.shutdown();worker.interrupt();worker.join(2000);check(!worker.isAlive()&&escaped[0]==null,"Sync worker cleanup differs");}
+        emit("io sync invalid-header fixed-IOException; no-peer-or-cause; sends=1");
+    }
     private static void ioCharacterization()throws Exception {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         AcpxMessageFactory factory=new AcpxMessageFactory();
         byte[] invalid=reply("HTTP/1.1 200 Fixture","DO_NOT_RENDER_PROTOCOL_HEADER\r\n",XML);
         State direct=new State();direct.rawResponse=invalid;
-        try{transport(new MemoryConnection(direct)).send(factory.newGetStatusRequest());throw new AssertionError("Bad header accepted");}
-        catch(java.net.ProtocolException failed){check(failed.getMessage()!=null&&failed.getMessage().contains("DO_NOT_RENDER_PROTOCOL_HEADER"),"Peer line not retained");}
+        boolean fixed=invalidHeaderPolicy();AcpxConnection directAcp=transport(new MemoryConnection(direct));
+        try{directAcp.send(factory.newGetStatusRequest());throw new AssertionError("Bad header accepted");}
+        catch(java.net.ProtocolException failed){check(!fixed&&failed.getMessage()!=null&&failed.getMessage().contains("DO_NOT_RENDER_PROTOCOL_HEADER"),"Peer line not retained");}
+        catch(IllegalArgumentException failed){check(fixed&&failed.getClass().getName().equals("compat.UntrustedResponseException")&&"Response header is invalid".equals(failed.getMessage())&&failed.getCause()==null&&directAcp.connection==null,"Invalid header rejection differs");}
         check(direct.sent.size()==1,"Direct bad-header sends differ");
-        emit("io invalid-header message_has_peer_line=true; direct_sends=1");
-        dispatch(factory.newGetStatusRequest(),0,false,invalid,0,1,"invalid-header-read-retry");
-        dispatch(factory.newSetTimeRequest(new Date(0)),0,false,invalid,0,1,"invalid-header-mutation-retry");
+        emit("io invalid-header message_has_peer_line="+(!fixed)+"; direct_sends=1");
+        dispatch(factory.newGetStatusRequest(),0,false,invalid,fixed?-102:0,fixed?0:1,fixed?"invalid-header-read-terminal":"invalid-header-read-retry");
+        dispatch(factory.newSetTimeRequest(new Date(0)),0,false,invalid,fixed?-102:0,fixed?0:1,fixed?"invalid-header-mutation-terminal":"invalid-header-mutation-retry");
         RequestMessage restart=factory.newRestartSystemRequest();
         check(restart.getShutdownConnection() && restart.getRestartConnection()==-1,"Unexpected restart fixture flags");
         dispatch(restart,1,false);emit("io synthetic-restart lost-response; same-command-replayed; shutdown_flag=true; memory-only");
-        nullMessage();shallowProperty();OfflineGuard.assertUntouched();
+        nullMessage();shallowProperty();if(fixed)synchronousInvalidHeader(invalid);OfflineGuard.assertUntouched();
         emit("PASS IO characterization; guarded_operations=0");
     }
     private static void followOn(boolean allocation) throws Exception {
