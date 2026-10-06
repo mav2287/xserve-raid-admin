@@ -53,3 +53,6 @@ mapping, repeated clean source and architecture bundles. Installed app and immut
 JAR remain unchanged. See [final evidence](XML-PARSER-COMPATIBILITY.md).
 Next safe security scope is the original HTTP Content-Length preallocation; its
 Claude design review is in progress. No controller contact is needed for this work.
+
+
+Completed audit.7: response allocation ceiling, independent operand/helper verification, candidate-only oversized input and allowed-ceiling retry tests, and measured terminal-rejection follow-on state. 39 Python tests and both repeated architecture packages pass; [clean evidence](HTTP-ALLOCATION-GUARD.md). Header bounds, connection recovery and native/hardware qualification remain open.

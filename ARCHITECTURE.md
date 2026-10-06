@@ -129,3 +129,6 @@ replacement and intentional security rejections are recorded in
 polling and retry timing are unchanged. Production hardware approval remains absent.
 Safe work continues with HTTP allocation/framing, firmware preflight and isolated
 native UI qualification; successful parser fixtures do not close release acceptance.
+
+
+audit.7 changes only two allocation operands in HttpResponse.getBody to a ByteArrayOutputStream subclass with a 16 MiB ceiling. Original branching, handlers and other methods remain. Fixed unchecked rejection maps to terminal -102 with no resend; measured persistent state prevents a subsequent command until recovery, just as existing malformed numeric lengths do. See [scope](audit/HTTP-ALLOCATION-GUARD.md).

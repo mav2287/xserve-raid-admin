@@ -68,3 +68,6 @@ replacement and intentional security rejections are recorded in
 polling and retry timing are unchanged. Production hardware approval remains absent.
 Safe work continues with HTTP allocation/framing, firmware preflight and isolated
 native UI qualification; successful parser fixtures do not close release acceptance.
+
+
+Read-only vendor freshness observation on 2026-10-06: both macOS permanent download URLs resolve to the already pinned 8.504.04.1 version. See [observation](audit/runtime-current-observation.json) and the [official catalog](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html). Builds retain exact versioned URLs and hashes. This is not a vulnerability-database or complete security audit. audit.7 adds no third-party dependency.

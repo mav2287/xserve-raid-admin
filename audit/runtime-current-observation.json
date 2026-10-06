@@ -1,0 +1,20 @@
+{
+  "observed_utc": "2026-10-06T05:24:28.685934+00:00",
+  "method": "HTTPS HEAD redirects; no artifact downloaded or changed",
+  "catalog": "https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html",
+  "pinned_version": "8.504.04.1",
+  "matches_vendor_permanent_url_version": true,
+  "architectures": [
+    {
+      "architecture": "aarch64",
+      "requested_url": "https://corretto.aws/downloads/latest/amazon-corretto-8-aarch64-macos-jdk.tar.gz",
+      "resolved_url": "https://corretto.aws/downloads/resources/8.504.04.1/amazon-corretto-8.504.04.1-macosx-aarch64.tar.gz"
+    },
+    {
+      "architecture": "x64",
+      "requested_url": "https://corretto.aws/downloads/latest/amazon-corretto-8-x64-macos-jdk.tar.gz",
+      "resolved_url": "https://corretto.aws/downloads/resources/8.504.04.1/amazon-corretto-8.504.04.1-macosx-x64.tar.gz"
+    }
+  ],
+  "limits": "Freshness observation only; archive hashes and runtime contents are separately pinned. No current vulnerability-database or security-completeness claim."
+}

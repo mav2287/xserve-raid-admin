@@ -30,6 +30,12 @@ This project contains compatibility patches for the original application. Full f
    to 1 MiB. These are deliberate security restrictions; real-response compatibility
    remains open. See [audit.6 evidence](audit/XML-PARSER-COMPATIBILITY.md).
 
+9. **Response allocation ceiling** — An operand-only change selects a bounded
+   ByteArrayOutputStream subclass. Advertised response bodies above 16 MiB fail
+   before allocation through the existing terminal malformed-input path.
+   Connection recovery and header/framing limits remain open; see
+   [audit.7 evidence](audit/HTTP-ALLOCATION-GUARD.md).
+
 ## Requirements
 
 Pinned runtime candidates include Corretto 8 for the selected architecture and

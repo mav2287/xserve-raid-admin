@@ -69,3 +69,25 @@ produce terminal -102 for the first and next command, one total send, outstandin
 true and zero reconnects. Candidate oversized input produces the same state.
 The second command is refused before transmission. Recovery is therefore a
 confirmed open functional gap, not just an inference from the private flags.
+
+## Final clean evidence
+
+Application source `7c1d9da`; runtime packager `aabc570`. Repeated source builds
+`build/allocation-final-clean-1` and `-2` match bytes and modes. JAR SHA-256:
+`fe8bb01ccd0d1e27946456c0acf14f15a62d036a3032d97026aa0bd0f994ccaa`.
+Unsigned audit bundle digest:
+`fa897e4603b3c565c3e42a5c47a59c096baf040145e88b6be178fcbec4b2b4a0`.
+Repeated pinned-runtime package digests:
+
+- arm64: `108cb45d8f768b2a542dcefa1ef84df2ec252b4a991a0c33d272e8e377cc2651`.
+- x64: `216ddac2a6407a188bccc102329052026301b8bb3183de74250cbd0ce90d02dc`.
+
+[Independent verification](allocation-clean-security.json),
+[original/candidate and quota queue observations](allocation-clean-transport.json),
+[XML policy regression](allocation-clean-resources.json),
+[runtime regressions](allocation-clean-runtime.json),
+[package diagnostics](allocation-bundle-results.json), and
+[final integrity](allocation-final-integrity.json) record their separate scopes.
+39 Python tests pass. x64 runs use Rosetta; physical Intel and full functionality
+remain unqualified. The next header-wrapper design has been consulted with Claude;
+no header-bound implementation is included in audit.7.

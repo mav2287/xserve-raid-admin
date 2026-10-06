@@ -1,10 +1,10 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current candidate: **audit.6**, clean application source `3044651`, clean runtime
-packager `075642b`. Both architecture bundles reproduce and pass bounded offline
+Current candidate: **audit.7**, clean application source `7c1d9da`, clean runtime
+packager `aabc570`. Both architecture bundles reproduce and pass bounded offline
 fixtures. See [parser policy](audit/XML-PARSER-COMPATIBILITY.md),
-[audit.6 build/runtime identities](audit/parser-bundle-results.json), and
-[clean source provenance](audit/parser-clean-provenance.json). Earlier intake,
+[audit.7 build/runtime identities](audit/allocation-bundle-results.json), and
+[clean source provenance](audit/allocation-clean-provenance.json). Earlier intake,
 audit.1 and audit.5 sections below are retained historical observations.
 This remains an unsigned, operationally unqualified candidate.
 
