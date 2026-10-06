@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--vendor-extensions', action='store_true', help='Use only the Java 8 runtime vendor extension directory, as the bundled launcher does')
     parser.add_argument('--security', action='store_true', help='Require resolver isolation and request-format redaction regressions')
     parser.add_argument('--logging', action='store_true', help='Check actual JAR logging configuration and fixed-code appender')
+    parser.add_argument('--parser', action='store_true', help='Compare accepted XML boundaries and values')
     args = parser.parse_args()
     verify_python()
     compiler = verify_jdk(args.compiler)
@@ -43,6 +44,8 @@ def main():
         sources += [ROOT / 'tests/java/SecurityProbe.java', ROOT / 'tests/java/fixture/OfflineGuard.java']
     if args.logging:
         sources += [ROOT/'tests/java/LoggingProbe.java', ROOT/'tests/java/fixture/OfflineGuard.java']
+    if args.parser:
+        sources += [ROOT/'tests/java/ParserParityProbe.java', ROOT/'tests/java/fixture/OfflineGuard.java']
     sources = list(dict.fromkeys(sources))
     observations = []
     with tempfile.TemporaryDirectory(prefix='raid-architecture-') as tmp:
@@ -100,6 +103,11 @@ def main():
                 observations[-1]['security_regression'] = candidate_security
             if args.logging:
                 observations[-1]['logging_regression'] = [run(args.jar,'LoggingProbe').strip(),run(args.jar,'LoggingProbe','write-failure').strip(),run(args.jar,'LoggingProbe','closed-first').strip()]
+            if args.parser:
+                parser_results = [run(jar,'ParserParityProbe').splitlines() for jar in (original,args.jar)]
+                if any(not lines or lines[-1] != 'PASS accepted parser parity; guarded_operations=0' for lines in parser_results) or parser_results[0] != parser_results[1]:
+                    raise RuntimeError('Accepted parser differential failed')
+                observations[-1]['parser_regression'] = parser_results[1]
             if digest(tree(runtime)) != runtime_identity:
                 raise RuntimeError('Runtime changed during observation')
     if sha(args.jar) != candidate_sha:

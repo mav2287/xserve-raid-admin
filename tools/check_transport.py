@@ -12,9 +12,10 @@ from baseline import verify_original
 from runtime import runtime_manifest, verify_runtime
 
 
-def completed(result):
+def completed(result, parser_policy=False):
     lines = result.splitlines()
-    if not lines or lines[-1] != 'PASS memory-only transport and queue observations; real reconnection/backoff excluded':
+    marker = 'PASS parser failures: -103 terminal, one send each, no requeue; guarded_operations=0' if parser_policy else 'PASS memory-only transport and queue observations; real reconnection/backoff excluded'
+    if not lines or lines[-1] != marker:
         raise RuntimeError('Transport fixture incomplete; raw output withheld')
     return lines
 
@@ -25,6 +26,7 @@ def main():
     parser.add_argument('jars', nargs='+', type=Path)
     parser.add_argument('--default-logging', action='store_true', help='Also require candidate configured logging to emit only one fixed error code')
     parser.add_argument('--runtime', action='append', type=Path, help='Pinned Runtime.jdk root; repeat for both architectures. Compiler runtime is used if omitted.')
+    parser.add_argument('--parser-policy', action='store_true', help='Candidate-only quota/depth/blocked XML queue failure tests')
     args = parser.parse_args()
     if any(jar.is_symlink() or not jar.is_file() for jar in args.jars):
         raise ValueError('Candidate JAR must be a regular file, not a symlink')
@@ -55,6 +57,7 @@ def main():
     helper_hashes = {str(p.relative_to(ROOT)): sha(p) for p in helpers}
     tool_hash = sha(Path(__file__))
     observations = []
+    parser_observations = []
     with tempfile.TemporaryDirectory(prefix='raid-transport-') as tmp:
         run_jdk(args.jdk, 'javac', ['-source','8','-target','8','-cp',str(original),'-d',tmp] + [str(p) for p in sources])
         shim = Path(tmp) / 'sun/io/MalformedInputException.class'
@@ -73,6 +76,14 @@ def main():
                     '-cp',tmp + ':' + str(jar.resolve()),'com.apple.xsr.net.TransportObservation','default-logging'], timeout=20)
                     observations.append({'jar_sha256':identity,'architecture':architecture,'application_logging':'candidate-configured; fixed stderr code verified','results':completed(configured)})
                 if root is not None: verify_runtime(root, runtime_lock['architectures'][architecture])
+                if args.parser_policy and jar != original:
+                    for mode in ['parser-policy','parser-policy-default-logging']:
+                        output=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,
+                            '-cp',tmp+':'+str(jar.resolve()),'com.apple.xsr.net.TransportObservation',mode],timeout=20)
+                        lines=completed(output,True)
+                        if parser_observations and lines!=parser_observations[0]['results']: raise ValueError('Parser failure mapping varies with runtime/logging')
+                        parser_observations.append({'jar_sha256':identity,'architecture':architecture,'mode':mode,'results':lines})
+                    if root is not None: verify_runtime(root,runtime_lock['architectures'][architecture])
             if sha(jar) != identity: raise ValueError('JAR changed during observation')
     if any(o['results'] != observations[0]['results'] for o in observations):
         raise RuntimeError('Transport observations differ')
@@ -85,7 +96,7 @@ def main():
     print(json.dumps({'fixture_commit':fixture_commit, 'fixture_dirty':fixture_dirty, 'host_machine':platform.machine(),
         'tool_sha256':tool_hash, 'jdk_tree_sha256': lock['tree_sha256'],
         'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for arch in seen},
-        'fixture_sources': source_hashes, 'harness_sources':helper_hashes, 'observations': observations,
+        'fixture_sources': source_hashes, 'harness_sources':helper_hashes, 'observations': observations,'parser_observations':parser_observations,
         'limits': 'Original queue and ACP send with bounded synthetic memory HttpConnection replies; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Two-request ordering observed after one injected drop, not concurrency or indefinite retry qualification. ACP status decoding through BasicResponse, not authentication UI or real controller. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. Each reply uses a fresh stream; shared-socket residual bytes/desynchronization and real EOF/timeout timing are not qualified. Synthetic idle streams throw immediately after their scripted bytes. Per-process 20-second timeout is the outer bound. No TCP, hardware, polling, or real reconnect/backoff qualification. x64 on this arm64 host is Rosetta, not physical Intel qualification.'}, indent=2))
 
 if __name__ == '__main__': main()

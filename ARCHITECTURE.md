@@ -116,3 +116,16 @@ The official `.xfb` has update-image entries for the coprocessor and RAID
 controller, with no coprocessor full-image key. The updater treats these manifest
 keys conditionally and transmits from hardcoded updateROM.bin paths; the package
 paths match those literals. No transmission was invoked.
+
+
+## audit.6 security refinement
+
+The user explicitly prioritized safe closure of the XML parser security gap.
+A narrow parser-construction override selects the pinned bootstrap JDK provider,
+retains the original plist Handler / DTD / serializer, enables validation, enforces
+and verifies explicit quotas, and refuses external DTD/schema access. Provider
+replacement and intentional security rejections are recorded in
+[audit.6 parser evidence](audit/XML-PARSER-COMPATIBILITY.md). Controller commands,
+polling and retry timing are unchanged. Production hardware approval remains absent.
+Safe work continues with HTTP allocation/framing, firmware preflight and isolated
+native UI qualification; successful parser fixtures do not close release acceptance.

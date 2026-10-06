@@ -62,7 +62,7 @@ public final class TransportObservation {
                     final ByteArrayInputStream bytes = new ByteArrayInputStream(raw);
                     int reads;
                     @Override public int read() throws IOException {
-                        check(++reads < 8192, "Fixture read bound exceeded");
+                        check(++reads < Math.max(8192, raw.length+64), "Fixture read bound exceeded");
                         if (idle && bytes.available() == 0) throw new java.net.SocketTimeoutException("synthetic idle stream");
                         return bytes.read();
                     }
@@ -86,9 +86,12 @@ public final class TransportObservation {
     }
     private static void check(boolean condition, String label) { if (!condition) throw new AssertionError(label); }
     private static byte[] reply(String start, String headers, byte[] body) throws Exception {
+        return boundedReply(start,headers,body,4096);
+    }
+    private static byte[] boundedReply(String start, String headers, byte[] body, int ceiling) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write((start + "\r\n" + headers + "\r\n").getBytes("US-ASCII")); out.write(body);
-        check(out.size() < 4096, "Fixture response bound exceeded");
+        check(ceiling<=524288 && out.size() < ceiling, "Fixture response bound exceeded");
         return out.toByteArray();
     }
     private static void responseCase(String label, byte[] raw, String expected) throws Exception {
@@ -254,8 +257,9 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && args[0].equals("default-logging")), "Unknown fixture arguments");
-        boolean defaultLogging = args.length == 1 && args[0].equals("default-logging");
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging").contains(args[0])), "Unknown fixture arguments");
+        boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].equals("parser-policy-default-logging"));
+        boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
         PrintStream previousOut = System.out; fixtureOut = previousOut;
         ByteArrayOutputStream captured = new ByteArrayOutputStream();
@@ -263,7 +267,7 @@ public final class TransportObservation {
         try {
             System.setErr(new PrintStream(captured,true,"UTF-8"));
             System.setOut(new PrintStream(capturedOut,true,"UTF-8"));
-            execute(defaultLogging);
+            execute(defaultLogging,parserPolicy);
             check(captured.toString("UTF-8").equals(defaultLogging ? "RAID_ADMIN_ERROR\n" : ""), "Unexpected logging output");
             check(capturedOut.size() == 0, "Unexpected application stdout");
         } finally {
@@ -272,7 +276,7 @@ public final class TransportObservation {
             OfflineGuard.assertUntouched();
         }
     }
-    private static void execute(boolean defaultLogging) throws Exception {
+    private static void execute(boolean defaultLogging, boolean parserPolicy) throws Exception {
         if (!defaultLogging) {
         org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
@@ -281,6 +285,23 @@ public final class TransportObservation {
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.HttpConnection").setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.HttpRequest").setLevel(org.apache.log4j.Level.OFF);
         org.apache.log4j.Logger.getLogger("com.apple.xsr.net.HttpResponse").setLevel(org.apache.log4j.Level.OFF);
+        }
+        if(parserPolicy) {
+            AcpxMessageFactory factory=new AcpxMessageFactory();
+            StringBuilder xml=new StringBuilder("<!DOCTYPE plist SYSTEM \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\" [<!ENTITY e \"x\">]><plist><string>");
+            for(int i=0;i<65000;i++)xml.append("&e;");xml.append("</string></plist>");
+            byte[] body=xml.toString().getBytes("UTF-8");
+            dispatch(factory.newGetStatusRequest(),0,false,boundedReply("HTTP/1.1 200 Fixture","Content-Length: "+body.length+"\r\n",body,524288),-103,0,"entity-quota");
+            xml=new StringBuilder("<!DOCTYPE plist SYSTEM \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist>");
+            for(int i=0;i<31;i++)xml.append("<array>");xml.append("<string>fixture</string>");for(int i=0;i<31;i++)xml.append("</array>");xml.append("</plist>");
+            body=xml.toString().getBytes("UTF-8");
+            dispatch(factory.newGetStatusRequest(),0,false,reply("HTTP/1.1 200 Fixture","Content-Length: "+body.length+"\r\n",body),-103,0,"depth-quota");
+            body="<!DOCTYPE plist [<!ENTITY e SYSTEM \"file:///__raid_security_fixture__/secret\">]><plist><string>&e;</string></plist>".getBytes("UTF-8");
+            dispatch(factory.newGetStatusRequest(),0,false,reply("HTTP/1.1 200 Fixture","Content-Length: "+body.length+"\r\n",body),-103,0,"blocked-entity");
+            dispatch(factory.newGetStatusRequest(),0,true);
+            OfflineGuard.assertUntouched();
+            emit("PASS parser failures: -103 terminal, one send each, no requeue; guarded_operations=0");
+            return;
         }
         AcpxMessageFactory factory = new AcpxMessageFactory();
         RequestMessage request = factory.newGetStatusRequest();

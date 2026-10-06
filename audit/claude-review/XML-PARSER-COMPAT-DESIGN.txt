@@ -1,0 +1,85 @@
+Actual Claude CLI read-only review. No commands or controller operations executed by reviewer.
+
+## Verdict
+
+This is justified as a thin fix, but only with three changes. As proposed, it does two things you haven't separated:
+
+1. It adds JDK entity and size quotas, which is the intended change.
+2. It replaces the whole parser implementation for every accepted document, and it removes an accidental depth limit that the original had.
+
+The second part is a bigger change than "thin" suggests. It is still the right direction, because the alternative that keeps bundled Xerces can't fix that parser's other weaknesses (see the Alternatives section). The three changes:
+
+- **Keep the original's depth limit** instead of removing it. Details are in risk 1.
+- **Set the quotas explicitly through the parser API** instead of relying on "JDK defaults". The defaults can be changed from outside the app, as your lowered-mode controls show. Details are in risk 2.
+- **Make class_patch.py support static methods.** As written it refuses them, and `getParser` is static.
+
+I only read the four files. Several of the risks below depend on bytecode I haven't seen (the full `getParser` body, its callers, and `Handler`). I've marked those as checks you still need to run.
+
+## Precise semantic risks
+
+**1. Deep arrays: removing a limit, not just fixing a bug.** In the original, the bounds error at index 32 is an accidental depth limit. Arrays nested 31 deep work and 32 fail with `PropertyListException`. JDK 8's `maxElementDepth` defaults to 0 (unlimited), even with secure processing on. With the swap, nesting depth is limited only by document size, so a body around 1 MB could nest about 100k levels. If `Handler`, `writeXML`, or any code that walks the tree is recursive, the result is a `StackOverflowError`. That is an `Error`, not a `PropertyListException`, so it skips the -103/no-retry path and may kill the polling thread.
+
+Setting `maxElementDepth` to the original's observed limit is not an arbitrary cap. It preserves the original's behaviour, and the outcome (`PropertyListException`) matches the original's. Find the exact value from boundary fixtures (`arrays-31` accepted, `arrays-32` rejected, plus `dict` and mixed nesting) rather than calculating it. Note that JDK depth counting includes `<plist>` and the leaf element. If you deliberately choose unlimited depth instead, you must first prove there is no recursion at maximum realistic body size and `-Xss` across all consumers. I don't recommend that.
+
+**2. "JDK defaults" depend on the environment.** JDK 8's `XMLSecurityManager` lets `jdk.xml.*` system properties and `jaxp.properties` override the defaults. Those system properties can arrive through `JAVA_TOOL_OPTIONS` or `_JAVA_OPTIONS`. Your lowered-mode controls prove this on the pinned runtime. Values set through the parser API take priority over both. So the helper should set each limit explicitly to the pinned runtime's FSP value and read every one back. Do the same for `entityExpansionLimit`, `totalEntitySizeLimit`, `maxGeneralEntitySizeLimit`, `maxParameterEntitySizeLimit`, `elementAttributeLimit`, `maxElementDepth`, and `entityReplacementLimit`/`maxXMLNameLimit` if the pinned update has them.
+
+**3. Parser differences on documents that are accepted.** These matter more than the resource cases:
+- **Text delivered in pieces.** The JDK parser may split one text node across several `characters()` calls, at buffer boundaries and around `&amp;` or character references. If the original `Handler` assumes one call per text node (a common legacy bug), strings get silently cut short. The current fixtures compare final results for the bundled parser only.
+- **Whitespace and validation errors.** With validation on, whitespace between elements goes to `ignorableWhitespace`. The set of validation errors passed to `error()` can also differ between Xerces versions. If `Handler` does not throw in `error()`, which errors get swallowed may change.
+- **Encodings.** On the InputStream path, behaviour may differ for BOMs, UTF-16, encoding-name aliases, and malformed UTF-8.
+- **Exception wording and types.** Your probe matches on message text (`contains("maxElementDepth")`), which is locale-dependent and throws a `NullPointerException` if the message is null. JDK quota violations arrive through `fatalError`. Confirm they end up as `PropertyListException` even if `Handler` overrides `fatalError`.
+
+**4. Entity counting on large real responses.** Some JDK 7/8 updates had bugs that counted predefined entities or character references (`&amp;`, `&#…;`) toward the limits. Check on the pinned update that, for example, 70,000 `&amp;` in one string are accepted.
+
+**5. Secure processing and the embedded DTD.** In JDK 8, explicitly turning on secure processing (FSP) sets `accessExternalDTD` to an empty string, which blocks all external DTD access. The embedded DTD should still load, because the resolver returns its own InputSource and the access check is skipped for those. That reasoning is mine, not verified, so test it with a real plist DOCTYPE. If it fails, every document fails.
+
+**6. Whether `getParser` is the only XML entry point.** Your probe calls `getParser` directly. It doesn't prove that `PropertyList(Reader)`, `PropertyList(InputStream)`, and `readXML` all go through it. Other checks:
+- Do callers set Xerces-specific features or properties on the returned parser? The JDK parser may not recognise them.
+- Does `<clinit>` cache a factory?
+- Does any other network path build its own parser? Search every class's constant pool for `javax/xml/parsers`, `XMLReaderFactory`, and `org/apache/xerces`.
+
+**7. Settings the original applies that the helper might miss.** The helper must reproduce everything the original `getParser` sets: every factory setting, feature, and property, not just validation and namespace awareness. It must also keep the original's per-call versus cached behaviour, and its declared exceptions or null-return contract, so callers' existing error handling still applies.
+
+**8. Evidence wording.** "FSP unrecognized" was tested on the `XMLReader`. In JAXP, FSP is a factory-level feature, so that result doesn't show the bundled Xerces lacks it. Before recording the evidence, test `factory.setFeature(FSP, true)` and the `http://apache.org/xml/properties/security-manager` property on the bundled factory. Also record `org.apache.xerces.impl.Version`.
+
+## Fail-closed configuration
+
+- Load the factory with `Class.forName("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl", true, null)` and instantiate it. That loads from the bootstrap loader regardless of the thread context class loader. `newInstance(name, null)` uses the context loader when no security manager is present, which only resolves to bootstrap because of parent-first delegation.
+- Assert the factory's class name and a null class loader. After creating the parser, assert the same for the `XMLReader`. Any mismatch must throw. Never fall back to `SAXParserFactory.newInstance()`.
+- Settings:
+  - `setValidating(true)`, `setNamespaceAware(false)`, `setXIncludeAware(false)`, `setFeature(FSP, true)`.
+  - Set the explicit limits and read them back.
+  - Read back `accessExternalDTD` and `accessExternalSchema` and assert they are empty strings.
+  - Read back the reader's validation feature as true and its namespaces feature as false.
+- Leave the external-general-entities and external-parameter-entities features at their default (true). Turning them off would make blocked entities silently disappear. The original fails loudly through the resolver's exception, and that should stay the primary block.
+- Create a new parser on every call: no static caching and no shared state. Any configuration failure throws the same checked type the original `getParser` declares.
+
+## class_patch.py
+
+`transform` rejects any target with the static flag (`0x0008`), so the patch cannot be applied as it stands. Don't loosen that guard generally. Instead, add per-target expected access flags (exact equality) and descriptor to `TARGETS`. Then add a static branch whose body is `invokestatic` of the compat helper followed by `areturn`, with max_stack 1 and max_locals 0. A straight-line body needs no StackMapTable. Keep `assert_preserved` as it is, and confirm the result with `-Xverify:all` and a javap diff showing that only the `getParser` code changed.
+
+## Required tests
+
+1. **Bytecode:** class hash lock, exact access flags and descriptor, javap diff limited to that one method, verifier passes on both architectures.
+2. **Differential parsing, original vs compat, Reader and InputStream:**
+   - Compare both the recorded SAX event stream and the `Handler`/`writeXML` output.
+   - Inputs: all probe fixtures, original command fixtures, and allowed outputs.
+   - Text: strings crossing 4K/8K/16K boundaries ±1, references and CDATA at boundaries, comments and processing instructions, whitespace between elements.
+   - Value types: `<data>` with line breaks, `<date>`, edge-case `<integer>`/`<real>`, empty `<string/>`, duplicate keys.
+   - Invalid documents: elements the DTD doesn't allow, missing or wrong DOCTYPE, BOM, UTF-16, encoding declarations, malformed UTF-8, truncated input, content after the root, NUL bytes.
+3. **External access** (zero operations under OfflineGuard): DOCTYPE SYSTEM/PUBLIC with `file:`, `jar:` and relative paths; external parameter and general entities in the internal subset; Apple-prefix lookalike URLs. Plus a positive test that the embedded DTD still resolves with secure processing on.
+4. **Quotas:** just under and just over each limit, with heap sized so the test fails at the quota rather than running out of memory. Also >64,000 predefined entity references accepted.
+5. **Environment independence:** rerun with lowered and zeroed `jdk.xml.*` flags and a bogus `-Djavax.xml.parsers.SAXParserFactory`. Results must be identical, and stdout/stderr empty.
+6. **Failure mapping:** quota, depth, malformed and blocked-resolver cases each give `PropertyListException`, then queued -103, no retry, polling continues, threads survive. Log text stays redacted; JDK messages include entity names and line positions.
+7. **Depth:** the boundary for `array`, `dict` and mixed nesting at the original's limit. If you keep depth unlimited, a recursion test at maximum body size.
+8. **Concurrency:** parallel parses.
+9. **Deviation record:** document the parser replacement itself, not only the resource-excess and deep-array differences. Real controller fixture compatibility stays open, as you noted.
+
+## Alternatives considered
+
+- **Keep bundled Xerces and reject internal-subset entity declarations** (using `DeclHandler`/`LexicalHandler`). Every realistic controller response would be parsed byte-for-byte the same as before, and entity expansion attacks are removed entirely. However, it leaves the old Xerces's known non-entity denial-of-service bugs in place. Xerces-J before 2.12 has attribute hash-collision and scanner bugs, CVE-2012-0881 and CVE-2013-4002, and the depth bug you found suggests a very old version. It also rejects internal entities, which the original accepted.
+- **Keep bundled Xerces with its own SecurityManager**, if it has one. That limits only the entity expansion count, not total size, so it is weaker.
+
+Recommendation: confirm the bundled Xerces version. If it predates 2.12, the JDK swap with the three changes above is materially safer. Keep the internal-subset rejection option only as a fallback in case the differential tests in item 2 show `Handler` incompatibilities you can't resolve.
+
+Disposition: Added explicit accepted SHA-256 checks, under-limit positive entity probes, exact quota failure messages and ambient-property evidence. Added original/candidate dict, mixed and empty-container depth boundaries and 26 accepted-value differential cases. Provider replacement is deliberate; original plist Handler, DTD and serializer remain. Java 8 both architectures and optional Java 11 have been exercised. Development evidence is labeled dirty; clean source and evidence are recorded separately. Runtime/linkage/VM failures fail closed and are not represented as a fallback parser.

@@ -29,17 +29,17 @@ public final class PlistResourceProbe {
         check(type.getProtectionDomain().getCodeSource() != null);
         check(new File(type.getProtectionDomain().getCodeSource().getLocation().toURI()).equals(jar));
     }
-    private static void metadata(File jar) throws Exception {
+    private static void metadata(File jar, boolean fixed) throws Exception {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         check(factory.getClass().getName().equals("org.apache.xerces.jaxp.SAXParserFactoryImpl"));
         origin(factory.getClass(), jar);
         Method method = PropertyListUtilities.class.getDeclaredMethod("getParser"); method.setAccessible(true);
         SAXParser parser = (SAXParser) method.invoke(null);
         XMLReader reader = parser.getXMLReader();
-        check(reader.getClass().getName().equals("org.apache.xerces.parsers.SAXParser"));
-        origin(reader.getClass(), jar);
+        if (fixed) check(reader.getClass().getName().equals("com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser") && reader.getClass().getClassLoader()==null);
+        else {check(reader.getClass().getName().equals("org.apache.xerces.parsers.SAXParser")); origin(reader.getClass(), jar);}
         check(reader.getFeature("http://xml.org/sax/features/validation"));
-        out.println("provider bundled-xerces; validation=true; origin=expected-jar");
+        out.println(fixed ? "provider pinned-jdk; validation=true; origin=bootstrap" : "provider bundled-xerces; validation=true; origin=expected-jar");
         try {
             boolean enabled = reader.getFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING);
             out.println("secure_processing recognized=" + enabled);
@@ -82,7 +82,7 @@ public final class PlistResourceProbe {
     private static String canonical(Object value) throws Exception {
         StringWriter writer = new StringWriter(); PropertyListUtilities.writeXML(value, writer); return writer.toString();
     }
-    private static void fixture(String label, String subset, String node, String expectedLeaf, int depth) throws Exception {
+    private static void fixture(String label, String subset, String node, Object expectedLeaf, int depth) throws Exception {
         String xml = HEADER + subset + "><plist>" + node + "</plist>";
         check(xml.length() < 131072);
         String digest = null;
@@ -90,7 +90,7 @@ public final class PlistResourceProbe {
             PropertyList list;
             try { list = stream ? new PropertyList(new ByteArrayInputStream(xml.getBytes("UTF-8"))) : new PropertyList(new StringReader(xml)); }
             catch (com.apple.util.plist.PropertyListException failure) {
-                String category = failure.getMessage().contains("maxElementDepth") ? "rejected-depth-limit" : "rejected-property-list";
+                String category = failure.getMessage()!=null && failure.getMessage().contains("maxElementDepth") ? "rejected-depth-limit" : "rejected-property-list";
                 try { PropertyListUtilities.readXML(new StringReader(xml)); throw new AssertionError("Rejection not reproducible"); }
                 catch (SAXException direct) {
                     if (direct.getException() instanceof ArrayIndexOutOfBoundsException) category = "rejected-legacy-array-bounds";
@@ -100,8 +100,8 @@ public final class PlistResourceProbe {
             }
             Object root = list.getRootElement(), leaf = root;
             for (int i = 0; i < depth; i++) {
-                check(leaf instanceof List && ((List<?>) leaf).size() == 1);
-                leaf = ((List<?>) leaf).get(0);
+                if(leaf instanceof Map) {check(((Map<?,?>)leaf).size()==1);leaf=((Map<?,?>)leaf).get("fixture");}
+                else {check(leaf instanceof List && ((List<?>) leaf).size() == 1);leaf = ((List<?>) leaf).get(0);}
             }
             check(expectedLeaf.equals(leaf));
             String encoded = canonical(root);
@@ -114,13 +114,21 @@ public final class PlistResourceProbe {
         }
         out.println("fixture " + label + " outcome=" + digest);
     }
-    private static void execute(File jar) throws Exception {
-        metadata(jar);
+    private static void execute(File jar, boolean fixed) throws Exception {
+        metadata(jar,fixed);
         fixture("internal-entity", " [<!ENTITY e \"fixture\">]", "<string>&e;</string>", "fixture", 0);
         fixture("flat-entities-512", " [<!ENTITY e \"fixture\">]", "<string>" + repeated("&e;", 512) + "</string>", repeated("fixture", 512), 0);
         fixture("nested-entities-64", " [<!ENTITY e \"x\"><!ENTITY a \"&e;&e;&e;&e;\"><!ENTITY b \"&a;&a;&a;&a;\"><!ENTITY c \"&b;&b;&b;&b;\">]", "<string>&c;</string>", repeated("x", 64), 0);
         for (int depth : new int[]{8, 30, 31, 32, 128})
             fixture("arrays-" + depth, "", repeated("<array>", depth) + "<string>fixture</string>" + repeated("</array>", depth), "fixture", depth);
+        for(String kind:new String[]{"dict","mixed","empty-array","empty-dict"}) {
+            for(int depth:new int[]{30,31}) {
+                Object expected=kind.equals("empty-array")?Collections.emptyList():kind.equals("empty-dict")?Collections.emptyMap():"fixture";
+                String node=kind.equals("empty-array")?"<array/>":kind.equals("empty-dict")?"<dict/>":"<string>fixture</string>";
+                for(int i=0;i<depth;i++)node=kind.equals("mixed")&&i%2==0?"<array>"+node+"</array>":"<dict><key>fixture</key>"+node+"</dict>";
+                fixture(kind+"-"+depth,"",node,expected,depth);
+            }
+        }
         for (int length : new int[]{4096, 65536}) {
             String text = repeated("x", length);
             fixture("string-" + length, "", "<string>" + text + "</string>", text, 0);
@@ -129,14 +137,14 @@ public final class PlistResourceProbe {
         fixture("unicode-32768", "", "<string>" + text + "</string>", text, 0);
     }
     public static void main(String[] args) throws Exception {
-        OfflineGuard.install(); check(args.length == 2 && (args[1].equals("default") || args[1].equals("lowered-jaxp-properties")));
+        OfflineGuard.install(); check(args.length == 3 && (args[1].equals("default") || args[1].equals("lowered-jaxp-properties")) && (args[2].equals("true") || args[2].equals("false")));
         PrintStream previousOut = System.out, previousErr = System.err; out = previousOut;
         ByteArrayOutputStream capturedOut = new ByteArrayOutputStream(), capturedErr = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(capturedOut, true, "UTF-8"));
             System.setErr(new PrintStream(capturedErr, true, "UTF-8"));
             org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
-            execute(new File(args[0]).getAbsoluteFile());
+            execute(new File(args[0]).getAbsoluteFile(),Boolean.parseBoolean(args[2]));
             controls(args[1].equals("lowered-jaxp-properties"));
             check(capturedOut.size() == 0 && capturedErr.size() == 0);
         } finally {

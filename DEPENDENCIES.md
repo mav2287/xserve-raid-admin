@@ -55,3 +55,16 @@ The clean follow-up acquisition in `audit/apple-distribution-confirmation.json`
 records the explicit CA bundle hash, OpenSSL version and loaded module source
 hashes, and returns exactly the same archive bytes. The first tool version is
 traceable to commit `41ecbde`; its recorded hash matches that Git version.
+
+
+## audit.6 security refinement
+
+The user explicitly prioritized safe closure of the XML parser security gap.
+A narrow parser-construction override selects the pinned bootstrap JDK provider,
+retains the original plist Handler / DTD / serializer, enables validation, enforces
+and verifies explicit quotas, and refuses external DTD/schema access. Provider
+replacement and intentional security rejections are recorded in
+[audit.6 parser evidence](audit/XML-PARSER-COMPATIBILITY.md). Controller commands,
+polling and retry timing are unchanged. Production hardware approval remains absent.
+Safe work continues with HTTP allocation/framing, firmware preflight and isolated
+native UI qualification; successful parser fixtures do not close release acceptance.

@@ -480,3 +480,16 @@ The accompanying firmware archive is pinned and inspected offline. Its optional
 full-image key is absent. Release notes state that LUN Masking was removed from
 the Advanced panel, despite remaining bytecode. Preserve intended visible 1.5.1
 behavior rather than exposing every catalogued legacy class.
+
+
+## audit.6 security refinement
+
+The user explicitly prioritized safe closure of the XML parser security gap.
+A narrow parser-construction override selects the pinned bootstrap JDK provider,
+retains the original plist Handler / DTD / serializer, enables validation, enforces
+and verifies explicit quotas, and refuses external DTD/schema access. Provider
+replacement and intentional security rejections are recorded in
+[audit.6 parser evidence](audit/XML-PARSER-COMPATIBILITY.md). Controller commands,
+polling and retry timing are unchanged. Production hardware approval remains absent.
+Safe work continues with HTTP allocation/framing, firmware preflight and isolated
+native UI qualification; successful parser fixtures do not close release acceptance.

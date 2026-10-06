@@ -168,3 +168,5 @@ outputs match exactly. No controller operations or real credentials are involved
   hostile message/exception objects and synthetic private metadata. Only two fixed
   codes are emitted per process, including after reconfiguration; write failures
   do not escape. Other application outputs and visible GUI failures remain open.
+
+| XML security | Explicit provider, quota readback and external-access denial | audit.6 bounded differential and policy probes; original/candidate accepted hashes, mixed/container depth boundaries and entity quota rejection | Partial — real responses and exhaustive provider semantics remain open; [scope](audit/XML-PARSER-COMPATIBILITY.md) |

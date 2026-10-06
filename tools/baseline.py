@@ -24,10 +24,11 @@ PATCH_CLASSES = {
     'com/apple/mrj/MRJApplicationUtils$Adapter.class',
     'com/apple/mrj/MRJApplicationUtils$RuntimeApi.class', 'sun/io/MalformedInputException.class',
     'com/apple/mrj/MRJFileUtils.class', 'compat/SafePlistResolver.class', 'compat/SafeLogAppender.class',
+    'compat/SafePlistParser.class',
 }
 ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd', 'log4j.properties'}
-VERSION = '1.5.1-modern.audit.5'
-BUNDLE_VERSION = '5'
+VERSION = '1.5.1-modern.audit.6'
+BUNDLE_VERSION = '6'
 
 
 def tree_hash(files):

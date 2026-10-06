@@ -3,6 +3,9 @@ import hashlib
 import struct
 
 TARGETS = {
+    'com/apple/util/plist/PropertyListUtilities.class':
+        ('b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a',
+         'getParser', '()Ljavax/xml/parsers/SAXParser;'),
     'com/apple/util/plist/PropertyListUtilities$Handler.class':
         ('29c3a81427b07fb9241df9560050dfddd72b231a6b6486686fb8414cbf79cb70',
          'resolveEntity', '(Ljava/lang/String;Ljava/lang/String;)Lorg/xml/sax/InputSource;'),
@@ -11,6 +14,8 @@ TARGETS = {
     'com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class':
         ('8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37', 'toString', '()Ljava/lang/String;'),
 }
+EXPECTED_ACCESS = {entry: (0x000c if name == 'getParser' else 0x0001)
+                   for entry, (_, name, _) in TARGETS.items()}
 REDACTED = 'RAID Admin request [details redacted]'
 
 
@@ -86,8 +91,8 @@ def transform(entry, data):
         raise ValueError('Original class hash mismatch; refusing method substitution')
     cls = ClassFile(data)
     targets = [m for m in cls.methods if (m['name'],m['descriptor']) == (name,descriptor)]
-    if len(targets) != 1 or targets[0]['access'] & (0x0008 | 0x0100 | 0x0400):
-        raise ValueError('Target method is missing, duplicate, static, native or abstract')
+    if len(targets) != 1 or targets[0]['access'] != EXPECTED_ACCESS[entry]:
+        raise ValueError('Target method missing, duplicate or access flags differ')
     codes = [a for a in targets[0]['attributes'] if a[0] == 'Code']
     if len(codes) != 1: raise ValueError('Target must have exactly one Code attribute')
     extra = bytearray(); next_index = cls.pool_count
@@ -100,14 +105,14 @@ def transform(entry, data):
     def utf8(text):
         value = text.encode('ascii')
         return append(1, word(len(value)) + value)
-    if name == 'resolveEntity':
-        owner = append(7, word(utf8('compat/SafePlistResolver')))
-        method_name = utf8('resolve')
+    if name in ('resolveEntity', 'getParser'):
+        owner = append(7, word(utf8('compat/SafePlistResolver' if name == 'resolveEntity' else 'compat/SafePlistParser')))
+        method_name = utf8('resolve' if name == 'resolveEntity' else 'create')
         method_descriptor = utf8(descriptor)
         signature = append(12, word(method_name) + word(method_descriptor))
         reference = append(10, word(owner) + word(signature))
-        code = b'\x2b\x2c\xb8' + word(reference) + b'\xb0'
-        stack, local = 2, 3
+        code = (b'\x2b\x2c' if name == 'resolveEntity' else b'') + b'\xb8' + word(reference) + b'\xb0'
+        stack, local = (2, 3) if name == 'resolveEntity' else (1, 0)
     else:
         constant = append(8, word(utf8(REDACTED)))
         code = b'\x13' + word(constant) + b'\xb0'  # ldc_w even when the index happens to fit in one byte

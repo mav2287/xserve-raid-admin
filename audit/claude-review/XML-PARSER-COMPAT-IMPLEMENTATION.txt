@@ -1,0 +1,58 @@
+Actual Claude CLI read-only review. No commands or controller operations executed by reviewer.
+
+I reviewed the four files only. I ran nothing and edited nothing. The patcher and helper look right for what they claim. The weak points are in what the tests can prove, not in the patch itself.
+
+## Findings
+
+**1. The accepted-case check never checks that the cases were accepted** (`tools/check_xml_resources.py:82-86`)
+It only checks that the original and candidate produce identical `fixture <label> outcome=` lines. If `arrays-30` or `flat-entities-512` were rejected the same way by both jars, the check would still pass. Your claim that "arrays30 accepted" depends on the content of that line, which nothing asserts. Add a check that each of the 8 lines starts with an accepted outcome.
+
+**2. The quota and depth rejections in the probe accept any `PropertyListException`** (`tests/java/ParserPolicyProbe.java:38-41, 45-46`)
+- **Entity quota:** the 65,000 `&e;` case only proves the document was rejected, not that the entity-expansion limit rejected it. A validation error, a DTD problem or some other failure would also pass. The probe has no passing case of the same shape under the limit (for example about 63,900 refs). Either add one, or check the cause chain for the JAXP limit error.
+- **Dict depth:** depth 31 passes on any rejection. Depth 30 does work as a positive control, and it also shows the lowered `maxElementDepth=16` flag is overridden. Checking the cause would still make "the depth limit fires before the legacy failure" an actual assertion.
+- The hostile mode does make these tests meaningful. `entityExpansionLimit=0` and `maxElementDepth=0` mean unlimited, so a rejection there shows the explicit API values won. Only the cause is missing.
+
+**3. Original-vs-candidate depth parity is measured for arrays only** (`check_xml_resources.py:87-89`)
+- **Dicts:** the dict 30/31 cases run only against the candidate (lines 68-80). Nothing measures the original's dict boundary. "Depth30/31 dictionaries tested" is a candidate-only claim.
+- **Leaf vs element counting:** all fixtures appear to end in a leaf. The JDK limit counts every element. If the original's array failure counts only containers, the two could disagree on plist + 31 nested arrays with an empty innermost `<array/>` (32 elements). The candidate would accept that. If the failing array is in the unchanged Handler, the old `ArrayIndexOutOfBounds` could come back through the candidate. Add that leaf-less case, and the same with `<dict/>`, to both jars.
+
+**4. Please reconcile what line 66 asserts about the original**
+`check_xml_resources.py:65-66` requires the original's results to be identical under the lowered flags (`entityExpansionLimit=32`, `maxElementDepth=16`). The JDK controls show those flags reject entity-count and depth cases. `flat-entities-512` (512 refs against a limit of 32) and `arrays-30` (32 levels against 16) can only stay unchanged if the original's parser ignores `jdk.xml.*`. That would mean it is not the JDK provider.
+- **If so:** the candidate replaces the parser provider, not just its settings. "Validator true … unchanged" should then read "validation enabled; provider replaced". The parity evidence for that swap is 8 accepted fixtures plus 3 rejection depths.
+- **If the original does use the JDK parser:** this check should fail, and I'd want to know why it passes. `PlistResourceProbe` was outside the files I read, so I can't settle which case applies.
+
+**5. Parser-construction failures are never exercised**
+`create()` can throw `ParserConfigurationException` or `SAXException` (an unknown property raises `SAXNotRecognizedException`). It can also throw unchecked exceptions: `SecurityException` from `getMethod`, `ClassCastException`, or a `LinkageError`.
+- The JVM doesn't enforce checked exceptions, so what matters is whether `readXML`'s catch blocks at the `getParser` call cover these.
+- If the original `getParser` caught its own failures or wrapped them differently, a construction failure now takes a different path.
+- Your "-103, one send, no retry" tests cover parse-time failures only. This path is not qualified.
+
+**6. The evidence's `limits` text no longer matches what the report contains** (`check_xml_resources.py:98`)
+- The same JSON now includes `policy_observations`, but the text still describes only the eleven cases with "characters below 131072, entity output at most 3584". The policy probe goes up to about 420k input characters, 70,000-character outputs and 65,000 entity refs.
+- The hostile flag set (lines 69-71) is not recorded in the output, only `lowered_properties`.
+- With the current uncommitted changes, `fixture_dirty` would come out `true`.
+
+**7. The Java 9+ branch is never run** (`SafePlistParser.java:28-33`)
+Both pinned runtimes are 8.504, so only the `NoSuchMethodException` fallback runs. "Java9+ newDefaultInstance avoids module-access failure" is reasoning, not a test result. Also, on newer JDKs the pinned 8u values would likely loosen stricter default limits. That fits the parity goal, but the comment calls them "secure-processing defaults", and that only holds on 8.
+
+## Confirmed correct
+
+- **`class_patch.py` substitution:**
+  - `0x000c` is static and protected, which matches `getDeclaredMethod` plus `setAccessible`.
+  - The new code is `invokestatic` then `areturn`, with stack 1, locals 0, an empty exception table and no Code attributes. That is valid for major 47 under `-Xverify:all`.
+  - New constant-pool entries are only appended, and the overflow bound is right (index 65534 allowed, 65535 refused).
+  - `assert_preserved` checks the header and major version, the original pool bytes, the class hierarchy, fields and method count, every other method byte for byte, the target's access/name/descriptor/attribute count, its non-Code attributes, and the class attributes.
+  - Note that the file patches four methods across four classes. "Only getParser substituted" is true for `PropertyListUtilities` only.
+- **Helper ordering:** secure processing is set first, and the explicit API properties then override what it set, including the empty external-access values. Every value is read back from the reader. Values set through the API take precedence over `-Djdk.xml.*` and `jaxp.properties`, so the readback reflects the limit actually enforced.
+- **Depth arithmetic:** dict30 is plist + 30 + leaf = 32 (accepted) and dict31 is 33 (rejected). This matches arrays 30/31 and a rule of "reject when depth > 32, counting every element".
+- **Predefined and character references:** 70,000 refs pass at a 64,000 expansion limit, which shows they aren't counted. The inputs are ASCII, so the `<524288` length check is also a byte count.
+- **Thread test:** an `AssertionError` inside a worker thread isn't caught as `Exception`. It still fails the probe, because the default handler prints to the redirected stderr and the output-empty check catches it. That works, but indirectly. It is 4 threads each doing 4 parses: 16 parses, 4 at a time.
+- **API metadata failure:** only `NoSuchMethodException` falls back, so the claim holds. Unchecked exceptions propagate unwrapped (see finding 5).
+
+## Claims to narrow
+- "Same acceptance/rejection depth boundaries": arrays only, with leaf-terminated cases only.
+- "65k internal refs quota": shows rejection, not that the quota caused it.
+- "Validator/provider unchanged": depends on finding 4.
+- "Java 9+ supported": not exercised.
+
+Disposition: Added explicit accepted SHA-256 checks, under-limit positive entity probes, exact quota failure messages and ambient-property evidence. Added original/candidate dict, mixed and empty-container depth boundaries and 26 accepted-value differential cases. Provider replacement is deliberate; original plist Handler, DTD and serializer remain. Java 8 both architectures and optional Java 11 have been exercised. Development evidence is labeled dirty; clean source and evidence are recorded separately. Runtime/linkage/VM failures fail closed and are not represented as a fallback parser.

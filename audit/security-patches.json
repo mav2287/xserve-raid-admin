@@ -33,5 +33,15 @@
     ],
     "original_major_version": 47,
     "patched_major_version": 47
+  },
+  "com/apple/util/plist/PropertyListUtilities.class": {
+    "original_sha256": "b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a",
+    "patched_sha256": "9609667e0fa67237c9cee9ec7e2920ef2ea77b08ed2db3fb566064e8fb5100bb",
+    "method": [
+      "getParser",
+      "()Ljavax/xml/parsers/SAXParser;"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47
   }
 }

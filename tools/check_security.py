@@ -35,7 +35,7 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         raise ValueError('Independent class identity/version check failed')
     if new[1][:len(old[1])] != old[1] or old[2] != new[2]:
         raise ValueError('Independent constant pool/non-target disassembly check failed')
-    expected_frame = 'stack=2, locals=3, args_size=3' if target == 'resolveEntity' else 'stack=1, locals=1, args_size=1'
+    expected_frame = {'resolveEntity':'stack=2, locals=3, args_size=3', 'getParser':'stack=1, locals=0, args_size=0'}.get(target,'stack=1, locals=1, args_size=1')
     if expected_frame not in new[3] or 'Exception table:' in new[3]:
         raise ValueError('Unexpected target stack/locals/exception table')
 
@@ -74,17 +74,21 @@ def main():
     request_inventory = request_override_inventory(args.jdk, original)
     helper = disassemble_entries(args.jdk,args.jar,['compat/SafePlistResolver.class'],verbose=True)
     if '  major version: 52' not in helper: raise ValueError('Helper requires unexpected JVM version')
+    parser_helper = disassemble_entries(args.jdk,args.jar,['compat/SafePlistParser.class'],verbose=True)
+    if '  major version: 52' not in parser_helper: raise ValueError('Parser helper requires unexpected JVM version')
     verified_methods = {}
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)
         disassembly = disassemble_entries(args.jdk, args.jar, [entry])
-        match = re.search(r'^  public [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
+        match = re.search(r'^  (?:public|protected) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
-        expected = ['aload_1','aload_2','invokestatic','areturn'] if name == 'resolveEntity' else ['ldc_w','areturn']
+        expected = {'resolveEntity':['aload_1','aload_2','invokestatic','areturn'],'getParser':['invokestatic','areturn']}.get(name,['ldc_w','areturn'])
         if operations != expected: raise ValueError('Independent disassembly differs from intended substitution')
         if name == 'resolveEntity' and ('compat/SafePlistResolver.resolve:' + descriptor) not in match[1]:
             raise ValueError('Resolver delegate differs')
+        if name == 'getParser' and ('compat/SafePlistParser.create:' + descriptor) not in match[1]:
+            raise ValueError('Parser delegate differs')
         if name == 'toString' and '// String RAID Admin request [details redacted]' not in match[1]:
             raise ValueError('Request diagnostic literal differs')
         verified_methods[entry] = operations
