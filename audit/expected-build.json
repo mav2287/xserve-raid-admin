@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "780381ad2dec2aa7aaadf46129443900dd1c10d94ce59701632e597e3902bea7",
-  "reason": "Audit.18 development: worker-local stop before published connection failure; clean qualification pending.",
+  "previous_record_sha256": "8ca64d7874706bbbae55087b6a08e457a1d67469289d1145fcd4a6b1fa75f6e0",
+  "reason": "Audit.18 reviewed initial-connect terminal policy: two clean source builds reproduce exact artifact; preserve audit.17 Manager outside doConnect Code and original immutable JAR. Final clean fixture/package qualification follows this anchor.",
   "schema": 1,
-  "source_commit": "eec58fad0e044417ee7c02bf9d40f0bcb6f47e0b",
-  "source_dirty": true
+  "source_commit": "25f47a7cb9cb61984904547a1c75bebc71d31710",
+  "source_dirty": false
 }
