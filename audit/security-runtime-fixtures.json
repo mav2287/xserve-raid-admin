@@ -73,6 +73,66 @@
         "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
         "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
       ]
+    },
+    {
+      "runtime_tree_sha256": "71794166a9b9184a1c1f1e5c59b6150255376d0620e39fce8a3bc2619784577a",
+      "api": [
+        "desktop_class_present=true",
+        "java_awt_desktop_about_handler_present=true",
+        "jdk=11.0.18",
+        "architecture=aarch64"
+      ],
+      "parity": "PASS",
+      "fixture_output_sha256": "1bde6a397f57362a8653964dbf568ec625215555e91d654ddd503db75daad251",
+      "folder_regression": [
+        "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+        "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+      ],
+      "menu_regression": "PASS runtime_api=desktop; About/Preferences/Quit/OpenFiles callbacks; proxy identity; quit cancellation; guarded operations=0",
+      "vendor_extension_regression": "PASS vendor crypto-provider availability and French locale data; no encryption/network operation performed",
+      "security_regression": [
+        "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+        "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+        "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+        "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+        "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+        "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+        "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+        "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+        "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+        "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+        "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+      ]
+    },
+    {
+      "runtime_tree_sha256": "0169659c1a73362ba5c51d82e6623a6c1d762ea4555f39b0933ff112586aa3e0",
+      "api": [
+        "desktop_class_present=true",
+        "java_awt_desktop_about_handler_present=true",
+        "jdk=11.0.18",
+        "architecture=x86_64"
+      ],
+      "parity": "PASS",
+      "fixture_output_sha256": "1bde6a397f57362a8653964dbf568ec625215555e91d654ddd503db75daad251",
+      "folder_regression": [
+        "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+        "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+      ],
+      "menu_regression": "PASS runtime_api=desktop; About/Preferences/Quit/OpenFiles callbacks; proxy identity; quit cancellation; guarded operations=0",
+      "vendor_extension_regression": "PASS vendor crypto-provider availability and French locale data; no encryption/network operation performed",
+      "security_regression": [
+        "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+        "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+        "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+        "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+        "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+        "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+        "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+        "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+        "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+        "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+        "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+      ]
     }
   ],
   "menu_limits": "Real interface proxies and API metadata; synthetic backend callbacks only. No native singleton registration, real event construction or AppleEvent delivery.",

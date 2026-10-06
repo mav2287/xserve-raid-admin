@@ -35,7 +35,7 @@ The static inventory covers all 656 `com.apple` and `com.chaotic` classes, 4,317
 
 ```mermaid
 flowchart TD
-  Shell[Bundle shell launcher] --> JVM[Externally selected JVM]
+  Shell[Bundle shell launcher] --> JVM[Pinned runtime in packaged candidate]
   JVM --> Launcher[Modernization Launcher]
   Launcher --> Main[Original Main and RaidAdmin]
   Main --> UI[Swing menus, sheets and controller panels]
@@ -52,7 +52,7 @@ flowchart TD
   Main --> OS[MRJ / FileManager / JNI PasswordManager]
 ```
 
-The class `RaidSystemAgent` defaults to 15,000 ms polling. `CommunicationsManager` serializes transactions and connection retries, with a 3,600,000 ms ceiling. Request factory plus firmware request classes define protocol messages; `AcpxConnection` adds ACP and controller-target headers; the custom HTTP implementation manages sockets. Responses use validating SAX and an embedded Apple plist DTD resolver; unknown external entities are not blocked.
+The class `RaidSystemAgent` defaults to 15,000 ms polling. `CommunicationsManager` serializes transactions and connection retries, with a 3,600,000 ms ceiling. Request factory plus firmware request classes define protocol messages; `AcpxConnection` adds ACP and controller-target headers; the custom HTTP implementation manages sockets. Responses use validating SAX and an embedded Apple plist DTD resolver; unknown external entities were permitted in the original and are blocked by the audit.4 resolver substitution.
 
 The `som` package holds model/state and response mapping; `advanced` exposes slicing, expansion, masking and related settings; `firstaid` includes tests/scans and repairs; `eventlog` includes display, inspector, save and print; `update` handles chooser, bundle parsing, transfer and progress. `cli` has a separate command dispatcher, option parsing and many command handlers. CLI presence does not authorize executing commands against hardware.
 

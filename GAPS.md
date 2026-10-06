@@ -28,7 +28,7 @@ Discovery, roles/authentication, polling, timing, persistence, reconnect, sleep/
 
 ## G07 — Firmware and mutation safety
 
-No known-good firmware package or hardware maintenance context supplied. Preflight, visible errors, confirmation, transfer, acknowledgement, restart and final-version validation remain unqualified. Array/cache/network/power/diagnostic mutations are not authorized for execution without immediate confirmation.
+No known-good firmware package or hardware maintenance context supplied. Preflight, visible errors, confirmation, transfer, acknowledgement, restart and final-version validation remain unqualified. Original updater bytecode also disables/restores disk and controller caches; firmware approval must explicitly cover these ancillary restricted actions. Array/cache/network/power/diagnostic mutations are not authorized for execution without immediate confirmation.
 
 ## G08 — Release engineering
 

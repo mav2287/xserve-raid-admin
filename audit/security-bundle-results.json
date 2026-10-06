@@ -1,0 +1,34 @@
+{
+  "arm64": {
+    "bundle_tree_sha256": "4c070bcd184183e0da314bf916d99a38a55361e050b58bc184418e4b5f0ab829",
+    "packager_commit": "0243e9af4890c5cae41ba25350476e8a390f1069",
+    "runtime": {
+      "architecture": "aarch64",
+      "archive_sha256": "b779a70a47b910ca4c10c5d98d6ae11e2f82d9720423704eaf5eacf87f1ca436",
+      "archive_url": "https://corretto.aws/downloads/resources/8.504.04.1/amazon-corretto-8.504.04.1-macosx-aarch64.tar.gz",
+      "signature_team": "94KV3E626L",
+      "signature_verification": "vendor signature verified after byte-only copy; never re-signed",
+      "tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "vendor": "Amazon Corretto",
+      "version": "8.504.04.1"
+    },
+    "source_commit": "631b6380f8d7e973b29e11c29510e6c9897b9d89",
+    "verification": "Repeated bundle equality, source preservation, vendor signature and file/directory modes passed"
+  },
+  "x64": {
+    "bundle_tree_sha256": "d52b3231c0cca3d709f02afe45eac0f8744a1173880d127826a99dd32b23bf35",
+    "packager_commit": "0243e9af4890c5cae41ba25350476e8a390f1069",
+    "runtime": {
+      "architecture": "x64",
+      "archive_sha256": "8f8fc4975487ab9cf636c826942fff65cc56b0a91bdc5a2bd91a3d8849e7a3f4",
+      "archive_url": "https://corretto.aws/downloads/resources/8.504.04.1/amazon-corretto-8.504.04.1-macosx-x64.tar.gz",
+      "signature_team": "94KV3E626L",
+      "signature_verification": "vendor signature verified after byte-only copy; never re-signed",
+      "tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+      "vendor": "Amazon Corretto",
+      "version": "8.504.04.1"
+    },
+    "source_commit": "631b6380f8d7e973b29e11c29510e6c9897b9d89",
+    "verification": "Repeated bundle equality, source preservation, vendor signature and file/directory modes passed"
+  }
+}
