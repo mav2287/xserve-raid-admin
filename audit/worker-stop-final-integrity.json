@@ -1,0 +1,53 @@
+{
+  "source_commit": "727e5c436fe91524e755d63c155dc217f97f5ac2",
+  "fixture_commit": "727e5c436fe91524e755d63c155dc217f97f5ac2",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "records": {
+    "security": "5b6a9baa97fa11191c52dce149d2591560b8e7b0dd065aa5673109c2e0ecbd30",
+    "transport": "13a932192cdb2abf5b12b958357da76dc2981adf9b2ec898289146271be8d357",
+    "runtime": "0924c9143bacabb8cce7a340b57fd0c718989540206d524336eeaf208805fee0",
+    "resources": "aee5c905f2bcbd46afc75396b537aeb8a28766be380895722e9828ad4d032999",
+    "shared": "2a4e77d0edb458f9e3ea48beb9399d23a3741d28ba5de8150d66863ba284d78a",
+    "factory": "1d6cda790b939256415f066a0edde70e7d68779003fc84e32a27558e4c70eec9"
+  },
+  "candidate_jar_sha256": "73d155bf301d23ae189cd4d04d956ed4b275ed400065fbbeff6ef12fbaf06c94",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "checked_source_hash_entries": 57,
+  "python_test_record_sha256": "b71c0b55caa4dbc104377bdc93639f1a1f0d3a1f1034ff5f1a006504e453bff4",
+  "python_tests_passed": 103,
+  "worker_stop_records": 12,
+  "worker_stop_verifier_valid_mutants_per_architecture": 4,
+  "architectures": [
+    "aarch64",
+    "x64"
+  ],
+  "x64_execution": "Rosetta, not physical Intel",
+  "changed_jar_entries_from_audit15": [
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "compat/RejectionRecovery.class"
+  ],
+  "controller_contact": false,
+  "installed_application_modified": false,
+  "supplemental_records": {
+    "worker-stop-clean-tests": "b71c0b55caa4dbc104377bdc93639f1a1f0d3a1f1034ff5f1a006504e453bff4",
+    "worker-stop-bundle-results": "c4666940b8ac16997fa3b15fe1873f7f66e3a27a9d1407a34f64057b7b3b6cb1",
+    "worker-stop-diagnostics-aarch64": "ee1bddce990f06fb44d81210b06d51bb5edec8d66005d029bdcd3ec3436b7a38",
+    "worker-stop-diagnostics-x64": "a1735294050a91b479b5001b0ee295611c3884f7fc72a4885612c7b6acb2b4d2"
+  },
+  "claude_clean_review_sha256": "b77080e8bde5254a4eed598cd1a7ca9902bb31b86c836354a5afa31335a869a7",
+  "runtime_hash_scopes": {
+    "aarch64": {
+      "Runtime.jdk": "e599cb3abe9ac6b09164cec18f6fca71625a16522d186ba7148e08a218d354c0",
+      "Runtime.jdk/Contents/Home": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2"
+    },
+    "x64": {
+      "Runtime.jdk": "bddb573491588b48dee81e1b2461fb71765a0dbeb005ddb9337e211f52fc6d39",
+      "Runtime.jdk/Contents/Home": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d"
+    }
+  }
+}

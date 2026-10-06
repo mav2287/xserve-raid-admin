@@ -220,16 +220,16 @@ also restricts failed reads. Clean qualification passes on both pinned runtimes;
 generic exception paths can still permit dependent queued writes; synchronous
 post/exit cancellation and complete GUI recovery remain open.
 
-### Audit.16 worker-failure containment (development)
+### Audit.16 worker-failure containment (clean fixtures)
 
-The next narrowly scoped patch stops the local session before callbacks after
+The narrowly scoped audit.16 patch stops the local session before callbacks after
 legacy prefix parse failures, typed malformed-input failures and generic worker
 exceptions. It preserves their original result codes and exception objects;
 healthy negative controller replies still permit the next request. This refines
 the audit.15 statement that prefix behavior remains original: its error code is
 preserved, but session continuation is deliberately removed for security.
-Claude reviewed the design, implementation and follow-up; 103 development tests
-pass. Clean qualification is pending. See [scope, evidence and remaining holes](audit/WORKER-FAILURE-STOP.md).
+Claude reviewed the design, implementation, follow-up and clean evidence; all six
+qualification gates and 103 tests pass at clean source/fixture/package commit `727e5c4`. See [scope, evidence and remaining holes](audit/WORKER-FAILURE-STOP.md).
 Interrupted synchronous waits, premature connection completion, queue exit races,
 GUI recovery and hardware qualification remain unresolved. No controller command
 or installed-app modification is part of this change.

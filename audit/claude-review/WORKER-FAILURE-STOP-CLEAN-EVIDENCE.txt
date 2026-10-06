@@ -1,0 +1,48 @@
+**Verdict:** I found no evidence blocker. One documentation blocker remains: `audit/WORKER-FAILURE-STOP.md` needs updating before these records are archived as clean. I only read files. I ran no commands and recomputed no hashes, so every hash below is compared as recorded, not verified.
+
+## Blocker (documentation only)
+
+- **`WORKER-FAILURE-STOP.md` still describes the pre-clean state.** Line 3 says "development only; clean qualification pending" and line 117 says "Clean qualification will independently pin committed inputs." Unlike the audit.15 doc (`AMBIGUOUS-IO-NO-REPLAY.md:152-171`), it has no section linking the clean records, final integrity, bundle trees, diagnostics or a clean-evidence review. Archiving it as written would contradict the records.
+
+## Clean source and fixture identity (consistent as recorded)
+
+- **Commit:** every record uses `727e5c4` with `dirty:false`. Final integrity, security and both bundle builds per architecture also give it as source and packager commit.
+  - Transport, runtime, shared and factory only carry `fixture_commit`. They are tied to the source through the candidate JAR hash. Audit.15 used the same pattern.
+- **JAR:** candidate `73d155bf…` appears in all records, in `expected-build.json`, in `worker-stop-recovery-expected.json`, and as `RAID_Admin.jar` in all four bundle manifests.
+- **Expected-build inputs:** the hashes in `expected-build.json` for `RejectionRecovery.java`, `class_patch.py`, `baseline.py`, `audit_support.py` and `MalformedInputException.java` match the hashes in transport, shared and resources. The follow-up review's watch item 1 is satisfied.
+- **Bundles:** the repeated builds give identical trees, `68d824ba…` (aarch64) and `9b132466…` (x64). Both are unsigned and not notarized, marked "not a qualified release".
+- **Counts:** 103 tests (matches the tests record and the follow-up review), 12 worker-stop records (2 architectures × (2 execution modes + 4 mutants)), and 116 factory rows.
+
+## Mutation evidence
+
+- All four verifier-valid mutants (prefix, report, shim, tail) pass their negative control on both architectures. `check_transport.py:215,228-234` guards each substitution and checks the original bytes before patching (`01ce`→`0133` for shim, `ffffff1b` for tail). `:206` requires the unmodified helper to compile to the candidate's exact bytes.
+- **Limitation:** the shim/tail `generated_jar_sha256` values differ between architectures. That's because `writestr` with a plain entry name (`:235`) stamps the current time. Don't treat those hashes as reproducible pins; the byte-edit guards are the real evidence. The source-mutant hashes do match across architectures.
+
+## Preserved semantics (memory seams only)
+
+- Faulted operations keep their original result codes and exception identity: prefix -103, shim -102, generic -102 and the before-request fault -102.
+- Original vs candidate: the original continued (`queued_restart=sent`, 2 attempts); the candidate stops before the callback with the restart blocked.
+- A healthy -27 reply continues to the next request.
+- A failed synchronous call gets the plain IOException wrapper, and the next post gets CommShutdownException without enqueueing.
+- Both `-Xint` and `-Xcomp` pass, and the 143-line recovery matrix differs only in its first line (`connected=false; stop=true`).
+- **Caveat:** the response seams clear `requestOutstanding` by hand, and the getPath proxy fault isn't a real serializer throw site.
+
+## Minor limitations (not blocking)
+
+- `worker-stop-recovery-expected.json` is still labelled "development expectation". It's pinned by hash in the runtime record, so relabelling it would change that hash.
+- The runtime record's `runtime_tree_sha256` values (`278ffbb…`, `a4747957…`) differ from the `runtime_trees` in the other records. Audit.15 shows the same split, so it's probably a different hashing scope, but nothing links the two.
+- Final integrity hashes only the six gate records, not the tests, bundle or diagnostics records. That matches audit.15. The diagnostics records exist (`build/worker-stop-diagnostics-*.json`) but weren't in this review.
+- The subclass scan is static and recorded once; no gate regenerates it.
+
+## Unresolved gaps
+
+- **Hardware:** x64 ran under Rosetta, not physical Intel. No release signing or notarization, no real TCP, socket timing or controller operations, and no firmware preflight or transmission binding.
+- **Concurrency and liveness:** not qualified:
+  - interrupted synchronous waits
+  - TYPE_CONNECT completion
+  - the post/exit race
+  - the manager/queue lock-order deadlock
+  - a prefix logger throw at PC 374 killing an already-stopped worker
+  - callback or message-getter failures killing workers ("callback-drain-unqualified")
+  - failed-stop and subclass paths at runtime
+- **GUI and agent:** whole RaidSystemAgent termination and GUI recovery are not measured. The permanent session stop (including a healthy controller hitting the legacy -103 path) is an accepted availability cost. HTTP is still plaintext. A -102 error never proves a mutation wasn't applied.

@@ -1,0 +1,31 @@
+{
+  "fixture_commit": "727e5c436fe91524e755d63c155dc217f97f5ac2",
+  "fixture_dirty": false,
+  "passed": true,
+  "tests": 103,
+  "sources": {
+    "tests/fixtures/session-stop-prefix.javap": "d799b041ca3d298f5541af8c7c2161c9559b21581bfbb063c4bcd2a698e11df6",
+    "tests/fixtures/terminal-io-run.javap": "ccf2ca0a224ea89ded369ff7580f60dfff3acd3446d96f358ba9e9366a8c6188",
+    "tests/fixtures/worker-stop-helper.javap": "4435e9708260c9cd25c5d891ed782af8637c08181598fb81dc6fa8552b85c4c8",
+    "tests/fixtures/worker-stop-run.javap": "307a6f62bb7910295957a03a1278e981d41edb69520739be829d2a7e5f927336",
+    "tests/test_apple_archive.py": "19c2242522f1428dd46c3384b053f8947bf79afd50c875bc541b93ef403a4353",
+    "tests/test_audit_support.py": "39e6fb5c29b0edf0e72865dde6833599cbd0999c1008114b817ae8d4bf7b1c74",
+    "tests/test_baseline.py": "14b7f4c907d8d01fffe73d6698d63061c4ede80d6c7211a17ec286aa63e08661",
+    "tests/test_bundle.py": "d800103b58ee4e5250dbea7a46cc325ca15fc6f61af3ec9692b5c9a209c27354",
+    "tests/test_class_patch.py": "f8cd76b54ab86382db469a77afb0f4bb20af7f75a3d5cfcaf939b8b4cfac177b",
+    "tests/test_diagnostics.py": "3edfb6c67e1e2b10f2df2c0383c1a04eafc2b7ec9fdd5266bfeea3daed05ae59",
+    "tests/test_firmware_preflight.py": "61dcc667a463dce97ae73d5547cba8d4b90d40ac3a695ab22f51e14284f0846f",
+    "tests/test_inventory.py": "b1dfb67333c261d000195e4077dd9d709c2fed2dec81cc1ebf9142cde4914c60",
+    "tests/test_launcher.py": "0dba564ff6aec88901125ab5ffad759c48bd3263429a12930e7fd81c4942bc0c",
+    "tests/test_request_factory.py": "91192e537b60c3d59ca2a1f9a5f45b0216bb9a24b8333aaf50ba164ee108a27a",
+    "tests/test_runtime.py": "ffc10df211d98b15bc767761147273f1a1ae372d6b318172171b5e31c9f190a5",
+    "tests/test_security_verifier.py": "65b82603ebe3fe41f2c99346c0236c3720cb2087327f30d3808ef465c5a8bed2",
+    "tests/test_session_stop_gate.py": "7dc89a62806d4da93ef658ae875db6c8179a27174d6adf0871d6f1b4ca31713d",
+    "tests/test_shared_stream.py": "94ef044098b045d2ab1d5ce86064928ae49ba640deed5e243be9099fa1337086",
+    "tests/test_terminal_io_gate.py": "fe80bcf1c082862bfdaec435e9cd815903bd912b4f2cc185f567a547f7c7eeb2",
+    "tests/test_transport_comparison.py": "49d53986ec137600920c220a1292823998be56f4ccde9441df0af94f4033ed83",
+    "tests/test_transport_harness.py": "89a4ec13b26af5278ef823731e1fbade63b7e893db2265d36886d5f3f37c8bd0",
+    "tests/test_verification.py": "3ccece78f6fcf94274d7b56f04e97a74d21e0412d979987d33460dc25ea79eb2",
+    "tests/test_worker_stop_gate.py": "0615c0261bd3d59db1e671b19a91fcd10c0c4a169a4241a5c4dde6693b3d0d0e"
+  }
+}
