@@ -722,3 +722,17 @@ Do not promote as release-qualified until the current runtime fixtures and clean
 source evidence are complete. audit.20 qualification records remain immutable.
 Startup prepare propagation and the AddSystemAction counter effect are documented
 in audit/WORKER-EXIT-DESIGN.md; no real profile or production-volume test was run.
+
+### Audit.21 ownership and terminal worker exit (local qualification)
+
+Clean app source `ccf069f` and individually pinned clean fixtures `ccf069f`/`f0ca156`
+pass twelve regression gates and 133 unit tests, including 120 worker, 46
+connection-stop and 40 admission observations. Paired deterministic builds and
+repeated ARM/x64 packages match; x64 execution is Rosetta. Claimed operations
+wait for their actual outcome; terminal worker failure reports started work as
+unconfirmed, drains unsent work without replay and contains callback failures
+before arbitrary throwable logging. Exceptional cleanup callback thread/order
+changes and best-effort limits are documented. See [scope and bound evidence](audit/WORKER-EXIT-QUALIFICATION.md).
+Stop-versus-active-send, native GUI, physical Intel, real controller behavior and
+signed release acceptance remain open. Original JAR and installed app are unchanged;
+HTTP remains plaintext. Earlier milestones and failed/excluded attempts are historical.

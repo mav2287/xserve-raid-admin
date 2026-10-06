@@ -1,0 +1,24 @@
+I found no remaining provenance blocker of the kind the earlier review raised. One item, the SBOM, should be fixed before you sign off. A few smaller gaps remain where the qualification doc claims more than the assembler checks. All of this is from reading files only: I didn't execute anything, write anything or compute hashes. I read the `build/` and `audit/` copies of the assembler line by line and found no difference, but I didn't byte-compare them.
+
+## Earlier blockers: fixed
+- **Ledger keys:** all 32 keys in `worker-exit-final-integrity.json` are emitted by the assembler (line 103), including `assembly_correction` and `integrity_generator`. The text values match the script exactly.
+- **Historical filename:** both copies write `historical-characterization`. `audit/worker-exit-clean-characterization.json` exists, isn't in the allowlist, and git status shows it unchanged.
+- **Clean-checkout conflict:** this is now an explicit allowlist (lines 22–25). Only the listed doc and archive paths may be dirty, so any change to product, tools or tests fails the run.
+- **JAR removals:** `set(old)<=set(new)` (line 94) plus the changed-or-added loop shows that exactly five entries differ and the manifest is unchanged. `QUALIFICATION.md:24` is now accurate.
+- **Runtime Home:** `verify_runtime` raises on any mismatch in file contents, file or directory modes, the lock digest or the vendor signature (`tools/runtime.py:38-55`). The Home hash is then recomputed from those verified bytes.
+- **Package provenance:** `tools/bundle.py:115` defines `source_provenance_sha256` as the hash of the source build's `provenance.json`. That fits the doc's explanation and the same values appearing for both architectures. `check_bundle` re-checks the packaging inputs against the current tree, which shows the packager inputs are the same at `ccf069f` and `f0ca156`.
+
+## Remaining issues
+
+1. **The SBOM isn't bound to anything (I'd fix this before sign-off).** `audit/worker-exit-sbom.json` is untracked and allowlisted (line 22). `DEPENDENCIES.md:252` cites it for "all 3,061 non-directory JAR entries". However, the assembler doesn't generate it, the ledger's `records` doesn't hash it, and nothing checks the count or its `jar_sha256`. Either generate and hash it in the assembler or drop the claim.
+2. **The provenance explanation is plausible but not checked.** Line 78 checks bundle `-4` against `worker-exit-clean-3`, not `-4`. It passes only because the two builds are identical. Nothing compares `2c98…` and `814f…` against the hashes of `clean-3/provenance.json` and `clean-4/provenance.json`, so `QUALIFICATION.md:62` states something the assembler never checks. Fix: check `b` against `clean-4` and add those two equality checks.
+3. **The generator isn't in the commit the ledger names.** `evidence_assembly_commit` is `f0ca156`, but the assembler is untracked (`??`), so the only thing binding it is the hash it writes about itself. `QUALIFICATION.md:56` ("at the pinned clean QA checkout") should say the generator itself is uncommitted, or the assembler should be committed.
+4. **The unit-test record asserts state it doesn't check.** `fixture_dirty: False` is hard-coded (line 91). The stderr file only needs to contain a "Ran 133 tests … OK" line. It isn't tied to the checkout state at the time the tests ran, and `tools/*.py` isn't hashed in that record.
+5. **Minor:**
+   - `packager_commit` is copied into the ledger without checking it's one of the two pinned commits.
+   - The Home check reads `build/logging-bundled-*-1`, not the audit.21 packages. It's valid because those bytes are verified against the lock, but the doc should say which copy.
+   - The script depends on the working directory: `sys.path` `'tools'`, the relative `build/...` paths and `Path(__file__)`. Running it from elsewhere fails rather than giving a wrong result, so this isn't a correctness problem.
+6. **Disclosed, not an evidence defect:** the first clean lock-gate run produced the wrong output for reasons still unknown. The lock gate stands on later reruns, which is a real qualification risk even though it is recorded.
+7. **Typos:** missing spaces in `excluded_runs` ("Initial0ecdc14", "Firstccf069f", "exit0", "clean20-vector") and "mode0444" at `QUALIFICATION.md:44`. Because the ledger text comes from the script, fix these in the assembler, not the JSON.
+
+The scope is still correct: no claims about the native GUI, the controller, physical Intel or release readiness, and diagnostics remain metadata-only.

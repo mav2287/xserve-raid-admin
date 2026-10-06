@@ -1,0 +1,156 @@
+{
+  "source_commit": "ccf069f242418b1c99d74a99397f4da7bb7c8610",
+  "source_dirty": false,
+  "fixture_commit": "f0ca15633410b9d4cb34ef770e353592db167394",
+  "fixture_dirty": false,
+  "qualification": true,
+  "candidate_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/xsr/net/TransportObservation.java": "850a2d7bbfbb06c0da81de8d7ce4bf92aac8434ae0920f0070f7d2847f34b822",
+    "tests/java/com/apple/xsr/net/HeaderObservation.java": "b36a32a1b43679e23618b2ff6dc1d886375fa429d6af19086176395fd8abf029",
+    "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+    "tools/check_sync_posting.py": "24e2fe36b013838e12b364dcb1d07c71fe9b6c4c3873278c85fec75635cc5224",
+    "tools/class_patch.py": "f6cd5da90030bdc8f107436a35108e3e0b75ad286b85e14dd7e1de7802b691f4",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/worker_exit_patch.py": "b4223f29e6b7401520abd34807d9074fced8375424754878e40ea579a3852e7f",
+    "tools/baseline.py": "f850298121b8f5924d8b99ae3fc32e1afa48965ccaa7e4146aa2ce8fb0e6b326",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "audit/expected-build.json": "801372594ad1f16c22389f77194c5298b8ead12b4007bbe081913a80ed361359",
+    "audit/stopped-post-recovery-expected.json": "110c44f74a150393b15b1b8a8fb25f8366e245659c546d1c56f0c5418f03c71b",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "candidate": true,
+      "jar_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "candidate": true,
+      "jar_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "restored_constructor_mutant_sha256": "b5c1413814a8e5ab4998d37a73dae1d6d6bc65674c319b2b378a8317b19369a3",
+      "semantic_negative_control": true
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "candidate": true,
+      "jar_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "candidate": false,
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=true queued=1 request_attempts=2 forbidden_restart=sent",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "candidate": true,
+      "jar_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+      "lines": [
+        "sync callback fixed_exception=true second_clone=false queued=0 request_attempts=2 forbidden_restart=blocked",
+        "sync normal clones=2 attempts=1 waited=true response_identity=true",
+        "sync immediate-before-wait response_identity=true",
+        "sync stopped before_clone=true queue=0",
+        "sync interrupted residual_queue=1 stopped=false cancellation=unfixed",
+        "PASS sync preenqueue observations; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "restored_constructor_mutant_sha256": "b5c1413814a8e5ab4998d37a73dae1d6d6bc65674c319b2b378a8317b19369a3",
+      "semantic_negative_control": true
+    }
+  ],
+  "limits": "Defense in depth: live worker callback deliberately catches IllegalStateException. Stop on second scripted response bounds original continuation; exact second body compared internally. ImmediateManager is a synchronous callback seam, not a production subclass. This gate checks preenqueue behavior; ownership cancellation and terminal worker completion are in check_guarded_worker. Its restored-constructor control also restores the reviewed audit.20 Manager because new Manager code requires the claim method. GUI reachability and controllers remain unqualified. No sockets, profiles, app launch or production volumes."
+}

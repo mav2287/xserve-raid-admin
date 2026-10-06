@@ -1,0 +1,42 @@
+I wouldn't accept this evidence set yet. Three blockers affect provenance. The counts, scope, fixture bindings and historical preservation are consistent, apart from one gap in how the "five entries" claim is proven. I could only read files, not compute SHA-256, so every hash below is checked by cross-reference between files, not recomputed.
+
+**The files changed while I was reviewing.** On my first read, `worker-exit-final-integrity.json` had no `integrity_generator` key and recorded `integrity_generator_sha256` as `b5ee5796…`. A later read showed `integrity_generator: "audit/worker-exit-evidence-assembler.py"` and `15e305c7…` (lines 75–76). `WORKER-EXIT-DESIGN.md:193` also appeared mid-review. Freeze edits before anyone signs off.
+
+## Blockers
+
+1. **Neither assembler produces the ledger as it stands.** The ledger has `assembly_correction` (line 5) and `integrity_generator` (line 75). Neither `build/archive-worker-exit-evidence.py:89` nor `audit/worker-exit-evidence-assembler.py:89` writes those keys, so the ledger was edited after generation. The generator hash is the ledger's own claim, and the `PASS … ledger <sha>` line the assembler prints no longer describes this file.
+   - **Fix:** put both keys into the assembler and re-run it at a clean `f0ca156`. Otherwise, record the raw assembler output hash and say plainly that the ledger was edited afterwards.
+
+2. **The `build/` copy would overwrite the preserved historical record.**
+   - `build/archive-worker-exit-evidence.py:86` still writes the `characterization` key to `audit/worker-exit-clean-characterization.json`.
+   - That file is the unqualified worker-death experiment (fixture `6d26fbea`, `qualification: false`, 16 observations, 16 source entries). Those counts match its pin in `ownership-experiment-integrity.json:14-17` (`209c1ebe…`).
+   - Only the `audit/` copy has the fix (`historical-characterization`). Apart from that line the two copies are identical, including the diagnostic literals (72–73) and the delta set (82).
+   - `build/` is gitignored, so the stale copy has no commit behind it.
+   - **Fix:** delete it or make it match the `audit/` copy.
+
+3. **The clean-checkout check and the generator's location may conflict.** Line 19 requires `git status --porcelain` to be empty at `f0ca156`. If `audit/worker-exit-evidence-assembler.py` is not in `f0ca156`, it shows as untracked and the assembler refuses to run. That means it can't have produced a ledger that names it. Please confirm with `git ls-tree f0ca156 -- audit/worker-exit-evidence-assembler.py` (not run by me). Also say which file `b5ee…` was the hash of.
+
+## Documentation and evidence corrections
+
+- **"Only five JAR entries differ" isn't fully proven.** Line 81 only loops over entries in the new JAR, so an entry deleted since audit.20 would never be reported. The manifest-unchanged claim does hold, because a changed manifest would appear in that loop. Either add a check that nothing was removed, or reword `WORKER-EXIT-QUALIFICATION.md:24` to "five entries changed or added; removals not checked". The five entries themselves are consistent:
+  - Manager `bc6ff507…` matches `WORKER-EXIT-DESIGN.md:106` and the connect record.
+  - SyncSender `c1c9e2f4…` matches the fixed-ownership sender in the historical worker-exit record.
+  - The two "before" hashes match the audit.20 entries recorded in that historical file.
+- **Packager commits differ by architecture.** aarch64 was packaged at `ccf069f`, x64 at `f0ca156`. Neither the qualification doc nor the ledger explains this. Add a sentence to `WORKER-EXIT-QUALIFICATION.md:41-42`.
+- **Unexplained package hashes.** `source_provenance_hashes` are the same for both architectures but differ between repetitions -3 and -4. One line explaining what that hash covers would close this.
+- **The runtime gate isn't tied to the runtime lock.** `worker-exit-clean-runtime.json` has no `runtime_trees`, so line 36 never checks it. Its `runtime_tree_sha256` (`278ffbb3…`) covers a narrower scope (`Contents/Home` only). It is described in `runtime_hash_scopes` but nothing checks it against the lock.
+- **`QUALIFICATION.md:55` is inaccurate.** It says the assembler "is preserved alongside the ledger". That's only true of the `audit/` copy; name that path explicitly.
+- **Stale headers in `WORKER-EXIT-DESIGN.md`.** Line 1 still says "(not implemented)", and lines 63, 86 and 111 still say "pending". Line 193 now supersedes them, but the header should say so too, e.g. "implemented in audit.21; see line 193".
+- **Minor:** the transport and runtime records have no `source_commit` or `source_dirty`. Their link to the application is through the JAR hash and the fixture commit only.
+
+## What checks out (by inspection)
+
+- **Observation counts:** all 12 gates match the ledger: security 2, transport 6, runtime 2, resources 8, shared 4, factory 4, posting 10, connect 46, characterization 8, lock 20, admission 40, worker 120.
+  - Transport also has other arrays, which is why the word "architecture" appears 46 times in it; only 6 are in `observations`.
+- **Worker sub-counts:** 120 runs with `-Xint`/`-Xcomp`, 24 legacy, 4 `WorkerCompletionBatchObservation`.
+- **Connect controls:** exactly 4 `fixture_assertion_control` runs, covering aarch64/x64 × `-Xint`/`-Xcomp`.
+- **169 source hash entries:** 167 source-map entries plus 2 `tool_sha256`. The map entries break down as worker 30 (three are `.javap` files), admission 19, connect 17, posting 15, lock 14, runtime 13, historical 12, transport 11, factory 11, resources 10, shared 8, security 7.
+- **Fixture and application commits:** each record's fixture commit matches the ledger. Application commits are all `ccf069f`, except the historical record at `47166ed` with JAR `948c1d85…`. `SYNC-CALLBACK-PREENQUEUE.md` shows that JAR is audit.17, so the label is right.
+- **Unit tests:** 25 `tests/*.py` files on disk, matching the 25 hashed in the tests record. The stdout hash is the SHA-256 of empty output, as expected.
+- **Diagnostics:** both records contain the exact literals line 73 requires (no controller discovery, application not launched). Their bundle and JRE tree hashes match the packages record and the runtime lock.
+- **Scope:** the records and docs consistently keep native GUI, physical Intel (x64 ran under Rosetta), hardware, controller and release readiness unqualified. This evidence supports none of those.

@@ -1,4 +1,4 @@
-Worker-exit followup design (not implemented)
+Worker-exit followup design (implemented in audit.21; historical design and corrections below)
 
 Keep ownership experiment outside baseline until terminal completion is proven. Baseline remains audit.20. Current ownership Manager revised Code623, all four original-window handlers copied; earlier617 references superseded.
 
@@ -189,3 +189,5 @@ is unresolved, matching an excluded historical audit.19 mismatch; no source fix
 is claimed. A diagnostic development run and a subsequent unchanged plain clean
 run each passed all20 vectors. The failed attempt is excluded and additional
 unchanged plain clean repetition is required for the final lock evidence.
+
+Final clean evidence is now assembled in [WORKER-EXIT-QUALIFICATION.md](WORKER-EXIT-QUALIFICATION.md). This supersedes the pending-verification statements above only for the explicitly bounded local software gates. It does not promote hardware or release acceptance.
