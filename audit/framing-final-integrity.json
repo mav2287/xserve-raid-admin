@@ -1,0 +1,33 @@
+{
+  "installed_matches_preserved_reference": true,
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_jar_sha256": "ada1cc2b9be545bab67c74098bbb15f0e1e3cf77a881d062eb4ddd0200a3b341",
+  "fixture_source_checks": {
+    "security": {
+      "json_sha256": "cd69bb73d3f09dc5e54f1729f12766401925daa0d40f224ef5d90ffa93a778f7",
+      "fixture_source_commit": "b4d5a454804053e9986c1bd6e4a1dba4b17fd9da",
+      "recorded_source_hashes_match_commit": true
+    },
+    "transport": {
+      "json_sha256": "5efefe3d7147a5369eec34d86d1a02b73a165836d376341f3be44b7608a57b70",
+      "fixture_source_commit": "b4d5a454804053e9986c1bd6e4a1dba4b17fd9da",
+      "recorded_source_hashes_match_commit": true
+    },
+    "shared": {
+      "json_sha256": "494f48067a278790fb6703b651a66f2ab163cf23135a3e2dd209eb3a6b214839",
+      "fixture_source_commit": "b4d5a454804053e9986c1bd6e4a1dba4b17fd9da",
+      "recorded_source_hashes_match_commit": true
+    },
+    "runtime": {
+      "json_sha256": "d471a7f2a0260e3607c1c2994df48cd4313bcfca98d03af763554c27e4812fca",
+      "fixture_source_commit": "b4d5a454804053e9986c1bd6e4a1dba4b17fd9da",
+      "recorded_source_hashes_match_commit": true
+    },
+    "resources": {
+      "json_sha256": "385c4ca4844539a480465f8da3d685113884fa4f89838834cf488219280ef9e3",
+      "fixture_source_commit": "b4d5a454804053e9986c1bd6e4a1dba4b17fd9da",
+      "recorded_source_hashes_match_commit": true
+    }
+  }
+}

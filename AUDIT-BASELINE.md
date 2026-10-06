@@ -1,12 +1,13 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current candidate: **audit.10**, clean application source `cdcc98c`, clean runtime
-packager `b1c4040`. Both architecture packages reproduce and pass bounded offline
-fixtures. See [length security scope](audit/INVALID-LENGTH-GUARD.md),
-[build/runtime identities](audit/length-bundle-results.json), and
-[clean source provenance](audit/length-clean-provenance.json). Earlier intake and
+Current candidate: **audit.11**, clean application source `f962570`, clean runtime
+packager and fixture anchor `b4d5a45`. Both architecture packages reproduce and
+pass bounded offline fixtures. See [framing security scope](audit/RESPONSE-FRAMING-POLICY.md),
+[build/runtime identities](audit/framing-bundle-results.json), and
+[clean source provenance](audit/framing-clean-provenance.json). Earlier intake and
 candidate sections remain historical. This is unsigned and operationally
-unqualified; normal HTTP framing, native UI and hardware acceptance remain open.
+unqualified; incorrect declared lengths, HTTP status, native UI and hardware
+acceptance remain open.
 
 ## Result and scope
 

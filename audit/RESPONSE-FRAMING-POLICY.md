@@ -127,3 +127,24 @@ requires --length-policy --framing-policy, and check_shared_stream.py requires
 menu, vendor-extension, security, logging, parser, header and recovery checks on
 both pinned runtimes. check_xml_resources.py verifies XML resource restrictions.
 None of these commands installs, launches the full app, signs or contacts RAID.
+
+
+## Clean artifact record
+
+Application source `f962570932fd8f10e394a5b834b4d5d0d11d1d9d` and packaging/fixture
+anchor `b4d5a454804053e9986c1bd6e4a1dba4b17fd9da` were clean. Two app builds and
+both repeated runtime packages match. Audit JAR SHA-256:
+`ada1cc2b9be545bab67c74098bbb15f0e1e3cf77a881d062eb4ddd0200a3b341`.
+Audit bundle digest:
+`89d14bccf601b05a1ee130f555cbe8ff2ff17de506a24b77a8554c0e6b1cd3aa`.
+Exactly 25 JAR entries differ from the immutable Apple reference; the new entry is
+ResponseFraming.class, with HttpResponse's two additional call substitutions.
+
+The [security](framing-clean-security.json), [transport](framing-clean-transport.json),
+[shared-stream](framing-clean-shared.json), [runtime](framing-clean-runtime.json) and
+[XML resource](framing-clean-resources.json) records cover both pinned runtimes.
+The [package record](framing-bundle-results.json) verifies repeated contents/modes
+and vendor signatures. [Integrity](framing-final-integrity.json) confirms recorded
+fixture hashes match committed sources and both original/installed artifacts
+remain unchanged. The Python suite has 49 passing tests. Java 11 was not rerun
+for this milestone. Successful fixtures do not qualify controller operation.
