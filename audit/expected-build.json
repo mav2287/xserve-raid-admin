@@ -40,7 +40,7 @@
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
       "tools/baseline.py": "00c4c1bf995a1c2dc63f09ebb111ab887dfab86ec4c63e1872b0b890a1605910",
-      "tools/class_patch.py": "de9e6ebac9724460211733695f6f9b10012adbe6f52f39cc763ac4098ef6b5cd"
+      "tools/class_patch.py": "57d6c7e8a4e84f4974047864139ee586df5074cc37ed5eef642b123fa8b80a19"
     },
     "jdk": {
       "architecture": "arm64",
@@ -50,9 +50,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "0a29dfe0f545b6dcb79082bf2a2de1776e4714cb5899f38227283af831b2cf6c",
-  "reason": "Development audit.7 candidate for operand-only allocation guard verification; only new/constructor references in original response getBody change, with 16 MiB deliberate security ceiling.",
+  "previous_record_sha256": "a272d4b0e02beb1cc61428f5f5cb89365521130b83529bf7be38ad8de4b70834",
+  "reason": "Clean audit.7 source: hash-locked two-operand response buffer guard rejects advertised sizes >16 MiB before allocation; ordinary negative lengths and original Code framing/handlers/branches preserved. Independent disassembly and guarded queue tests pass.",
   "schema": 1,
-  "source_commit": "91f136f6c21c415b08339c360d269e7c26ba06c6",
-  "source_dirty": true
+  "source_commit": "f42066f49b7931a352e517368cb53877bfb58079",
+  "source_dirty": false
 }
