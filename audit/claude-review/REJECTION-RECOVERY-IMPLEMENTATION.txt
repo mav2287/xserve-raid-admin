@@ -1,0 +1,89 @@
+Actual Claude CLI read-only implementation review; no execution by reviewer.
+
+## Implementation review: audit.9 rejection recovery
+
+I only read files. I ran, built and edited nothing. Each item below is labelled: **Observed** means I read it in source or bytecode, **Inference** means I reasoned it from those, and **Unexecuted** means it depends on fixture runs I didn't see.
+
+### Verdict
+
+I found no defect in the bytecode edits, the helper's failure containment or the reflection handling. There are two scope and documentation gaps that the design doc should address before you record clean evidence, plus a few small fixture gaps.
+
+### Checks that passed (observed)
+
+**The appended `send` handler**
+- `class_patch.py:123` pins the original exception table and the zero sub-attribute count byte for byte.
+- The new row `32 271 392 UntrustedResponseException` is inserted after the `PropertyListException` row and before both `any` rows (`class_patch.py:126-128`). That matches the order the follow-up review asked for.
+- The handler is `aload_0; invokestatic sendFailure; athrow`. It needs a stack of 2, and the original reaches 3 at PC 74-78. Local 0 is never overwritten in [32,271). The range stops before `jsr 271` and before the subroutine at 326-388 (`acpx-response-callers-bytecode.txt:189,212-239`).
+- `max_stack`/`max_locals` are copied unchanged (`class_patch.py:128`). Both `assert_recovery_edit` and the independent javap mask in `check_security.py:59-65` check this.
+
+**Where the marker can be thrown, relative to local 4**
+- Header rejection happens inside the `HttpResponse` constructor (via `readLine`), reached through `getResponse` at send PC 183.
+- Body rejection happens at `getBody` PC 23-31, which comes before its `try` at 32, and is reached through `getInputStream` at PC 201/214.
+- None of the constructor, `parseHeaders`, `readLine`, `getInputStream` or `getResponse` has an exception table (`http-response-allocation-bytecode.txt:14-55,157-274`; `http-connection-bytecode.txt:93-117`).
+- So local 4 (stored at 207/217) is always null when the handler runs, and skipping the original finally loses no stream.
+
+**The ten-byte `run` window**
+- The original bytes at 464-473 are `getstatic #38; aload 5; aload 5; invokevirtual #70` (`http-communications-bytecode.txt:435-438`).
+- No branch targets any offset from 464 to 473, and no exception range starts or ends inside the window. Only the InterruptedException range [0,522) covers it.
+- No monitor is held at 464, so `synchronized(manager)` adds no new lock-order edge.
+- The `logger` field is `Logger.getLogger(CommunicationsManager.class)` (`:885-894`), so the helper logs to the same category.
+
+**Helper containment**
+- Every new-path call (marker log, metadata, field access, `close`, `shutdown`, `signal`) catches `Exception` and `LinkageError`.
+- Ordinary exceptions take an uncaught `log()` call, which matches the original's behaviour when the appender throws.
+- `sendFailure` always returns its argument and checks the class exactly.
+- `UntrustedResponseException` is `final` with a package-private constructor.
+
+**Reflection lifecycle**
+- `RejectionRecovery` has no static initializer.
+- `metadata()` is `static synchronized`, sets `initialized` before it attempts anything, and requires exactly `Modifier.PRIVATE` with exact types. Both fields are plain `private` in the dump (`http-communications-bytecode.txt:4,18`).
+- A failed check is remembered and leads to `shutdown()`.
+
+**Second close**
+- `AcpxConnection.close` only nulls `connection` if the close succeeds (`acpx-response-callers-bytecode.txt:52-63`).
+- `HttpConnection.disconnect`'s finally sets `socket=null` even when the close throws (`http-connection-bytecode.txt:135-164`).
+- So the manager's second close is a no-op on real classes, as the follow-up review said.
+
+**Controller alternation**
+- `doConnect` reads `connection.getHostAddress()` (`http-communications-bytecode.txt:534-540`), and the closed object keeps `host`. Keeping the reference therefore preserves alternation.
+
+### Issues
+
+**1. `send` has CLI callers that the doc and fixtures don't mention (Observed, medium).**
+- `audit/request-call-sites.json:969-985,1312-1314` lists `com.apple.xsr.cli.CommandDispatcher$15` (two sites) and `CommandDispatcher$DefaultHandler` as callers of `AcpxConnection.send`. That answers the follow-up review's open question at line 64: there are callers outside the dumped classes.
+- The handler lives in `send`, so the close-and-rethrow applies to these CLI paths too.
+- *Inference:* the marker still escapes unchecked, as before. If a CLI handler reuses the `AcpxConnection`, the next `send` now finds `connection==null` and opens a new socket via `createConnection` (PC 14-22). Previously, a persistent reuse would have hit `newRequest`'s `IllegalStateException`.
+- That change is probably benign, but nobody has reviewed it. Either state in `REJECTION-RECOVERY.md` that the CLI path is in scope and accept the change, or mark it as unqualified.
+
+**2. Invalid and negative Content-Length still wedge the manager permanently (Observed in bytecode and fixture source, medium).**
+- `parseInt` (getBody PC 14) and `new ByteArrayOutputStream(-1)` (PC 28) both throw before the `try` at 32, so `setRequestOutstanding(false)` is skipped.
+- The exception isn't an `IOException`, so `run` sends it to handler 462 and `connected` stays true. Every later `newRequest` then throws `IllegalStateException` → -102, with no reconnect.
+- `TransportObservation.java:281-302` pins exactly this: `outstanding=true; reconnects=0`.
+- This is the same liveness failure audit.9 fixes for the ceilings, and a peer can trigger it with `Content-Length: x`. The doc's "keep their original exception types and paths" (`REJECTION-RECOVERY.md:12-14`) is accurate, but it doesn't say this is a persistent denial of service. List it as an explicit open gap next to G10.
+
+**3. After a marker, nothing reconnects while the queue is empty (Inference, unverified, low to medium).**
+- The original IOException path reconnected immediately and called `setUserMessageIndex(5)` (`http-communications-bytecode.txt:444-454`).
+- The new path leaves `connected=false` until another command is queued. `RaidSystem.isConnected()` delegates to the manager (`static-inventory.json:44613-44616`).
+- If any poller or UI only posts commands while `isConnected()` is true, the manager would never reconnect. I couldn't find callers of `RaidSystem.isConnected` in the inventory, so this is unconfirmed. Either check it, or add one sentence to the doc covering the idle case.
+
+**4. Fixture gaps (Observed in source, low).**
+- **No close-count check on the ordinary path.** `ordinaryLogging` (`RecoveryObservation.java:79`) asserts `isConnected()` but never `state.closes==0` inside the callback. An ordinary failure that wrongly closed the connection would still pass. `direct()` only checks `sendFailure(ordinary)` through reflection (`:114`).
+- **The metadata-failure fixture only covers a cached failure.** It nulls `connectedField` after a successful initialization (`:135-136`). It doesn't reach the first-time type/modifier/`setAccessible` failure branches, or the `manager.getClass()!=CommunicationsManager.class` branch. It also depends on order: if it ran first, `metadata()` would initialize normally and the test would fail.
+- **No fixture uses `encrypted=true`.** `-Xverify:all` statically verifies the handler on that path, but nothing exercises it at runtime.
+- **No fixture exercises the real `doConnect` replacement or alternation.** The doc already says this.
+
+**5. Small residual differences on the ordinary log path (Observed and Inference, low).**
+- `LoggingEvent`'s caller FQCN is now `compat.RejectionRecovery`, where it was `org.apache.log4j.Category`. Location still resolves to `CommunicationsManager.run`, and the fixture checks class and method.
+- The line number (`%L`) isn't checked. The dumps don't include `-l`, so I can't confirm that PC 467 and PC 471 map to the same line, though that is very likely.
+- Only custom layouts would see either difference. Narrow the doc's "same category and original caller location" wording, or accept these.
+
+**6. Nits in the patcher (Observed).**
+- `assert_recovery_edit` selects the method by name only (`class_patch.py:265`), and it runs twice per transform (`:131` and again from `:214`). Both are harmless given the hash lock.
+
+### Not verified
+- I didn't see the CLI `CommandDispatcher` bytecode, so I don't know whether it reuses connections.
+- I didn't check whether any subclass of `CommunicationsManager` exists. I only searched the text inventories, and they show none.
+- That the bundled log4j's `LocationInfo` handles the FQCN rests on the fixture, which I didn't run.
+- Your note that both runtimes pass, and the 43-line expected output in `check_architectures.py:136`, come from your report and the tool source, not from any run I observed.
+
+Disposition: CLI direct-send paths now explicitly scoped as unqualified, and idle queue recovery is documented. Static bytecode shows the normal poller posts power-state requests regardless of isConnected while pollingEnabled remains true; real timing/UI behavior remains unqualified. Malformed/negative length denial of service will be addressed as the next separate security refinement. Ordinary callback now checks zero closes before shutdown. Caller class/method parity is tested; custom LoggingEvent FQCN metadata differs deliberately. First-time metadata denial and exact-manager-class failure branches remain source checks, not fixture-proven. Encrypted legacy body-codec marker propagation will receive additional bounded fixtures before final evidence.

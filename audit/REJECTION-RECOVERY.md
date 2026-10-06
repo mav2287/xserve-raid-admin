@@ -25,8 +25,9 @@ response stream is assigned, so bypassing that finally loses no assigned stream.
 CommunicationsManager.run changes exactly its ten-byte generic-error logging
 window at offsets 464–473 to a compatibility reporting call and four nops. All
 other instructions, offsets, branches, handlers, frames, jsr/ret and methods remain
-unchanged. Ordinary errors log through the same category and original caller
-location. Only the exact marker also sets connected=false under the manager lock
+unchanged. Ordinary errors log through the same category and retain measured caller class/
+method. LoggingEvent caller-FQCN metadata differs; no line-number table exists in
+the pinned run Code, and custom layout behavior remains unqualified. Only the exact marker also sets connected=false under the manager lock
 and closes outside that lock. The closed host-bearing reference is retained so
 the original doConnect controller alternation remains available. The next distinct
 queued command enters the unchanged connect path; the failed command is never
@@ -49,7 +50,7 @@ path; that differs deliberately from the original stale state. If new metadata
 cannot be linked, the manager stays stopped rather than continuing unsafely.
 
 Memory-only fixtures exercise all four ceiling violations, persistent/nonpersistent
-transport, close IO/runtime failures, synthetic shutdown/restart *connection flags*
+transport, the legacy body-codec branch before decryption, close IO/runtime failures, synthetic shutdown/restart *connection flags*
 on ordinary getters, marker identity, a throwing marker appender, metadata failure
 shutdown, ordinary logger category/location parity, and two distinct queued reads
 with retained contexts. The reconnect seam uses an invalid-address callback to
@@ -62,4 +63,19 @@ sites. Exact helper linkage is checked; verification-on fixtures cover both new
 markers and ordinary original IO handling. The legacy ambiguous IO replay policy
 remains open (G10), as do status/framing interpretation and real socket recovery.
 Physical Intel, native GUI, actual controller responses and full release acceptance
-are not implied. Clean evidence will be recorded after implementation review.
+are not implied. The actual CLI review found no implementation defect. Direct CLI callers
+(CommandDispatcher DefaultHandler and handler 15) also take the new close-and-rethrow
+path; their lifecycle/error UI is unqualified and they were never run. The normal
+poller gates on pollingEnabled/stopped, then posts a power-state request regardless
+of isConnected; these are static facts from the immutable bytecode, not elapsed-time
+or real-controller tests. An idle manager stays disconnected until another command
+is queued. No immediate reconnect is added.
+
+**Open security gap for follow-up:** invalid numeric and negative lengths retain
+the original terminal exception path in audit.9 and can still deny subsequent
+commands on that manager. A separate parse/negative-size refinement is next.
+The metadata fixture forces a cached failure; first-time access denial and exact
+manager-class mismatch are checked in source only. Clean evidence follows below.
+
+Legacy body-codec fixtures do not imply encrypted HTTP: headers and transport
+remain plaintext. The ordinary failure callback checks zero premature closes.

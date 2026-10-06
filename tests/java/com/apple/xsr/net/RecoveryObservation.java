@@ -76,7 +76,7 @@ public final class RecoveryObservation {
         Logger logger=Logger.getLogger(CommunicationsManager.class);boolean add=logger.getAdditivity();Level level=logger.getLevel();Recorder recorder=new Recorder(false);logger.setAdditivity(false);logger.setLevel(Level.ERROR);logger.addAppender(recorder);
         try {
             final State state=new State();state.ordinary=true;final CommunicationsManager m=manager(transport(new Memory(state)));final int[] n={0};
-            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-102&&m.isConnected());n[0]++;m.shutdown();}},new AcpxMessageFactory().newGetStatusRequest());m.run();
+            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-102&&m.isConnected()&&state.closes==0);n[0]++;m.shutdown();}},new AcpxMessageFactory().newGetStatusRequest());m.run();
             check(n[0]==1&&state.sent.size()==1&&recorder.events==1&&recorder.safe&&"com.apple.xsr.net.CommunicationsManager".equals(recorder.owner)&&"run".equals(recorder.method));
             out.println("ordinary logger owner=CommunicationsManager method=run; terminal=-102; sends=1; connected=true");
         } finally {logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}
@@ -102,8 +102,9 @@ public final class RecoveryObservation {
             out.println("recovery close_failure="+closeFailure+" logger_failure="+loggingFailure+" stop="+stopExpected+" results="+(stopExpected?"-102,-102":"-102,0")+" sends="+state.sent.size()+" reconnect_seams="+connect[0]);
         }finally{if(loggingFailure){logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}}
     }
-    private static void direct(byte[] raw,boolean persistent,int closeFailure,int flag)throws Exception{
-        State state=new State();state.raw=raw;state.closeFailure=closeFailure;AcpxConnection a=transport(new Memory(state));a.persistent=persistent;
+    private static void direct(byte[] raw,boolean persistent,int closeFailure,int flag)throws Exception{direct(raw,persistent,closeFailure,flag,false);}
+    private static void direct(byte[] raw,boolean persistent,int closeFailure,int flag,boolean encrypted)throws Exception{
+        State state=new State();state.raw=raw;state.closeFailure=closeFailure;AcpxConnection a=transport(new Memory(state));a.persistent=persistent;a.encrypted=encrypted;
         Throwable caught=null;
         RequestMessage request=new AcpxMessageFactory().newGetStatusRequest();if(flag==1)request.setShutdownConnection(true);if(flag==2)request.setRestartConnection(true,0);
         try{a.send(request);throw new AssertionError("Rejection absent");}
@@ -112,7 +113,7 @@ public final class RecoveryObservation {
         Method handler=Class.forName("compat.RejectionRecovery").getMethod("sendFailure",Throwable.class,AcpxConnection.class);
         check(handler.invoke(null,caught,(AcpxConnection)null)==caught);
         Throwable ordinary=new IOException("synthetic");check(handler.invoke(null,ordinary,a)==ordinary&&state.closes==1);
-        out.println("direct persistent="+persistent+" connection_flag="+flag+" close_failure="+closeFailure+" marker_identity=true sends=1");
+        out.println("direct persistent="+persistent+" legacy_body_codec="+encrypted+" connection_flag="+flag+" close_failure="+closeFailure+" marker_identity=true sends=1");
     }
     private static void markerIdentity()throws Exception {
         Constructor<?> constructor=Class.forName("compat.UntrustedResponseException").getDeclaredConstructor(String.class);constructor.setAccessible(true);
@@ -130,6 +131,7 @@ public final class RecoveryObservation {
             org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
             if(fixed){byte[][] cases=cases();for(byte[] raw:cases){check(raw.length<=1048577);pair(raw,0,false,false);for(boolean persistent:new boolean[]{true,false})for(int failure=0;failure<=2;failure++)direct(raw,persistent,failure,0);}
                 for(int i=0;i<2;i++)for(int flag=1;flag<=2;flag++)for(int failure=1;failure<=2;failure++)direct(cases[i],true,failure,flag);markerIdentity();
+                for(int i=0;i<2;i++)for(int failure=0;failure<=2;failure++)direct(cases[i],true,failure,0,true);
                 for(int failure=1;failure<=2;failure++)pair(cases[0],failure,false,false);
                 org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.ERROR);pair(cases[0],0,true,false);org.apache.log4j.LogManager.getLoggerRepository().setThreshold(Level.OFF);
                 Class<?> helper=Class.forName("compat.RejectionRecovery");Field metadata=field(helper,"connectedField");Object previous=metadata.get(null);metadata.set(null,null);
