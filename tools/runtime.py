@@ -43,7 +43,7 @@ def verify_runtime(root, record):
     if 'directory_modes' in record and directory_modes(root) != record['directory_modes']:
         raise ValueError('Runtime directory modes differ from vendor archive')
     if record.get('signature_team'):
-        requirement = 'anchor apple generic and certificate leaf[subject.OU] = "' + record['signature_team'] + '"'
+        requirement = '=anchor apple generic and certificate leaf[subject.OU] = "' + record['signature_team'] + '"'
         result = subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', '-R', requirement, str(root)],
                                 env=isolated_env(), capture_output=True, timeout=30)
         detail = subprocess.run(['/usr/bin/codesign', '-dv', '--verbose=4', str(root)],
