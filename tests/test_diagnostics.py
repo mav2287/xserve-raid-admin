@@ -34,12 +34,12 @@ class BundledDiagnosticTests(unittest.TestCase):
         self.dirs = {str(p):0o755 for name in self.files for p in Path(name).parents}
         self.dirs.update({prefix[:-1] if k == '.' else prefix+k:v for k,v in runtime['directory_modes'].items()})
 
-    def measure(self):
+    def measure(self,compatibility_version="synthetic-secret"):
         # The filesystem reader is mocked; both claimed and measured data agree.
         # Only the independent repository anchors can reject the mutations below.
         measured = {'files':self.files,'file_modes':self.modes,'directory_modes':self.dirs}
         manifest = dict(measured, schema=3, bundle_tree_sha256=digest(measured),
-                        source_commit=['a']*40, compatibility_version='synthetic-secret',
+                        source_commit=['a']*40, compatibility_version=compatibility_version,
                         bundled_runtime={'architecture':'synthetic-secret','vendor':'synthetic-secret'})
         (self.output/'provenance.json').write_text(json.dumps(manifest))
         with patch('diagnose.tree',return_value=self.files), patch('diagnose.modes',return_value=self.modes), patch('diagnose.directory_modes',return_value=self.dirs):
@@ -77,3 +77,33 @@ class BundledDiagnosticTests(unittest.TestCase):
     def test_extra_empty_directory_is_rejected(self):
         self.dirs['Contents/unexpected']=0o755
         self.assertFalse(self.measure()['matches_reviewed_artifact'])
+
+    def test_current_and_historical_version_labels_are_allowlisted(self):
+        self.assertEqual(VERSION,'1.5.1-modern.audit.'+BUNDLE_VERSION)
+        for value in (VERSION,'1.5.1-modern.audit.12','1.5.1-modern.audit.13'):
+            with self.subTest(value=value):
+                result=self.measure(value)
+                self.assertEqual(result['compatibility_version'],value)
+                self.assertTrue(result['matches_reviewed_artifact'])
+                self.assertEqual(result['compatibility_version_matches_reviewed_artifact'],value==VERSION)
+
+    def test_unknown_and_nonstring_version_values_are_not_exposed(self):
+        for value in ('synthetic-secret','1.5.1-modern.audit.0','1.5.1-modern.audit.014','1.5.1-modern.audit.'+str(int(BUNDLE_VERSION)+1),14,True,None,['synthetic-secret'],{'version':'synthetic-secret'}):
+            with self.subTest(value=type(value).__name__):
+                result=self.measure(value)
+                self.assertEqual(result['compatibility_version'],'unrecognized')
+                self.assertFalse(result['compatibility_version_matches_reviewed_artifact'])
+                self.assertNotIn('synthetic-secret',json.dumps(result))
+
+    def test_current_label_cannot_bless_modified_artifact(self):
+        self.files['Contents/unexpected']='0'*64;self.modes['Contents/unexpected']=0o644
+        result=self.measure(VERSION)
+        self.assertEqual(result['compatibility_version'],VERSION)
+        self.assertFalse(result['matches_reviewed_artifact'])
+        self.assertFalse(result['compatibility_version_matches_reviewed_artifact'])
+
+    def test_failure_fallback_has_false_version_match(self):
+        (self.output/'provenance.json').write_text('{')
+        result=diagnose(self.output)
+        self.assertFalse(result['matches_reviewed_artifact'])
+        self.assertFalse(result['compatibility_version_matches_reviewed_artifact'])

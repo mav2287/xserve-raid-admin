@@ -14,6 +14,13 @@ from audit_support import modes, digest, sha
 from runtime import directory_modes, runtime_manifest
 
 
+AUDIT_VERSIONS=frozenset('1.5.1-modern.audit.'+str(number) for number in range(1,int(BUNDLE_VERSION)+1))
+
+
+def safe_compatibility_version(value):
+    return value if isinstance(value,str) and value in AUDIT_VERSIONS else 'unrecognized'
+
+
 def safe_event(event):
     """Emit enumerated metadata only; discard arbitrary messages, headers and bodies."""
     allowed = {
@@ -81,7 +88,8 @@ def diagnose_checked(output):
     commit = provenance.get('source_commit')
     # Do not relay arbitrary strings from manifests, environment, or preference stores.
     return {
-        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2', '1.5.1-modern.audit.3', '1.5.1-modern.audit.4', '1.5.1-modern.audit.5', '1.5.1-modern.audit.6', '1.5.1-modern.audit.7', '1.5.1-modern.audit.8', '1.5.1-modern.audit.9', '1.5.1-modern.audit.10', '1.5.1-modern.audit.11') else 'unrecognized',
+        'apple_version': '1.5.1', 'compatibility_version': safe_compatibility_version(provenance.get('compatibility_version')),
+        'compatibility_version_matches_reviewed_artifact': reviewed and provenance.get('compatibility_version')==VERSION,
         'source_commit': commit if isinstance(commit,str) and re.fullmatch('[0-9a-f]{40}',commit) else 'unknown',
         'architecture': platform.machine() if platform.machine() in ('arm64','x86_64') else 'unrecognized',
         'macos': platform.mac_ver()[0] if re.fullmatch(r'[0-9]+(?:\.[0-9]+)*',platform.mac_ver()[0]) else 'unrecognized',
@@ -101,6 +109,7 @@ def diagnose(output):
         return diagnose_checked(output)
     except (OSError, ValueError, KeyError, TypeError, AttributeError, RecursionError):
         return {'matches_build_manifest':False, 'matches_reviewed_artifact':False,
+                'compatibility_version_matches_reviewed_artifact':False,
                 'event':safe_event({'operation':'diagnose','result':'fail','error_code':'ARTIFACT_CHANGED'})}
 
 

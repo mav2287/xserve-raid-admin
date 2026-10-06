@@ -1,0 +1,14 @@
+**No blockers.** The design is sound. It stays metadata-only and touches no launch, prefs, secrets or app writes. The allowlist comes from the trusted `BUNDLE_VERSION` in `tools/baseline.py:31`, and the manifest still only chooses a member of that fixed set. A few things to get right:
+
+1. **Check for a string before the membership test.** Today the tuple at `tools/diagnose.py:84` handles any JSON type safely. If you switch to a set or frozenset, a list or dict `compatibility_version` will raise `TypeError: unhashable` and crash the diagnostic instead of returning `unrecognized`. Use `isinstance(v, str) and v in allowed`, in that order. Exact-match lookup in the generated set already rejects variants like `audit.014`, `audit.0`, `audit.15`, ints and bools.
+2. **Keep the prefix and `VERSION` from drifting.** Hard-code `'1.5.1-modern.audit.'` and build labels 1..`int(BUNDLE_VERSION)`. Add a test asserting `VERSION == '1.5.1-modern.audit.' + BUNDLE_VERSION`. Otherwise a future bump to only one of the two would quietly mark the current build `unrecognized`, or recognize a label that was never built. If `int()` fails at import on a non-numeric constant, that's acceptable: it fails closed.
+3. **This label is a claim, not proof (not a blocker, nothing new).** `compatibility_version` still comes from the manifest and isn't checked against the artifact. A manifest saying `audit.12` on an audit.14 artifact would report `audit.12` while `matches_reviewed_artifact` is true. The allowlist already accepts 1–11 today, so this isn't a regression. Identity still rests on the independent tree/lock checks. If you want to close the gap, report a mismatch with `VERSION` separately rather than widening trust.
+
+**Tests:** in `tests/test_diagnostics.py`, `measure()` hard-codes `compatibility_version='synthetic-secret'`. Make it a parameter and keep the default, so the existing `assertNotIn('synthetic-secret', …)` check still runs. Then cover:
+- accepted: `VERSION`, `audit.12`, `audit.13`
+- rejected as `unrecognized`: `audit.15`, `audit.0`, `audit.014`, `14` (int), `None`, a list, a dict
+- an explicit assertion that `synthetic-secret` comes back as `unrecognized`
+
+The list and dict cases are what catch the crash in point 1.
+
+The existing `provenance.get(...)` call crashes if the manifest's top level isn't a JSON object. That's out of scope here.
