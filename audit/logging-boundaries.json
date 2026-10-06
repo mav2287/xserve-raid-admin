@@ -1,0 +1,81 @@
+{
+  "active_config_lines": [
+    "log4j.rootLogger=OFF",
+    "log4j.appender.stdout=org.apache.log4j.ConsoleAppender",
+    "log4j.appender.stdout.layout=org.apache.log4j.PatternLayout",
+    "log4j.appender.stdout.layout.ConversionPattern=[%10t] %-5p %-25c{1} %x - %m%n",
+    "log4j.appender.rf=org.apache.log4j.RollingFileAppender",
+    "log4j.appender.rf.File=/tmp/ra.log",
+    "log4j.appender.rf.MaxFileSize=100MB",
+    "log4j.appender.rf.layout=org.apache.log4j.PatternLayout",
+    "log4j.appender.rf.layout.ConversionPattern=%-4r [%t] %-5p %c{1} %x - %m%n"
+  ],
+  "class_count": 2844,
+  "disassembler_sha256": "bcdba9138868c97040172c0d6e2289087c118b6b38a7c11f25cdad9fce2b829f",
+  "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "level_or_configuration_calls": [
+    {
+      "calls": [
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z"
+      ],
+      "class": "com.apple.xsr.ManagementController$RaidSetCreator",
+      "method": "public static void createRaidSet(com.apple.xsr.som.RaidController, java.lang.Integer[], java.lang.String, java.lang.String);"
+    },
+    {
+      "calls": [
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z",
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z"
+      ],
+      "class": "com.apple.xsr.ManagementController$RecognizeArrayAction",
+      "method": "public void run();"
+    },
+    {
+      "calls": [
+        "Method org/apache/log4j/Logger.isDebugEnabled:()Z"
+      ],
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "public void run();"
+    },
+    {
+      "calls": [
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z",
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z",
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z"
+      ],
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void doEventLogUpdate() throws java.io.IOException;"
+    },
+    {
+      "calls": [
+        "Method org/apache/log4j/Logger.isInfoEnabled:()Z"
+      ],
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "private void updateRaidSetMembers(com.apple.xsr.som.RaidController, com.apple.xsr.som.RaidSet, java.util.List) throws com.apple.util.plist.PropertyListException;"
+    }
+  ],
+  "limits": "Reflection, external configuration, dynamically loaded classes and full logging-event execution are not characterized. No logging configuration was changed or application launched.",
+  "log4j_config_sha256": "807caff9df5eb94bf26f54bbdf43e3d0d0761a480d885e38b71867076dc80d3c",
+  "method_count": 24032,
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "owner_match": "Any org/apache/log4j owner, including Category, Logger, LogManager and configurators",
+  "scope": "All original JAR classes; log4j internals excluded from caller rows; static direct-call inventory only",
+  "searched_call_patterns": [
+    "isEnabled",
+    "isDebugEnabled",
+    "isInfoEnabled",
+    "getEffectiveLevel",
+    "getLevel:",
+    "getPriority:",
+    "getChainedPriority:",
+    "reset",
+    "shutdown",
+    "Configurator",
+    "setLevel:",
+    "setPriority:",
+    "addAppender:",
+    "configure:",
+    "removeAllAppenders:",
+    "setAdditivity:"
+  ],
+  "tool_sha256": "7157a2ecb44e0e381037f0779fd7727c73ef17620c1cc91d6297804868ca3d29"
+}

@@ -1,0 +1,23 @@
+**Verdict: the scope holds. I found no concrete safety or preservation flaw that needs a different scope.** I read only the two files you named and ran nothing. Five things to tighten before implementing:
+
+1. **Match on the level's integer value, not object identity.** In log4j 1.2, the deprecated `Priority.ERROR` and `Priority.FATAL` are separate `Level` objects from `Level.ERROR` and `Level.FATAL`. A caller using `log(Priority.ERROR, …)` would fail your `==` check and be silently dropped. That fails closed, so it isn't a safety problem, but it is a coverage gap. Compare `event.getLevel().toInt()` against `Priority.ERROR_INT` and `FATAL_INT` instead, or record the gap in writing. Your `RuntimeException` catch already covers a `ClassCastException` from `getLevel()`.
+
+2. **Confirm what the scan actually searched for.** `logging-boundaries.json` lists the matches but not the search patterns. Before relying on "only INFO/DEBUG guards", confirm the scan matched:
+   - calls owned by `org/apache/log4j/Category` as well as `Logger`;
+   - `isEnabledFor`, `getEffectiveLevel`, `getLevel`, `getPriority` and `getChainedPriority`;
+   - `setLevel`, `addAppender`, `removeAllAppenders`, `setAdditivity`, `BasicConfigurator`, `PropertyConfigurator`, `DOMConfigurator` and `LogManager.reset*`/`shutdown`.
+
+   If it did, the precondition in the design doc ("every level-dependent branch is audited") is met statically, within the stated limits on reflection and dynamic loading. Then update line 56 of the design doc, which still says logging is deferred, so the record doesn't contradict the change.
+
+3. **The once-per-process flags need to be static, or you need to show configuration runs only once.** With instance fields, any reconfiguration creates a new appender and resets the flags. The scan showing no configuration calls supports the claim, but say that's where the guarantee comes from.
+
+4. **Disclose that a blocked write holds locks.** `Category.callAppenders` synchronizes on every category from the logger up to and including root, and your `doAppend` is synchronized too. While a write to stderr is blocked, every thread logging at ERROR or FATAL also blocks, not just the one writing. DEBUG and INFO calls are unaffected because they're filtered out before `callAppenders`. The writes are capped at two, so this is a disclosure item, not a design change. Also note that `System.err` is whatever the app has set at write time. If the app ever calls `System.setErr`, output goes there; setting the flag before printing already prevents recursion.
+
+5. **Preservation details:**
+   - The original config has no child loggers and no `additivity` lines, so the root level is the effective level everywhere. Your threshold check inside the appender is a belt-and-braces measure, which is fine.
+   - `PropertyConfigurator` only instantiates appenders that a logger references, so keeping the unattached `stdout` and `rf` definitions won't create `/tmp/ra.log`. Add a test that asserts no `ConsoleAppender` or `FileAppender` exists and that the file isn't created.
+   - Keep the original line endings.
+   - Record the new resource hash alongside the original (`807caff9…`).
+   - Confirm the launcher passes no `-Dlog4j.configuration` and that no `log4j.xml` appears earlier on the classpath.
+
+Everything else is consistent with the earlier review. Overriding `doAppend` bypasses the filters, the threshold, `OnlyOnceErrorHandler` and the "closed appender" LogLog message. Never reading the message, throwable, NDC, MDC, thread name or logger name is correct. `requiresLayout` returning false with no layout configured, and keeping the root appender attached so LogLog never prints a "no appenders" warning, are both right. Your test list is sufficient, and not claiming anything about the UI or app-wide confidentiality is the right call.
