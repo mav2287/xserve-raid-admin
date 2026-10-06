@@ -1,0 +1,30 @@
+I found no blockers in any of the points you corrected. What's still missing is the clean qualification evidence. I only read the source: nothing was run or compiled, and I didn't look at the git diff.
+
+**Transport guards**
+- `TransportObservation.java:758` now has one complete inner `catch(AssertionError callbackFailure){…}`.
+- `:759` now gives the outer `syncPreenqueue` handler its catch, ahead of `}}},f.newGetStatusRequest());`. The braces balance: catch, then method, then the anonymous class.
+- There are 14 handler catch sites (235, 287, 414, 453, 460, 500, 524, 528, 530, 548, 562, 574, 632, 758, 759), which matches the 14 handler definitions. The global check at `:385` skips `verify-*` modes, as intended.
+- The try/catch wrappers add no new classes, so the Transport class allowlist is unchanged. That agrees with your javac result.
+
+**Connect sentinel**
+- `ConnectFailureObservation.java:39-40`: `FixtureAssertionDetected` is a private static nested class with a package-private no-arg constructor. Since the constructor isn't private, javac 8 shouldn't generate an extra access class. So the allowlist at `check_connect_stop.py:71` should be exactly right: `$1`–`$8`, `$FakeSystem` and `$FixtureAssertionDetected`.
+- `:147` passes only if the exception's exact class is `FixtureAssertionDetected` **and** `callbackAssertions.get()==sentinel`. That closes the earlier gap where any other `AssertionError` counted as a pass:
+  - If the worker lets the sentinel escape, the class doesn't match, so the test fails.
+  - If a precondition `check` fails instead, the recorded error isn't the sentinel, so the test fails.
+- Every other path fails loudly if a `FixtureAssertionDetected` is thrown:
+  - The worker thread puts it in `escaped[0]`, and the check at `:69` fails.
+  - On the main thread (`extra`, `verifyNoHost`, `async`), it exits the child with a nonzero status, and `run_jdk` raises.
+
+**Parent tool**
+- `check_connect_stop.py:108-111` runs the sentinel under both `-Xint` and `-Xcomp` inside the per-runtime loop, so it covers both architectures. It requires the exact single PASS line.
+- The mutants still run under `-Xint` only. That's unchanged and was accepted earlier.
+
+**Non-blocking notes**
+1. The sentinel observation record at `:111` leaves out `manager_class_sha256` and `recovery_class_sha256`, though `mh` and `rh` are available.
+2. `:109-111` is indented by one space. That's valid Python but doesn't match the rest of the file.
+3. Recovery and Transport still have no positive sentinel test of their own. Their wiring has been reviewed but not demonstrated.
+4. `FixtureAssertionDetected` doesn't declare a `serialVersionUID`. That's only a lint warning, not a compile error.
+
+**Still open**
+- The clean-tree qualification runs haven't produced their evidence yet: `check_connect_stop.py`, `check_transport.py` and the Recovery check, on both architectures.
+- The application WorkerExit change hasn't been touched since the B1-closed review, so it still depends on that same clean evidence.

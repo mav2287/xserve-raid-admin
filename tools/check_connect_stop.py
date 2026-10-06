@@ -108,7 +108,7 @@ def main():
             for assertion_execution in ('-Xint','-Xcomp'):
              lines,mh,rh=observe(a.candidate,'verify-callback-assertions','terminal',assertion_execution)
              if lines!=['PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0']:raise ValueError('Assertion containment control differs')
-             observations.append({'architecture':arch,'execution':assertion_execution,'mode':'verify-callback-assertions','fixture_assertion_control':True,'jar_sha256':sha(a.candidate),'lines':lines})
+             observations.append({'architecture':arch,'execution':assertion_execution,'mode':'verify-callback-assertions','fixture_assertion_control':True,'jar_sha256':sha(a.candidate),'manager_class_sha256':mh,'recovery_class_sha256':rh,'lines':lines})
             for label,jar,mode,policy in mutants:
                 lines,mh,rh=observe(jar,mode,policy,'-Xint')
                 wanted=['PASS verified no-host bypass reports before stop; guarded_operations=0'] if label=='nohost' else [line.replace('stop_inside_callback=true','stop_inside_callback=false') for line in terminal_expected('single-async')] if label=='late-stop' else expected('single')

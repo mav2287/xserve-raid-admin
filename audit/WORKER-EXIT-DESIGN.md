@@ -171,3 +171,21 @@ plus exact retained sentinel identity, rather than accepting any other Error.
 Sentinel vectors run interpreted and compiled on both architectures (4 controls).
 No application byte changes accompany these fixture corrections. Latest unit
 suite remains133 passing; new full clean qualification is required.
+
+
+Clean sourceccf069f:120 guarded worker vectors,46 connection-stop vectors (including
+four exact-type assertion controls),40 admission vectors, and133 unit tests pass.
+The strengthened Transport assertion recorder correctly caught an old outcome
+expectation: after guarded connect-callback containment, the sole command callback
+is the pending request's CommShutdown, not a duplicate response carrying the thrown
+connect-callback exception. The expectation is refined explicitly for guarded
+workers; the historical unguarded exception-identity expectation remains. The
+historical audit.17 characterization allowlist includes the new unused sentinel
+fixture classes; application/reference JAR is unchanged. Separate final clean
+transport/historical characterization records must be produced after this QA commit.
+
+The first clean lock gate exited0 but failed exact output-vector comparison. Cause
+is unresolved, matching an excluded historical audit.19 mismatch; no source fix
+is claimed. A diagnostic development run and a subsequent unchanged plain clean
+run each passed all20 vectors. The failed attempt is excluded and additional
+unchanged plain clean repetition is required for the final lock evidence.
