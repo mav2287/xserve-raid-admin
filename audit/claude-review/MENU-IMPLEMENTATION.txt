@@ -1,0 +1,34 @@
+I read only the four files and ran nothing. I found **no critical errors** in the bridge logic. One provenance problem needs fixing before the fixture is committed, and there are a few test gaps.
+
+## Critical errors
+
+**None in the code.** On the items you asked about:
+
+- **Java 8 EAWT vs 9+ Desktop selection** (`MRJApplicationUtils.java:14-18,50-55`): the choice depends on whether `java.awt.desktop.AboutHandler` exists, which is the right signal. The fixture agrees: every Java 8 runtime reports `about_handler_present=false` and `runtime_api=eawt`, and every Java 11 runtime reports `true` and `desktop`. Classes load with `initialize=false`. `register` checks that the setter exists before calling `getApplication`/`getDesktop`, so a missing API doesn't start the native singleton. The four setter/callback name pairs match both the EAWT and the `java.awt.desktop` APIs.
+- **Proxy identity** (`:99-103`): `equals`, `hashCode` and `toString` are handled locally by reference identity. Any other method is rejected unless it equals the single selected callback. The Adapter constructor rejects overloaded or non-void callbacks with a fixed exception.
+- **Public declared-type reflection** (`:114,116`): `cancelQuit` and `getFiles` are looked up on the proxy method's declared parameter types, never on `args[i].getClass()`. That avoids the non-exported implementation classes on 9+. Those types are `java.awt.desktop.QuitResponse` / `OpenFilesEvent` on 9+, and the public `com.apple.eawt.QuitResponse` / `AppEvent.OpenFilesEvent` on 8. The probe tests this properly by passing a `private` `QuitResponse` implementation.
+- **Quit callback ownership** (`:113-114`): the original `handleQuit()` runs first. `cancelQuit` runs in `finally`, and `performQuit` is never called. If the handler exits synchronously, `finally` never runs. If it returns or throws, the app stays open. This matches your stated intent.
+- **OpenFiles forwarding** (`:116-121`): files are forwarded in order. A per-file `RuntimeException` (including a `ClassCastException` on a non-`File`) is recorded and the loop continues. A `LinkageError` stops the remaining files, which is reasonable.
+- **Fixed-code failures** (`:71-75`): codes are built only from constant handler/callback names. The cap of 8 equals the maximum number of distinct codes (4 registration + 4 callback). The set is guarded by a single class lock, and stderr gets one line per code.
+- **Print/open-app entry points**: both remain no-ops.
+
+## Before recording: fixture provenance (not a code error)
+
+- `MRJApplicationUtils.java` is modified but not committed, and `tests/java/com/apple/mrj/` is untracked. So `candidate_sha256` (`89bb…`) and the `MenuProbe.java` hash in `menu-runtime-fixtures.json` can't be tied to a commit yet. Your previous commit says fixtures are recorded "from the clean implementation commit". Commit first, rebuild, and re-record so the hashes match the committed source. I can't check the hashes myself without running anything.
+- The fixture's `limits` string (`check_architectures.py:89`) is the same with or without `--menus`. "No GUI/Aqua" technically covers it, but it doesn't say that `menu_regression` uses synthetic backend interfaces only: no real Desktop/EAWT registration, no AppleEvent/menu delivery, no real event types. Consider adding a menu-specific limit when `--menus` is set.
+
+## Optional tests
+
+1. **Real handler types are never proxied.** `MenuProbe` only checks real class names and setter signatures. The Adapter constructor's callback selection and the null-loader `Proxy.newProxyInstance` call only run against the synthetic `About`, `Prefs`, `Quit` and `OpenFiles` interfaces. You could create an Adapter and proxy for each real `api.handler` without registering anything. This is safe offline: building a proxy doesn't start native code. On 9+, you could also call the real `QuitHandler` proxy with a `null` event and a private `java.awt.desktop.QuitResponse`. Real event objects can't be built headless, because the 9+ `AppEvent` constructor calls `Desktop.getDesktop()`.
+2. **Quit ordering.** The probe checks that cancel was called exactly once, but not that it happened *after* `handleQuit`. You could assert `response.cancellations == 0` inside the fixture handler.
+3. **OpenFiles failure path.** No test covers a throwing handler on file 1 followed by delivery of file 2, or a non-`File` element.
+4. **Unknown method.** Nothing checks that invoking an unexpected interface method throws `UnsupportedOperationException`.
+5. **Public surface.** Nothing in these four files checks that `MRJApplicationUtils`'s public methods match the original stub. `FolderProbe` may do this for other classes; I didn't check.
+
+## Notes for the real GUI qualification later
+
+- In original MRJ, throwing `IllegalStateException` from `handleQuit()` was the documented way to *cancel* a quit. If RAID Admin's handler ever does that on purpose, the outcome is still correct (it cancels), but stderr will report `callback:handleQuitRequestWith` as a failure. Check this against the original handler.
+- If the original handler exits *asynchronously* (for example via `invokeLater`) rather than calling `System.exit` directly, `cancelQuit` will interrupt a macOS logout or shutdown before the app exits. Test this with real logout events.
+- On 9+, `getDesktop()` and the setters throw when `isSupported(APP_*)` is false. That ends up as `registration:*`, which is correct but deserves a line in the docs.
+
+`check_architectures.py` itself looks fine for menus. `OfflineGuard` is added exactly once whichever flags are used. `MenuProbe` runs only against the candidate, which is correct because the original has no `runtimeApi`/`bind`. The probe's package-private access works because the probe and the candidate jar share the `com.apple.mrj` package on the same loader. That assumes the jar isn't sealed, which I couldn't check from these files.

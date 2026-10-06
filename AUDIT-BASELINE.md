@@ -166,3 +166,11 @@ supplied explicitly when characterizing the original dispatch code on modern Jav
 See `audit/folder-fix-results.json`, `audit/transport-observation.json`, and the
 Claude design/implementation reviews for exact scope and limits. No installed
 app, controller, production volume, credential store or GUI was accessed.
+
+## audit.3 — macOS handler bridge
+
+About/Preferences select the correct API on Java 8 and 11. Quit now delegates
+to the original save-and-exit callback; a returning/failed callback cancels the
+platform quit. Finder file events invoke the original per-file alert callback.
+No controller command, polling or retry implementation changed. Headless bridge
+results are in `audit/menu-runtime-fixtures.json`; native GUI behavior remains open.

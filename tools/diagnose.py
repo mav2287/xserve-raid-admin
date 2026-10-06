@@ -29,7 +29,7 @@ def diagnose(output):
     matches = files == provenance['files'] and file_modes == provenance.get('file_modes')
     # Do not relay arbitrary strings from manifests, environment, or preference stores.
     return {
-        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2') else 'unrecognized',
+        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2', '1.5.1-modern.audit.3') else 'unrecognized',
         'source_commit': provenance['source_commit'] if len(provenance.get('source_commit', '')) == 40 and all(c in '0123456789abcdef' for c in provenance['source_commit']) else 'unknown',
         'architecture': platform.machine(), 'macos': platform.mac_ver()[0],
         'bundle_tree_sha256': digest({'files': files, 'file_modes': file_modes}), 'matches_build_manifest': matches,

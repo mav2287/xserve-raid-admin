@@ -133,3 +133,14 @@ queried. Failures/open issues use local stable [gap IDs](GAPS.md).
 | ACP | Synthetic auth/target/user-agent and plist response through original send | Pass in memory: `audit/transport-observation.json`; no actual authentication or TCP |
 | Retry characterization | Dropped response, repeated loss, parse-error callback | Original behavior reproduced; duplicate sends are a risk finding, not a safety pass |
 | Firmware stream | Closed/exhausted synthetic stream reuse | Throw-before-send and empty-body retry distinguished; no firmware or network transmission |
+
+## audit.3 macOS callback bridge
+
+`audit/menu-runtime-fixtures.json` records passing API-selection, real-interface
+proxy construction, synthetic backend dispatch, proxy identity, ordered file delivery
+(including failure on the first file), and quit return/failure cancellation tests.
+Runtime matrix: original local Java 8 arm64, Java 11 arm64/x86_64, and pinned
+Corretto 8.504.04.1 arm64/x86_64. Intel execution on this host uses Rosetta.
+Native singleton registration, real AppleEvents, GUI, preference saves and physical
+Intel qualification remain unrun. A failed original save cancels quit and records
+a fixed code; visible in-app error presentation remains outstanding.

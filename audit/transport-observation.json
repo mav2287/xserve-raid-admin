@@ -20,7 +20,7 @@
       ]
     },
     {
-      "jar_sha256": "bfd58355316a16472a7b030412435f47e3e646de0f52291bebc4a1bf5b0c2d8f",
+      "jar_sha256": "89bb23ca403a7dbf8091b2ae8f334d5da6b273d141af2430f0fdc4857b6de3c7",
       "results": [
         "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values; application logging OFF",
         "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",

@@ -12,7 +12,7 @@ No bundled JRE. Launcher selects arbitrary external Java and uses a predictable 
 
 ## G03 — OS lifecycle and menus
 
-Source Java 8 handler lookup uses absent Java 9 interfaces and suppresses failure; quit/open-document/open-application registration is a no-op. Installed source differs. Test save/quit/default window behavior, then repair through a narrow bridge with regression tests.
+audit.3 repairs Java 8 EAWT vs Java 9+ Desktop selection and binds About, Preferences, Quit and OpenFiles to original callbacks. Headless adapter tests pass on five runtime/architecture configurations. Object methods no longer invoke callbacks; failures use bounded fixed codes. Print/open-application registration remains an unused original stub. Real native registration, menu delivery, preference persistence and Finder events remain unqualified. A failing original quit/save callback cancels quit; fixed stderr/status codes exist, but a visible in-app failure dialog remains open.
 
 ## G04 — Credential-bearing logging
 

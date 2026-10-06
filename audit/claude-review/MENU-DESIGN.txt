@@ -1,0 +1,52 @@
+I found 7 problems to settle before implementing this design. I read the patch source, the addendum, the inventory and the built/installed OS-boundary dumps. I could not open the original `RaidAdmin` bytecode because it sits outside the working directory. Nothing was run or edited.
+
+## Blockers
+
+**B1. The backend must be chosen once, and Java 9+ must never fall back to `com.apple.eawt`.**
+- The bug the spec fixes is real. `java.awt.Desktop` exists on Java 8, so the current `getDesktopOrEAWTApp` returns it there (`patches/com/apple/mrj/MRJApplicationUtils.java:61-75`). `setHandler` then fails to find `java.awt.desktop.*` and swallows the error, so Java 8 never reaches eawt.
+- The reverse case also needs a rule. If `java.awt.desktop.AboutHandler` exists but `getDesktop()` or a setter throws (headless, or `UnsupportedOperationException`), the binder must record the error and stop.
+- An eawt fallback on Java 11 would probably still work, because the default `--illegal-access=permit` opens packages that existed in JDK 8. But it would print an "Illegal reflective access" warning to stderr, and that output isn't deterministic across runtimes.
+- The installed bytecode does exactly this per-handler fallback: it tries Desktop and on any exception calls `setEAWTHandler` (`audit/installed-os-boundary.txt:211-245`).
+
+**B2. Resolving runtime classes must not initialize them.**
+- `Class.forName(name)` initializes the class. The current source and the installed build both do this (`:63`, `:79`; `installed-os-boundary.txt:302`).
+- As far as I remember (I haven't checked here), JDK 8's `com.apple.eawt.Application` has a static initializer that starts the native app delegate and the Toolkit.
+- Every lookup needs `Class.forName(name, false, loader)`. `getDesktop()`/`getApplication()` should be called only in the production entry point, never in the code the tests exercise.
+
+**B3. The binder must accept type names as parameters, or the tests can't meet the spec.**
+- On Java 8, `com.apple.eawt.QuitResponse` is a final class. As I remember it, it has no public constructor, so a test can't create one to check `cancelQuit`.
+- A fake backend compiled against `com.apple.eawt.*` also needs `javac -XDignore.symbol.file`.
+- Fix: the binder takes a backend descriptor: a setter-owner class, the handler interface names and the response type. Tests then use public fake interfaces and classes (`fake.QuitHandler`, `fake.QuitResponse`, and so on).
+- A second, separate test on each runtime only resolves the real classes and methods without initializing them. Without this split, "fake backend + no native init" and "test on locked8/observed11" pull against each other.
+
+**B4. Cancelling the quit when the handler throws can make the app impossible to quit, with no visible sign.**
+- `handleQuit` calls `SystemMonitorWindow.updatePreferences`, which writes four integers and then calls `Preferences.synchronize()` (`static-inventory.json:27280-27291`). That is a disk write.
+- If it fails every time, for example through the still-inferred F2 preferences-folder problem, every Cmd-Q and every logout/shutdown request gets cancelled.
+- Visible-error UI is still an open requirement, so the user would see nothing.
+- Cancelling on a throw does match the old MRJ convention, where throwing from `handleQuit` cancelled the quit. So I'm not challenging that choice. But the Quit binding should either ship together with the visible-error UI, or this failure should be recorded as an accepted known risk. The tests need a "callback throws → `cancelQuit` once, `performQuit` never" case.
+
+**B5. The proxy should dispatch on resolved `Method` objects, and exception handling needs defining.**
+- Dispatch should compare against the resolved interface `Method` objects (`equals`/`hashCode`/`toString` first), not method names. Anything unrecognized returns null without calling anything.
+- The spec doesn't say what happens when the original About/Prefs/OpenFiles callback throws. I recommend: catch it, record the fixed text, and don't let it reach the event dispatch thread.
+- For OpenFiles, catch per file and carry on with the next one. That matches MRJ, which made one `handleOpenFile` call per file.
+- `getFiles` should be looked up on the declared event parameter type (public `FilesEvent`/`OpenFilesEvent`), not on the runtime class. That's the same reasoning the spec already applies to `cancelQuit`.
+
+**B6. The error recording needs a defined destination and a test hook.**
+- "Deterministic fixed-text" needs a target: a static, append-only, bounded list of constant codes that tests can read, plus at most one constant stderr line.
+- Order must be stable and duplicates collapsed, since each `register*` call can fail on its own.
+- Cache the backend selection in one place so each handler doesn't repeat it and produce extra error entries.
+
+**B7. The method list doesn't match the original.**
+- The original stub and the installed build both have `registerPrintDocumentHandler(MRJPrintDocumentHandler)`. The repo source drops it (`static-inventory.json:3485`, `installed-os-boundary.txt:295`; it's absent from `built-os-boundary.txt`). Nothing in `com.apple.xsr` calls it, but keep it as a no-op alongside `registerOpenApplicationHandler`.
+- The original has a public constructor; the installed build's is private (`installed-os-boundary.txt:200`). Keep it public.
+- Separately, the installed build doesn't match the committed source: it has the eawt fallback and the print method. Record that provenance gap before using "installed" as the baseline.
+
+## Checked, not blocking
+- **OpenFiles is safe to restore.**
+  - `handleOpenFile` builds an `AquaAlert` and shows it as a sheet.
+  - The listener's `aquaAlertDismissed` only clears the alert field through `access$202` (`static-inventory.json:20517-20603`). No message factory or send path is reachable from it.
+  - `.xfb` is declared as a Viewer document type (`build.sh:100-112`), so Finder will deliver these events.
+  - Registration happens in `runApplication`, after the license screen. From memory, the JDK queues open-files events until a handler is set, so files opened at launch should arrive late rather than be lost. This hasn't been checked on either runtime.
+  - Still to check: what showing several sheets in a row on the same frame looks like, given one alert field.
+- **`System.exit` on the event dispatch thread** inside the quit handler means the `finally` never runs on success, which is the intended behaviour. The inventory shows no `addShutdownHook`, so there's no hook to deadlock on.
+- **Before the license is accepted, no quit handler is registered**, so the JDK's default quit applies. The decline button calls `QuitHandler.handleQuit` directly (`:20582-20588`), which the bridge doesn't affect.

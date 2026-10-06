@@ -19,11 +19,11 @@ ORIGINAL_SHA256 = '5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59
 PATCH_CLASSES = {
     'Launcher.class', 'com/apple/eio/FileManager.class',
     'com/apple/mrj/MRJApplicationUtils.class',
-    'com/apple/mrj/MRJApplicationUtils$1.class',
-    'com/apple/mrj/MRJApplicationUtils$2.class', 'sun/io/MalformedInputException.class',
+    'com/apple/mrj/MRJApplicationUtils$Adapter.class',
+    'com/apple/mrj/MRJApplicationUtils$RuntimeApi.class', 'sun/io/MalformedInputException.class',
     'com/apple/mrj/MRJFileUtils.class',
 }
-VERSION = '1.5.1-modern.audit.2'
+VERSION = '1.5.1-modern.audit.3'
 
 
 def tree_hash(files):
