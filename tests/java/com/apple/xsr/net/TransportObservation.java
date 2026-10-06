@@ -91,7 +91,7 @@ public final class TransportObservation {
     private static byte[] boundedReply(String start, String headers, byte[] body, int ceiling) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write((start + "\r\n" + headers + "\r\n").getBytes("US-ASCII")); out.write(body);
-        check(ceiling<=524288 && out.size() < ceiling, "Fixture response bound exceeded");
+        check(ceiling<=2097152 && out.size() < ceiling, "Fixture response bound exceeded");
         return out.toByteArray();
     }
     private static void responseCase(String label, byte[] raw, String expected) throws Exception {
@@ -257,7 +257,7 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging").contains(args[0])), "Unknown fixture arguments");
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging").contains(args[0])), "Unknown fixture arguments");
         boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].endsWith("-default-logging"));
         boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
@@ -267,7 +267,8 @@ public final class TransportObservation {
         try {
             System.setErr(new PrintStream(captured,true,"UTF-8"));
             System.setOut(new PrintStream(capturedOut,true,"UTF-8"));
-            if(args.length==1 && args[0].startsWith("allocation-policy")) allocationPolicy(defaultLogging);
+            if(args.length==1 && args[0].startsWith("header-policy")) headerPolicy(defaultLogging);
+            else if(args.length==1 && args[0].startsWith("allocation-policy")) allocationPolicy(defaultLogging);
             else execute(defaultLogging,parserPolicy);
             check(captured.toString("UTF-8").equals(defaultLogging ? "RAID_ADMIN_ERROR\n" : ""), "Unexpected logging output");
             check(capturedOut.size() == 0, "Unexpected application stdout");
@@ -278,7 +279,10 @@ public final class TransportObservation {
         }
     }
     private static void followOn(boolean allocation) throws Exception {
-        final State state=new State();state.rawResponse=reply("HTTP/1.1 200 Fixture","Content-Length: "+(allocation?"2147483647":"fixture")+"\r\n",new byte[0]);
+        followOn(allocation?"allocation-limit":"invalid-length",reply("HTTP/1.1 200 Fixture","Content-Length: "+(allocation?"2147483647":"fixture")+"\r\n",new byte[0]));
+    }
+    private static void followOn(final String label,byte[] raw)throws Exception {
+        final State state=new State();state.rawResponse=raw;
         final MemoryConnection memory=new MemoryConnection(state);
         final CommunicationsManager manager=(CommunicationsManager)unsafe().allocateInstance(CommunicationsManager.class);
         set(manager,"queue",new LinkedList<Object>());set(manager,"system",unsafe().allocateInstance(FakeSystem.class));
@@ -295,7 +299,24 @@ public final class TransportObservation {
         AcpxMessageFactory factory=new AcpxMessageFactory();
         manager.postMessageAsync(handler,factory.newGetStatusRequest(),contexts[0]);manager.postMessageAsync(handler,factory.newGetTimeRequest(),contexts[1]);manager.run();
         check(callbacks[0]==2 && state.sent.size()==1,"Follow-on sends differ");
-        emit("follow_on "+(allocation?"allocation-limit":"invalid-length")+" results=-102,-102; sends=1; outstanding=true; reconnects=0");
+        emit("follow_on "+label+" results=-102,-102; sends=1; outstanding=true; reconnects=0");
+    }
+    private static void headerPolicy(boolean defaultLogging)throws Exception {
+        if(!defaultLogging)org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+        StringBuilder line=new StringBuilder("X: ");for(int i=0;i<65534;i++)line.append('x');line.append("\r\n");
+        StringBuilder fields=new StringBuilder();for(int i=0;i<129;i++)fields.append("X: x\r\n");
+        byte[][] cases={boundedReply("HTTP/1.1 200 X",line.toString(),new byte[0],2097152),
+            reply("HTTP/1.1 200 X",fields.toString(),new byte[0]),HeaderObservation.totalHeader(1048577).getBytes("US-ASCII")};
+        String[] labels={"line","count","aggregate"};
+        for(int i=0;i<cases.length;i++) {
+            check(cases[i].length<=1048577,"Header fixture bound exceeded");State state=new State();state.rawResponse=cases[i];
+            try{transport(new MemoryConnection(state)).send(new AcpxMessageFactory().newGetStatusRequest());throw new AssertionError("Header quota not enforced");}
+            catch(IllegalArgumentException expected){check("Response headers exceed limit".equals(expected.getMessage()),"Wrong header rejection");}
+            check(state.sent.size()==1,"Header sends differ");
+            dispatch(new AcpxMessageFactory().newGetStatusRequest(),0,false,cases[i],-102,0,"header-"+labels[i]);
+        }
+        followOn("header-limit",cases[0]);
+        emit("PASS header quota observations; guarded_operations=0");
     }
     private static void allocationPolicy(boolean defaultLogging) throws Exception {
         if(!defaultLogging) org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);

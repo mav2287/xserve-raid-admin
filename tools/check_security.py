@@ -22,6 +22,8 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         kept = []
         selected = []
         for part in declarations:
+            constructor = target=='getBody' and re.match(r'^  com\.apple\.xsr\.net\.HttpResponse\(',part)
+            if constructor: part = re.sub(r'^    Code:\n.*?(?=^    \S|^}|\Z)', '', part, flags=re.M | re.S)
             if re.match(r'^  [^\n]*\b' + target + r'\(', part) and ('    descriptor: ' + descriptor + '\n') in part:
                 selected.append(part)
                 part = re.sub(r'^    Code:\n.*?(?=^    \S|^}|\Z)', '', part, flags=re.M | re.S)
@@ -45,6 +47,20 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         for (a,b),offset,operation,owner in zip(changed,(23,28),('new','invokespecial'),('class compat/BoundedResponseBuffer','Method compat/BoundedResponseBuffer."<init>":(I)V')):
             if not re.match(r'^\s+'+str(offset)+r': '+operation+r'\s+#\d+\s+// ',b) or owner not in b or 'java/io/ByteArrayOutputStream' not in a:
                 raise ValueError('Response allocation target differs')
+        def ctor(text):
+            return re.search(r'^  com\.apple\.xsr\.net\.HttpResponse\(com\.apple\.xsr\.net\.HttpConnection\).*?(?=^  \S|^})',text,re.M|re.S)[0]
+        a,b=ctor(before),ctor(after)
+        instructions=lambda text:re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)
+        ai,bi=instructions(a),instructions(b)
+        expected=[]
+        for offset,rest in ai:
+            if int(offset)==36:
+                added=bi[len(expected)]
+                if added[0]!='36' or not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/BoundedHeaderStream.wrap:\(Ljava/io/InputStream;\)Ljava/io/InputStream;',added[1]):raise ValueError('Header constructor insertion differs')
+                expected.append(added)
+            expected.append((str(int(offset)+(3 if int(offset)>=36 else 0)),rest))
+        if expected!=bi or re.findall(r'stack=\d+, locals=\d+, args_size=\d+',a)!=re.findall(r'stack=\d+, locals=\d+, args_size=\d+',b) or any(label in text for text in (a,b) for label in ('Exception table:','LineNumberTable:','LocalVariableTable:','StackMapTable:')):
+            raise ValueError('Independent constructor preservation failed')
         return
     expected_frame = {'resolveEntity':'stack=2, locals=3, args_size=3', 'getParser':'stack=1, locals=0, args_size=0'}.get(target,'stack=1, locals=1, args_size=1')
     if expected_frame not in new[3] or 'Exception table:' in new[3]:
@@ -93,6 +109,8 @@ def main():
     constructor = re.search(r'public compat.BoundedResponseBuffer\(int\);.*?    Code:\n(.*?)(?=\n  \S|\n})',allocation_helper,re.S)
     if constructor is None or re.findall(r'^\s+\d+:\s+(\S+)',constructor[1],re.M) != ['aload_0','iload_1','invokestatic','invokespecial','return'] or 'Method checkLength:(I)I' not in constructor[1] or 'java/io/ByteArrayOutputStream."<init>":(I)V' not in constructor[1]:
         raise ValueError('Response size check does not precede superclass allocation')
+    header_helper=disassemble_entries(args.jdk,args.jar,['compat/BoundedHeaderStream.class'],verbose=True)
+    if '  major version: 52' not in header_helper:raise ValueError('Header helper requires unexpected JVM version')
     verified_methods = {}
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)
@@ -101,7 +119,7 @@ def main():
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
         if name == 'getBody':
-            verified_methods[entry] = 'Only allocation operands at offsets 23 and 28; independent complete disassembly comparison'
+            verified_methods[entry] = 'Allocation operands at offsets 23 and 28 plus exact static wrapper insertion in constructor; independent complete disassembly comparisons'
             continue
         expected = {'resolveEntity':['aload_1','aload_2','invokestatic','areturn'],'getParser':['invokestatic','areturn']}.get(name,['ldc_w','areturn'])
         if operations != expected: raise ValueError('Independent disassembly differs from intended substitution')
@@ -124,6 +142,6 @@ def main():
         'request_inventory':request_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
         'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
-        'limits':'Independent preservation of resolver, parser construction delegate, two request diagnostics and response allocation operands. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. No header/framing limits, connection recovery, real controller data, full application output or GUI qualification.'},indent=2))
+        'limits':'Independent preservation of resolver, parser construction delegate, two request diagnostics and response allocation operands. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No HTTP framing qualification, connection recovery, real controller data, full application output or GUI qualification.'},indent=2))
 
 if __name__ == '__main__': main()

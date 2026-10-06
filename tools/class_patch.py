@@ -126,8 +126,25 @@ def transform(entry, data):
         replacement = bytearray(data[begin:end])
         replacement[14+24:14+26] = word(owner)
         replacement[14+29:14+31] = word(constructor)
-        result = (data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+
-                  data[cls.pool_end:begin]+bytes(replacement)+data[end:])
+        header_owner=append(7,word(utf8('compat/BoundedHeaderStream')))
+        header_signature=append(12,word(utf8('wrap'))+word(utf8('(Ljava/io/InputStream;)Ljava/io/InputStream;')))
+        header_reference=append(10,word(header_owner)+word(header_signature))
+        constructors=[m for m in cls.methods if (m['name'],m['descriptor'])==('<init>','(Lcom/apple/xsr/net/HttpConnection;)V')]
+        if len(constructors)!=1 or constructors[0]['access']!=0: raise ValueError('Response constructor identity differs')
+        attrs=[a for a in constructors[0]['attributes'] if a[0]=='Code']
+        if len(attrs)!=1: raise ValueError('Response constructor Code missing')
+        _,cb,ce=attrs[0]
+        if u4(data,cb+10)!=44 or data[cb+14+44:ce]!=bytes(4):
+            raise ValueError('Response constructor Code shape or nested attributes differ')
+        original_code=data[cb+14:cb+14+44]
+        if original_code[36:44]!=bytes.fromhex('b5000d2ab7000eb1'): raise ValueError('Response stream assignment differs')
+        body=data[cb+6:cb+10]+struct.pack('>I',47)+original_code[:36]+b'\xb8'+word(header_reference)+original_code[36:]+bytes(4)
+        constructor_replacement=data[cb:cb+2]+struct.pack('>I',len(body))+body
+        edits=sorted([(begin,end,bytes(replacement)),(cb,ce,constructor_replacement)])
+        tail=bytearray();cursor=cls.pool_end
+        for eb,ee,value in edits:tail.extend(data[cursor:eb]);tail.extend(value);cursor=ee
+        tail.extend(data[cursor:])
+        result = data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+bytes(tail)
         assert_preserved(data,result,name,descriptor)
         assert_allocation_operands(data,result)
         return result
@@ -161,7 +178,7 @@ def assert_preserved(before, after, name, descriptor):
     if before[old.pool_end:old.methods[0]['start']] != after[new.pool_end:new.methods[0]['start']]:
         raise ValueError('Original class hierarchy, fields or method count changed')
     for a,b in zip(old.methods,new.methods):
-        if (a['name'],a['descriptor']) == (name,descriptor):
+        if (a['name'],a['descriptor']) == (name,descriptor) or (name=='getBody' and (a['name'],a['descriptor'])==('<init>','(Lcom/apple/xsr/net/HttpConnection;)V')):
             if before[a['start']:a['start']+8] != after[b['start']:b['start']+8]:
                 raise ValueError('Target signature/access/attribute count changed')
             old_attrs = [before[s:e] for n,s,e in a['attributes'] if n != 'Code']
@@ -169,6 +186,10 @@ def assert_preserved(before, after, name, descriptor):
             if old_attrs != new_attrs: raise ValueError('Target non-Code attributes changed')
         elif before[a['start']:a['end']] != after[b['start']:b['end']]:
             raise ValueError('Non-target method changed')
+
+    if name=='getBody':
+        assert_allocation_operands(before,after)
+        assert_header_insertion(before,after)
 
 
 def assert_allocation_operands(before, after):
@@ -193,3 +214,21 @@ def assert_allocation_operands(before, after):
     for offset in (14+24,14+29):
         b[offset:offset+2]=a[offset:offset+2]
     if a!=b: raise ValueError('Response modification outside allocation operands')
+
+
+def assert_header_insertion(before,after):
+    old,new=ClassFile(before),ClassFile(after)
+    def code(cls,data):
+        method=next(m for m in cls.methods if (m['name'],m['descriptor'])==('<init>','(Lcom/apple/xsr/net/HttpConnection;)V'))
+        _,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
+        return data[begin:end]
+    a,b=code(old,before),code(new,after)
+    if len(b)!=len(a)+3 or a[:2]!=b[:2] or u4(b,2)!=u4(a,2)+3 or a[6:10]!=b[6:10] or u4(a,10)!=44 or u4(b,10)!=47:
+        raise ValueError('Header constructor frame or lengths differ')
+    if b[14:50]!=a[14:50] or b[50]!=0xb8 or b[53:61]!=a[50:58] or b[61:]!=a[58:] or a[58:]!=bytes(4):
+        raise ValueError('Header constructor differs outside insertion')
+    tag,value=new.pool[u2(b,51)]
+    if tag!=10: raise ValueError('Header wrapper is not static method reference')
+    tag,owner=new.pool[u2(value,0)];nt,signature=new.pool[u2(value,2)]
+    if tag!=7 or new.text(u2(owner,0))!='compat/BoundedHeaderStream' or nt!=12 or new.text(u2(signature,0))!='wrap' or new.text(u2(signature,2))!='(Ljava/io/InputStream;)Ljava/io/InputStream;':
+        raise ValueError('Header wrapper insertion target differs')

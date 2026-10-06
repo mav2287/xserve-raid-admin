@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--security', action='store_true', help='Require resolver isolation and request-format redaction regressions')
     parser.add_argument('--logging', action='store_true', help='Check actual JAR logging configuration and fixed-code appender')
     parser.add_argument('--parser', action='store_true', help='Compare accepted XML boundaries and values')
+    parser.add_argument('--headers', action='store_true', help='Compare bounded header corpus and candidate-only limits')
     args = parser.parse_args()
     verify_python()
     compiler = verify_jdk(args.compiler)
@@ -46,10 +47,13 @@ def main():
         sources += [ROOT/'tests/java/LoggingProbe.java', ROOT/'tests/java/fixture/OfflineGuard.java']
     if args.parser:
         sources += [ROOT/'tests/java/ParserParityProbe.java', ROOT/'tests/java/fixture/OfflineGuard.java']
+    if args.headers:
+        sources += [ROOT/'tests/java/com/apple/xsr/net/HeaderObservation.java',ROOT/'tests/java/fixture/OfflineGuard.java']
     sources = list(dict.fromkeys(sources))
     source_hashes = {str(p.relative_to(ROOT)): sha(p) for p in sources}
     observations = []
     expected_parser = None
+    expected_headers = None
     with tempfile.TemporaryDirectory(prefix='raid-architecture-') as tmp:
         run_jdk(args.compiler, 'javac', ['-source', '8', '-target', '8', '-cp', str(args.jar.resolve()) + ':' + str(original),
                                        '-d', tmp] + [str(p) for p in sources])
@@ -72,7 +76,8 @@ def main():
             def run(jar, entry, *arguments):
                 # These flags work on both Java 8 and 11. This is a runtime observation,
                 # separate from the Java-8-only reproducible build environment.
-                command = [str(runtime / 'bin/java'), '-Xverify:all'] + extension_flags + ['-Djava.awt.headless=true', '-Duser.home=' + tmp,
+                resource_flags=['-Xmx64m','-Xss1m'] if entry=='com.apple.xsr.net.HeaderObservation' else []
+                command = [str(runtime / 'bin/java'), '-Xverify:all'] + resource_flags + extension_flags + ['-Djava.awt.headless=true', '-Duser.home=' + tmp,
                            '-Dfile.encoding=UTF-8', '-Duser.language=en', '-Duser.country=US',
                            '-Duser.timezone=UTC', '-cp', tmp + ':' + str(jar.resolve()), entry] + list(arguments)
                 try:
@@ -112,6 +117,15 @@ def main():
                 if expected_parser is None: expected_parser = parser_results[1]
                 if parser_results[1] != expected_parser: raise RuntimeError('Accepted parser outputs differ across runtimes')
                 observations[-1]['parser_regression'] = parser_results[1]
+            if args.headers:
+                header_results=[run(original,'com.apple.xsr.net.HeaderObservation','false').splitlines(),run(args.jar,'com.apple.xsr.net.HeaderObservation','true').splitlines()]
+                marker='PASS bounded header observations; guarded_operations=0'
+                if any(not lines or lines[-1]!=marker for lines in header_results): raise RuntimeError('Header fixture incomplete')
+                allowed=[line for line in header_results[1] if not line.startswith('rejection ')]
+                if allowed!=header_results[0] or len(allowed)!=7 or len(header_results[1])!=10: raise RuntimeError('Header acceptance or coverage differs')
+                if expected_headers is None: expected_headers=header_results[1]
+                if header_results[1]!=expected_headers: raise RuntimeError('Header observations differ across runtimes')
+                observations[-1]['header_regression']=header_results[1]
             if digest(tree(runtime)) != runtime_identity:
                 raise RuntimeError('Runtime changed during observation')
     if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in sources}:
@@ -123,6 +137,7 @@ def main():
                       'original_sha256': sha(original), 'candidate_sha256': candidate_sha,
                       'fixture_sources': {str(p.relative_to(ROOT)): sha(p) for p in sources},
                       'observations': observations,
+                      'header_limits': '174762 bounded short-input/EOF constructor cases; candidate counters and phase independently compared with unchanged private parseHeaders/readLine on isolated Unsafe shells. Exact line/count/aggregate boundaries, fresh per-response budget and body pass-through above 1 MiB. Three candidate-only overlimit rejections; no real socket framing or recovery qualification.' if args.headers else None,
                       'menu_limits': 'Real interface proxies and API metadata; synthetic backend callbacks only. No native singleton registration, real event construction or AppleEvent delivery.' if args.menus else None,
                       'limits': 'Headless serializer and simple HTTP 200 Content-Length replay only. No GUI/Aqua, JNI, app launcher, preferences, ACP transport, controller, or physical Intel Mac qualification. x86_64 JVM on the recorded arm64 host uses Rosetta; translation status is inferred, not separately probed.'}, indent=2))
 

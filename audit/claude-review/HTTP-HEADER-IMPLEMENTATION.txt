@@ -1,0 +1,70 @@
+Actual Claude CLI read-only implementation review. The reviewer read the header probe before the fresh-response case was added; the counts allegation reflects that earlier snapshot.
+
+I found two concrete defects and one gap in the independent checks. The wrapper itself and the constructor insertion look correct. I read the files only and ran nothing, so none of this is confirmed by output.
+
+## Defects
+
+**1. `check_architectures.py --headers` always fails on its line-count check** (`tools/check_architectures.py:125`)
+
+The check requires `len(allowed)==7` and `len(header_results[1])==10`. `HeaderObservation` prints:
+- 1 corpus line (`:79`)
+- 4 accepted lines (`:81-86`)
+- 3 rejection lines (`:88-90`, candidate only)
+- 1 PASS line (`:95`)
+
+That gives 6 allowed lines and 9 total, so the check raises `Header acceptance or coverage differs` on every run. Either change the counts to 6 and 9, or add the accepted case that was apparently planned.
+
+**2. The original-vs-candidate corpus can't detect errors in the wrapper's line or phase tracking** (`HeaderObservation.java:30-35, 68-79`)
+
+Every corpus input is at most 17 bytes, so no limit can trip and the wrapper just passes bytes through. `consumed()` measures what the parser read, which the wrapper can't change. So the corpus hash would match even if the wrapper counted lines wrongly or switched to body mode at the wrong byte. It only shows that the wrapper doesn't change bytes or throw on short input.
+
+The case that matters for security is the wrapper switching to body mode while the parser is still reading headers, which leaves the rest of the headers unbounded. Nothing tests that outside canonical CRLF framing (`body-pass-through`).
+
+Suggested fix: in candidate mode, after each corpus constructor, read the wrapper's private fields by reflection from the response's input-stream field and assert:
+- `bytes == source.consumed()`;
+- `body == true` exactly when the constructor accepted;
+- `body == false` after `ProtocolException` or `EOFException`.
+
+That turns the 174,762 cases into a real check of the automaton.
+
+## Gap in the independent check
+
+**3. The independent javap check never inspects the candidate constructor for added subattributes** (`tools/check_security.py:62`)
+
+It looks for `Exception table:`, `LineNumberTable:` and `LocalVariableTable:` only in `a`, the original. The instruction regex `^\s+(\d+):` doesn't match exception-table rows or `line N: M` entries, so a candidate that added these would still pass. `class_patch.py:228` does catch this, but the second check is supposed to be independent of it. Apply the same test to `b`.
+
+## Minor
+
+- **Patch unit test** (`tests/test_class_patch.py:56`): it changes max-stack, the inserted opcode, the high byte of the reference and the last byte. It never changes a byte in the preserved prefix (code 0–35), the preserved suffix (36–43 after the shift), or the owner, name or descriptor that the Methodref points to. The code checks all of these; the tests don't.
+- **Helper constants** (`check_security.py:112-113`): only version 52 is checked for `BoundedHeaderStream`. The allocation helper also gets its ceiling and message pinned; this one gets no check of 1048576, 65536, 129 or `"Response headers exceed limit"`. The header fixtures do cover behaviour.
+
+## Confirmed
+
+- **Newline/EOF automaton** (`BoundedHeaderStream.java:16-27`): matches the semantics of the original `readLine` and `parseHeaders`, as described in the design review's bytecode reading:
+  - the second CR or LF ends the line;
+  - `-1` isn't counted, finishes the line and resets the newline flag;
+  - an empty line other than the status line switches to body mode;
+  - a partial line at EOF followed by another EOF also switches correctly;
+  - `"empty"` means zero non-ending bytes.
+
+  I couldn't re-check this against raw bytecode, because there's no `readLine` listing in the repo, only the call inventory.
+- **Blank line 130**: rejection happens on the first non-ending byte while `lines>=129`, before `characters` is incremented. `fields-128` is accepted and the 129th field's first byte is rejected at `start+128*6+1`.
+- **Sticky rejection**: the `rejected` check comes before `source.read()`. The test asserts no further reads after rejection and that `close()` still passes through.
+- **Body pass-through**: after the switch, bytes go through uncounted. The body test (70,000 non-ending bytes, then 512 CR/LF) would hit the line limit if the switch failed.
+- **Consumption counters**: `bytes` counts every non-EOF byte including line endings. The 65536, 65537, 1048576 and 1048577 values all hold, and `totalHeader` adds up exactly.
+- **Constructor insertion** (`class_patch.py:132-142, 219-234`):
+  - access is pinned to 0x0000;
+  - the Code shape is fixed (44 bytes plus four zero bytes);
+  - the `putfield/aload_0/invokespecial/return` tail is pinned;
+  - `invokestatic` goes just before the `putfield` at 36, so it wraps the stream on top of the stack;
+  - code and attribute lengths each grow by 3, and max stack and max locals are unchanged;
+  - all other methods are byte-identical;
+  - javap offsets are shifted by 3 from offset 36 onward.
+- **Candidate-only limits and queue tests**:
+  - IllegalArgumentException with the fixed message on a direct `send`;
+  - `dispatch` gives -102, one send, context preserved and zero reconnects;
+  - `-Xmx64m -Xss1m` is used;
+  - fixtures are capped at 1 MiB+1 and the original jar never receives them.
+- **Two-command observation** (`TransportObservation.java:284-303`): after the first rejection, both commands return -102, `requestOutstanding` is true at each callback, there is one send and no connect callback. In other words, one hostile reply blocks later commands on that connection, now triggered by a new input. Only two commands are observed, so "until reconnect" is not actually measured. The docs should say so.
+
+Disposition: Actual runs already include seven common lines / ten candidate lines with the added fresh-response-budget case. Accepted-case counts are therefore correct. The genuine corpus blind spot is fixed: candidate private parseHeaders is separately invoked on an isolated Unsafe shell, and wrapper phase/bytes/line/reset fields are checked against actual unchanged readLine calls and actual constructor outcomes at all 174762 corpus cases. Independent constructor checks now reject added candidate tables as well as original tables. Mutation tests cover preserved prefix and suffix; body pass-through exceeds 1 MiB. Two-command observations establish only the next-command failure, not recovery or indefinite behavior.

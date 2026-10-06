@@ -5,7 +5,7 @@ import sys
 import unittest
 import zipfile
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from class_patch import TARGETS, ClassFile, transform, assert_preserved, embedded_dtd, assert_allocation_operands
+from class_patch import TARGETS, ClassFile, transform, assert_preserved, embedded_dtd, assert_allocation_operands, assert_header_insertion
 from audit_support import ROOT
 
 
@@ -46,6 +46,16 @@ class ClassPatchTests(unittest.TestCase):
         for offset in (begin+7,begin+14+40,end-1):
             changed=bytearray(after);changed[offset]^=1
             with self.subTest(offset=offset),self.assertRaises(ValueError):assert_allocation_operands(before,bytes(changed))
+
+    def test_header_insertion_preserves_original_constructor_and_rejects_changes(self):
+        entry='com/apple/xsr/net/HttpResponse.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);assert_header_insertion(before,after)
+        cls=ClassFile(after);method=next(m for m in cls.methods if m['name']=='<init>')
+        _,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
+        for offset in (begin+6,begin+14+20,begin+14+36,begin+14+37,begin+14+44,end-1):
+            changed=bytearray(after);changed[offset]^=1
+            with self.subTest(offset=offset),self.assertRaises((ValueError,KeyError)):assert_header_insertion(before,bytes(changed))
 
     def test_dtd_is_exact_embedded_literal_with_no_external_declarations(self):
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:
