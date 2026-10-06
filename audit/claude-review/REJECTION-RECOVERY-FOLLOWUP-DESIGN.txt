@@ -1,0 +1,66 @@
+Actual Claude CLI read-only design review.
+
+I didn't find a verifier, frame or exception-precedence problem with the appended handler under major 47. There are three concrete issues to settle before you implement it, and one gap in the test plan. I only read files; nothing was run, built or edited.
+
+I read the design, the prior review, `build/http-connection-bytecode.txt` and `build/acpx-response-callers-bytecode.txt`. To check where the marker can come from, I also read `build/http-response-allocation-bytecode.txt` and the `run` exception table and send call site in `build/http-communications-bytecode.txt`. The dumps don't use `-v`, so I couldn't see `max_stack`, `max_locals`, the class version or the Code sub-attributes.
+
+## Facts from the bytecode
+
+**Where the marker can arise.** In the original bytecode, header parsing runs inside the `HttpResponse` constructor (`http-response-allocation-bytecode.txt:39-40`). That constructor is called from `HttpConnection.getResponse`, which `send` calls at PC 183. The body allocation in `getBody` (PC 23-31) is reached through `getInputStream` (`:50`), which `send` calls at PC 201 or 214. Both calls happen before local 4 is stored at PC 207 or 217. `getInputStream` only caches its stream after `getBody` succeeds. The patched throw sites are inferred from the prior review; I didn't see them.
+
+**Verifier.** A version-47 class goes through the old type-inference verifier, so it needs no StackMapTable.
+- Local 0 is never overwritten in [32,271), so it is still `AcpxConnection` when the handler runs.
+- The range ends before `jsr 271` and doesn't include the subroutine at 326-388, so the new handler isn't inside a subroutine and can't be reached from one.
+- The stack on entry holds only the marker. The handler needs a stack depth of 2, and the original method already reaches 3 (PC 74-78).
+- On the encrypted path, an uninitialized `SimpleCryptInputStream` is on the stack at PC 201. Taking the handler discards the stack, just as the existing `any` entry does.
+- Keep the class version below 50. From version 51, `jsr`/`ret` are illegal.
+
+**Which handler catches what.** The JVM uses the first matching entry in table order. The order you described (`PropertyListException`, then the marker, then `any`) is correct, assuming the marker isn't a `PropertyListException`. The prior review says it subclasses `IllegalArgumentException`; I didn't verify that. PC 271-273 holds only `jsr`/`goto`, which can't throw, and nothing in the subroutine can produce the marker.
+
+**What skipping the original finally changes.**
+- Local 4 is null at both marker sites, so skipping the input-stream close loses nothing.
+- For non-persistent connections and shutdown/restart requests, `AcpxConnection.close()` (`:52-63`) does the same as the finally's disconnect at PC 376-385. The one difference is that `close()` only nulls `connection` if it succeeds.
+- For persistent connections, the socket is now closed where the original left it open. That is the intended change.
+
+**The second close can't fail, and reuse fails closed.**
+- If the first close throws, `HttpConnection.disconnect`'s finally has already set `socket=null` and `connected=false` (PC 34-45). The manager's second close then returns at PC 4 and nulls `connection`.
+- If the old object were reused by mistake, `requestOutstanding` would still be true and `newRequest` would throw `IllegalStateException` (PC 0-19). That isn't an `IOException`, so handler 337 wouldn't requeue the request.
+
+**The only caller.** `send` is called from one place, `CommunicationsManager.run` PC 255, and no queue lock is held there. The only handlers around it are `Exception` at 462 and `InterruptedException` at 488.
+
+## Concrete issues
+
+1. **A linkage failure in the handler would kill the dispatcher thread.** The design's "no helper errors escape" only covers code inside the helper. It can't cover:
+   - resolving the `invokestatic` Methodref,
+   - running `RejectionRecovery`'s static initializer,
+   - resolving the new catch type.
+
+   The JVM resolves the catch type whenever a non-`PropertyListException` exception passes through [32,271), so ordinary `IOException`s would hit a missing class too. Any `LinkageError` escapes `send`, and `run` only catches `Exception` and `InterruptedException`. The thread dies, the command gets no callback, and the connection is never closed. To pin this:
+   - Assert the exact descriptor `(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;` against the built helper, which must be a `public` class with a `public static` method.
+   - Make sure the static initializer does no reflection; put the cached manager-field lookup in a lazy holder.
+   - Make sure `compat` is loaded by a loader that can see `com.apple.xsr.net`.
+   - Add a fixture that loads the patched class with verification on and sends both a marker and a plain `IOException` through it.
+
+2. **A null return from the helper would replace the marker.** If `sendFailure` returned null, `athrow` would throw a `NullPointerException`. Handler 462 would catch that as an ordinary exception, so it wouldn't be replayed, but the marker recovery would be lost. The helper should always return its argument, and a test should assert that the exception thrown is the same object as the marker. The helper should also re-check `getClass() == UntrustedResponseException.class` before closing anything.
+
+3. **The log order changes from the prior review.** The prior review said "Log first", but the socket is now closed inside `send`, before the manager writes its legacy error line. `HttpConnection.disconnect` logs a debug "Socket closed" line (PC 14-19), so that line now comes before the error line on the marker path. Either accept this and pin it in a fixture, or add a note to the design.
+
+4. **The planned manager close-failure tests can't use real classes.** Because of the second-close fact above, a real `HttpConnection` can't make the manager's close fail. The design's "potential retry close" is really just nulling a reference. Those fixtures need a test double, which is fine because the linkage check looks at the field type, not the object's runtime class. The failure test that does use real classes belongs at the `AcpxConnection` handler level.
+
+## Byte masks
+
+Only these values in `send`'s Code attribute should change:
+- `attribute_length` grows by 13.
+- `code_length` goes from 392 to 397, and the appended bytes are `2a b8 <cp16> bf`.
+- `exception_table_length` goes from 3 to 4. The new entry, `0020 010f 0188 <cp16 Class compat/UntrustedResponseException>`, is inserted at index 1.
+
+`max_stack`, `max_locals` and any LineNumberTable or LocalVariableTable bytes should stay identical. I couldn't confirm those three from the dumps.
+
+## Not verified (inference only)
+
+- The marker's class hierarchy and the patched throw sites.
+- The class version and `max_stack` values.
+- Whether `compat` and `com.apple.xsr.net` are loaded by the same classloader in the shipped app.
+- Whether `AcpxConnection.send` has callers outside the dumped classes.
+
+Disposition: static helper initialization performs no reflection; manager metadata resolves lazily with remembered failure. Built helper public linkage and exact descriptors are independently checked. A real send handler fixture preserves an injected marker object; ordinary IO paths and verification-on original/candidate fixtures remain required. Marker cleanup debug/error ordering is a deliberate security-path change; no diagnostic message is rendered by shipped logging. Close-failure fixtures use explicit memory test doubles, not claims about real sockets.

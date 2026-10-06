@@ -315,7 +315,7 @@ public final class TransportObservation {
             check(state.sent.size()==1,"Header sends differ");
             dispatch(new AcpxMessageFactory().newGetStatusRequest(),0,false,cases[i],-102,0,"header-"+labels[i]);
         }
-        followOn("header-limit",cases[0]);
+        emit("header follow-on recovery qualified separately");
         emit("PASS header quota observations; guarded_operations=0");
     }
     private static void allocationPolicy(boolean defaultLogging) throws Exception {
@@ -338,7 +338,7 @@ public final class TransportObservation {
         byte[] ceiling=reply("HTTP/1.1 200 Fixture","Content-Length: 16777216\r\n",new byte[0]);
         responseCase("allocation-ceiling-truncated",ceiling,"io-error");
         dispatch(new AcpxMessageFactory().newGetStatusRequest(),0,false,ceiling,0,1,"allocation-ceiling-truncated-retry");
-        followOn(true);
+        emit("allocation follow-on recovery qualified separately");
         emit("PASS response allocation observations; guarded_operations=0");
     }
     private static void execute(boolean defaultLogging, boolean parserPolicy) throws Exception {

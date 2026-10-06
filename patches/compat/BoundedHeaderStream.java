@@ -12,7 +12,7 @@ public final class BoundedHeaderStream extends InputStream {
     public static InputStream wrap(InputStream source) {
         return source==null ? null : new BoundedHeaderStream(source);
     }
-    private void reject() { rejected=true; throw new IllegalArgumentException("Response headers exceed limit"); }
+    private void reject() { rejected=true; throw new UntrustedResponseException("Response headers exceed limit"); }
     private void finish() {
         if(lines>0 && characters==0) body=true;
         lines++;characters=0;newline=false;

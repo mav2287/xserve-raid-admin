@@ -5,7 +5,7 @@ import sys
 import unittest
 import zipfile
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from class_patch import TARGETS, ClassFile, transform, assert_preserved, embedded_dtd, assert_allocation_operands, assert_header_insertion
+from class_patch import TARGETS, ClassFile, transform, assert_preserved, embedded_dtd, assert_allocation_operands, assert_header_insertion, assert_recovery_edit
 from audit_support import ROOT
 
 
@@ -63,6 +63,28 @@ class ClassPatchTests(unittest.TestCase):
             offset=after.rfind(value);self.assertGreaterEqual(offset,0)
             changed=bytearray(after);changed[offset]^=1
             with self.subTest(target=value),self.assertRaises(ValueError):assert_header_insertion(before,bytes(changed))
+
+    def test_recovery_run_only_changes_report_window(self):
+        entry='com/apple/xsr/net/CommunicationsManager.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);assert_recovery_edit(before,after,'run')
+        cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
+        for offset in (begin+6,begin+14+200,begin+14+464,begin+14+467,begin+14+473,end-1):
+            changed=bytearray(after);changed[offset]^=1
+            with self.subTest(offset=offset),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
+        changed=bytearray(after);changed[begin+14+468:begin+14+470]=b'\x00\x46'
+        with self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
+
+    def test_send_preserves_code_handlers_and_exact_marker_range(self):
+        entry='com/apple/xsr/net/AcpxConnection.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);assert_recovery_edit(before,after,'send')
+        cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='send');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
+        for offset in (begin+6,begin+14+200,begin+14+392,begin+14+396,begin+411,begin+413,begin+421,begin+425,end-1):
+            changed=bytearray(after);changed[offset]^=1
+            with self.subTest(offset=offset),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'send')
+        changed=bytearray(after);changed[begin+14+394:begin+14+396]=b'\x00\x40'
+        with self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'send')
 
     def test_dtd_is_exact_embedded_literal_with_no_external_declarations(self):
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:

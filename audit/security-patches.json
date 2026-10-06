@@ -54,5 +54,27 @@
     "original_major_version": 47,
     "patched_major_version": 47,
     "scope": "getBody allocation operands and exactly one static stream wrapper insertion in package-private constructor; all other Code unchanged"
+  },
+  "com/apple/xsr/net/CommunicationsManager.class": {
+    "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+    "patched_sha256": "675b1c8755f8b5246a9dfad901a0043491ff2dc8c69bbf1a918e90c4b62bf984",
+    "method": [
+      "run",
+      "()V"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47,
+    "scope": "Exact security rejection report window"
+  },
+  "com/apple/xsr/net/AcpxConnection.class": {
+    "original_sha256": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",
+    "patched_sha256": "5506cd12209500212af4af4810a5a7ac0245939f89b4b0df1bc5950778f12a0e",
+    "method": [
+      "send",
+      "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47,
+    "scope": "Appended exact-marker handler; original instructions and handler entries preserved"
   }
 }

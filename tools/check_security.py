@@ -45,6 +45,25 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         raise ValueError('Independent class identity/version check failed')
     if new[1][:len(old[1])] != old[1] or old[2] != new[2]:
         raise ValueError('Independent constant pool/non-target disassembly check failed')
+    if target in ('run','send'):
+        a,b=old[3],new[3]
+        if target=='run':
+            window=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)
+            window=[(int(offset),rest) for offset,rest in window if 464<=int(offset)<474]
+            expected=[(464,'aload_0'),(465,'aload         5')]
+            if window[:2]!=expected or len(window)!=7 or window[2][0]!=467 or not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.report:\(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;\)V',window[2][1]) or window[3:]!=[(i,'nop') for i in range(470,474)]:
+                raise ValueError('Independent recovery report window differs')
+            def mask(text):return re.sub(r'^\s+(?:46[4-9]|47[0-3]):.*\n','',text,flags=re.M)
+            if mask(a)!=mask(b):raise ValueError('Run differs outside report window')
+        else:
+            appended=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)[-3:]
+            if len(appended)!=3 or appended[0]!=('392','aload_0') or appended[2]!=('396','athrow') or appended[1][0]!='393' or not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.sendFailure:\(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;\)Ljava/lang/Throwable;',appended[1][1]):raise ValueError('Independent send handler differs')
+            row=r'^\s+32\s+271\s+392\s+Class compat/UntrustedResponseException\n'
+            if len(re.findall(row,b,re.M))!=1:raise ValueError('Marker handler row missing/duplicate')
+            masked=re.sub(row,'',b,flags=re.M)
+            masked=re.sub(r'^\s+(?:392|393|396):.*\n','',masked,flags=re.M)
+            if masked!=a:raise ValueError('Send differs outside handler/exception row')
+        return
     if target == 'getBody':
         old_lines,new_lines=old[3].splitlines(),new[3].splitlines()
         if len(old_lines)!=len(new_lines): raise ValueError('Response disassembly length changed')
@@ -121,6 +140,10 @@ def main():
     header_helper=disassemble_entries(args.jdk,args.jar,['compat/BoundedHeaderStream.class'],verbose=True)
     if '  major version: 52' not in header_helper or not all(re.search(pattern,header_helper) for pattern in (r'ldc\s+#\d+\s+// int 1048576',r'ldc\s+#\d+\s+// int 65536',r'sipush\s+129',r'// String Response headers exceed limit')):
         raise ValueError('Header helper version, budgets or fixed rejection differs')
+    recovery_helper=disassemble_entries(args.jdk,args.jar,['compat/RejectionRecovery.class'],verbose=True)
+    marker_helper=disassemble_entries(args.jdk,args.jar,['compat/UntrustedResponseException.class'],verbose=True)
+    if 'public final class compat.UntrustedResponseException extends java.lang.IllegalArgumentException' not in marker_helper or '  major version: 52' not in marker_helper or '  major version: 52' not in recovery_helper or not all(text in recovery_helper for text in ('public final class compat.RejectionRecovery', 'public static java.lang.Throwable sendFailure(java.lang.Throwable, com.apple.xsr.net.AcpxConnection);', 'descriptor: (Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;', 'public static void report(com.apple.xsr.net.CommunicationsManager, java.lang.Exception);')):
+        raise ValueError('Marker/recovery helper linkage or hierarchy differs')
     verified_methods = {}
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)
@@ -128,6 +151,9 @@ def main():
         match = re.search(r'^  (?:public|protected) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
+        if name in ('run','send'):
+            verified_methods[entry]='Exact report window / appended marker handler independently verified, original remainder unchanged'
+            continue
         if name == 'getBody':
             verified_methods[entry] = 'Allocation operands at offsets 23 and 28 plus exact static wrapper insertion in constructor; independent complete disassembly comparisons'
             continue

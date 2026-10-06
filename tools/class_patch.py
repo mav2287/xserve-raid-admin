@@ -3,6 +3,8 @@ import hashlib
 import struct
 
 TARGETS = {
+    'com/apple/xsr/net/CommunicationsManager.class': ('c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1', 'run', '()V'),
+    'com/apple/xsr/net/AcpxConnection.class': ('f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125', 'send', '(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;'),
     'com/apple/xsr/net/HttpResponse.class': ('e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75', 'getBody', '()[B'),
     'com/apple/util/plist/PropertyListUtilities.class':
         ('b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a',
@@ -106,6 +108,28 @@ def transform(entry, data):
     def utf8(text):
         value = text.encode('ascii')
         return append(1, word(len(value)) + value)
+    if name in ('run','send'):
+        if u2(data,6)!=47: raise ValueError('Unexpected recovery verifier version')
+        owner=append(7,word(utf8('compat/RejectionRecovery')))
+        desc='(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V' if name=='run' else '(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;'
+        signature=append(12,word(utf8('report' if name=='run' else 'sendFailure'))+word(utf8(desc)))
+        reference=append(10,word(owner)+word(signature))
+        _,begin,end=codes[0]; n=u4(data,begin+10); original_code=data[begin+14:begin+14+n]
+        if name=='run':
+            if n!=553 or original_code[464:474]!=bytes.fromhex('b2002619051905b60046'): raise ValueError('Recovery log window differs')
+            replacement=bytearray(data[begin:end]);replacement[14+464:14+474]=b'\x2a\x19\x05\xb8'+word(reference)+bytes(4)
+        else:
+            tail=data[begin+14+n:end]
+            if n!=392 or tail!=bytes.fromhex('00030020010f0115003700200112013e000001150143013e00000000'):
+                raise ValueError('Send Code shape/handlers differ')
+            marker=append(7,word(utf8('compat/UntrustedResponseException')))
+            added=struct.pack('>HHHH',32,271,392,marker)
+            code=original_code+b'\x2a\xb8'+word(reference)+b'\xbf'
+            body=data[begin+6:begin+10]+struct.pack('>I',len(code))+code+word(4)+tail[2:10]+added+tail[10:]
+            replacement=data[begin:begin+2]+struct.pack('>I',len(body))+body
+        result=data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+data[cls.pool_end:begin]+bytes(replacement)+data[end:]
+        assert_preserved(data,result,name,descriptor);assert_recovery_edit(data,result,name)
+        return result
     if name == 'getBody':
         if u2(data,6) != 47: raise ValueError('Unexpected legacy verifier version')
         _, begin, end = codes[0]
@@ -187,6 +211,7 @@ def assert_preserved(before, after, name, descriptor):
         elif before[a['start']:a['end']] != after[b['start']:b['end']]:
             raise ValueError('Non-target method changed')
 
+    if name in ('run','send'): assert_recovery_edit(before,after,name)
     if name=='getBody':
         assert_allocation_operands(before,after)
         assert_header_insertion(before,after)
@@ -232,3 +257,35 @@ def assert_header_insertion(before,after):
     tag,owner=new.pool[u2(value,0)];nt,signature=new.pool[u2(value,2)]
     if tag!=7 or new.text(u2(owner,0))!='compat/BoundedHeaderStream' or nt!=12 or new.text(u2(signature,0))!='wrap' or new.text(u2(signature,2))!='(Ljava/io/InputStream;)Ljava/io/InputStream;':
         raise ValueError('Header wrapper insertion target differs')
+
+
+def assert_recovery_edit(before,after,name):
+    old,new=ClassFile(before),ClassFile(after)
+    def attribute(cls,data):
+        m=next(m for m in cls.methods if m['name']==name)
+        _,b,e=next(a for a in m['attributes'] if a[0]=='Code')
+        return data[b:e]
+    a,b=attribute(old,before),attribute(new,after)
+    def methodref(index,method,descriptor):
+        tag,value=new.pool[index]
+        if tag!=10: raise ValueError('Recovery target must be Methodref')
+        tag,owner=new.pool[u2(value,0)];nt,sig=new.pool[u2(value,2)]
+        if tag!=7 or new.text(u2(owner,0))!='compat/RejectionRecovery' or nt!=12 or new.text(u2(sig,0))!=method or new.text(u2(sig,2))!=descriptor:
+            raise ValueError('Recovery helper target differs')
+    if name=='run':
+        window=b[14+464:14+474]
+        if len(a)!=len(b) or window[:4]!=b'\x2a\x19\x05\xb8' or window[6:]!=bytes(4): raise ValueError('Recovery log substitution differs')
+        methodref(u2(window,4),'report','(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V')
+        masked=bytearray(b);masked[14+464:14+474]=a[14+464:14+474]
+        if bytes(masked)!=a: raise ValueError('Run changed outside recovery log window')
+    else:
+        if len(b)!=len(a)+13 or a[:2]!=b[:2] or u4(b,2)!=u4(a,2)+13 or a[6:10]!=b[6:10] or u4(a,10)!=392 or u4(b,10)!=397 or b[14:406]!=a[14:406]:
+            raise ValueError('Send frames/code differ outside appended handler')
+        code=b[406:411]
+        if code[:2]!=b'\x2a\xb8' or code[4:]!=b'\xbf': raise ValueError('Send recovery handler differs')
+        methodref(u2(code,2),'sendFailure','(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;')
+        if u2(a,406)!=3 or u2(b,411)!=4 or b[413:421]!=a[408:416] or b[429:]!=a[416:]: raise ValueError('Send original handlers/subattributes changed')
+        added=b[421:429]
+        if added[:6]!=struct.pack('>HHH',32,271,392): raise ValueError('Send marker coverage differs')
+        tag,value=new.pool[u2(added,6)]
+        if tag!=7 or new.text(u2(value,0))!='compat/UntrustedResponseException': raise ValueError('Send catch marker differs')
