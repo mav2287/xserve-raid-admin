@@ -1,8 +1,9 @@
-"""Hash-locked, straight-line method substitutions; never rewrite unrelated bytecode."""
+"""Hash-locked method substitutions and operand edits; unrelated bytes stay fixed."""
 import hashlib
 import struct
 
 TARGETS = {
+    'com/apple/xsr/net/HttpResponse.class': ('e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75', 'getBody', '()[B'),
     'com/apple/util/plist/PropertyListUtilities.class':
         ('b900df2b6ec7f7c5fa1548bdc338b5694ebf15d5719e664a508cdb84fc16025a',
          'getParser', '()Ljavax/xml/parsers/SAXParser;'),
@@ -105,6 +106,31 @@ def transform(entry, data):
     def utf8(text):
         value = text.encode('ascii')
         return append(1, word(len(value)) + value)
+    if name == 'getBody':
+        if u2(data,6) != 47: raise ValueError('Unexpected legacy verifier version')
+        _, begin, end = codes[0]
+        start = begin + 14
+        if data[start+23:start+31] != bytes.fromhex('bb0017591bb70018'):
+            raise ValueError('Response allocation instruction window differs')
+        class_tag,class_value=cls.pool[23]
+        if class_tag != 7 or cls.text(u2(class_value,0)) != 'java/io/ByteArrayOutputStream':
+            raise ValueError('Unexpected response allocation class')
+        tag, member = cls.pool[24]
+        if tag != 10 or u2(member,0) != 23: raise ValueError('Unexpected response constructor owner')
+        tag, signature = cls.pool[u2(member,2)]
+        if tag != 12 or cls.text(u2(signature,0)) != '<init>' or cls.text(u2(signature,2)) != '(I)V':
+            raise ValueError('Unexpected response constructor descriptor')
+        owner = append(7,word(utf8('compat/BoundedResponseBuffer')))
+        signature = append(12,word(utf8('<init>'))+word(utf8('(I)V')))
+        constructor = append(10,word(owner)+word(signature))
+        replacement = bytearray(data[begin:end])
+        replacement[14+24:14+26] = word(owner)
+        replacement[14+29:14+31] = word(constructor)
+        result = (data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+
+                  data[cls.pool_end:begin]+bytes(replacement)+data[end:])
+        assert_preserved(data,result,name,descriptor)
+        assert_allocation_operands(data,result)
+        return result
     if name in ('resolveEntity', 'getParser'):
         owner = append(7, word(utf8('compat/SafePlistResolver' if name == 'resolveEntity' else 'compat/SafePlistParser')))
         method_name = utf8('resolve' if name == 'resolveEntity' else 'create')
@@ -143,3 +169,18 @@ def assert_preserved(before, after, name, descriptor):
             if old_attrs != new_attrs: raise ValueError('Target non-Code attributes changed')
         elif before[a['start']:a['end']] != after[b['start']:b['end']]:
             raise ValueError('Non-target method changed')
+
+
+def assert_allocation_operands(before, after):
+    """Only allocation-owner operands may change; even Code subattributes are fixed."""
+    old,new=ClassFile(before),ClassFile(after)
+    def code(cls,data):
+        methods=[m for m in cls.methods if (m['name'],m['descriptor'])==('getBody','()[B')]
+        attrs=[a for a in methods[0]['attributes'] if a[0]=='Code']
+        _,start,end=attrs[0]
+        return bytearray(data[start:end])
+    a,b=code(old,before),code(new,after)
+    if len(a)!=len(b): raise ValueError('Response Code length changed')
+    for offset in (14+24,14+29):
+        b[offset:offset+2]=a[offset:offset+2]
+    if a!=b: raise ValueError('Response modification outside allocation operands')

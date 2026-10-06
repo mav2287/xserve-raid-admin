@@ -174,3 +174,10 @@ outputs match exactly. No controller operations or real credentials are involved
 | Scope | Requirement | Evidence | Status |
 |---|---|---|---|
 | XML security | Explicit provider, quota readback and external-access denial | audit.6 bounded differential and policy probes; original/candidate accepted hashes, mixed/container depth boundaries and entity quota rejection | Partial — real responses and exhaustive provider semantics remain open; [scope](audit/XML-PARSER-COMPATIBILITY.md) |
+
+
+## audit.7 response allocation
+
+| Requirement | Evidence | Status |
+|---|---|---|
+| Reject oversized declared body before allocation | Operand-only Code preservation and candidate-only guarded send/queue fixtures | Partial; framing/recovery and real response compatibility open — [scope](audit/HTTP-ALLOCATION-GUARD.md) |

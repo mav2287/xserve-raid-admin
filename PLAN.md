@@ -493,3 +493,8 @@ replacement and intentional security rejections are recorded in
 polling and retry timing are unchanged. Production hardware approval remains absent.
 Safe work continues with HTTP allocation/framing, firmware preflight and isolated
 native UI qualification; successful parser fixtures do not close release acceptance.
+
+
+## audit.7 response allocation
+
+Close the demonstrated Content-Length preallocation path with a narrowly bounded buffer subclass and two operand changes. Keep all existing valid-response and retry code. Oversized input is a deliberate terminal security rejection, with real response compatibility and framing/recovery unresolved. Follow with bounded header/framing investigation, isolated UI and firmware preflight work.

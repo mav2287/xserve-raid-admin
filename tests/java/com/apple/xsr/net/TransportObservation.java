@@ -257,8 +257,8 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging").contains(args[0])), "Unknown fixture arguments");
-        boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].equals("parser-policy-default-logging"));
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging").contains(args[0])), "Unknown fixture arguments");
+        boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].endsWith("-default-logging"));
         boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
         PrintStream previousOut = System.out; fixtureOut = previousOut;
@@ -267,7 +267,8 @@ public final class TransportObservation {
         try {
             System.setErr(new PrintStream(captured,true,"UTF-8"));
             System.setOut(new PrintStream(capturedOut,true,"UTF-8"));
-            execute(defaultLogging,parserPolicy);
+            if(args.length==1 && args[0].startsWith("allocation-policy")) allocationPolicy(defaultLogging);
+            else execute(defaultLogging,parserPolicy);
             check(captured.toString("UTF-8").equals(defaultLogging ? "RAID_ADMIN_ERROR\n" : ""), "Unexpected logging output");
             check(capturedOut.size() == 0, "Unexpected application stdout");
         } finally {
@@ -275,6 +276,25 @@ public final class TransportObservation {
             System.setOut(previousOut);
             OfflineGuard.assertUntouched();
         }
+    }
+    private static void allocationPolicy(boolean defaultLogging) throws Exception {
+        if(!defaultLogging) org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+        Class<?> helper=Class.forName("compat.BoundedResponseBuffer");
+        check(helper.getSuperclass()==ByteArrayOutputStream.class,"Allocation superclass differs");
+        java.lang.reflect.Method gate=helper.getDeclaredMethod("checkLength",int.class);gate.setAccessible(true);
+        for(int value:new int[]{-1,0,1,16777215,16777216})check(((Integer)gate.invoke(null,value)).intValue()==value,"Allowed allocation boundary differs");
+        for(int value:new int[]{16777217,Integer.MAX_VALUE}) {
+            try {gate.invoke(null,value);throw new AssertionError("Allocation quota not enforced");}
+            catch(java.lang.reflect.InvocationTargetException expected) {check(expected.getCause() instanceof IllegalArgumentException && "Response length exceeds limit".equals(expected.getCause().getMessage()),"Allocation quota failure differs");}
+            byte[] raw=reply("HTTP/1.1 200 Fixture","Content-Length: "+value+"\r\n",new byte[0]);
+            State state=new State();state.rawResponse=raw;
+            try {transport(new MemoryConnection(state)).send(new AcpxMessageFactory().newGetStatusRequest());throw new AssertionError("Oversized body accepted");}
+            catch(IllegalArgumentException expected) {check("Response length exceeds limit".equals(expected.getMessage()),"Wrong allocation rejection");}
+            check(state.sent.size()==1,"Allocation send count differs");
+            emit("response allocation-"+value+" rejected-before-body");
+            dispatch(new AcpxMessageFactory().newGetStatusRequest(),0,false,raw,-102,0,"allocation-"+value);
+        }
+        emit("PASS response allocation observations; guarded_operations=0");
     }
     private static void execute(boolean defaultLogging, boolean parserPolicy) throws Exception {
         if (!defaultLogging) {

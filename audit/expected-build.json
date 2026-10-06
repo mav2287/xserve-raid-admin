@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "398fdf0e516cab562ff27e44db5b36573dd0cebf7d03245c44e51def3a83d10b",
+      "Contents/Info.plist": "7ecb6ec63f5201cf782f67ff15d604f4a1c3ea3875364f1930c97360a07ad242",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "2066d144ee1a86a1bd64afb26296536ae417c7e1099d08e516abbd31639a8b58"
+      "Contents/Resources/RAID_Admin.jar": "fe8bb01ccd0d1e27946456c0acf14f15a62d036a3032d97026aa0bd0f994ccaa"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "f544cd912bf94e99d970f3b58082ee8ba93691834628ee6503b40262d11f9943",
+      "audit/security-patches.json": "65c88a350c72ba084184d567e7c743a1af57db0673c647cb7e705306f7c7185c",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -33,13 +33,14 @@
       "patches/com/apple/eio/FileManager.java": "ef3d0b2eef8301256781c1c53b3067ffc12e8661f97f4f69dd0d3a72278e72d9",
       "patches/com/apple/mrj/MRJApplicationUtils.java": "3affe88c3c87520a93c0fb878c910fad4b27ea6a0366bb4d2564c3c41a92d08b",
       "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
+      "patches/compat/BoundedResponseBuffer.java": "4a387c1b3fe18be841c5991d92fcbf103b0d13ed8aa6f9ae2d08eab132d8b578",
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
       "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
       "patches/compat/SafePlistResolver.java": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "6350e88d75f0f96e114e441679a1a8ad41f081f830911f1444030b546fdabfa9",
-      "tools/class_patch.py": "b535273a468088e6ac3afac787469190454b87f4f6e6941eb8448ac804bfc137"
+      "tools/baseline.py": "00c4c1bf995a1c2dc63f09ebb111ab887dfab86ec4c63e1872b0b890a1605910",
+      "tools/class_patch.py": "de9e6ebac9724460211733695f6f9b10012adbe6f52f39cc763ac4098ef6b5cd"
     },
     "jdk": {
       "architecture": "arm64",
@@ -49,9 +50,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "4adb1a6da2a9ac812840b7efdf46c82f4562307d3dd4c150a8fa99273437cd7b",
-  "reason": "Final audit.6 parser policy from a clean implementation tree; two repeated builds match exact byte and mode identity. Previous dirty development evidence is retained as historical metadata only.",
+  "previous_record_sha256": "0a29dfe0f545b6dcb79082bf2a2de1776e4714cb5899f38227283af831b2cf6c",
+  "reason": "Development audit.7 candidate for operand-only allocation guard verification; only new/constructor references in original response getBody change, with 16 MiB deliberate security ceiling.",
   "schema": 1,
-  "source_commit": "3044651d9eef5648e00d2ffc285bda66149213ce",
-  "source_dirty": false
+  "source_commit": "91f136f6c21c415b08339c360d269e7c26ba06c6",
+  "source_dirty": true
 }

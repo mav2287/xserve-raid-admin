@@ -35,6 +35,17 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         raise ValueError('Independent class identity/version check failed')
     if new[1][:len(old[1])] != old[1] or old[2] != new[2]:
         raise ValueError('Independent constant pool/non-target disassembly check failed')
+    if target == 'getBody':
+        old_lines,new_lines=old[3].splitlines(),new[3].splitlines()
+        if len(old_lines)!=len(new_lines): raise ValueError('Response disassembly length changed')
+        changed=[]
+        for a,b in zip(old_lines,new_lines):
+            if a!=b: changed.append((a,b))
+        if len(changed)!=2: raise ValueError('Response changes outside two allocation operands')
+        for (a,b),offset,operation,owner in zip(changed,(23,28),('new','invokespecial'),('class compat/BoundedResponseBuffer','Method compat/BoundedResponseBuffer."<init>":(I)V')):
+            if not re.match(r'^\s+'+str(offset)+r': '+operation+r'\s+#\d+\s+// ',b) or owner not in b or 'java/io/ByteArrayOutputStream' not in a:
+                raise ValueError('Response allocation target differs')
+        return
     expected_frame = {'resolveEntity':'stack=2, locals=3, args_size=3', 'getParser':'stack=1, locals=0, args_size=0'}.get(target,'stack=1, locals=1, args_size=1')
     if expected_frame not in new[3] or 'Exception table:' in new[3]:
         raise ValueError('Unexpected target stack/locals/exception table')
@@ -76,6 +87,10 @@ def main():
     if '  major version: 52' not in helper: raise ValueError('Helper requires unexpected JVM version')
     parser_helper = disassemble_entries(args.jdk,args.jar,['compat/SafePlistParser.class'],verbose=True)
     if '  major version: 52' not in parser_helper: raise ValueError('Parser helper requires unexpected JVM version')
+    allocation_helper = disassemble_entries(args.jdk,args.jar,['compat/BoundedResponseBuffer.class'])
+    constructor = re.search(r'public compat.BoundedResponseBuffer\(int\);\n    Code:\n(.*?)(?=\n  \S|\n})',allocation_helper,re.S)
+    if constructor is None or re.findall(r'^\s+\d+:\s+(\S+)',constructor[1],re.M) != ['aload_0','iload_1','invokestatic','invokespecial','return'] or 'Method checkLength:(I)I' not in constructor[1] or 'java/io/ByteArrayOutputStream."<init>":(I)V' not in constructor[1]:
+        raise ValueError('Response size check does not precede superclass allocation')
     verified_methods = {}
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)
@@ -83,6 +98,9 @@ def main():
         match = re.search(r'^  (?:public|protected) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
+        if name == 'getBody':
+            verified_methods[entry] = 'Only allocation operands at offsets 23 and 28; independent complete disassembly comparison'
+            continue
         expected = {'resolveEntity':['aload_1','aload_2','invokestatic','areturn'],'getParser':['invokestatic','areturn']}.get(name,['ldc_w','areturn'])
         if operations != expected: raise ValueError('Independent disassembly differs from intended substitution')
         if name == 'resolveEntity' and ('compat/SafePlistResolver.resolve:' + descriptor) not in match[1]:

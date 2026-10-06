@@ -1,0 +1,69 @@
+Actual Claude CLI read-only design consultation.
+
+I've read the four files and also the `CommunicationsManager` bytecode, because the exception-mapping question depends on it. Your patching approach works, but the proposed exception type is a blocker.
+
+## Blocker: `ProtocolException` makes the manager resend the command forever
+
+`ProtocolException` is a subclass of `IOException`. In `audit/communications-manager-bytecode.txt:482`, the manager's handler for `IOException` (offsets 337–459) checks whether the message starts with `"PropertyListException"`. Your fixed message doesn't, so the manager:
+
+1. sets `connected = false`,
+2. puts the same transaction back at the front of the queue (`addFirst`, line 411),
+3. reconnects (`doConnect`) and sends the command again.
+
+A peer that always sends an oversized length would therefore cause an endless reconnect-and-resend loop, possibly of write commands. That breaks your "no wire command or retry changes" goal. It's also arguably worse than today, where a very large allocation throws `OutOfMemoryError`, which the manager doesn't catch, so the dispatcher thread dies.
+
+**Fix: throw an unchecked `IllegalArgumentException` with a fixed message instead.** It ends up in the `catch Exception` handler (offset 462), which returns a terminal −102 with no requeue and no reconnect. That's the same path existing bad lengths already take. Non-integer lengths throw `NumberFormatException`, a subclass of `IllegalArgumentException`, and are already observed giving queued −102. Negative lengths already throw `IllegalArgumentException` from the `ByteArrayOutputStream` constructor. As a bonus, the checked-exception-in-constructor question goes away.
+
+## Second preservation issue: negative lengths
+
+Rejecting negative lengths with a new exception would change a behaviour the fixture already checks (the `negative-length` case, `TransportObservation.java:131`). Have `checkLength` reject **only** `length > 16 MiB` and pass every other value through unchanged. `super(-1)` then throws the original "Negative initial size" exception exactly as now.
+
+## Feasibility: no concerns
+
+- **Patch size and branches:** the `new` operand (code bytes 24–25) and the constructor-call operand (bytes 29–30) are both 2 bytes. No offsets move, and branches, the `jsr`/`ret` subroutine and the exception table all stay the same.
+- **Where the exception surfaces:** the constructor call at offset 28 is outside the protected range 32–112. A rejection therefore leaves `getBody` directly, without running the `finally` block, exactly like today's negative and non-integer length failures. The stream isn't closed and `setRequestOutstanding(false)` isn't called. That's an existing behaviour you'd inherit, not a new one.
+- **Verifier:** because the method uses `jsr`, the class version must be 49 or lower. So the old type-inference verifier runs and there's no `StackMapTable` to update. It will load `compat.BoundedResponseBuffer` to confirm it's a `ByteArrayOutputStream` when checking `write` (offset 58) and `toByteArray` (offset 192). The helper must therefore ship in the same JAR, and its class and constructor must be `public` because it's in another package.
+- **Matching constants:** the `new` instruction and the constructor call must refer to the **same** new class constant.
+- **Constant pool:** don't edit #23 or #24 in place. The `write` and `toByteArray` method references (#26, #43) probably point at #23, and `assert_preserved` correctly forbids changing the original pool anyway. Append the new constants instead.
+
+## Safest minimal implementation
+
+**Helper class:**
+```java
+package compat;
+public class BoundedResponseBuffer extends java.io.ByteArrayOutputStream {
+    public static final int MAX = 16 * 1024 * 1024;
+    public BoundedResponseBuffer(int length) { super(checkLength(length)); }
+    static int checkLength(int length) {
+        if (length > MAX) throw new IllegalArgumentException("Response length exceeds limit");
+        return length;
+    }
+}
+```
+Don't include the length in the message: the manager logs the exception, so this keeps attacker-supplied values out of the logs.
+
+**`class_patch.py`:** add a separate operand-patch mode rather than reusing the code that replaces whole method bodies. It should:
+1. Lock to the `HttpResponse.class` SHA-256. Require `getBody ()[B` with access `0x0001` and exactly one `Code` attribute. Require class major version ≤ 49.
+2. Confirm #23 is the class `java/io/ByteArrayOutputStream` and #24 is a method reference to `#23.<init>:(I)V`.
+3. Confirm code bytes 23..30 are exactly `bb 0017 59 1b b7 0018`, and that `new #23` and `invokespecial #24` each appear exactly once in this method.
+4. Append three UTF-8 strings, one class constant, one name-and-type and one method reference. Then write only the 4 operand bytes.
+5. Assert the new file differs from the original **only** in the constant-pool count, the appended constants and those 4 bytes. Code length, `max_stack`/`max_locals`, the exception table and the `Code` sub-attributes must be byte-identical. This is a stricter check than the current `assert_preserved`, which accepts any change to a target method's `Code`.
+
+Also confirm the other callers of `HttpResponse.getInputStream` listed at `audit/static-inventory.json:37263` don't catch `IllegalArgumentException` in a different way.
+
+## Test design (nothing large is ever allocated)
+
+- **Ceiling logic:** call `checkLength` directly with 0, 1, `MAX`, −1 (returned unchanged), `MAX+1` and `Integer.MAX_VALUE` (both throw). This covers the boundary without creating a 16 MiB buffer.
+- **Structure:** use `javap` to show that the helper's constructor runs `iload_1`, `invokestatic checkLength`, then `invokespecial ByteArrayOutputStream.<init>`, so the check comes before any allocation. Also diff patched against original `getBody` and confirm only the two operands changed.
+- **Direct send, candidate only:** `Content-Length: 16777217` and `2147483647` with an empty body should give an "oversized" outcome. Tell it apart from `negative-length` by the fixed message, since both are `IllegalArgumentException`. Expect one send. Optionally run this case with a small `-Xmx` (e.g. 64m) to show no huge allocation happens.
+- **Queued:** `dispatch(..., result -102, reconnects 0)` should give one send, one terminal callback and no requeue.
+- **Original JAR:** never run the oversized cases against it, since it would really attempt the allocation. Its behaviour stays documented statically.
+- **Regression:** all existing cases (21 direct, 9 queued, the queue-order test, `negative-length`) must pass unchanged on both pinned runtimes. Check that the default-logging run still prints exactly one `RAID_ADMIN_ERROR` for the whole process.
+
+## Residual risks to record (not part of this milestone)
+
+- **Connection state after rejection:** after a −102 rejection, the persistent connection stays marked connected, the unread body is still in the stream and the request is still marked outstanding. Existing invalid lengths behave the same way; this belongs to the framing work.
+- **Peak memory at the ceiling:** a 16 MiB buffer plus the `toByteArray` copy plus the plist parse is still several tens of MiB per response.
+- **Recorded `contentLength`:** the response's `contentLength` field is set to the huge value before the rejection. The response object is thrown away, but it's worth noting.
+
+Disposition: Accepted IllegalArgumentException rather than ProtocolException, preserved negative-size superclass behavior, added operand-only Code assertions and independent full javap comparison. Boundary gate exercises ceiling values without allocating those buffers. Candidate-only actual send/queue tests use oversized headers with empty bodies, never the original artifact. Connection cleanup and framing semantics remain explicit unresolved risks.

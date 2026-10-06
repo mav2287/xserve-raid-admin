@@ -91,3 +91,6 @@ compatibility boundary is under review; [XML findings](audit/XML-RESOURCE-FINDIN
 
 
 G13 refinement: audit.6 explicitly enforces depth 32 and preserves measured accepted/rejected container boundaries while converting the original array-bounds failure to a depth-limit rejection. Validation remains enabled with a replaced provider; original Handler and DTD remain.
+
+
+audit.7 refinement: declared HTTP response body allocation is capped at 16 MiB before allocation using an operand-only buffer substitution and the existing terminal -102 path. Header/status/framing, persistent-stream recovery and real response size compatibility remain open. See [allocation guard](audit/HTTP-ALLOCATION-GUARD.md).

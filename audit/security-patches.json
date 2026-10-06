@@ -43,5 +43,16 @@
     ],
     "original_major_version": 47,
     "patched_major_version": 47
+  },
+  "com/apple/xsr/net/HttpResponse.class": {
+    "original_sha256": "e66bb37d2127151debc9dd0481551bc3a88aaf32aeedc691774c099c52a83e75",
+    "patched_sha256": "15c9b84b398f3a4acf822986e9fc5f07bf2d22ebad43602c541fe85bab0466a0",
+    "method": [
+      "getBody",
+      "()[B"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47,
+    "scope": "Only new/constructor constant-pool operands; Code length, frames, branches, exception table and subattributes unchanged"
   }
 }

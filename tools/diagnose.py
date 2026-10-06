@@ -81,7 +81,7 @@ def diagnose_checked(output):
     commit = provenance.get('source_commit')
     # Do not relay arbitrary strings from manifests, environment, or preference stores.
     return {
-        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2', '1.5.1-modern.audit.3', '1.5.1-modern.audit.4', '1.5.1-modern.audit.5', '1.5.1-modern.audit.6') else 'unrecognized',
+        'apple_version': '1.5.1', 'compatibility_version': provenance['compatibility_version'] if provenance.get('compatibility_version') in ('1.5.1-modern.audit.1', '1.5.1-modern.audit.2', '1.5.1-modern.audit.3', '1.5.1-modern.audit.4', '1.5.1-modern.audit.5', '1.5.1-modern.audit.6', '1.5.1-modern.audit.7') else 'unrecognized',
         'source_commit': commit if isinstance(commit,str) and re.fullmatch('[0-9a-f]{40}',commit) else 'unknown',
         'architecture': platform.machine() if platform.machine() in ('arm64','x86_64') else 'unrecognized',
         'macos': platform.mac_ver()[0] if re.fullmatch(r'[0-9]+(?:\.[0-9]+)*',platform.mac_ver()[0]) else 'unrecognized',
