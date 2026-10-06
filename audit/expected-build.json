@@ -41,9 +41,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "e633da11c8902c8df5b217e8c5eb8098383239578ebf04990187027b5c22a5a2",
-  "reason": "Claude-reviewed macOS callback bridge with preserved original callback ownership and passing five-runtime offline tests",
+  "previous_record_sha256": "2178f19aba345205c27a9c6e9ccaae275981f49ce708e93796733a8e83b40de5",
+  "reason": "Same reviewed menu bridge artifact rebuilt twice from clean source commit 005e1a7",
   "schema": 1,
-  "source_commit": "431779deea0af0b556f8aa1204c0dbd67e64ba72",
-  "source_dirty": true
+  "source_commit": "005e1a7f410a42c1705bba2ae6435b4e9a92f9f6",
+  "source_dirty": false
 }
