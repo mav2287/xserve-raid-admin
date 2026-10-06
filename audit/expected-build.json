@@ -53,9 +53,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "c941205f0d8335bb1c0a0c1829eedda506a949eed92a4c5b25b964af62ee0eae",
-  "reason": "Development exact-marker recovery with appended send handler; candidate fixtures in progress, not release qualified.",
+  "previous_record_sha256": "f0a9ba2dd6a09a60bb80b24e20d5dac29c1bf89543d1c53529bcd75f75af4c2a",
+  "reason": "Clean audit.9 candidate: exact-marker send handler and original queue reconnect path, bounded memory no-replay and failure-containment fixtures pass both pinned architectures; Claude implementation review pending final evidence.",
   "schema": 1,
-  "source_commit": "0d283d332b54bb27b07e7d51244697ceb51befc4",
-  "source_dirty": true
+  "source_commit": "82acf2c7f1b82be17c4248ae1f62c9b57263e702",
+  "source_dirty": false
 }
