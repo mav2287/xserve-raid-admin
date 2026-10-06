@@ -23,7 +23,7 @@
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "7325d2e4bad3a8b9ec45cd13fa30777ba3504e3403028ba0fa17a851b50e4aba",
+      "audit/security-patches.json": "4fb79ec9a9bc4561b90c2152765f64965298ba13710c785e7f333902450ceb59",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "5bd7e310c1a7ee047c50c014eef781470911adc695bebc3df350487b7540ca28",
-  "reason": "Development audit.11 anchor: Claude-reviewed design for unambiguous response framing; implementation and clean release evidence pending.",
+  "previous_record_sha256": "1f79c5526f7fcfc281b54660bf2a378096580db7faf43e68ad1ac339450ca98b",
+  "reason": "Clean audit.11: Claude-reviewed explicit response framing; two same-length HTTP calls, one ASCII-only helper, documented compatibility restriction and residual-byte limits.",
   "schema": 1,
-  "source_commit": "d91a8189d72fe808212714c24a078170097fdb48",
-  "source_dirty": true
+  "source_commit": "f962570932fd8f10e394a5b834b4d5d0d11d1d9d",
+  "source_dirty": false
 }
