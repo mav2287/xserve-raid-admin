@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "fa6bed8bd6834f1dfadf98289cf087d4fe35b575ec8849971d6ff7277dc7e2a3",
-  "reason": "Audit.19 development identity after original-reference pin refinement; duplicate builds; clean qualification pending.",
+  "previous_record_sha256": "65e6bdf3d774bfe619ec9e844ac3f20355e2245a6be1674826b2608d73eaee58",
+  "reason": "Audit.19 reviewed stop-lock inversion fix: volatile stop field and two queue-held reads only; original shutdown/callback/admission semantics retained, exact audit.18 class restoration. Final clean fixture/package qualification follows this anchor.",
   "schema": 1,
-  "source_commit": "d6e3e738459b11d1a0d4ba07c4585f36640aab2b",
-  "source_dirty": true
+  "source_commit": "78af7d18fccefedab7cbf763e12fc47840223957",
+  "source_dirty": false
 }
