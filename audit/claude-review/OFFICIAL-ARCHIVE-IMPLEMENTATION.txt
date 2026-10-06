@@ -1,0 +1,21 @@
+**Verdict:** I found no blocking defects. The bounds, redirect, proxy and path handling all fail closed, and the provenance text matches what the tool actually does. I only read the file and didn't run anything.
+
+**What holds**
+- **Bounds:** Each read stops one byte past its limit and then checks the size. This covers the download (L88), the decompressed data (L41) and each member (L58–59). The gzip read reaches EOF when the data is under the limit, so the gzip checksum is checked and a truncated download raises an error. The member limit is checked before extraction, and the member count is capped at 4096.
+- **Redirects:** `AppleRedirect` subclasses `HTTPRedirectHandler`, so `build_opener` uses it instead of the default handler. It checks each redirect target after it has been turned into a full URL. A redirect from HTTPS to HTTP, to a non-443 port, to a URL with credentials, or to a non-Apple host is rejected. The final `response.url` is checked again (L87).
+- **Proxy:** `ProxyHandler({})` turns off proxies from environment variables and from macOS system settings. Default certificate verification is left on.
+- **Paths:** The output directory must be new, must resolve inside `build/` with symlinks followed, and must be git-ignored. Archive-supplied names are never used as file paths: cached files are named `<sha256>.<ext>` and opened with `'xb'`, so nothing can be overwritten. Members are rejected if they are absolute paths, use `..` or backslashes, are links, devices, sparse files or PAX entries, or duplicate another name after NFC normalisation and case folding.
+- **Provenance text:** It says "bytes served today", makes no claim of a historical digest or signature, and lists the read-only scope. That is accurate.
+
+**Concrete defects (all minor)**
+1. **The tool hash points to a file that isn't in git.** `tools/inspect_apple_archive.py` is untracked, so the recorded `tool_sha256` can't be traced back to any commit. The imported `audit_support.py` and `baseline.py` affected the run but aren't hashed at all. Fix: commit the tool exactly as it was run and check that its hash equals `tool_sha256` in `acquisition.json`. Optionally also record git HEAD, whether the tree had uncommitted changes, and the hashes of the two imported modules.
+2. **`retrieved_utc` is recorded at the wrong time.** It's taken at L99, after the archive is written and inspected, not when the response arrived. Capture it right after the read at L88.
+3. **A failed run leaves files behind.** `mkdir` runs before the download (L85), and cached `.jar`/`.xfb` files are written before the rest of the archive has been checked. If a later member is rejected, the directory is left with cached files but no `acquisition.json`. Only `acquisition.json` marks a successful run, so the next fixture should require it.
+4. **Identical files would crash the run.** Two `.jar` or two `.xfb` members with identical bytes would get the same cache name and stop the run with an uncaught `FileExistsError`. It fails closed and doesn't affect this archive (two distinct files), but it isn't reported as a clear error.
+5. **"Verified" depends on an unrecorded trust store.** The certificate trust store comes from the Python/OpenSSL setup (and `SSL_CERT_FILE`/`SSL_CERT_DIR`), which isn't isolated or recorded. If you want that claim backed up, record `ssl.OPENSSL_VERSION` and `ssl.get_default_verify_paths()`.
+
+**For the offline fixture**
+- Read the expected `.xfb` hash from `acquisition.json`'s `selected` entry and the archive hash from `archive_sha256`, rather than only from constants. Fail if the hash of the cached file differs.
+- Nothing in this tool limits what the next step does: it doesn't parse the firmware manifest, launch the updater or send anything.
+
+Disposition: preserve and commit the exact acquisition tool before revisions so recorded tool hash is traceable. The recorded retrieval time is after inspection (seconds-scale completion timestamp), not a historical publication time. Local TLS trust is a host prerequisite, not independent package-signature evidence. Offline fixture requires the completed acquisition marker plus pinned archive/member hashes. Future acquisition hardening will record explicit trust-store identity, receive time and dependency hashes. Partial-cache contents are not successful acquisition evidence.

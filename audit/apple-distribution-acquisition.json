@@ -1,0 +1,87 @@
+{
+  "archive_md5": "cae1237156aeb83fccac7016ffd7fe39",
+  "archive_sha1": "9c1c136b012db2d1b739f13ccc6ebb47a97cf7aa",
+  "archive_sha256": "21cf7a8c4e82b925bf9df3d6ea982569bfd24148773ad8dad47f6ddc698ae2c7",
+  "archive_size": 8052021,
+  "entries": [
+    {
+      "name": "RAID Admin 1.5.1",
+      "size": 0,
+      "type": "directory"
+    },
+    {
+      "name": "RAID Admin 1.5.1/firmware-1.5.1-1.51.xfb",
+      "sha256": "32c077ea0ec50a944a996b72978f6d7b9585d17603da847fd4317ebc364dd9a7",
+      "size": 929851,
+      "type": "file"
+    },
+    {
+      "name": "RAID Admin 1.5.1/RAID_Admin.jar",
+      "sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "size": 7516625,
+      "type": "file"
+    },
+    {
+      "name": "RAID Admin 1.5.1/READ ME FIRST",
+      "size": 0,
+      "type": "directory"
+    },
+    {
+      "name": "RAID Admin 1.5.1/READ ME FIRST/A\u0300 LIRE AU PRE\u0301ALABLE.txt",
+      "sha256": "ac36b552082204c065f992daf0d5a62c8c4d7f0cb0ea408932cfce62c6525d47",
+      "size": 8159,
+      "type": "file"
+    },
+    {
+      "name": "RAID Admin 1.5.1/READ ME FIRST/._READ ME FIRST.txt",
+      "sha256": "b8b682730eb9e45f180eaf03e29269fa0e864d6a748167ea38cb2cd013a4d8aa",
+      "size": 82,
+      "type": "file"
+    },
+    {
+      "name": "RAID Admin 1.5.1/READ ME FIRST/READ ME FIRST.txt",
+      "sha256": "750293037f2b0ac7f5c153754626a15453fbce5c68bda8155d191ad78b3e2fd1",
+      "size": 6384,
+      "type": "file"
+    },
+    {
+      "name": "RAID Admin 1.5.1/READ ME FIRST/Vor der Installation lesen.txt",
+      "sha256": "b717da0902068ac87085d5fdc03f902bc87c05a2521948970949c2b47459fd0c",
+      "size": 7488,
+      "type": "file"
+    },
+    {
+      "name": "RAID Admin 1.5.1/READ ME FIRST/\u304a\u8aad\u307f\u304f\u305f\u3099\u3055\u3044.txt",
+      "sha256": "49ef7e45e775d247e4aa0dd3844b4c4dc79eb0c25c006e07e3d654e7ecbd5094",
+      "size": 6731,
+      "type": "file"
+    }
+  ],
+  "final_url": "https://download.info.apple.com/Mac_OS_X/061-2942.20070123.xRaTg/RAIDAdmin1.5.1.tar.gz",
+  "limits": "Bytes served today over verified HTTPS by Apple; no independent historical digest or package-signature assertion. Read-only tar inspection, no mount/exec/install/application launch/firmware transmission. Any DMG/PKG remains an unparsed hashed member. Selected binaries stay in ignored local cache; not redistributed.",
+  "matching_reference_entries": [
+    "RAID Admin 1.5.1/RAID_Admin.jar"
+  ],
+  "python": "3.14.8",
+  "reference_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "response_headers": {
+    "Content-Length": "8052021",
+    "ETag": "\"cae1237156aeb83fccac7016ffd7fe39:1313426514\"",
+    "Last-Modified": "Tue, 23 Jan 2007 17:03:38 GMT"
+  },
+  "retrieved_utc": "2026-10-06T01:54:01.835345+00:00",
+  "selected": {
+    "RAID Admin 1.5.1/RAID_Admin.jar": {
+      "cache_file": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449.jar",
+      "sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "size": 7516625
+    },
+    "RAID Admin 1.5.1/firmware-1.5.1-1.51.xfb": {
+      "cache_file": "32c077ea0ec50a944a996b72978f6d7b9585d17603da847fd4317ebc364dd9a7.xfb",
+      "sha256": "32c077ea0ec50a944a996b72978f6d7b9585d17603da847fd4317ebc364dd9a7",
+      "size": 929851
+    }
+  },
+  "tool_sha256": "fd38e8ec05477846f6b20d336f269d136ff65ddebf162f94a5658d8335d7383d",
+  "url": "https://download.info.apple.com/Mac_OS_X/061-2942.20070123.xRaTg/RAIDAdmin1.5.1.tar.gz"
+}

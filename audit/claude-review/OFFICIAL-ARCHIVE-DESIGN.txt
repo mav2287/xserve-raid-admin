@@ -1,0 +1,45 @@
+Your main safety boundaries hold up: no exec, mount or install, bounded reads, no transmission, and evidence kept separate from approval. These are the concrete gaps I'd fix before running anything.
+
+## Scope
+
+1. **The tarball probably wraps a `.dmg` or `.pkg`.** Apple's tarred downloads from that era usually contain a disk image, not loose files. If so, you can't reach the `.xfb` or JAR without mounting (excluded) or parsing UDIF/HFS+ or xar/cpio in-process, which is a much bigger change. Define the stop point now: if the tar holds a `.dmg` or `.pkg`, record its member metadata and hash, then stop and ask before going further.
+2. **Default CI must not run the real-archive test.** Make it opt-in. If the cache is missing, the test should report "skipped, not available" rather than passing.
+3. **Your working tree has uncommitted changes.** That includes modified fixtures and the untracked `audit/logging-clean-provenance.json`. Commit or stash them first so this evidence isn't mixed with unrelated changes.
+
+## Download safety
+
+- **Enforce the 16 MiB cap on bytes actually received.** Ignore Content-Length for this purpose, since it can be missing, chunked or wrong. A HEAD 200 with Content-Length doesn't guarantee what the GET will return.
+- **Match the redirect host properly.** Require the host to equal `apple.com` or end with `.apple.com`. That rejects names like `evilapple.com` and `apple.com.evil.net`. Don't allow downgrades to HTTP or changes of port. If a CDN hop (such as Akamai) gets rejected, the download should fail, not fall back.
+- **Turn off environment trust.** Set `trust_env=False` or equivalent so no proxies, `.netrc` credentials or cookie jar are used. Keep TLS verification on.
+- **Write atomically.** Download to `.part`, hash it, rename it, then make it read-only. Re-check the hash before every later use, because the cache file could be replaced between steps.
+- **Confirm the cache path is gitignored before downloading** (`git check-ignore`). Also make sure it's excluded from any evidence bundle you upload. Apple's license probably forbids redistributing the archive.
+
+## Archive and decompression bombs
+
+- **Bound the decompressed output too.** 16 MiB compressed doesn't bound what comes out of gzip. Cap total decompressed bytes and member count while iterating the tar stream.
+- **Tar members:**
+  - Reject links before calling `extractfile`, because it follows link targets.
+  - Reject PAX/GNU long names, sparse members, NUL bytes, backslashes and negative or huge sizes.
+  - Reject duplicates, including case-insensitive and Unicode-normalized duplicates (macOS filesystems treat these as the same name).
+  - Read `limit+1` bytes so an oversized member is detected rather than silently cut off.
+- **`.xfb` ZIP:**
+  - Don't trust declared sizes. Bound the actual decompressed reads, including the manifest.
+  - Check the encryption flag (general-purpose bit 0) on both central and local headers, and make sure the two agree.
+  - Reject overlapping entries (the overlap zip-bomb pattern), multiple EOCD records, prepended data and unexpected ZIP64 fields.
+  - Cap the compression ratio per entry.
+
+## Provenance
+
+- **HTTPS doesn't prove the content is authentic.** It only shows that Apple's server delivered these bytes today. Apple publishes no hash for this 2007 file. Record SHA-256 (plus SHA-1 and MD5 for matching against historical references), ETag, Last-Modified and the UTC time. If you want corroboration, an independent copy such as a Wayback Machine capture can be hashed and labeled as corroboration, not proof.
+- **Record only an allowlisted set of response headers**, and drop anything like `Set-Cookie`. Also record tool and Python versions.
+- **Pin the GitHub reference by commit SHA plus blob hash**, not by branch or tag. If fetching it would be a separate network request, say so explicitly; better, use the copy already vendored in the repo.
+- **Define what a JAR mismatch means in advance.** Version drift is plausible, so a mismatch is evidence only. Per-entry class hash diffs make it easier to interpret. Any `META-INF` signatures are recorded but not trusted.
+- **Treat `.xfb` contents as evidence only.** Which controller or hardware a `.xfb` targets is something you observe, not a compatibility claim.
+
+## Runtime test
+
+- **Audit `FirmwareBundleConnection` for side effects.** Check static initializers, temp or cache writes, any logging of image bytes, and anything that reaches the updater or network.
+- **Install OfflineGuard before those classes load.**
+- **Make transmission impossible, not just unused.** Pass no device or connection object, or a stub that throws on any write or transfer method. Then assert the stub was never called.
+
+Disposition: download used direct HTTPS with redirects constrained to Apple and no proxies/auth/cookies; actual bytes and decompressed tar bounded. Nine ordinary members and no DMG/PKG; no mounting or execution needed. Two binaries cached under hashes, no redistribution. The GitHub reference is unchanged and matches the Apple-served JAR exactly. Runtime tests remain opt-in and guard all external IO.
