@@ -49,9 +49,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "d069198c15cbc37ce25a08ee9b82e21a4dac16e14f980e6fa0a7ec55f35c63b5",
-  "reason": "Development quota validation: 256 KiB general entity preserves bounded predefined-reference fixture; 1 MiB total and 4096 expansion limits remain.",
+  "previous_record_sha256": "c0eb157392eaabe93365600d91e61da4ff26754976c7ba52a147d36484aeff2e",
+  "reason": "Final explicit entity policy: 1 MiB total custom expansion, 256 KiB general / 64 KiB parameter entities, 4096 expansions, 100000 replacement nodes. Independent quota behaviors and accepted-value differential pass; source builds are clean.",
   "schema": 1,
-  "source_commit": "86657bdbc00d2a47b002a100c9eda94caeb8ef12",
+  "source_commit": "1a5dc84eeda26f9078bb8bb8b123bd68d7e3946d",
   "source_dirty": true
 }
