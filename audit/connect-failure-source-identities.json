@@ -1,0 +1,54 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "raid_system_constructor_reference_classes": {
+    "com/apple/xsr/DefaultSystemRegistry": [
+      "(Ljava/lang/String;)V"
+    ],
+    "com/apple/xsr/DeleteArrayPane": [
+      "(Lcom/apple/xsr/som/RaidSystem;)V"
+    ],
+    "com/apple/xsr/DriveSelectionPanelEx": [
+      "(Lcom/apple/xsr/som/RaidSystem;)V"
+    ],
+    "com/apple/xsr/SystemMonitorController$AddSystemAction": [
+      "(Ljava/lang/String;)V"
+    ]
+  },
+  "communication_handler_types": [
+    "com/apple/xsr/DefaultSystemRegistry",
+    "com/apple/xsr/ManagementController$1",
+    "com/apple/xsr/ShutdownAction$1",
+    "com/apple/xsr/SystemMonitorController$13",
+    "com/apple/xsr/SystemMonitorController$14",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender",
+    "com/apple/xsr/som/RaidSystemAgent$1",
+    "com/apple/xsr/som/RaidSystemAgent$2",
+    "com/apple/xsr/som/RaidSystemAgent$3",
+    "com/apple/xsr/som/RaidSystemAgent$DelegateHandler"
+  ],
+  "limits": "Constant-pool constructor references and superclass/interface closure, not proof of dispatch reachability or GUI recovery.",
+  "class_sha256": {
+    "com/apple/xsr/DefaultSystemRegistry.class": "af1f303e4a86133a50aef3268fc34343b17b3966a216a39ff8dd8c1b794042c6",
+    "com/apple/xsr/DeleteArrayPane.class": "b5e340e15cbbe40e5f325c2875ae792e0caf2c4cb1f1ac0626735d6a1d494b70",
+    "com/apple/xsr/DriveSelectionPanelEx.class": "4e18cf6c3429eea77592fefb6ca6287fecb7dadd3e5f9e4173d5abea113c78b9",
+    "com/apple/xsr/ManagementController$1.class": "602d018257e76fd1384639e4a3490bd0ddd8bfe8d9bdff9c8f4190f6e8391367",
+    "com/apple/xsr/ShutdownAction$1.class": "47b5221c94ac5ec025494f064ccde234910e2ccabdedcf35a66290e0fce9f96f",
+    "com/apple/xsr/SystemMonitorController$13.class": "3574f42eeca302e543c0537ba524a9dfe62564bd1a8e706df024637bb6f8bb54",
+    "com/apple/xsr/SystemMonitorController$14.class": "404daa0270097396aab7501630bdfbef4ceaa86c6f3e445167ff6e508d95d4aa",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction.class": "8888cb1658138faaa5b8c274b1c0ac8177cb5987fe989ecc3e7cf20cf867a9ef",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener.class": "f3b83ccb224c73963cdf9197c09cbdee052eadda1e31878bc58d2ab0994c416c",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener.class": "220b26869589d37c7097372553925640b2f84075fe3f9524088c7963d57bb563",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener.class": "95783457fbac084123ad18f7a66f585f1ac8c263b4dbe4f42cb28f0e73332363",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "com/apple/xsr/som/RaidSystemAgent$1.class": "567b639cbbc8bf4b402bfc19b60383a50ee6c6fd76cef2425350357af85083e6",
+    "com/apple/xsr/som/RaidSystemAgent$2.class": "70ee023cb8e7f841da80aaf4cff73c50365b66a01471f685b9de79753144306a",
+    "com/apple/xsr/som/RaidSystemAgent$3.class": "1abe71e8971d28bc2201054dcc9fcea39c723b15a5fa20dcd6799953db8fe394",
+    "com/apple/xsr/som/RaidSystemAgent$DelegateHandler.class": "49ba47f2f3e91a9f834601b3e809c48971499ea9e429c5e248f44c42a36a6466"
+  },
+  "bytecode_archive_sha256": "c636b34ec8571818cf074286fca7295c60d212e4b9b5a8aacd45967a5de0de58"
+}

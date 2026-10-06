@@ -1,0 +1,100 @@
+I've finished the read-only review. Nothing was run, launched or contacted, and I read no saved profiles or preferences. Offsets below are from the original bytecode in `audit/next-session-safety-selected-bytecode.txt` and `build/connect-failure-gui-handler-bytecode.txt`, and the `run` offsets match the ones the design uses.
+
+**Short answer:** design B still blocks the unsafe send and needs no security correction. Two of its claims are wrong, though, and its availability cost is much larger than the design says: B removes the app's automatic reconnect, not just a first-command retry.
+
+## 1. Who constructs a RaidSystem: new manager or copy
+
+**Facts:**
+- **`RaidSystem(String)` creates both the manager and the agent.** It builds `comms` with `new CommunicationsManager` at PC384–393 and `agent` with `new RaidSystemAgent` at PC407–416. In the selected bytecode this is the only place `comms` or `agent` is assigned.
+- **The copy constructor `RaidSystem(RaidSystem)` creates neither.** It never assigns `comms` or `agent`, so both stay null. Its callers use the copy only as a display snapshot:
+  - `DeleteArrayPane.populateUI`, PC67–79 (`new RaidSystem(model.getRaidSystem())`)
+  - `DriveSelectionPanelEx.setRaidSystem`, PC48–57
+  
+  A copy can't replace a stopped system, and any post through it would throw a NullPointerException.
+- **There are two callers of the String constructor:**
+  - `DefaultSystemRegistry.<init>`, PC102–108, once per saved entry. It then calls `connect(this, "guest", …, false)` at PC195–203 and `add` at PC206.
+  - `SystemMonitorController$AddSystemAction.aquaAlertDismissed`, PC60–69, only when the dismiss code is 1. It calls `registry.add` at PC143 **before** `connect(this, "guest", …, true)` at PC146–154.
+
+## 2. Can the UI replace a permanently stopped RaidSystem?
+
+| Path | What the source shows | Gives a new manager? |
+|---|---|---|
+| Relaunch (`DefaultSystemRegistry.<init>`) | New `RaidSystem(String)` for each saved entry | Yes, but only at registry construction. Whether the registry can be rebuilt without relaunching is **unresolved**. |
+| Add System (`AddSystemAction.aquaAlertDismissed`) | New `RaidSystem(String)`, then `registry.add`, then `connect` | Yes, a new object. Whether it actually replaces the stopped one is **unresolved** (see the list after this table). |
+| Remove (`DefaultSystemRegistry.remove` ×3) | Calls `super.remove`, then `synchronizePrefs` | No. Whether `SystemRegistry.remove` calls `disconnect()` is **unresolved**. |
+| Refresh (`RaidSystem.updateImmediately(Z)`, PC0–38) | Needs `isConnected()` and no active polling, then only interrupts the agent's sleep | No. |
+| Re-authenticate (`allowAquaAlertToBeDismissed` in both authentication listeners, PC39–51) | Calls `authenticate` on the **same** RaidSystem | No. |
+| `RaidSystem.connect` (PC58–66) | Posts through `agent.connect` to the **same** manager | No. |
+
+For the Add System path, three things in classes I didn't have are still open:
+- whether `SystemRegistry.add` allows a duplicate address
+- whether `RendezvousPanel` hides addresses already being monitored (`getMonitoredIPAddresses` is passed to its constructor at PC0–17)
+- whether the old object is ever disconnected
+
+So the source proves only that relaunching gives a new manager. Remove followed by Add might, but it isn't proven.
+
+## 3. The 14 handlers: how each handles a connect result
+
+None of these handlers reconnects, posts, connects or authenticates on the -101 branch. None catches RuntimeException, so an exception thrown in a handler reaches the manager's worker thread.
+
+| Handler | Result 0 | -101 | Other results / exceptions |
+|---|---|---|---|
+| `DefaultSystemRegistry` | Sets message index 3 | Sets message index 4 (PC21–30) | -16/-27/-28 set index 11; anything else is ignored |
+| `AddSystemAction` | Sets index 3, then `registry.synchronizePrefs` (writes preferences, on the worker thread) | Sets index 4 (PC61–70) | Then `monitorWindow.setSelectedSystem` if `systemsAdded==1` (PC73–89), a Swing call off the UI thread |
+| `ManagementAuthenticationListener` | Stores password, then `dismissSheetOrDialog(1)` | `access$1600`, then `dismissSheetOrDialog(2)` (PC164–183) | Auth codes: `invokeLater($21)`, `access$1400`/`$1500` |
+| `ManagementSessionAuthenticationListener` | Calls `performMenuSelection` or `showManagementWindow` **inside the callback** (PC13–63) | `access$1600` (PC99–110) | Auth codes: `setManagementPasswordSaved(false)` |
+| `MonitoringAuthenticationListener` | Stores password, index 3, `dismiss(1)` | `access$1600`, `dismiss(2)` (PC154–173) | Same as the management listener |
+| `ManagementController$1`, `SystemMonitorController$13` | Updates model state only | Ignored | — |
+| `ShutdownAction$1`, `SystemMonitorController$14` | Don't read the result code at all | — | — |
+| `SyncSender` | Stores the response, `notifyAll` | Same | — |
+| `RaidSystemAgent$1` (connect) / `$2` (authenticate) | `access$000`, then `access$100(principal)`; probably an async post | Logs, then `access$300` (PC97–139) | Exceptions 8–176 go to `access$400`. The principal is called at PC196–210, outside the try, so its exceptions propagate. |
+| `RaidSystemAgent$3` (power state) | `setPollingEnabled(true)` and starts the agent if it isn't running | Logs only | Principal is called in the `jsr` finally block (PC155–176) |
+| `DelegateHandler` | Does nothing | — | — |
+
+**Unresolved bodies** (needed to close the "reconnect inside the callback" question):
+- `SystemMonitorController.access$1600`, `$1400`, `$1500` and `$21`
+- `RaidSystemAgent.access$100`, `$300` and `$400`
+- `AquaAlert.dismissSheetOrDialog`: if it calls `aquaAlertDismissed` synchronously, a success result leads to `performMenuSelection` inside the callback
+- `AuthenticatedMenu.performMenuSelection` and `ManagementController.showManagementWindow`
+
+The only possible posts inside callbacks are on the **success** path, against a live manager. That is the trampoline's territory, not B's.
+
+## 4. Corrections to design B
+
+**C1. The availability cost is much wider than "first command".** The -101 from `doConnect` goes to the handler of whichever request happens to be waiting. During normal polling that's a `SyncSender`, whose post then throws `ConnectException`. `RaidSystemAgent.run` catches that at PC493–517: it calls `updateConnectionFailure`, turns polling off, and goes back to wait on `POLL_MONITOR`.
+
+In the original code, recovery is automatic. The retry loop eventually connects and calls `system.setPollingEnabled(true)` at `doConnect` PC435–440, and polling resumes. But that automatic recovery **is** the bug: the held request is sent after its failure was reported.
+
+Under B, **any** outage that publishes a -101 kills that RaidSystem for the rest of the session:
+- a single-host system on its first failed attempt
+- a dual-host system on its second failed attempt
+- this happens after an established session too, not only at launch or Add
+
+The design text should say this. The only proven way back is to relaunch.
+
+**C2. The claim "an async post is queued, then drained with -102" is only conditionally true.** The original `postMessageAsync` (PC0–55) never checks `isStopped`. The worker thread exits at `run` PC34–53 once the queue is empty and the manager is stopped.
+
+- Posts made **inside the -101 callback** are fine: the worker is still looping, so they get -102.
+- Posts made **later from the UI** are queued forever and get no callback, for example `RaidSystem.connect` or re-authentication. No bytes are sent, so this fails closed. But both authentication listeners return `false` from `allowAquaAlertToBeDismissed`, so their progress spinner turns forever until the user cancels.
+- A sync `postMessage` still throws `CommShutdownException` at PC0.
+
+Correct the callback-behaviour section (item 4) of the design to match.
+
+**C3. Thread side effect (benign).** After B, a polling agent that received the -101 waits on `POLL_MONITOR` indefinitely: nothing sets polling back on except a successful connect. It exits only through `agent.shutdown` (PC0–7, sets polling on), which `RaidSystem.disconnect` (PC0–4) calls. That's one parked thread per stopped system, with no network activity.
+
+**C4. Flag interaction.** I re-checked this and it holds. W1 or W2 sets `connectionFailureSent`. `doConnect` returns from PC692 or PC414, and `run` then takes PC234 → PC273 with the flag set, so there is no second callback. `run` clears the flag at PC514, so each later queued request still gets exactly one -102.
+
+**No security correction is needed.** B stops the manager before the -101 is published, on the worker thread, with no locks held. Every later path either throws, gets -102, or sits in a queue that is never sent.
+
+**One design alternative, not a security issue.** If C1's availability loss isn't acceptable, the design's own fallback avoids it without bringing the bug back: skip the send at `run` PC234 when `connectionFailureSent` is set. The held request gets dropped, while the background reconnect still re-enables polling. That choice is yours.
+
+## 5. Fixture additions
+
+- **Polling case:** a `SyncSender` post on a session that has already connected, with the transport stub failing afterwards. Expect exactly one -101, zero sends, and the agent's post throwing `ConnectException`.
+- **Post after the worker exits:** expect no callback and zero sends.
+
+## 6. Scope limits
+
+- **Not dumped:** `SystemRegistry` (`add`/`remove`), `RendezvousPanel`, `SystemMonitorController`'s `access$` methods and `$21`, `RaidSystemAgent`'s `access$100`/`$300`/`$400` and `updateConnectionFailure`, `RaidSystem.authenticate`, `isConnected` and `setPollingEnabled`, and `RejectionRecovery.retire`.
+- **Not re-verified:** that no class anywhere in the jar constructs `CommunicationsManager` other than `RaidSystem(String)`. The scan in `build/connect-failure-source-scan.json` covers references to the RaidSystem constructors, not to the manager's constructor.
+- **Limits of the scan itself:** it finds constant-pool references and the subtype closure of the handler interface. It doesn't prove a handler is ever dispatched, and it doesn't cover reflection or proxies.

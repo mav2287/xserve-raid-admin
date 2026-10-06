@@ -18,6 +18,8 @@ TARGETS = {
     'com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class':
         ('8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37', 'toString', '()Ljava/lang/String;'),
 }
+SECONDARY = {'com/apple/xsr/net/CommunicationsManager.class': ('doConnect','(Lcom/apple/xsr/net/CommunicationHandler;)V',0x0002)}
+AUDIT17_MANAGER_SHA256='7c07f4c31a6104f52ee151e07141296d5b59ef33fa5105b895c6504c58ac2a1c'
 EXPECTED_ACCESS = {entry: (0x000c if name == 'getParser' else 0x0001)
                    for entry, (_, name, _) in TARGETS.items()}
 REDACTED = 'RAID Admin request [details redacted]'
@@ -162,7 +164,27 @@ def transform(entry, data):
             code=original_code+b'\x2a\xb8'+word(reference)+b'\xbf'
             body=data[begin+6:begin+10]+struct.pack('>I',len(code))+code+word(4)+tail[2:10]+added+tail[10:]
             replacement=data[begin:begin+2]+struct.pack('>I',len(body))+body
-        result=data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+data[cls.pool_end:begin]+bytes(replacement)+data[end:]
+        edits=[(begin,end,bytes(replacement))]
+        if name=='run':
+            secondary_name,secondary_descriptor,secondary_access=SECONDARY[entry]
+            methods=[m for m in cls.methods if (m['name'],m['descriptor'])==(secondary_name,secondary_descriptor)]
+            if len(methods)!=1 or methods[0]['access']!=secondary_access:raise ValueError('Connect method identity differs')
+            attrs=[a for a in methods[0]['attributes'] if a[0]=='Code']
+            if len(attrs)!=1:raise ValueError('Connect Code missing')
+            _,cb,ce=attrs[0];length=u4(data,cb+10)
+            original_connect=data[cb+14:cb+14+length]
+            if length!=718 or data[cb+6:cb+10]!=bytes.fromhex('00060010') or original_connect[393:401]!=bytes.fromhex('b20026190bb60028') or original_connect[578:583]!=bytes.fromhex('2b2ab4000e'):raise ValueError('Connect failure windows/frames differ')
+            connect=bytearray(original_connect);connect[393:401]=bytes.fromhex('c800000145000000');connect[578:583]=bytes.fromhex('c8000000a2')
+            connect.extend(bytes.fromhex('2a04b5000d2ab8')+word(retire_reference)+original_connect[393:401]+bytes.fromhex('c8fffffeb2'))
+            connect.extend(bytes.fromhex('2ab8')+word(retire_reference)+original_connect[578:583]+bytes.fromhex('c8ffffff5a'))
+            body=data[cb+6:cb+10]+struct.pack('>I',len(connect))+connect+data[cb+14+length:ce]
+            edits.append((cb,ce,data[cb:cb+2]+struct.pack('>I',len(body))+body))
+        tail=bytearray();cursor=cls.pool_end
+        for eb,ee,value in sorted(edits):
+            if eb<cursor:raise ValueError('Overlapping recovery edits')
+            tail.extend(data[cursor:eb]);tail.extend(value);cursor=ee
+        tail.extend(data[cursor:])
+        result=data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+bytes(tail)
         assert_preserved(data,result,name,descriptor);assert_recovery_edit(data,result,name)
         return result
     if name == 'getBody':
@@ -272,7 +294,7 @@ def assert_preserved(before, after, name, descriptor):
     if before[old.pool_end:old.methods[0]['start']] != after[new.pool_end:new.methods[0]['start']]:
         raise ValueError('Original class hierarchy, fields or method count changed')
     for a,b in zip(old.methods,new.methods):
-        if (a['name'],a['descriptor']) == (name,descriptor) or (name=='getBody' and (a['name'],a['descriptor']) in (('<init>','(Lcom/apple/xsr/net/HttpConnection;)V'),('parseHeaders','()V'))):
+        if (a['name'],a['descriptor']) == (name,descriptor) or (name=='run' and (a['name'],a['descriptor'])==SECONDARY['com/apple/xsr/net/CommunicationsManager.class'][:2]) or (name=='getBody' and (a['name'],a['descriptor']) in (('<init>','(Lcom/apple/xsr/net/HttpConnection;)V'),('parseHeaders','()V'))):
             if before[a['start']:a['start']+8] != after[b['start']:b['start']+8]:
                 raise ValueError('Target signature/access/attribute count changed')
             old_attrs = [before[s:e] for n,s,e in a['attributes'] if n != 'Code']
@@ -282,6 +304,7 @@ def assert_preserved(before, after, name, descriptor):
             raise ValueError('Non-target method changed')
 
     if name == '<init>': assert_sync_preenqueue(before,after)
+    if name == 'run': assert_connect_failure_stop(before,after)
     if name in ('run','send'): assert_recovery_edit(before,after,name)
     if name=='getBody':
         assert_allocation_operands(before,after)
@@ -422,3 +445,28 @@ def assert_sync_preenqueue(before,after):
     restored=bytearray(b[:14+109]+b[14+138:]);restored[2:6]=a[2:6];restored[10:14]=a[10:14];restored[14+14:14+20]=a[14+14:14+20]
     if bytes(restored)!=a:raise ValueError('Sync edit outside preenqueue trampoline')
     if u2(a,14+109)!=3 or a[14+111:14+135]!=bytes.fromhex('001f0037003a000b00180062006500000065006900650000') or a[14+135:]!=bytes(2):raise ValueError('Sync handlers or nested attributes differ')
+
+
+def assert_connect_failure_stop(before,after):
+    old,new=ClassFile(before),ClassFile(after)
+    def locate(cls,name):
+        ms=[m for m in cls.methods if m['name']==name]
+        if len(ms)!=1:raise ValueError('Connect/worker method missing')
+        attrs=[a for a in ms[0]['attributes'] if a[0]=='Code']
+        if len(attrs)!=1:raise ValueError('Connect/worker Code missing')
+        _,b,e=attrs[0];return b,e,cls.data[b:e]
+    ob,oe,a=locate(old,'doConnect');nb,ne,b=locate(new,'doConnect');_,_,run=locate(new,'run')
+    if u4(a,10)!=718 or u4(b,10)!=754 or a[6:10]!=bytes.fromhex('00060010') or a[6:10]!=b[6:10]:raise ValueError('Connect length/frame differs')
+    if b[14+393:14+401]!=bytes.fromhex('c800000145000000') or b[14+578:14+583]!=bytes.fromhex('c8000000a2'):raise ValueError('Connect stop entry differs')
+    reference=run[14+588:14+590]
+    assert_static_reference(new,run,14+587,'compat/RejectionRecovery','retire','(Lcom/apple/xsr/net/CommunicationsManager;)V')
+    expected=bytes.fromhex('2a04b5000d2ab8')+reference+a[14+393:14+401]+bytes.fromhex('c8fffffeb2')+bytes.fromhex('2ab8')+reference+a[14+578:14+583]+bytes.fromhex('c8ffffff5a')
+    if b[14+718:14+754]!=expected:raise ValueError('Connect stop tail differs')
+    restored=bytearray(b[:14+718]+b[14+754:]);restored[2:6]=a[2:6];restored[10:14]=a[10:14];restored[14+393:14+401]=a[14+393:14+401];restored[14+578:14+583]=a[14+578:14+583]
+    if bytes(restored)!=a:raise ValueError('Connect differs outside stop windows')
+    if u2(a,14+718)!=6 or any(u2(a,14+720+i*8+2)>681 for i in range(6)):raise ValueError('Connect handler coverage differs')
+    baseline=after[:nb]+a+after[ne:]
+    if hashlib.sha256(baseline).hexdigest()!=AUDIT17_MANAGER_SHA256:raise ValueError('Worker/class differs from audit.17 outside connect Code')
+    for index,owner,name,descriptor in ((13,'com/apple/xsr/net/CommunicationsManager','connectionFailureSent','Z'),(14,'com/apple/xsr/net/CommunicationsManager','system','Lcom/apple/xsr/som/RaidSystem;'),(38,'com/apple/xsr/net/CommunicationsManager','logger','Lorg/apache/log4j/Logger;')):
+        tag,v=new.pool[index];ot,ov=new.pool[u2(v,0)];nt,nv=new.pool[u2(v,2)]
+        if tag!=9 or ot!=7 or new.text(u2(ov,0))!=owner or nt!=12 or new.text(u2(nv,0))!=name or new.text(u2(nv,2))!=descriptor:raise ValueError('Connect original field target differs')

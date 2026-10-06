@@ -1,0 +1,39 @@
+I read the five files and ran nothing. Short answer: the fresh-manager route through remove/re-add is not proven from source, and the fixture has three blockers to fix before a clean characterization.
+
+## Blockers before commit
+
+1. **The class-shadow check only covers the candidate jar** (`tools/check_connect_characterization.py:55-57`). The `AcpxConnection$1` absence check opens `a.candidate` only, so the stated "absent from original and candidate" isn't enforced. Repeat the check for `original`. The fixture output directory has no allowlist either, and nothing checks that its classes are absent from both jars. That covers `ConnectFailureObservation`, its `$FakeSystem`, `$1` and `$2`, `fixture/OfflineGuard` and the `sun/io` shim. All of these come before the jar on the classpath.
+2. **The `polling_enable_calls` and `escaped` checks race the worker** (`ConnectFailureObservation.java:52,54`). Both are read right after `bodies` becomes non-empty, while the worker is still inside `send` and before `join`. `enabled` and `escaped[0]` are plain fields. If `setPollingEnabled(true)` runs after `send`, line 54 can fail or pass depending on timing. Make `enabled` volatile and move the `enabled==1`, `escaped`, constructor and body-count checks after `worker.join`.
+3. **The "no worker interruption" claim isn't proven.** The fixture sets `manager.thread=worker`, and `onSend` calls `manager.shutdown()` on the worker thread. No listing I read shows what `CommunicationsManager.shutdown()` does. If it calls `thread.interrupt()`, the worker interrupts itself. The post-send path could then change, and the line in `limits` would be false. Cite the `shutdown()` bytecode, or reword the limit to "fixture never interrupts; product `shutdown()` behavior per listing X".
+
+## Proof and wording corrections
+
+- **`held_body_identity` claims identity but checks bytes.** It compares a re-serialization made on the main thread, which is byte equality. The design (§4) asked for sends to be recorded by request identity. Store the `RequestMessage` reference in the stub and assert `== request`, keeping the bytes as a secondary check. Otherwise rename the field to `held_body_equal`.
+- **The `limits` text doesn't scope polling to the fake.** Say explicitly that `polling_enable_calls` counts only `FakeSystem.setPollingEnabled(true)`, and that no `RaidSystemAgent` is instantiated.
+- **The candidate here is audit.17 (pre-B).** `check(!manager.isStopped())` and the expected constructor counts of 2 and 3 assume the original retry policy. A B (audit.18) build will fail this tool by design and needs its own expectations from design §3.1: dual is 2 constructor calls, 1 sleep, 0 sends; single is no sleep. The commit message should scope this tool to original + audit.17 initial-connect only. The no-host, null-handler and throwing-callback scenarios (§3.6–3.9) are not covered.
+- **Timing margin is acceptable but tight.** Original dual is 12.5–25 s before the third constructor call. Add `-Xint`/`-Xverify:all` startup and the 2 s join, and the worst case is about 28 s against the parent's 35 s.
+- **One open item from design §5 is resolved.** The dump shows `RaidSystem.setPollingEnabled` is not final. Whether `setHostAddress` is final still isn't shown, but `javac` against the original jar would fail if it were.
+
+## Remove/re-add as a fresh-manager route
+
+**Not source-proven.** The selected bytecode shows:
+- `SystemRegistry.add(RaidSystem)` only calls `addObserver`, `list.add` and `fireSystemAdded`. It receives an object that already exists and constructs nothing.
+- `remove(String)` → `remove(RaidSystem[])` only calls `deleteObserver`, `list.remove` and `fireSystemRemoved`. It does **not** call `RaidSystem.disconnect()`, so the old agent and manager shutdown isn't shown either.
+- The `RendezvousPanel` constructor, `getAddresses` and `getPassword` only produce strings. No `new RaidSystem` appears.
+- `access$1600` → `showConnectionFailure`, the `AquaAlert` dismiss and `$21.resetPassword` show no reconnect or construction path. `RaidSystem.connect` and `authenticate` route to the existing agent, which under B means the stopped manager.
+
+Calling it a fresh-manager route needs three more listings:
+- the Add action handler, showing `new RaidSystem(...)` per address with no cache or dedupe by name or address
+- `RaidSystem.<init>`, showing `new CommunicationsManager` and the thread start
+- whatever handles `systemRemoved`, to show whether the old system is disconnected
+
+Until those are read, it is source inference at most, and actual UI acceptance stays open.
+
+## C1 correction (GUI review)
+
+The corrected wording is right, with two qualifiers:
+- B removes only the retries of the **initial** connect, after `-101` is published to a **non-null** handler. That cost lands on the first connect of each `RaidSystem`, at launch or Add.
+- In dual-host, the primary failure is silent, so B still sleeps once and tries the secondary before stopping.
+- The null-handler retry path is unchanged in both runtimes.
+- Faults on an established session are already terminal in audit.17. `run` 215–304 stops the manager, 380–458 including the `doConnect` at 454 are dead, and the fault reports `-102`, not `-101`. B adds no new established-session reconnect change.
+- Keep the polling `-101` scenario as an original-only control, or drop it.

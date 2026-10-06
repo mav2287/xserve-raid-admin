@@ -1,0 +1,35 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "raid_system_constructor_reference_classes": {
+    "com/apple/xsr/DefaultSystemRegistry": [
+      "(Ljava/lang/String;)V"
+    ],
+    "com/apple/xsr/DeleteArrayPane": [
+      "(Lcom/apple/xsr/som/RaidSystem;)V"
+    ],
+    "com/apple/xsr/DriveSelectionPanelEx": [
+      "(Lcom/apple/xsr/som/RaidSystem;)V"
+    ],
+    "com/apple/xsr/SystemMonitorController$AddSystemAction": [
+      "(Ljava/lang/String;)V"
+    ]
+  },
+  "communication_handler_types": [
+    "com/apple/xsr/DefaultSystemRegistry",
+    "com/apple/xsr/ManagementController$1",
+    "com/apple/xsr/ShutdownAction$1",
+    "com/apple/xsr/SystemMonitorController$13",
+    "com/apple/xsr/SystemMonitorController$14",
+    "com/apple/xsr/SystemMonitorController$AddSystemAction",
+    "com/apple/xsr/SystemMonitorController$ManagementAuthenticationListener",
+    "com/apple/xsr/SystemMonitorController$ManagementSessionAuthenticationListener",
+    "com/apple/xsr/SystemMonitorController$MonitoringAuthenticationListener",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender",
+    "com/apple/xsr/som/RaidSystemAgent$1",
+    "com/apple/xsr/som/RaidSystemAgent$2",
+    "com/apple/xsr/som/RaidSystemAgent$3",
+    "com/apple/xsr/som/RaidSystemAgent$DelegateHandler"
+  ],
+  "limits": "Constant-pool constructor references and superclass/interface closure, not proof of dispatch reachability or GUI recovery."
+}

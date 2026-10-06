@@ -1,0 +1,39 @@
+The earlier findings are resolved in substance, but there is one new hard blocker, and finding 2's check is weaker than the claim. I only read files; I ran nothing.
+
+## New blocker
+
+**`tools/check_connect_stop.py:44` crashes every time it runs.** It calls `.read_text()` on a tuple: `(ROOT/'audit/connect-stop-recovery-expected.json', 'audit/connect-stop-reference-derivation.json', 'audit/sync-preenqueue-final-integrity.json').read_text()`. That raises `AttributeError` before any runtime, so the gate can't qualify anything. It looks like an editing leftover. Change it to read only `audit/connect-stop-recovery-expected.json`, whose `candidate_jar_sha256` is `d1d09ce0…` and matches `CONNECT-FAILURE-STOP.md:41`.
+
+## Gap in finding 2
+
+**The audit.17 class hash is recorded but never measured by any gate.**
+- `check_connect_stop.py:50` compares `connect-stop-reference-derivation.json` to the `AUDIT17_MANAGER_SHA256` constant and to the ledger's JAR hash. Both of those are hand-entered.
+- `check_connect_characterization.py:75-81` does compute `sha256(CM)` from the ledger-pinned `948c1d85…` JAR, but it only passes that value to the fixture and records it. It never checks it against `7c07f4c3…`.
+
+So "measured from full ledger-pinned audit17 JAR" holds only if someone compares the archived characterization output by hand. To make it hold in code, add `manager_hash == AUDIT17_MANAGER_SHA256` in `check_connect_characterization.py` (one line). Without that, the derivation check just confirms the hand-entered values agree with each other.
+
+## Confirmed resolved
+
+- **Test gap (finding 1):**
+  - **Async modes:** `single-async`, `dual-async` and `single-async-throw` run under both `-Xint` and `-Xcomp`.
+  - **Inside the callback:** they assert `isStopped() && !isConnected()`, a fresh `ConnectException` (not the one the stub threw), and that a synchronous post is rejected with `CommShutdownException` (`ConnectFailureObservation.java:116-118`).
+- **Callback exception identity:** on the reported path, the context handler receives the thrown exception as the second -102, and `commands=2` (`:122`, `:126`).
+- **Callback-before-stop mutant arithmetic:** checked against the candidate javap.
+  - It nops `740..743` (the `aload_0; invokestatic retire`).
+  - At 591: `c8 000000a3` + 3 nops, so 591 + 163 = 754.
+  - It appends the retire at 754–757, then the original 591–598 at 758–765.
+  - 591–598 is `iconst_1; istore 6; aload_0; iconst_1; putfield connectionFailureSent`: whole instructions, right after the callback `invokeinterface` at 586.
+  - It ends with `goto_w -167` at 766 → 599. Final length is 771.
+  - The only branches into this area target 599 (pcs 530, 534, 546), so no jump lands in the moved bytes.
+  - Exception-table offsets are untouched and none cover these ranges. Locals and stack are compatible, so it should pass the verifier.
+  - `original_code` is copied with `bytearray()`, so the candidate's own code isn't changed. The expected output (`stop_inside_callback=false`, everything else the same) can be met.
+- **`$7` allowlist:** it matches the 7 anonymous classes in the fixture.
+- **Sync hang:** disclosed in both the limits string (`:112`) and `CONNECT-FAILURE-STOP.md:56-59`.
+- **`scope` label:** relabelled to Audit.18.
+
+## Not blockers
+
+- `CONNECT-FAILURE-STOP.md:60` starts a sentence in lowercase ("interrupted synchronous waits…") after the period on line 59. It's cosmetic.
+- There's still no dual-host mutant, and the `-Xcomp` dual timing margin is still tight, as noted before. Both fail safe.
+
+Once line 44 is fixed, and ideally the one-line hash check is added, nothing I found blocks qualification. A clean qualification run is still needed.

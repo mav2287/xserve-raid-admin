@@ -1,0 +1,7 @@
+{
+  "jar_sha256": "948c1d8587b43b7b004f193dd5d5eced4ffa8c6d7fd53943c029149f2245b28a",
+  "manager_class_sha256": "7c07f4c31a6104f52ee151e07141296d5b59ef33fa5105b895c6504c58ac2a1c",
+  "source_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "entry": "com/apple/xsr/net/CommunicationsManager.class",
+  "authority": "sync-preenqueue-final-integrity.json; complete historical artifact and committed input identity additionally checked by check_connect_characterization"
+}

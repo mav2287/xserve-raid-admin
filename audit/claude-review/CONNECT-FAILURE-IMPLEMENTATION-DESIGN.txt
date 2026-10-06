@@ -1,0 +1,94 @@
+Your offsets and the code layout are correct, and design B holds. On the loader question: a stub on the normal classpath is enough, with no need for a child-first loader, as long as each runtime runs in its own JVM. Several fixture expectations and one runtime assumption are wrong, though, and the tooling change touches more code than `TARGETS`. I ran nothing, read no profiles and contacted nothing.
+
+## 1. The bytecode edit (all checked against the original `doConnect` listing, lines 665–1017)
+
+| Item | Status | What the original shows / exact bytes |
+|---|---|---|
+| W1, PC393–400 | Correct | `b2 0026 / 19 0b / b6 0028`: 8 bytes, empty stack at entry and at 401 |
+| W1 replacement | Correct | `c8 00000145` at 393–397, then `000000` (dead nops) at 398–400. SyncSender `<init>` already ships the same "goto, then dead nops" pattern. |
+| Block at 718 | Correct | `2a 04 b5000d 2a b8<rr> b2002619 0bb60028 c8fffffeb2`. `goto_w` at 735 jumps −334 to 401. |
+| W2, PC578–582 | Correct | `2b 2a b4000e`: 5 bytes, empty stack at entry → `c8 000000a2` (+162) |
+| Block at 740 | Correct | `2a b8<rr> 2b2ab4000e c8ffffff5a`. `goto_w` at 749 jumps −166 to 583, carrying 2 stack values, the same as the original fall-through. |
+| Lengths | Correct | Code length 718 → 754 (0x2ce → 0x2f2), attribute length +36. Unchanged: max_stack 6, max_locals 16, all 6 exception rows. The appended blocks need at most 2 stack slots. |
+| Branch targets | Fact | None of the 29 branches lands inside 394–400 or 579–582. 393 and 578 are reached only by fall-through. |
+| Exception rows | Fact | The highest row end is 681, so no row covers either window or anything at 718 and above. |
+| Version 47 | Fact | No StackMapTable to update. |
+
+**What the tool should assert (new `assert_connect_failure_stop`):**
+- The original window bytes, exactly as above.
+- Constant #13 is a Fieldref to `CommunicationsManager.connectionFailureSent:Z`.
+- Constant #14 is `system:Lcom/apple/xsr/som/RaidSystem;`, and #38 and #40 are `logger` and `Logger.error`.
+- The retire reference resolves to `compat/RejectionRecovery.retire:(Lcom/apple/xsr/net/CommunicationsManager;)V` on its own, **and** equals `u2(tail_block,10)` from `run`.
+- The exception table matches the original byte-for-byte.
+- A masked restore of the code equals the original.
+
+## 2. Tooling: more call sites than `TARGETS`
+
+- **Keep the 3-tuple shape of `TARGETS`.** Several places unpack it: `tests/test_class_patch.py:37`, `tools/check_security.py:245` and `:295`, and `tools/baseline.py:86` (index `[0]`). Add a separate table instead, for example `SECONDARY = {CM: ('doConnect','(Lcom/apple/xsr/net/CommunicationHandler;)V',0x0002)}`.
+  - `doConnect` is `ACC_PRIVATE`, while `EXPECTED_ACCESS` assumes 0x0001.
+- **The splice in `transform`** (`class_patch.py:165`) replaces a single span. It needs the sorted multi-edit splice that the `getBody` branch uses. Assert the attribute ordering rather than assuming it; javap lists `run` before `doConnect`.
+- **`assert_preserved`** (`:274-282`) would flag `doConnect` as "Non-target method changed". It needs a target set.
+- **`check_security.independent_preservation`** (`:118-131`) compares non-target javap output, so it will fail on `doConnect`. The regex at `:303` (`public|protected`) won't match a `private` method. Add an independent javap-level check: `393: goto_w 718`, three nops, `578: goto_w 740`, the appended lines, masked equality, and an identical exception table.
+- **Comparison with audit.17.** No new constant-pool entries means everything outside the `doConnect` Code attribute should equal the audit.17 output exactly, including `run` (595) and `pool_count`.
+  - Pin the audit.17 CommunicationsManager output SHA and compare against it.
+  - `security-patches.json` needs a new `patched_sha256`.
+  - Add flip-every-byte tests for 393–400, 578–582 and 718–753.
+
+## 3. Fixture corrections
+
+1. **The dual-host candidate does sleep.** The first failure is silent (`lload3==1`, so `ifle 599` is taken), then 5–10 s of backoff, then the second constructor call publishes and W2 stops. Expected: 2 constructor calls (P, then S), 1 sleep, 0 sends.
+   - The original dual-host run makes 3 constructor calls with 2 sleeps. Backoff is `x*3/2+1`, so the total is **12.5–25 s**.
+   - The original single-host run sleeps 5–10 s. The single-host candidate doesn't sleep at all (599 → 606 → 692).
+2. **The 35 s budget only works with one sleeping scenario per process.** Original single + original dual + candidate dual + null handler adds up to more than 35 s.
+3. **An in-process watchdog cannot work.** `OfflineGuard.checkExit` denies all exits, and `Runtime.halt` also calls `checkExit`. The timeout has to be enforced by the parent runner.
+   - Never interrupt the worker. That diverts it to 684 → 692 (and `SyncSender` to −102), which changes the path under test.
+4. **`OfflineGuard` does not block all file access.** It blocks writes, deletes, exec, exit, sockets (including resolution via `checkConnect`), Preferences, and reads under `/Library/Preferences` or the sentinel path. Other reads are allowed, and class loading needs that. Describe it that way.
+5. **The sync exception is a new object.** The original code builds `new ConnectException(ioe.getMessage())` at 549, so it is never the stub's exception object. Assert:
+   - exact class `java.net.ConnectException`
+   - the stub's synthetic message
+   - `getCause()==null`
+   - not the same object as the stub's exception
+
+   Identity holds only between `response.getException()` and the object `postMessage` throws (PC59–72), which only an async recording handler can observe. On the no-host path the message includes `getName()`, so the fake name must be synthetic.
+6. **No-host case, per runtime:**
+
+   | Runtime | Callbacks | Manager | Other |
+   |---|---|---|---|
+   | Original | 1 (−101) | not stopped | NPE at `run` 255 escapes `run`; there is no generic row |
+   | audit.17 | 2 (−101, −102) | stopped | — |
+   | audit.18 | 1 (−101) | stopped before the callback | flag suppresses 273; later queued items get −102 each |
+
+   - **Null handler, audit.18:** the flag is set and the manager stops, then the NPE at 409 goes to `report` and on to 489, where the null handler is skipped. Result: 0 callbacks, stopped.
+7. **Throwing callback, audit.18:** 2 callbacks. `report` → 474 builds a −102 without checking the flag. The second throw at 509 escapes `run`, so 534 `close` is skipped and the queue is stranded. An `Error` escapes immediately, with the manager already stopped.
+8. **Close count is 0** for a fresh manager. `connection` is still null because the constructor threw before `putfield` 424, so `retire` closes nothing and neither does 534.
+9. **Null handler in the retry path is unchanged in both runtimes.** It retries silently and sends after the later success. That is the qualified limitation, and it needs its own process because it sleeps 5–10 s.
+10. **Original-runtime shutdown must happen on the worker thread**, for example from the stub's `send` hook or a success callback. The lock inversion (`run` 7–53 holds the queue lock and calls the synchronized `isStopped`) can hang a `shutdown()` called from the main thread.
+11. **The polling −101 case from the GUI-recovery review can't happen in audit.17 or audit.18.** Every exception in `run` 215–304 now stops the manager:
+    - `349 ifeq` goes to 563, so 380–458 (including the 454 `doConnect`) are dead.
+    - The MalformedInputException row was rerouted to 462.
+
+    A live manager therefore enters `doConnect` only before its first successful connect. **This revises C1:** an outage on an established session is already terminal since audit.16, and it reports −102, not −101. B's added availability cost is limited to the first connect of each RaidSystem (launch or Add). Keep the polling scenario as an original-only control, or drop it.
+
+## 4. Classpath stub vs child-first loader
+
+**A normal classpath stub is enough** if every condition below holds:
+- **Separate JVMs.** Each runtime, and anything sharing the real `AcpxConnection`, runs in its own process. Recovery and Transport observations break if they share the stub's classpath.
+- **Order.** The stub directory comes before the candidate jar, and it contains only `AcpxConnection`.
+- **Same shape as the real class** (javap header: superclass Object, no interfaces):
+  - `public class` with public `<init>(String)`, `getHostAddress`, `send`, `close` and `disconnect`
+  - `RejectionRecovery` in `compat` calls `close()`, so `close()` must be public
+- **Provenance assertions.** Check that:
+  - `AcpxConnection`'s CodeSource is the stub directory
+  - `CommunicationsManager` comes from the candidate jar, with a SHA match on its resource bytes
+  - `compat.RejectionRecovery` comes from the expected location
+
+**Why this is likely safe:** `RecoveryObservation` already sits in `com.apple.xsr.net`, loads from a separate classpath entry, and writes package-private jar fields (`a.host`, `a.connection`). A sealed or signed package would reject it. That is an inference from those fixtures passing.
+
+**When a child-first loader would be needed:** only to hold both the real and stub `AcpxConnection`, or both the original and candidate manager, in one JVM.
+
+**Accepted cost:** the stub shadows audit.17's patched `send`, so the transport gates must still qualify it separately. Record sends by request identity, not bytes. Byte parity stays with `TransportObservation`.
+
+## 5. Unverified items to resolve before building
+- Whether `RaidSystem.setHostAddress` and `setPollingEnabled` are final; they aren't in any dump. If they're final, the fake can't override them, and the real `setPollingEnabled` would run on an Unsafe-allocated object (likely an NPE, which is an inference).
+- Whether `PropertyListDictionary` exists, its public constructor, and how status 0 is encoded. No fixture uses it yet.
+- A jar-wide inventory of references to `AcpxConnection` members on the paths the fixture executes.

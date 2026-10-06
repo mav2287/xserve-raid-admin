@@ -1,0 +1,16 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_sha256": {
+    "com/apple/xsr/SystemRegistry.class": "855c7c160edb917bd62597cf6cddaa0afb51c352a0e236fd2c3389ee4837decd",
+    "com/apple/xsr/RendezvousPanel.class": "e8c334ee043ca1e777a3d396c7d215d8ad356dffd9619ca0b1fd60cfe20a9a71",
+    "com/apple/xsr/SystemMonitorController.class": "1251600090f9441a97042a6e1669b5ad16455de91cb4891129e301735f422537",
+    "com/apple/xsr/SystemMonitorController$21.class": "2a066d3c7d5efd9c78532f5e253255d4b02c07fa319e8d30ee995f8197be3e39",
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb",
+    "com/apple/xsr/som/RaidSystem.class": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+    "com/apple/xsr/AquaAlert.class": "11bfb454a66086436e9fd8f32ee5a11278bd81c7c25ad594579df275f08b5c50",
+    "com/apple/xsr/AuthenticatedMenu.class": "7c1e6c74e4275c1016c08f96cbaeba95e2f40caf80be56b66ee4dca9030b73b0",
+    "com/apple/xsr/ManagementController.class": "c1e417a9e060b4cbd50841305a597b5141ebcbf95e2f2701b4aa48b9fe2d78ac"
+  },
+  "bytecode_sha256": "3216ff1caa38454275e293f0316c857ac6585e35ea3c2a22d36d86703fde1336",
+  "limits": "Complete original disassembly, no execution/GUI/production test"
+}

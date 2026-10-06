@@ -114,7 +114,8 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         for part in declarations:
             constructor = target=='getBody' and re.match(r'^  com\.apple\.xsr\.net\.HttpResponse\(',part)
             framing = target=='getBody' and re.match(r'^  private void parseHeaders\(\)',part)
-            if constructor or framing: part = re.sub(r'^    Code:\n.*?(?=^    \S|^}|\Z)', '', part, flags=re.M | re.S)
+            connection=target=='run' and re.match(r'^  private void doConnect\(com\.apple\.xsr\.net\.CommunicationHandler\)',part)
+            if constructor or framing or connection: part = re.sub(r'^    Code:\n.*?(?=^    \S|^}|\Z)', '', part, flags=re.M | re.S)
             matched=(re.match(r'^  public com\.apple\.xsr\.net\.CommunicationsManager\$SyncSender\(',part) if target=='<init>' else re.match(r'^  [^\n]*\b' + target + r'\(', part))
             if matched and ('    descriptor: ' + descriptor + '\n') in part:
                 selected.append(part)
@@ -141,6 +142,22 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         def mask(text):return '\n'.join(line for line in text.splitlines() if not ((m:=re.match(r'^\s+(\d+):',line)) and (14<=int(m[1])<20 or int(m[1])>=109)))
         if mask(old[3])!=mask(new[3]):raise ValueError('Independent sync original instructions/handlers changed')
         return
+    if target=='run':
+        def connect(text):
+            m=re.search(r'^  private void doConnect\(com\.apple\.xsr\.net\.CommunicationHandler\).*?(?=^  \S|^})',text,re.M|re.S)
+            if m is None:raise ValueError('Independent connect method missing')
+            return m[0]
+        ca,cb=connect(before),connect(after)
+        ins=lambda text:[(int(pc),rest) for pc,rest in re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)]
+        ai,bi=ins(ca),ins(cb)
+        if [x for x in bi if 393<=x[0]<401]!=[(393,'goto_w        718'),(398,'nop'),(399,'nop'),(400,'nop')] or [x for x in bi if 578<=x[0]<583]!=[(578,'goto_w        740')]:raise ValueError('Independent connect stop entry differs')
+        retire=next(rest for pc,rest in ins(new[3]) if pc==587)
+        expected=[(718,'aload_0'),(719,'iconst_1'),(720,'putfield      #13                 // Field connectionFailureSent:Z'),(723,'aload_0'),(724,retire)]
+        expected += [(pc+334,rest) for pc,rest in ai if 393<=pc<401]+[(735,'goto_w        401'),(740,'aload_0'),(741,retire)]
+        expected += [(pc+166,rest) for pc,rest in ai if 578<=pc<583]+[(749,'goto_w        583')]
+        if [x for x in bi if x[0]>=718]!=expected:raise ValueError('Independent connect stop tail differs')
+        def mask_connect(text):return '\n'.join(line for line in text.splitlines() if not ((m:=re.match(r'^\s+(\d+):',line)) and (393<=int(m[1])<401 or 578<=int(m[1])<583 or int(m[1])>=718)))
+        if mask_connect(ca)!=mask_connect(cb) or 'stack=6, locals=16, args_size=2' not in cb:raise ValueError('Independent connect instructions/handlers/frame differ')
     if target in ('run','send'):
         a,b=old[3],new[3]
         if target=='run':
@@ -304,7 +321,7 @@ def main():
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
         if name in ('run','send'):
-            verified_methods[entry]=('Exact report/null-IO/prefix-stop windows and typed handler reroute independently verified; retry and superseded handler/test regions unreachable; original handler ranges/types and prefix result/log retained' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
+            verified_methods[entry]=('Exact doConnect stop windows/tail and unchanged run report/null-IO/prefix-stop windows and typed handler reroute independently verified; retry and superseded handler/test regions unreachable; original handler ranges/types and prefix result/log retained' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
             continue
         if name == 'getBody':
             verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons'

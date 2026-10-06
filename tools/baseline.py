@@ -27,8 +27,8 @@ PATCH_CLASSES = {
     'compat/SafePlistParser.class', 'compat/BoundedResponseBuffer.class', 'compat/BoundedHeaderStream.class', 'compat/UntrustedResponseException.class', 'compat/RejectionRecovery.class', 'compat/ResponseFraming.class',
 }
 ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd', 'log4j.properties'}
-VERSION = '1.5.1-modern.audit.17'
-BUNDLE_VERSION = '17'
+VERSION = '1.5.1-modern.audit.18'
+BUNDLE_VERSION = '18'
 
 
 def tree_hash(files):

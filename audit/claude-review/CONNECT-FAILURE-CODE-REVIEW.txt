@@ -1,0 +1,53 @@
+I found no correctness blocker in the audit.18 bytecode. Before calling it qualified, three things need attention: one test gap (finding 1), one pin I couldn't verify (finding 2), and one new hang risk to fix or disclose (finding 3). I ran nothing, so everything below comes from reading the source and the two committed javap snapshots.
+
+## Bytecode checks against the snapshots
+
+**Jump arithmetic (fact).**
+- `393: goto_w +0x145` lands on 718, followed by 3 `nop`s. `578: goto_w +0xa2` lands on 740.
+- The no-host block at 718 runs: set `connectionFailureSent`, then `retire`, then the original log (moved to 727/730/732), then `goto_w -334` back to 401.
+- The reported-failure block at 740 runs: `retire`, then `aload_1, aload_0, getfield system`, then `goto_w -166` back to 583.
+- The code ends at 754, which matches `class_patch.py:177-179`, `:459-464` and `check_security.py:153-158`.
+
+**Stack and verifier (fact, with one inference).**
+- The stack is empty at 393 and 578, and holds at most `[handler, system]` at 749 before 583 adds 2 more. That stays within `stack=6`, and `locals=16` is unchanged.
+- The class is major version 47, so there's no StackMapTable. Lines 398–400 and the old 380–459 retry block are unreachable.
+- At 401 the only predecessor is 735, and at 583 the only predecessor is 749. In both cases local 13 is a `BasicResponse` and local 1 is the handler.
+- Inference: the old type-inference verifier should accept this.
+
+**Handler coverage (fact).** The exception table is byte-identical to the original. None of 393–401, 578–583 or 718–754 is covered (`415–497 IOException` is the nearest range). `class_patch.py:466` locks this through the `restored==a` check. The check at `:467` only reads the original handler table, so it adds nothing but does no harm.
+
+**Order of operations (fact).**
+- No-host path: flag, then stop, then log, then callback.
+- Reported path: stop, then callback, then the original flag write at 594.
+- `retire` calls `shutdownRequired` first, which throws if the stop fails, and only then `retireConnection`.
+- The run loop checks `isStopped` before every send (run 234). Held transactions therefore get a `CommShutdownException` (-102) response and are never sent.
+
+**What's preserved (fact).** The condition at 528–546 is untouched, so the first dual-host failure is still silent and a null handler still retries. The established-session reconnect block (380–459) was already dead in audit.17, and audit.18 doesn't touch it.
+
+**Independent gate (fact).** `check_security.py:146-160` re-derives the tail from javap, ties the `retire` constant to run pc 587, and compares the exception table rows exactly. `tests/test_connect_stop.py:31-38` shows that operand and frame mutants are rejected.
+
+**Fixture harness (fact).**
+- Code source and resource hashes are checked at `ConnectFailureObservation.java:39-42`.
+- The stub and fixture allowlists match the anonymous classes: `$1`–`$6`, plus `AcpxConnection$1`.
+- `run_jdk` raises on any non-zero exit, and the expected output must match exactly. A verifier error or timeout therefore fails the run and is never counted as a rejected mutant (`check_connect_stop.py:93-96`).
+
+## Findings
+
+1. **The main failure path never checks "stopped before callback" from inside the callback (test gap; fix before qualification).** `ConnectFailureObservation.java:58` reads `isStopped()` only after `caller.join`. A mutant that ran the callback first and `retire` second would usually still pass, because the worker retires right after waking the caller. Only the no-host path asserts this from inside the callback (`:78`). The two mutants at `check_connect_stop.py:78` only remove the stop; they never reorder it. The order is pinned statically, so the candidate itself is safe; the problem is that the runtime evidence is weaker than the claim.
+   - Fix: add single and dual modes with an async handler that asserts `isStopped() && !isConnected()` and that a synchronous post is rejected, all inside `TYPE_CONNECT`.
+   - Also add a callback-then-retire mutant.
+
+2. **I couldn't verify the audit.17 pin.** `AUDIT17_MANAGER_SHA256` at `class_patch.py:22` appears nowhere else in the repo. The ledger (`audit/sync-preenqueue-final-integrity.json`) records only a jar hash, so I can't confirm that "audit.17 with the original doConnect restored" really equals the audit.17 class. The method itself is sound, because audit.18 adds no constant-pool entries. Record the derivation, for example `sha256(CM)` taken from the ledger's audit.17 jar, and check it in `check_connect_stop.py`.
+
+3. **A synchronous post can now hang forever after an initial connection failure (inference; new exposure).**
+   - `postMessage` checks `isStopped` (pc 0) before `SyncSender` enqueues. `SyncSender.<init>` then waits with an untimed `wait()` and never checks whether the manager stopped (`tests/fixtures/sync-preenqueue-candidate.javap:116-127`).
+   - If the worker leaves its loop (run 34–53) between those two steps, the caller blocks forever.
+   - Before audit.18, initial failures never stopped the worker, so this window didn't exist on that path.
+   - The limits text at `check_connect_stop.py:102` mentions only late async posts stranding. Disclose the sync case, or add a stopped check plus notify inside `SyncSender`'s wait loop.
+
+4. **Smaller points:**
+   - If the reported-path callback throws, line 594 is skipped, so the handler gets a second -102 from run 462→489. It's harmless for `SyncSender` but untested; `nohost-throw` covers only the no-host path.
+   - The `-Xcomp` dual-host run allows `caller.join(15000)` against a random 5–10 s backoff. A slow x64 runtime could produce flaky failures. These fail safe.
+   - The semantic mutants run only under `-Xint` and only in single-host mode for the reported path. There's no dual-host mutant.
+   - The `scope` field in `audit/connect-stop-recovery-expected.json` says "Audit.17", but `check_connect_stop.py:42` uses its hash as the audit.18 candidate. Relabel it.
+   - Behaviour change: after an initial connection failure the manager is now permanently stopped, so GUI reconnect depends on the app creating a new manager. The limits already say this is unqualified; make sure that's accepted product behaviour.

@@ -501,16 +501,17 @@ public final class TransportObservation {
         for(int i=0;i+3<wire.length;i++)if(wire[i]==13&&wire[i+1]==10&&wire[i+2]==13&&wire[i+3]==10)return Arrays.equals(Arrays.copyOfRange(wire,i+4,wire.length),body.toByteArray());
         return false;
     }
+    private static boolean connectFailureStop()throws Exception {return Class.forName("compat.RejectionRecovery").getField("STOPS_REPORTED_CONNECT_FAILURES").getBoolean(null);}
     private static void workerFailureExtras()throws Exception {
         check(operationFailureStop(),"Worker-fault policy missing");
         for(final boolean throwConnect:new boolean[]{false,true}){
-            final State state=new State();final CommunicationsManager m=ioManager(state);set(m,"connected",false);set(m,"connection",null);final int[] commands={0},connects={0};final RuntimeException thrown=new IllegalStateException("DO_NOT_RENDER_CONNECT_CALLBACK");
+            final State state=new State();final CommunicationsManager m=ioManager(state);set(m,"connected",false);set(m,"connection",null);final int[] commands={0},connects={0};final boolean stoppedConnect=connectFailureStop();final RuntimeException thrown=new IllegalStateException("DO_NOT_RENDER_CONNECT_CALLBACK");
             CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
-                if(response.getType()==Response.TYPE_CONNECT){check(++connects[0]==1&&response.getResultCode()==-101&&!m.isStopped(),"Invalid-address seam differs");if(throwConnect)throw thrown;return;}
+                if(response.getType()==Response.TYPE_CONNECT){check(++connects[0]==1&&response.getResultCode()==-101&&m.isStopped()==stoppedConnect,"Invalid-address seam differs");if(throwConnect)throw thrown;return;}
                 int i=commands[0]++;check(i<2&&response.getResultCode()==-102&&m.isStopped()&&!m.isConnected(),"Connection worker fault not stopped");
-                if(i==0)check(throwConnect?response.getException()==thrown:response.getException() instanceof NullPointerException,"Connection fault identity/type differs");else check(response.getException() instanceof CommShutdownException,"Connection follow-up not rejected");
+                if(i==0&&(throwConnect||!stoppedConnect))check(throwConnect?response.getException()==thrown:response.getException() instanceof NullPointerException,"Connection fault identity/type differs");else check(response.getException() instanceof CommShutdownException,"Connection follow-up not rejected");
             }};
-            AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newSetTimeRequest(new Date(0)));m.postMessageAsync(handler,f.newRestartSystemRequest());m.run();check(commands[0]==2&&connects[0]==1&&state.attempts==0&&state.sent.size()==0&&state.closes==0,"Connection worker fault wrote bytes");emit("worker_failure "+(throwConnect?"throwing-connect-callback":"null-connection")+" attempts=0 stopped=true queued_restart_blocked=true");
+            AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newSetTimeRequest(new Date(0)));m.postMessageAsync(handler,f.newRestartSystemRequest());m.run();check(commands[0]==(stoppedConnect&&!throwConnect?1:2)&&connects[0]==1&&state.attempts==0&&state.sent.size()==0&&state.closes==0,"Connection worker fault wrote bytes");emit("worker_failure "+(throwConnect?"throwing-connect-callback":"null-connection")+" attempts=0 stopped=true queued_restart_blocked=true");
         }
         final State nul=new State();nul.injectedFailure=new IOException("PropertyListException synthetic");nul.clearOutstandingBeforeFailure=true;final CommunicationsManager nm=ioManager(nul);final int[] callback={0};AcpxMessageFactory f=new AcpxMessageFactory();
         nm.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-103&&nm.isStopped()&&!nm.isConnected(),"Null-handler prerequisite not stopped");callback[0]++;}},f.newSetTimeRequest(new Date(0)));nm.postMessageAsync(null,f.newRestartSystemRequest());nm.run();check(callback[0]==1&&nul.attempts==1&&nul.sent.size()==1&&nul.closes==1,"Null-handler queued write escaped");emit("worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true");
