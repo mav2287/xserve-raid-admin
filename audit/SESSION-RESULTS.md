@@ -2,6 +2,7 @@
 
 Application source: `13ac370` (audit.5). Runtime packager: `b0c1c18`.
 Final acquisition and real-firmware fixture source: `b4e79e2` (clean).
+HTTP response fixture source: `c3a3436` (clean; six matching original/candidate/logging runs).
 
 Completed with actual Claude CLI model consultation plus the recorded automated checks (not independent human review or operational qualification):
 

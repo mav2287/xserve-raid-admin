@@ -1,5 +1,8 @@
 # Offline HTTP response and queue characterization
 
+Fixture source: `c3a3436dee6474a12382cac36db2e46765eccca9`, clean at
+observation. Six original/candidate/configured-logging runtime runs match.
+
 This milestone changes fixture code only. Application source remains `13ac370`
 (audit.5), JAR SHA-256
 `b6fdfab523768556f2c3c76190704c2319a9038efb43ebac05d66a3afebe70df`.

@@ -1,12 +1,12 @@
 {
-  "fixture_commit": "87804bf2031ee42c541964883662fce760493b86",
-  "fixture_dirty": true,
+  "fixture_commit": "c3a3436dee6474a12382cac36db2e46765eccca9",
+  "fixture_dirty": false,
   "host_machine": "arm64",
   "tool_sha256": "4041a292a985ddb157e5142f6a7d35736ab01fcf7f227e5938e5c5435633ccd6",
   "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
   "runtime_trees": {
-    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
-    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187"
   },
   "fixture_sources": {
     "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
