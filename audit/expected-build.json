@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "14729bd4be22fa8a8ef89003a9c42f0c68c1c0180bc63fcb8b07d1762c021d4c",
-  "reason": "Audit.16 development identity: Claude-approved worker-only failure stop; clean qualification pending.",
+  "previous_record_sha256": "6610e55bad077d674c79a0b235ae4eba5c1999e0aceb8348ae3fa45b77d9e2ec",
+  "reason": "Audit.16 worker-only failure containment; Claude-reviewed exact patch; clean reproducible source anchor, full qualification follows",
   "schema": 1,
-  "source_commit": "0e04ce39242d759d1ae66f84807afd093fea9cce",
-  "source_dirty": true
+  "source_commit": "365a2c43150712311aaebadd3e2acaa8e5e388e2",
+  "source_dirty": false
 }
