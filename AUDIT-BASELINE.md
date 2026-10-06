@@ -1,12 +1,12 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current candidate: **audit.8**, clean application source `07d7551`, clean runtime
-packager `efa03da`. Both architecture packages reproduce and pass bounded offline
-fixtures. See [header security scope](audit/HTTP-HEADER-GUARD.md),
-[build/runtime identities](audit/header-bundle-results.json), and
-[clean source provenance](audit/header-clean-provenance.json). Earlier intake and
-candidate sections below are retained historical observations. This remains an
-unsigned, operationally unqualified candidate.
+Current candidate: **audit.9**, clean application source `82acf2c`, clean runtime
+packager `12c3e4a`. Both architecture packages reproduce and pass bounded offline
+fixtures. See [security rejection/recovery scope](audit/REJECTION-RECOVERY.md),
+[build/runtime identities](audit/recovery-bundle-results.json), and
+[clean source provenance](audit/recovery-clean-provenance.json). Earlier intake
+and candidate sections remain historical. This is unsigned and operationally
+unqualified; malformed/negative lengths still require the next security refinement.
 
 ## Result and scope
 

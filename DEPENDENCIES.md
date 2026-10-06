@@ -71,3 +71,14 @@ native UI qualification; successful parser fixtures do not close release accepta
 
 
 Read-only vendor freshness observation on 2026-10-06: both macOS permanent download URLs resolve to the already pinned 8.504.04.1 version. See [observation](audit/runtime-current-observation.json) and the [official catalog](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html). Builds retain exact versioned URLs and hashes. This is not a vulnerability-database or complete security audit. audit.7 adds no third-party dependency.
+
+
+## audit.9 security rejection recovery refinement
+
+Body/header ceiling violations now close the rejected connection and return one
+terminal -102 callback without replay. The next distinct queued command uses the
+unchanged reconnect path; bounded offline fixtures pass on both architectures.
+G14 is partially addressed: ordinary invalid numeric/negative lengths still leave
+stale state and require the next security refinement. CLI direct-send lifecycle,
+idle/paused polling, real TCP timing and controller behavior remain unqualified.
+No third-party dependency is added. See [scope and evidence](audit/REJECTION-RECOVERY.md).

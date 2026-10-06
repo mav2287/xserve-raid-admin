@@ -1,0 +1,18 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_count": 2844,
+  "direct_RaidSystem_isConnected_reference_owners": [
+    "com/apple/xsr/som/RaidSystem.class"
+  ],
+  "inspected_class_hashes": {
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb",
+    "com/apple/xsr/cli/CommandDispatcher$DefaultHandler.class": "1c37afac5f82b9214585d19a244405cace63f0f2b2f3216d447209ae8700f7ea",
+    "com/apple/xsr/cli/CommandDispatcher$15.class": "58d0afa65efb0bdd6d7ba2873b35d26e92c172377ad9e74cd0962b0ffb5a0722"
+  },
+  "facts": [
+    "RaidSystemAgent.run gates on pollingEnabled and stopped, then calls doPowerStateUpdate without an isConnected guard",
+    "doPowerStateUpdate posts a synchronous power-state request and only escalates status -16 as AuthenticationException; -102 returns through the ordinary loop",
+    "CLI DefaultHandler and handler 15 call AcpxConnection.send directly; the new handler also closes and rethrows there"
+  ],
+  "limits": "Static bytecode and constant-pool references only. No elapsed polling, paused-polling or reflective UI behavior qualification. No CLI execution, TCP, real controller or user preferences."
+}

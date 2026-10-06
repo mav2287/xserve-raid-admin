@@ -115,3 +115,14 @@ remain unchanged. Exact limits and 174762 short-input/EOF cases pass on both pin
 runtimes. Queue rejection is terminal -102 with no replay, but the next command
 still fails before sending: G14 recovery remains open. HTTP framing and actual
 controller response compatibility are unqualified. See [scope and clean evidence](audit/HTTP-HEADER-GUARD.md).
+
+
+## audit.9 security rejection recovery refinement
+
+Body/header ceiling violations now close the rejected connection and return one
+terminal -102 callback without replay. The next distinct queued command uses the
+unchanged reconnect path; bounded offline fixtures pass on both architectures.
+G14 is partially addressed: ordinary invalid numeric/negative lengths still leave
+stale state and require the next security refinement. CLI direct-send lifecycle,
+idle/paused polling, real TCP timing and controller behavior remain unqualified.
+No third-party dependency is added. See [scope and evidence](audit/REJECTION-RECOVERY.md).

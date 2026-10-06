@@ -79,3 +79,28 @@ manager-class mismatch are checked in source only. Clean evidence follows below.
 
 Legacy body-codec fixtures do not imply encrypted HTTP: headers and transport
 remain plaintext. The ordinary failure callback checks zero premature closes.
+
+
+## Clean evidence
+
+Application source `82acf2c`, packager `12c3e4a`; repeated clean builds match
+bytes, modes and inputs. JAR SHA-256: `14e210d66e8f9feb1c107e253c2363a76d177fd1e7a5ce6c8e63fd9fe96adfdb`.
+Audit bundle digest: `fdeab0726ce2b0cf8bf6137a6a5c5212c4ee5b0d3763b122833b26ec9e7f0d43`.
+Repeated runtime package digests:
+
+- arm64: `8a15c91494b01454a4851bfbd0450b71e2feb1ebcbeee22143a57b1ce7612d2d`.
+- x64: `f31d0e8d31ee2dfca8ea426341d1a5412f1619cb545a58c18fc2e70c9479ee43`.
+
+[Independent preservation/linkage](recovery-clean-security.json),
+[ordinary transport and security queue regressions](recovery-clean-transport.json),
+[reviewed runtime/recovery fixtures](recovery-clean-runtime.json),
+[XML quota regressions](recovery-clean-resources.json),
+[static polling/CLI scope](recovery-clean-static-scope.json),
+[source provenance](recovery-clean-provenance.json),
+[package repetition/diagnostics](recovery-bundle-results.json) and
+[installed/original integrity](recovery-final-integrity.json) remain separate evidence.
+43 Python tests pass. Final reviewed fixtures at `50f1d7b` include 49 recovery output
+lines on each architecture, ordinary logger parity and legacy body-codec guards.
+All are offline and bounded; x64 uses Rosetta. Claude implementation review found
+no defect and prompted explicit scope refinements. Malformed/negative lengths
+are still an open security gap in this candidate and are next in scope.

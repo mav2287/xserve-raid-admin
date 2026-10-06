@@ -33,13 +33,19 @@ This project contains compatibility patches for the original application. Full f
 9. **Response allocation ceiling** — An operand-only change selects a bounded
    ByteArrayOutputStream subclass. Advertised response bodies above 16 MiB fail
    before allocation through the existing terminal malformed-input path.
-   Connection recovery and framing remain open; see
+   Security rejection recovery is refined in audit.9; framing remains open. See
    [audit.7 evidence](audit/HTTP-ALLOCATION-GUARD.md).
 
 10. **Bounded response headers** — A per-response stream wrapper caps line,
     field-count and aggregate header input while preserving the original parser.
-    Unsafe input fails once without resend. Connection recovery remains open;
+    Unsafe input fails once without resend; audit.9 retires the rejected connection.
     see [audit.8 evidence](audit/HTTP-HEADER-GUARD.md).
+
+11. **Security rejection recovery** — Exact-marker handling closes the rejected
+    connection, preserves one failure callback and lets the next distinct command
+    use the original reconnect path. Cleanup failures cannot trigger a resend.
+    Invalid numeric/negative lengths remain the next refinement; see
+    [audit.9 evidence](audit/REJECTION-RECOVERY.md).
 
 ## Requirements
 
