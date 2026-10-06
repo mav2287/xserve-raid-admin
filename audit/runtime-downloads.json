@@ -1,0 +1,30 @@
+{
+  "source": "https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html",
+  "artifacts": [
+    {
+      "architecture": "aarch64",
+      "discovery_url": "https://corretto.aws/downloads/latest/amazon-corretto-8-aarch64-macos-jdk.tar.gz",
+      "versioned_url": "https://corretto.aws/downloads/resources/8.504.04.1/amazon-corretto-8.504.04.1-macosx-aarch64.tar.gz",
+      "checksum_url": "https://corretto.aws/downloads/latest_sha256/amazon-corretto-8-aarch64-macos-jdk.tar.gz",
+      "sha256": "b779a70a47b910ca4c10c5d98d6ae11e2f82d9720423704eaf5eacf87f1ca436",
+      "size": 102925889,
+      "archive_roots": [
+        "amazon-corretto-8.jdk"
+      ],
+      "links": 0
+    },
+    {
+      "architecture": "x64",
+      "discovery_url": "https://corretto.aws/downloads/latest/amazon-corretto-8-x64-macos-jdk.tar.gz",
+      "versioned_url": "https://corretto.aws/downloads/resources/8.504.04.1/amazon-corretto-8.504.04.1-macosx-x64.tar.gz",
+      "checksum_url": "https://corretto.aws/downloads/latest_sha256/amazon-corretto-8-x64-macos-jdk.tar.gz",
+      "sha256": "8f8fc4975487ab9cf636c826942fff65cc56b0a91bdc5a2bd91a3d8849e7a3f4",
+      "size": 102827414,
+      "archive_roots": [
+        "amazon-corretto-8.jdk"
+      ],
+      "links": 0
+    }
+  ],
+  "status": "Vendor archive SHA256 and extracted Developer ID signature verified; local fixtures executed; no system installation. See pinned-runtime-fixtures.json."
+}

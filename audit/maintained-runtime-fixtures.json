@@ -1,0 +1,46 @@
+{
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "host_machine": "arm64",
+  "macos_version": "26.6.2",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "bfd58355316a16472a7b030412435f47e3e646de0f52291bebc4a1bf5b0c2d8f",
+  "fixture_sources": {
+    "tests/java/ApiProbe.java": "6a9dd0e78b28080170d943b78bed7619f452aeacfe5210b7b07b5f7c6fd04425",
+    "tests/java/com/apple/xsr/net/OfflineParity.java": "53f6d2eedf3ed449378f9055ed9b025b6392b039c9141170b07fb44622785eee",
+    "tests/java/FolderProbe.java": "2141de90b22ef3194a0ebd8098faa887a58caf8f2bb936269d14f6c04e71c182",
+    "tests/java/fixture/OfflineGuard.java": "743245c6a67fb789ebb666c5867d905d880a4d44c7c3603a20e9720c932d7121"
+  },
+  "observations": [
+    {
+      "runtime_tree_sha256": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2",
+      "api": [
+        "desktop_class_present=true",
+        "java_awt_desktop_about_handler_present=false",
+        "jdk=1.8.0_504",
+        "architecture=aarch64"
+      ],
+      "parity": "PASS",
+      "fixture_output_sha256": "1bde6a397f57362a8653964dbf568ec625215555e91d654ddd503db75daad251",
+      "folder_regression": [
+        "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+        "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+      ]
+    },
+    {
+      "runtime_tree_sha256": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d",
+      "api": [
+        "desktop_class_present=true",
+        "java_awt_desktop_about_handler_present=false",
+        "jdk=1.8.0_504",
+        "architecture=x86_64"
+      ],
+      "parity": "PASS",
+      "fixture_output_sha256": "1bde6a397f57362a8653964dbf568ec625215555e91d654ddd503db75daad251",
+      "folder_regression": [
+        "PASS desktop_bridge=false; unused constants/overloads preserved; forbidden attempts=0",
+        "PASS desktop_bridge=true; unused constants/overloads preserved; forbidden attempts=0"
+      ]
+    }
+  ],
+  "limits": "Headless serializer and simple HTTP 200 Content-Length replay only. No GUI/Aqua, JNI, app launcher, preferences, ACP transport, controller, or physical Intel Mac qualification. x86_64 JVM on the recorded arm64 host uses Rosetta; translation status is inferred, not separately probed."
+}

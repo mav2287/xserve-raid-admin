@@ -28,3 +28,15 @@ Do not replace bundled libraries wholesale without classloading, XML compatibili
 The user accepts the GitHub repository JAR as the authoritative project baseline.
 Historical digest discrepancies and independent Apple acquisition evidence do
 not block the authorized compatibility work.
+
+## Pinned runtime candidate
+
+Amazon Corretto 8.504.04.1 is now pinned for macOS aarch64 and x64 in
+`audit/runtime-lock.json`, with archive URLs/hashes, per-file hashes and vendor
+permission bits. Vendor signatures verify as `com.amazon.corretto.8`, Team
+`94KV3E626L`. Archives were obtained from the [official download catalog](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html);
+future builds use recorded versioned URLs and hashes, never a floating latest URL.
+The full vendor JDK bundle and its LICENSE, ASSEMBLY_EXCEPTION and
+THIRD_PARTY_README files are preserved. Public redistribution/source-availability
+requirements and the application's legacy dependencies still require resolution
+before publication. The runtime is local to the build; no system JDK was replaced.

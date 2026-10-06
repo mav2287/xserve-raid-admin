@@ -12,7 +12,7 @@ This project contains compatibility patches for the original application. Full f
 
 1. **`sun.io.MalformedInputException` shim** — The original `CommunicationsManager` catches this exception class which was removed from modern JDKs. A compatibility shim extending `java.nio.charset.CharacterCodingException` prevents the communications thread from crashing.
 
-2. **`com.apple.mrj.MRJApplicationUtils` replacement** — Bridges the old Mac Runtime for Java handler API to modern `java.awt.Desktop` (Java 9+) with fallback to `com.apple.eawt` (Java 8) for macOS menu integration.
+2. **`com.apple.mrj.MRJApplicationUtils` replacement** — Selects `com.apple.eawt` on Java 8 and `java.awt.Desktop` handlers on Java 9+; forwards original About, Preferences, Quit and file-open callbacks. Headless bridge tests pass; native menu/event qualification remains open.
 
 3. **`com.apple.eio.FileManager` replacement** — Maps old Mac OS folder type constants (`kDesktopFolderType`, `kPreferencesFolderType`) to real macOS filesystem paths.
 
@@ -41,7 +41,7 @@ brew install --cask corretto8
 ```
 
 This produces:
-- `build/RAID Admin.app` — ready-to-run macOS application bundle
+- `build/RAID Admin.app` — unqualified development bundle
 - `build/RAID_Admin.jar` — standalone patched JAR
 
 ## Installing
@@ -69,3 +69,18 @@ The `original/` directory contains the unmodified JAR and icon assets from Apple
 ## Audit tooling
 
 The upstream build entry point remains available and includes the Desktop bridge. Its original version remains in Git history; it is not the reproducible audit builder. Use the separate [hash-locked audit build](AUDIT-BASELINE.md#build-reproducibility) for deterministic local artifacts, and consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md), and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.
+
+## Pinned runtime packaging
+
+`tools/runtime.py` fetches only the versioned archives in `audit/runtime-lock.json`,
+verifies vendor SHA-256, exact file bytes/modes and Developer ID signatures, and
+keeps them in a local cache. `tools/bundle.py` adds one pinned runtime to a verified
+clean audit build; it never signs, installs or launches the app. Produce separate
+`aarch64` and `x64` artifacts to preserve both architectures. The bundled launcher
+uses only that runtime and a committed icon, with no temporary icon or PATH fallback.
+
+The old `build.sh` remains a development/comparison path: it selects external Java,
+clears `build/`, and attempts ad-hoc signing. It is **not** the pinned packaging path.
+The pinned vendor Java binaries require macOS 11.0 or later; this binary floor is
+not a claim that every OS version is qualified. These remain unsigned local
+candidates, not release artifacts.

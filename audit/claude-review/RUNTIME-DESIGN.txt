@@ -1,0 +1,65 @@
+# Runtime packaging design review (read-only)
+
+I read only the four files you named. I didn't execute or change anything.
+
+**Verdict:** the design is sound, but four things will break it as currently described. Fix those before writing the packaging tool.
+
+## Critical: the plan breaks without these
+
+**1. Disabling Java 8 extension dirs also removes the runtime's own crypto and locale code.** If you set `-Djava.ext.dirs=` to empty, the JVM stops loading `jre/lib/ext` inside the embedded runtime. That folder holds the SunEC and SunJCE crypto providers, locale data, `zipfs`, `dnsns` and `nashorn`. Crypto, TLS and non-English locales can then fail at runtime, and a headless test with default flags would not show it.
+- Set `java.ext.dirs` to the embedded runtime's own `Contents/Home/jre/lib/ext` as an absolute path. That still excludes the three macOS default locations (`/Library/Java/Extensions`, `/System/Library/Java/Extensions`, `~/Library/Java/Extensions`), which are the real injection risk.
+- An empty `java.endorsed.dirs` is fine.
+- Re-run the parity and folder/menu tests using the exact launcher command line. Tests run with default flags don't prove the bundle works.
+
+**2. Bash can be fed injected code before your clearing logic runs.** A `#!/bin/bash` launcher runs the file named in `BASH_ENV` and imports exported `BASH_FUNC_*` functions before its first line. Anything set through `launchctl setenv` therefore runs before the script can clear it. Also, `cd "$(dirname "$0")"` in the current launcher (`build.sh:134`) obeys `CDPATH`.
+- Use `#!/bin/bash -p`.
+- Set `PATH=/usr/bin:/bin` and unset `CDPATH`.
+- Call tools by absolute path.
+- Unset `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS`, `JDK_JAVA_OPTIONS` and `CLASSPATH` individually. Don't use `env -i`: it also drops `LANG`/`LC_*`, which sets Java's default and filename encodings. The `MalformedInputException` patch shows this app is sensitive to encoding, so wiping them would change original behaviour.
+
+**3. Don't reuse `baseline.py`'s permission fix-up for the runtime.** `tools/baseline.py:98-100` resets every file to 0644 except the launcher. Applied to `PlugIns/`, that would remove the execute bit from `java`, `jspawnhelper` and the dylibs.
+- Build the mode manifest from the tar headers, not from the extracted files. Python's `tarfile` `data` filter changes permission bits (it strips setuid/setgid and group/other write), so a manifest taken after extraction wouldn't show the vendor's actual modes.
+- Refuse setuid/setgid files.
+- Confirm that `links: 0` (`audit/runtime-downloads.json:14`) counts hard links as well as symlinks.
+
+**4. Never use `codesign --deep`, including through `build.sh`.** `build.sh:180` ad-hoc re-signs the whole bundle with `--deep`. That would overwrite Amazon's signatures on the nested runtime and stop it from being byte-identical to the vendor files. Arm64 needs those signatures to run unsigned-by-you.
+- Copy `amazon-corretto-8.jdk` whole, including `Contents/_CodeSignature` and `Info.plist`. Renaming the folder to `Runtime.jdk` is fine.
+- Add a check that `codesign --verify --strict` still passes on the copied runtime.
+
+## Preservation and provenance
+
+- **The audited build's launcher is not the one that will ship.** `baseline.py:92` pulls the launcher (the `find_java` fallback plus the `/tmp` icon) out of `build.sh` with a regex, and `expected-build.json` locks that in. The packaging tool should:
+  - check the audited build with `check_artifact` and the expected-build record;
+  - refuse any build whose provenance has `source_dirty: true` (your current tree is dirty);
+  - produce a bundle that differs from the audited one only in an exact list of paths. That list is `Contents/MacOS/RAIDAdmin` (replaced), `Contents/Resources/AppIcon.png` (added), `Contents/PlugIns/Runtime.jdk/**` (must match the runtime manifest) and `Info.plist` (if changed). This mirrors the JAR check in `tools/verify_builds.py:35`.
+  - `RAID_Admin.jar` must stay byte-identical to the audited build.
+  - Put the new launcher and the PNG in committed files that are hashed as inputs, rather than regex blocks in `build.sh`.
+- **Avoid a check-then-copy gap.** Hash each file while copying it, so the bytes you verified are the bytes that ship.
+- **`build.sh` stays a second, divergent route** that still has the `/tmp` icon, the ambient Java lookup and `--deep` signing. Either retire it or label it clearly as not the release path.
+- **Make the icon PNG once and commit it.** `sips` output differs between macOS versions, so the tool should never regenerate it. Note that `baseline.py:104` only hashes `*.icns` as inputs, so the PNG needs adding.
+
+## Pinning and authenticity
+
+- **The checksum URLs point at "latest".** Every `checksum_url` in `audit/runtime-downloads.json` uses the `latest_sha256` endpoint, which changes with each Corretto release. Packaging must check against the recorded `sha256` and `versioned_url` only, never re-fetch those endpoints, and never use `discovery_url`.
+- **The SHA256 proves integrity, not origin.** The archive and its checksum come from the same server. Also verify Corretto's GPG `.sig` and/or the code signature and Team ID on the extracted runtime, and record them in provenance. Provenance currently has `'bundled_jre': None` (`baseline.py:114`), so it needs a new schema version.
+- **The hash definition ignores extended attributes** (`baseline.py:118`). Copy file bytes only, so quarantine or other xattrs from extraction don't carry into the bundle unrecorded.
+
+## Launcher and bundle details
+
+- **A failed `exec` doesn't reach your error dialog.** Non-interactive bash just exits. Check before the `exec`: the file is executable, its architecture matches the host (an arm64 bundle on Intel, or x64 on Apple Silicon without Rosetta), and the runtime is present. Be clear that a corrupt `libjvm` only fails after `exec` and no dialog can catch it. Keep the `osascript` text fixed, with no `$@` or paths inside it.
+- **Raise `LSMinimumSystemVersion` from 10.15 (`build.sh:97`).** The arm64 Corretto 8 build needs macOS 11 or later. Confirm the x64 runtime's own minimum too.
+- **Define what "both supported" means for x64 on Apple Silicon.** That combination depends on Rosetta, which Apple is winding down. Name the outputs so the architecture is visible, because both bundles are called `RAID Admin.app` with the same bundle identifier.
+- **Being unsigned affects more than signing:**
+  - Gatekeeper on recent macOS blocks quarantined unsigned apps with no Control-click override.
+  - Local Network permission (macOS 15+) depends on bundle identity, so ACP discovery and connections may behave differently.
+  - Add both to the open qualification list.
+- **Licensing.** Corretto is GPLv2 with the Classpath Exception, so shipping its binaries obliges you to provide the corresponding source as well as the notices. Record the exact upstream source tag for 8.504.04.1, or include a written offer.
+
+## Fine as planned
+
+- Hash-pinned archives with a per-file manifest.
+- Refusing an existing output folder. Use an exclusive `mkdir` instead of the current exists-then-`mkdir(parents=True)` pattern (`baseline.py:60,79`).
+- Embedded-runtime-only selection.
+- Removing the `/tmp` icon file, which was predictable and could be planted or symlinked by another user.
+- Keeping the original UI and heap flags.
+- No sign, install or launch step.
