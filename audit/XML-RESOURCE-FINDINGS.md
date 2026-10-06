@@ -1,5 +1,7 @@
 # XML provider and bounded resource characterization
 
+Fixture source: `5d882ec8495aa75e9fdf1dc02ce139077479327a`, clean during observation.
+
 Application source remains `13ac370` (audit.5). No production parser, launcher,
 protocol or retry code was changed for this investigation. Guarded fixtures run
 11 small synthetic cases through Reader and InputStream on original/candidate,
