@@ -1,0 +1,44 @@
+I found no concrete blocker. Nothing in the 20 files contradicts anything else, and every count you listed matches what I read. There are seven places, though, where the assembler checks less than the ledger or my summary implies; they're listed below.
+
+I worked only by reading files. I ran nothing, wrote nothing, and didn't touch the app, the controller or the real profile. So I could check that hashes agree with each other across files, but not that any file actually hashes to its recorded value. That includes the 18 entries under `records`, `integrity_generator_sha256` (266ea5…) and the test stderr/stdout hashes.
+
+## Confirmed by reading
+
+| Claim | Result |
+|---|---|
+| 13 gates, counts | All 13 `fixture_commits` are 1e659d5 with `fixture_dirty:false`. Observation counts match `gate_observation_counts`. |
+| 217 checked source hashes | Summed by hand from each record's source maps plus `tool_sha256`: 14+14+14+10+8+11+17+19+12+16+21+32+29 = **217**. Shared tool hashes are the same across all records and `clean-tests.json`. |
+| 104 stop vectors | 16 admission + 72 exposure + 16 active. All 104 final lines are PASS. All 52 `-Xint` vectors have empty `dispatch_compilation`, and all 52 `-Xcomp` vectors have exactly two `CommunicationsManager dispatchLoop ()V` compile events (C1 and C2). |
+| 120 worker vectors | 96 fixed + 24 legacy, 60 per architecture. Legacy vectors use f6e545… (the audit20 reference). Repeated scenario names are told apart by subcase text in `lines`. |
+| Candidate linkage | Manager f2960f… appears identically in the ledger's `after`, the stop record's `candidate_manager_sha256`, SBOM line 632, and the connect/posting observations. |
+| audit21 base | 9f3f52… agrees with `worker-exit-final-integrity.json` (commit ccf069f) and `audit21-expected-build.json`. The ledger's `before` hash, bc6ff5…, matches line 632 of the preserved `worker-exit-sbom.json`. |
+| SBOM | 3061 file entries, JAR 202c9e…, no third-party dependencies added. |
+| Packages | Both repeated builds agree. The application is unsigned and not notarized. The x64 diagnostics show bundled JRE x64 on an arm64 host (Rosetta). Bundle hashes match `packages`. Vendor signatures are checked with `codesign` via `verify_runtime`, and `runtime-lock.json` has `signature_team` for both architectures, so the check isn't skipped. |
+| Installed / original | Installed JAR aa5de2… is pinned in `intake-provenance.json`. The original 5505d8… is mode 0444. |
+| Historical characterization | Source 47166edb and legacy JAR 948c1d… are kept separate from audit22. |
+| No failures | No `FAIL`, `qualification:false` or `*_dirty:true` anywhere in the audit22 records. |
+
+## Weak spots in the assembler (the data checks out by reading, but the script doesn't enforce it)
+
+1. **Pass/fail isn't checked for most gates.** For stop, admission, lock, connect, posting, shared, transport, resources, security and characterization, the script checks counts but never checks the outcome lines. I checked stop's 104 lines by eye; for the other gates I only searched for FAIL.
+2. **Most stop vectors run on test JARs, not the shipped one.** 88 of the 104 run on modified test JARs (545fe4, 31f4cc, 86dff8, a123ed), which neither the ledger nor the script ties back to the candidate. The claim that the test hooks undo exactly comes from the stop tool's own `limits` text.
+3. **The "16 active" label overstates.** The script's error message at `stop-admission-evidence-assembler.py:97` calls all 16 active vectors "candidate coverage". In fact only 8 run on the shipped JAR (202c9e); the other 8 run on the audit21 JAR (9f3f52). Both sets give identical PASS lines, so these vectors describe behaviour but don't show any difference between candidate and audit21.
+4. **The audit21 JAR isn't hashed.** At `:88` the script reads `build/worker-exit-clean-3` without comparing it to 9f3f52. The matching bc6ff5 in the preserved audit21 SBOM makes up for this when reading, but the script doesn't check it.
+5. **The runtime check uses an older build.** At `:53-59` it reads `build/logging-bundled-*`, not the audit22 bundles. It still holds because both contain the locked runtime, but it depends on an unarchived, ignored build directory.
+6. **The unit-test result isn't tied to the run.** "136 passed" comes from a stderr file kept only as a hash, and the link to the sources rests on how the sources look now. `execution_worktree_dirty:false` is hard-coded.
+7. **Smaller gaps:** the factory `jar_sha256` values aren't asserted. Only top-level `observations` arrays are counted, so about 40 transport and resources sub-observations (parser, header, io, policy and so on) aren't counted or checked. The ledger values `controller_contact`, `production_or_mounted_volume_tests` and `all_sources_clean` are written in as constants rather than measured; the ledger itself labels the first two as attestations.
+
+## Claims the ledger leaves out
+
+- The audit21 reference source commit ccf069f (it's only in the stop record).
+- Characterization's source 47166edb and JAR 948c1d (only in the record).
+- The stop vector breakdown: test JAR hashes, the 8+8 active split, the 52 compiled vectors.
+- Legacy worker controls are `-Xint` only; there's no `-Xcomp` legacy control.
+- The JIT logs that back the "installed nmethod" claim were in `/var/folders/...` temp paths and weren't archived.
+- `evidence_assembly_commit` is 1e659d5 even though the generator isn't in that commit. This is your stated design, but someone reading only the ledger could misread it. The tie is the exact hash plus the later documentation commit.
+
+## Still open before the freeze can close
+
+- Someone needs to hash the 18 record files and the archived generator and compare them against `records` and 266ea5…. I can't do that without running a command.
+- The audit22 outputs are still untracked, so the documentation commit hasn't happened yet.
+- None of this evidence supports native GUI, physical Intel, controller or release qualification, and the ledger's `limits` field says so.

@@ -1,0 +1,1503 @@
+{
+  "qualification": true,
+  "source_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+  "source_dirty": false,
+  "fixture_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+  "fixture_dirty": false,
+  "candidate_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+  "reference_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/com/apple/xsr/net/WorkerCompletionBatchObservation.java": "395ea0f5094754c8f52ea8e4208260147c2dfc1275287630646d387cf6901ace",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/fixture/FixtureIdentity.java": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a",
+    "tests/java/com/apple/xsr/net/GuardedWorkerExitObservation.java": "b24723819c906d2f6fa357d1368783ab02f61f0bae3eccda761b55726397ea7b",
+    "tests/java/com/apple/xsr/net/WorkerOwnershipObservation.java": "9ab868dee63bbdb29d9606f6f7ea613df7d1657587b87911631a94511ef63c41",
+    "tests/java/com/apple/xsr/net/WorkerConstructorObservation.java": "253fbb3b357b8138385002171d66b7c0f56e87a2fcde8e919d30f3f11ab0feaa",
+    "tests/java/com/apple/xsr/net/WorkerConnectCallbackObservation.java": "c5a3786567eb06c3cfe1d3d6a24061580b21caf0645b1ef0b5799cef521fee34",
+    "tests/java/ownershipfixture/AcpxConnection.java": "a5cacb494ccebef36356dfd3e6ad34a287dcff345b5727b48ca1d35cc647b25d",
+    "tools/check_guarded_worker.py": "7f590e76ec5a27f3b4959312bad3834dbf887cbcc9476b5ae213fee792cf93a7",
+    "tools/worker_exit_structure.py": "f00c3df31919ff67be7b4dba1bb57a28099333e9b522e3c44987d6b68a864a93",
+    "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6",
+    "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+    "tools/stop_admission_structure.py": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/sync_ownership_structure.py": "ab27e5ff1076414415066e0e817c55b082db292c7929755c62b28ec0367864af",
+    "tools/class_patch.py": "b3332a8a9ab8a732aef5eb1271a729e5a6d67affe34d5657c2011937ccbd6533",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "9173f563bfc2577a18459cf3c313e481f53a29daebdb51f0ec22a844bc346549",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "tools/check_security.py": "9791288b0f59f158a9cb20901a1227f5db5a87b36bcaf30c9875fcb9ee74cca4",
+    "tools/check_sync_ownership.py": "d864f7c0637e0cd333a500a5b76da98b7fec525624fc08c7f83325e67b883cef",
+    "audit/expected-build.json": "670e22048e22f045440fe8459f6b87e49848da7d26f2f5ee597700439b79b23e",
+    "audit/security-patches.json": "7484bdb87dc58d59ea9eb0bd7c482791d0a0bb0383480cbdd7a5796d18acd5d9",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+    "patches/compat/WorkerExit.java": "10473b5eb8eb610fdc54df9a34f50035ac266048a73d45bed5f3cb8d2ebcb0b2",
+    "tests/fixtures/sync-ownership-candidate-manager.javap": "86aebc2d839bbab959dfcea1befbaa1349baf53f64bf1f1ba2b01c77ae3d2a8f",
+    "tests/fixtures/sync-ownership-reference-manager.javap": "dbba63fa559f71c1b507bdffa695af05d9b928830627a0e99ed41a813747ee6e",
+    "tests/fixtures/sync-ownership-reference-sender.javap": "dd4058119dbfbbf8c666baaf6356bcc6d9f1c45b9da694882518ed8e01ede3a2"
+  },
+  "fixture_class_hashes": {
+    "fixture/FixtureIdentity.class": "f77279e6a7b3cc365f0a6639e89055472dae5d196a7ca1882443a5db3f914f38",
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be",
+    "com/apple/xsr/net/WorkerConnectCallbackObservation$FakeSystem.class": "1756667536b36bf0498d3568dc6d6001df7a5a304652855a10d64c988545e4fd",
+    "com/apple/xsr/net/GuardedWorkerExitObservation$SyntheticFault.class": "998da624a88f965d3377e0d06c51f117874d4024f4b6637d57117b6dd5e7ac15",
+    "com/apple/xsr/net/WorkerCompletionBatchObservation$Fault.class": "efa2f60a422831a7d35a5bbf858a15c41371799ee05d3b07dbbb9dbc763f9ec6",
+    "com/apple/xsr/net/WorkerCompletionBatchObservation$Capture.class": "43227716c702e676a10af10a42e2209e56c85a05f31b6bae0f4f4f4e99b69f7d",
+    "com/apple/xsr/net/WorkerOwnershipObservation$1.class": "dadb4d184e707c86c90f2d27e83c4f2651aaa740e17b872c408c7f03825f6d4f",
+    "com/apple/xsr/net/GuardedWorkerExitObservation.class": "9e78495ec3035747889c3af6ff0cee6b95d28b03f9a98e68fefb2f279d81aafa",
+    "com/apple/xsr/net/WorkerConnectCallbackObservation$HostileIOException.class": "b9d02b5d2399cb52cfd432a44fafb6c4d1020b3d3ef799830f58ca26cdb853e5",
+    "com/apple/xsr/net/WorkerConnectCallbackObservation$Capture.class": "faf242eaca265cf8f8208a8de1686d69523ec009cb5015d8671d9543665563f9",
+    "com/apple/xsr/net/WorkerConnectCallbackObservation.class": "b7c794cc68bf6684197aab255be334b7de8bc4148e78e375867e5d5f29137c9b",
+    "com/apple/xsr/net/WorkerCompletionBatchObservation.class": "4236f0b26a4f608f894147c0fe65922f9d322a6039394bf7438cc1a54777d203",
+    "com/apple/xsr/net/WorkerOwnershipObservation.class": "5c8f88fbd9c99283ae18535ad22504ebe13281877c611ee4bb71628280792f12",
+    "com/apple/xsr/net/WorkerConstructorObservation.class": "cfe00f62525186521fe8ff3616277873977296104b0c3a4078c03367914a2a8a"
+  },
+  "shadow_class_hashes": {
+    "com/apple/xsr/net/AcpxConnection.class": "f6d6704fe96b5dbf66d0badb13faab51e089f1a2fb9dc4a183d8f44e348f5e5a",
+    "com/apple/xsr/net/AcpxConnection$1.class": "0376929fd98e8714682df5c6a9ff7f0bdf95680c9a9cddc47f781c6d01776df1"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConstructorObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "cd39bc87e949e38d6db04112a86c272244314cb99bd9b3da05579edbe3f0e408",
+      "lines": [
+        "PASS actual Manager constructor and local exit; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerCompletionBatchObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "PASS worker completion batch; sync_before_manager_lock=true async_edt=true callback_error_contained=true no_replay=true fixed_signals=2 guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:send-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit send-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unconfirmed",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:callback-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit callback-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unsent-shutdown",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:queued:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership queued fixed=true cancelled_send=0 healthy_follow_on=1 caller=legacy-IOException",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:active:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership active fixed=true sends=1 outcome=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:notify-race:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership notify_race fixed=true result=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:first-reply:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership first_reply fixed=true retained=first claim_once=true",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConstructorObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "cd39bc87e949e38d6db04112a86c272244314cb99bd9b3da05579edbe3f0e408",
+      "lines": [
+        "PASS actual Manager constructor and local exit; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerCompletionBatchObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "PASS worker completion batch; sync_before_manager_lock=true async_edt=true callback_error_contained=true no_replay=true fixed_signals=2 guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:send-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit send-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unconfirmed",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:callback-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit callback-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unsent-shutdown",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:queued:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership queued fixed=true cancelled_send=0 healthy_follow_on=1 caller=legacy-IOException",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:active:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership active fixed=true sends=1 outcome=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:notify-race:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership notify_race fixed=true result=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:first-reply:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership first_reply fixed=true retained=first claim_once=true",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost runtime fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost prefix-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost null-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost malformed fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost error fixed=false connect_attempts=1 duplicate=0 follow=0 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single runtime fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single prefix-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single null-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single malformed fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single error fixed=false connect_attempts=1 duplicate=0 follow=0 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConstructorObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "cd39bc87e949e38d6db04112a86c272244314cb99bd9b3da05579edbe3f0e408",
+      "lines": [
+        "PASS actual Manager constructor and local exit; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerCompletionBatchObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "PASS worker completion batch; sync_before_manager_lock=true async_edt=true callback_error_contained=true no_replay=true fixed_signals=2 guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:send-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit send-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unconfirmed",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:callback-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit callback-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unsent-shutdown",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:queued:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership queued fixed=true cancelled_send=0 healthy_follow_on=1 caller=legacy-IOException",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:active:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership active fixed=true sends=1 outcome=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:notify-race:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership notify_race fixed=true result=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:first-reply:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership first_reply fixed=true retained=first claim_once=true",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConstructorObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "cd39bc87e949e38d6db04112a86c272244314cb99bd9b3da05579edbe3f0e408",
+      "lines": [
+        "PASS actual Manager constructor and local exit; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerCompletionBatchObservation:",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "PASS worker completion batch; sync_before_manager_lock=true async_edt=true callback_error_contained=true no_replay=true fixed_signals=2 guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:send-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit send-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unconfirmed",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "GuardedWorkerExitObservation:callback-error:workerfix",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_exit callback-error actual_worker_dead=true stopped=true caller_completed=true queue=0 outcome=unsent-shutdown",
+        "PASS guarded worker exit experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:queued:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership queued fixed=true cancelled_send=0 healthy_follow_on=1 caller=legacy-IOException",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:active:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership active fixed=true sends=1 outcome=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:notify-race:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership notify_race fixed=true result=real-response-identity",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerOwnershipObservation:first-reply:fixed",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "sync_ownership first_reply fixed=true retained=first claim_once=true",
+        "PASS memory transport ownership; guarded_operations=0; production transport unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:nohost",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect nohost interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single runtime fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single prefix-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single null-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single malformed fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single error fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single hostile-io fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "policy": "fixed",
+      "scenario": "WorkerConnectCallbackObservation:fixed:single",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "class_identity_manifest_sha256": "528bf3561a67bd2d6d2476712b823fa5cd590d176d72de5d77576d09af245450",
+      "lines": [
+        "worker_connect single interrupt fixed=true connect_attempts=1 duplicate=0 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost runtime fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost prefix-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost null-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost malformed fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:nohost",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect nohost error fixed=false connect_attempts=1 duplicate=0 follow=0 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single runtime fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single prefix-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single null-io fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single malformed fixed=false connect_attempts=1 duplicate=1 follow=1 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "policy": "legacy",
+      "scenario": "WorkerConnectCallbackObservation:legacy:single",
+      "jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+      "class_identity_manifest_sha256": "603fd14e18436ca9621f0a45a93f92038d742de509174bfb163a66f9fdac3862",
+      "lines": [
+        "worker_connect single error fixed=false connect_attempts=1 duplicate=0 follow=0 sends=0",
+        "PASS memory connection callback experiment; guarded_operations=0"
+      ]
+    }
+  ],
+  "limits": "Memory transport only, production and mounted volumes untouched. Actual Manager constructor verified separately with no connection; synthetic RaidSystem constructor bypassed. Positive original callback duplicates and queued loss, preserved ownership fixtures, exact class/resource identities. Ordinary Error completion verified; VM exhaustion and ThreadDeath delivery best-effort, not guaranteed. After claim interrupts wait for actual outcome with no overall deadline. Stop versus active send remains open. Async abnormal-exit deliveries move to headless EDT; native GUI and disposed AppContext unqualified. x64 executes under Rosetta, not physical Intel."
+}

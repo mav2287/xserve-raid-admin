@@ -250,3 +250,27 @@ signed release acceptance remain open. Original JAR and installed app are unchan
 HTTP remains plaintext. Earlier milestones and failed/excluded attempts are historical.
 
 [audit.21 candidate entry inventory](audit/worker-exit-sbom.json) records all 3,061 non-directory JAR entries and the candidate hash. It supplements the immutable original inventory and adds no third-party dependency. It uses the project inventory schema, not SPDX/CycloneDX.
+
+
+### Audit.22 final stop admission (local qualification)
+
+Clean application source `1e659d5` retains JAR
+`202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd`.
+Thirteen regression gates and 137 unit tests pass; 217 gate source hash entries
+are verified. Twelve fixture records remain at `1e659d5`; clean QA `73ffa4e` makes
+test JAR archives reproducible and reruns all 104 stop vectors. Only Manager
+changes inside the application JAR from audit.21. A final volatile stop check
+refuses unsent claimed work before exposure; admitted work retains its actual
+reply or unconfirmed outcome. No command, polling interval or retry timing changes.
+Paired builds and repeated ARM/x64 packages match bytes and modes; x64 is Rosetta.
+Vendor runtimes are signature-verified; apps remain unsigned and unnotarized.
+See [qualification, corrections and limits](audit/STOP-BEFORE-SEND.md) and the
+[integrity ledger](audit/stop-admission-final-integrity.json).
+Native GUI, physical Intel, controller behavior and release acceptance remain open.
+No controller contact, production-volume test or installed-app change occurred.
+HTTP remains plaintext. Earlier milestone records remain historical.
+
+The [audit.22 entry inventory](audit/stop-admission-sbom.json) uses the project's
+explicit inventory schema, not asserted SPDX/CycloneDX. No third-party dependency
+is added. Transport prototypes under ignored build directories are excluded from
+the qualified application and runtime packages.

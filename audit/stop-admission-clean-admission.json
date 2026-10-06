@@ -1,0 +1,528 @@
+{
+  "qualification": true,
+  "source_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+  "source_dirty": false,
+  "fixture_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+  "fixture_dirty": false,
+  "candidate_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/xsr/net/StoppedPostObservation.java": "1a92267e57599bc70327fc7e49bd5d42718faf0b33f44c997c49dc638f836dc2",
+    "tools/check_stopped_post.py": "75123ceff83759c81710c2b8bea46e2499ebfd7b75c19bc69758989afd553aca",
+    "tools/stopped_post_structure.py": "f1b6cf23da3043f2ddd45a198c6145a75d5337a254ca36945a7774c5bd20b96c",
+    "tools/worker_exit_structure.py": "f00c3df31919ff67be7b4dba1bb57a28099333e9b522e3c44987d6b68a864a93",
+    "tools/sync_ownership_structure.py": "ab27e5ff1076414415066e0e817c55b082db292c7929755c62b28ec0367864af",
+    "tools/class_patch.py": "b3332a8a9ab8a732aef5eb1271a729e5a6d67affe34d5657c2011937ccbd6533",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6",
+    "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+    "tools/stop_admission_structure.py": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486",
+    "tools/baseline.py": "9173f563bfc2577a18459cf3c313e481f53a29daebdb51f0ec22a844bc346549",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "audit/expected-build.json": "670e22048e22f045440fe8459f6b87e49848da7d26f2f5ee597700439b79b23e",
+    "audit/stopped-post-recovery-expected.json": "1f8b16ea3aff7bb1537f2a5a2701daac641f60d2bb8fd7a1bf318183cc9c59da",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "audit/stop-lock-final-integrity.json": "51927a3efc10d0e4fabfd1d6a3fcf71545cb79d4b84ca55ac221076d278e0ce6",
+    "patches/compat/StoppedDelivery.java": "daac90b8d4afe50ad01183bc625e081ca24ed50ca2e84559024132cab8038b60"
+  },
+  "fixture_class_hashes": {
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be",
+    "com/apple/xsr/net/StoppedPostObservation$1.class": "5058ccc8893bf0447b8d1b5ebe1cf9c4c451d3298ced38d01fd60c4404495459",
+    "com/apple/xsr/net/StoppedPostObservation$3.class": "4b210fa2f259bd9124fad290afa811b38498486c35fc47ef5612720974be79ba",
+    "com/apple/xsr/net/StoppedPostObservation$2.class": "a53cba2d231f1dad2ecf379a0e04687459a80a6a24e93f2f91efa17de3bd04b4",
+    "com/apple/xsr/net/StoppedPostObservation.class": "26045e865ef0f25af512bbd4ba41f5a5606a411cc5f776e227521fe65098f764",
+    "com/apple/xsr/net/StoppedPostObservation$4.class": "2f9c8926bd4362c2b2da521a14c28ef14d330d57ffe175d4443aaded9727b52a"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "async",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post async fixed=true queue=0 callbacks=1 clones=1",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "sync",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post sync fixed=true clones=2 outcome=CommShutdownException",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "worker",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post worker callbacks=3 clones=3 queue=0 original_thread=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "concurrent",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post concurrent contexts=32 callbacks=32 clones=32 queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "edt",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post edt deferred=true caller_lock_released=true queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "null-clone",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post null clones=1 queue=0 edt_started=false; clone_failure identity=true monitor_released=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "throwing",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post throwing fixed_log_only=true render_calls=0 callback_exception_contained=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "boundary",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post boundary logger_failure_contained=true linkage_contained=true nonLinkage_Error_escaped=true fixed_signals=2",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "async",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post async fixed=true queue=0 callbacks=1 clones=1",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "sync",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post sync fixed=true clones=2 outcome=CommShutdownException",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "worker",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post worker callbacks=3 clones=3 queue=0 original_thread=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "concurrent",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post concurrent contexts=32 callbacks=32 clones=32 queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "edt",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post edt deferred=true caller_lock_released=true queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "null-clone",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post null clones=1 queue=0 edt_started=false; clone_failure identity=true monitor_released=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "throwing",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post throwing fixed_log_only=true render_calls=0 callback_exception_contained=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "boundary",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post boundary logger_failure_contained=true linkage_contained=true nonLinkage_Error_escaped=true fixed_signals=2",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "audit19-Manager-restored",
+      "scenario": "async",
+      "jar_sha256": "8358fff9a8ad799b04a12a801c86bb9b313d96e02a0a85e9cbc3784471157594",
+      "manager_class_sha256": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24",
+      "lines": [
+        "stopped_post async fixed=false queue=1 callbacks=0 clones=1",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "audit19-Manager-restored",
+      "scenario": "sync",
+      "jar_sha256": "8358fff9a8ad799b04a12a801c86bb9b313d96e02a0a85e9cbc3784471157594",
+      "manager_class_sha256": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24",
+      "lines": [
+        "stopped_post sync fixed=false clones=2 outcome=pending-sender-observed",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "helper-removed",
+      "scenario": "missing-helper",
+      "jar_sha256": "0e94f5a8f4f3bbd0e288d9a9cb9d81477cf7ca4bf53edb530c0768ca22f5e545",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post missing_helper NoClassDefFoundError=true monitor_released=true queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "logging-containment-removed",
+      "scenario": "boundary-unsafe",
+      "jar_sha256": "18304eadcd282b8c7677436402b5c10ee36a106f95e093911f66f662b2308dce",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post boundary negative_control exact_appender_escapes=2 fatal_identity=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "async",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post async fixed=true queue=0 callbacks=1 clones=1",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "sync",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post sync fixed=true clones=2 outcome=CommShutdownException",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "worker",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post worker callbacks=3 clones=3 queue=0 original_thread=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "concurrent",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post concurrent contexts=32 callbacks=32 clones=32 queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "edt",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post edt deferred=true caller_lock_released=true queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "null-clone",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post null clones=1 queue=0 edt_started=false; clone_failure identity=true monitor_released=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "throwing",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post throwing fixed_log_only=true render_calls=0 callback_exception_contained=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "boundary",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post boundary logger_failure_contained=true linkage_contained=true nonLinkage_Error_escaped=true fixed_signals=2",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "async",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post async fixed=true queue=0 callbacks=1 clones=1",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "sync",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post sync fixed=true clones=2 outcome=CommShutdownException",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "worker",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post worker callbacks=3 clones=3 queue=0 original_thread=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "concurrent",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post concurrent contexts=32 callbacks=32 clones=32 queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "edt",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post edt deferred=true caller_lock_released=true queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "null-clone",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post null clones=1 queue=0 edt_started=false; clone_failure identity=true monitor_released=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "throwing",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post throwing fixed_log_only=true render_calls=0 callback_exception_contained=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "boundary",
+      "jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post boundary logger_failure_contained=true linkage_contained=true nonLinkage_Error_escaped=true fixed_signals=2",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "audit19-Manager-restored",
+      "scenario": "async",
+      "jar_sha256": "8358fff9a8ad799b04a12a801c86bb9b313d96e02a0a85e9cbc3784471157594",
+      "manager_class_sha256": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24",
+      "lines": [
+        "stopped_post async fixed=false queue=1 callbacks=0 clones=1",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "audit19-Manager-restored",
+      "scenario": "sync",
+      "jar_sha256": "8358fff9a8ad799b04a12a801c86bb9b313d96e02a0a85e9cbc3784471157594",
+      "manager_class_sha256": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24",
+      "lines": [
+        "stopped_post sync fixed=false clones=2 outcome=pending-sender-observed",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "helper-removed",
+      "scenario": "missing-helper",
+      "jar_sha256": "0e94f5a8f4f3bbd0e288d9a9cb9d81477cf7ca4bf53edb530c0768ca22f5e545",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post missing_helper NoClassDefFoundError=true monitor_released=true queue=0",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "logging-containment-removed",
+      "scenario": "boundary-unsafe",
+      "jar_sha256": "18304eadcd282b8c7677436402b5c10ee36a106f95e093911f66f662b2308dce",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stopped_post boundary negative_control exact_appender_escapes=2 fatal_identity=true",
+        "PASS stopped post observation; guarded_operations=0; no transport, profiles or production volumes"
+      ]
+    }
+  ],
+  "limits": "Real locally stopped Manager admission, worker drain and SyncSender; Unsafe bypasses constructor and no connection exists. EventQueue is headless, native GUI and third-party handlers unqualified. Async refused handlers run on EDT, may precede earlier queued callbacks and non-EDT poster return. Scheduling errors propagate; disposed AppContext can silently drop delivery. Worker exemption inherits unbounded repost loops; external -102 callbacks can cycle through EDT events, and original handlers may now show errors/update model state after stop. Production stderr emits only existing RAID_ADMIN_ERROR, internal callback signal checked by capture appender. JVM stderr is required empty for every observation. This gate excludes ownership/abnormal worker completion, checked separately by check_guarded_worker; VM failure completion, transport deadlines and stop-vs-active-send remain open. x64 is Rosetta, not physical Intel."
+}

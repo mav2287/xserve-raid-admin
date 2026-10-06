@@ -1,0 +1,27 @@
+I found no blockers in the stop evidence, the build/package bindings or the gate counts. Two gaps still sit between this freeze and what the ledger says. I only read files, so I did not check any hashes: not the ledger's `52a7e2c…`, not the assembler's self-hash `dd50fad…`, and not the archived record hashes. Run `shasum -a 256` on the frozen files to confirm them.
+
+## Blockers
+
+**1. The unit-test result (137 passed) can't be checked from the frozen files** (`audit/stop-admission-evidence-assembler.py:111-117`)
+- `build/stop-admission-reviewed-tests-run.json` isn't written by any committed tool; the assembler is the only file that mentions it. So `returncode`, `execution_commit`, `execution_worktree_status` and `source_hashes` were written by a runner script that isn't committed or hash-pinned.
+- The stderr and stdout bytes are only kept as hashes in `clean-tests.json`. The `Ran 137 tests … OK` check (line 113) reads `build/`, which isn't archived, so nobody can redo it from the frozen set.
+- `tests_passed=137` and `source_inputs_match_clean_commit=True` are added by the assembler (line 117), not taken from the run.
+- **Fix:** archive the stderr file (it's tiny) and the runner script with its hash, or relabel the 137 as an unpinned-runner attestation.
+- Minor: the regex uses `re.M`, so the pattern can match partway through stderr instead of only at the end. Use `\Z` or `fullmatch` instead.
+
+**2. "Other methods interpreted in Xcomp" is not checked** (lines 152-153; ledger `jit_evidence_scope`)
+- The gate keeps only records whose method contains `CommunicationsManager dispatchLoop ()V` (`tools/check_stop_admission_experiment.py:71`). So the assembler's check that every recorded method is dispatchLoop passes almost by definition.
+- Only the `compileonly` flag supports the "everything else interpreted" claim, and the assembler never looks at `execution_flags`.
+- Even with `compileonly`, the JVM can still compile native wrappers and method-handle helpers. The gate doesn't record those.
+- **Fix:**
+  - Check each row's exact `execution_flags`: `['-Xint']` for Xint rows, and for Xcomp rows the six-item list, including a `LogFile` name that matches the row's label, policy, architecture and scenario.
+  - Change the wording to "only dispatchLoop allowed by compileonly; other compiled code not recorded".
+
+## Smaller tightenings (not blockers)
+
+3. **Which record uses which fixture commit isn't checked.** Line 26 accepts either commit for any record. Your claim (stop at `73ffa4e`, the other twelve at `1e659d5`) is only written down in `fixture_commits`, not checked. Require that exact mapping.
+4. **Archived bytes are read twice.** Records are parsed at line 24 but read again from `build/` when they're copied at line 162. The archived hash could differ from the bytes that were checked. Write the bytes that were first read.
+5. **The audit21 reference is linked through a `build/` file that isn't hash-pinned.** Lines 127-128 trust `build/worker-exit-clean-3/provenance.json`. Also check against the tracked `audit/worker-exit-final-integrity.json`, which pins `ccf069f` and `9f3f521…`.
+6. **The recovery-vector rewrite lacks the gate's safety check.** Line 82 does the find-and-replace without the gate's precondition of exactly one `method=run;` and two `callback-drain-unqualified` (`tools/check_architectures.py:191`). The full 143-line comparison makes the risk small, but the check would cost one line.
+7. **Some paths depend on the current directory.** `sys.path.insert(0,'tools')` (line 4) and the `build/...` record paths (line 23) are relative to wherever the script runs, while everything else uses `ROOT`. Use `ROOT/...` throughout.
+8. **Wording:** the hook-JAR rebuild (line 141) uses the same committed builders as the gate. It shows the build is reproducible, not independent; say that if "independent" appears anywhere in the docs.

@@ -1,6 +1,11 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current clean fixture-qualified candidate: **audit.17**, source/fixture/package
+Current local candidate: **audit.22**, application `1e659d5`, QA `73ffa4e`.
+Thirteen gates and 137 unit tests pass; see [final scope](audit/STOP-BEFORE-SEND.md)
+and [hash-bound evidence](audit/stop-admission-final-integrity.json). Native GUI,
+physical Intel, controller and signed-release acceptance remain open.
+
+Historical audit.17 clean fixture-qualified candidate: **audit.17**, source/fixture/package
 commit `47166ed`. See [synchronous callback guard](audit/SYNC-CALLBACK-PREENQUEUE.md),
 [build/runtime identities](audit/sync-preenqueue-bundle-results.json) and
 [integrity record](audit/sync-preenqueue-final-integrity.json). Earlier sections
@@ -74,7 +79,7 @@ python3 tools/check_parity.py --jdk "$(/usr/libexec/java_home -v 1.8)" \
 python3 tools/inventory.py --jdk "$(/usr/libexec/java_home -v 1.8)"
 ```
 
-Output must be a new directory. The builder fails before compilation if the original JAR or any file in the locked JDK differs. [jdk-lock.json](audit/jdk-lock.json) identifies all 224 local JDK files, aggregate `da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376`. It does not download anything. Reproducibility is demonstrated for this exact toolchain on this host; independent-host reproducibility is unresolved. Python version is recorded, not pinned.
+Output must be a new directory. The builder fails before compilation if the original JAR or any file in the locked JDK differs. [jdk-lock.json](audit/jdk-lock.json) identifies all 224 local JDK files, aggregate `da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376`. It does not download anything. Reproducibility is demonstrated for this exact toolchain on this host; independent-host reproducibility is unresolved. Python version and implementation are pinned and enforced; the interpreter binary is not hash-pinned.
 
 The audit bundle has identifier `org.xserve-raid-admin.audit` and version `1.5.1-modern.audit.1`; diagnostics report Apple baseline separately. It is unsigned, unnotarized and unqualified. The inherited launcher still selects external Java and uses a fixed temporary icon path. There is **no bundled runtime**, and the original About dialog remains unchanged. Do not mistake this audit artifact for a release.
 
@@ -385,3 +390,22 @@ changes and best-effort limits are documented. See [scope and bound evidence](au
 Stop-versus-active-send, native GUI, physical Intel, real controller behavior and
 signed release acceptance remain open. Original JAR and installed app are unchanged;
 HTTP remains plaintext. Earlier milestones and failed/excluded attempts are historical.
+
+
+### Audit.22 final stop admission (local qualification)
+
+Clean application source `1e659d5` retains JAR
+`202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd`.
+Thirteen regression gates and 137 unit tests pass; 217 gate source hash entries
+are verified. Twelve fixture records remain at `1e659d5`; clean QA `73ffa4e` makes
+test JAR archives reproducible and reruns all 104 stop vectors. Only Manager
+changes inside the application JAR from audit.21. A final volatile stop check
+refuses unsent claimed work before exposure; admitted work retains its actual
+reply or unconfirmed outcome. No command, polling interval or retry timing changes.
+Paired builds and repeated ARM/x64 packages match bytes and modes; x64 is Rosetta.
+Vendor runtimes are signature-verified; apps remain unsigned and unnotarized.
+See [qualification, corrections and limits](audit/STOP-BEFORE-SEND.md) and the
+[integrity ledger](audit/stop-admission-final-integrity.json).
+Native GUI, physical Intel, controller behavior and release acceptance remain open.
+No controller contact, production-volume test or installed-app change occurred.
+HTTP remains plaintext. Earlier milestone records remain historical.

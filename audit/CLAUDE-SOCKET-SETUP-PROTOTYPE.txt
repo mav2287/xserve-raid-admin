@@ -1,0 +1,46 @@
+I read all the listed files plus `create-socket-code.hex` and `tests/java/fixture/OfflineGuard.java`. I ran nothing, so I couldn't check the jar, class headers or the exception table.
+
+**Verdict:** the helper itself looks correct, and the bytecode swap matches what you described. It's not ready for product integration. The main problem is that callers now get different exception types and this hasn't been audited. The tests also have a few gaps that leave some of the claims unproven.
+
+## What checks out
+
+- **Patched `createSocket`** (hex decoded): `aload_0; aload_0; getfield #13 host; iload_1; aload_0; getfield #9 timeout; invokestatic #202; putfield #26 socket; return`. The 5000 argument is now actually passed through; the original ignored it (`original-http.javap:336-357`). The socket field is only written after the helper returns successfully. `connect()` sets `connected=true` right after that (`javap:147-150`), so a failed setup leaves `socket` unchanged and `connected` false.
+- **Cleanup** (`SocketSetup.java:35-56`): every exit except success closes the socket. Errors from `close()` are dropped, so the original failure is what gets thrown. `SecurityException` and `Error` are rethrown as-is. Checked failures become one fixed message with no cause and no suppressed exceptions. The `HostileIO`/`HostileSocket` probes show the cause's message is never rendered. That's better than the original, which passed the `SocketException` to `logger.error` (`javap:354-356`).
+- **Read timeout preservation:** `setTimeout` writes to the socket before the field (`javap:236-242`), and a negative value fails in `setSoTimeout`. So the `timeout` field is always positive, and a custom value carries over to the next connection after `disconnect`. In practice `validate()` can never reject the read timeout, and it's harmless.
+- **Single address:** resolving one address matches `Socket(String,int)`, so there's no regression in how addresses are tried.
+
+## Blockers before product integration
+
+1. **Callers now see a different exception type.** Before, `connect()`, `open()`, `getInputStream()` and `getOutputStream()` could throw `UnknownHostException` (which the constructor even declares), `ConnectException`, `NoRouteToHostException` or `SocketTimeoutException`/`InterruptedIOException`, each with its own message. Now every one of them is a plain `IOException("Connection setup failed")`. `call-site-inventory.json` only lists callers of `createSocket`. Nobody has scanned the jar for code that catches or checks these subclasses, or that parses the message text. The `PropertyListException` prefix check in `fixed()` suggests at least one place parses messages. A caller that catches `UnknownHostException` to show a "host not found" message, or that treats `InterruptedIOException` as a timeout or cancellation, would silently behave differently.
+2. **Interrupts and stop handling.** An interrupt during connect (`ClosedByInterruptException`) also turns into the fixed message, so callers can no longer tell cancellation from failure. Given the recent stop-admission and shutdown commits (e.g. `1e659d5`), someone needs to confirm the shutdown and stop logic doesn't rely on that difference. Nothing tests that the thread's interrupt flag is still set afterwards.
+3. **The test doesn't prove the stored read timeout is passed through.** `MemoryImpl.setOption` records `timeout`, but nothing asserts it equals 7301 in scenario 0 (`SocketPublicationObservation.java:42,82-87`). The helper's read-back only compares against whatever value it was given. If the patch passed a constant 30000 instead of `getfield #9`, the test would still pass. Add `check(impl.timeout == 7301)`.
+4. **Bytecode and runtime facts aren't recorded.** I couldn't confirm from these artifacts:
+   - The patched Code attribute's exception table is empty and `max_stack`/`max_locals` are correct.
+   - The helper's class file version runs on the production JRE.
+   - Adding the `compat/` package doesn't collide with anything in the product jar and doesn't break jar signing or sealing.
+
+   Neither observation file records the JDK version. `publication-observations.json` also has no hash for `SocketPublicationObservation.java`.
+5. **Untested paths:**
+   - **`open()`'s address resolution:** a successful resolution, an unresolved name, a `RuntimeException` and a `SecurityException` are all untested. The validation tests fail before any lookup happens, and the publication test uses the literal `127.0.0.1`.
+   - **Retrying in `HttpConnection`:** nothing tests failing and then retrying `connect()`, disconnecting and reconnecting with a custom timeout, or calling `setTimeout`/`getTimeout` on the live socket.
+6. **Mutation coverage is narrow.** The four mutants only touch `SocketSetup` and are only judged by the helper test. Nothing mutates:
+   - the patched bytecode (writing the socket before setup finishes, wrong argument, wrong field);
+   - the error mapping (attaching the cause, swallowing `SecurityException`, wrapping `Error`, letting a `close()` error escape).
+
+   `mutant-observations.json` also has no source or class hashes, and doesn't say how "rejected by fixture assertion" was decided.
+7. **Null host behaves differently.** `new Socket((String)null, 80)` connects to loopback. `new InetSocketAddress(null, 80)` throws `IllegalArgumentException`, which becomes the fixed failure. Failing is arguably safer, but you need to either confirm `host` can never be null or accept the change explicitly.
+
+## Behaviour changes that need sign-off
+
+- **5 s connect limit, and its availability cost.** The old connect waited for the OS default (about 75 s on macOS). It now fails after 5 s, with no retry. That's fine for a reachable LAN controller. But a busy embedded controller (rebuilding, firmware work, a full backlog) or a lossy or VPN link may now fail where it used to eventually connect. This needs to be accepted explicitly, not assumed.
+- **A `setSoTimeout` failure now kills the connection.** Before, it was logged and the socket was used with an infinite read timeout. Now it fails closed. That's correct, but it is new behaviour.
+- **Address lookup has no time limit.** The code comment says so (`SocketSetup.java:8,19`). `.local` mDNS names or a broken resolver can block the calling thread indefinitely. IP literals are unaffected.
+- **Other unbounded waits.** Writes have no time limit, and the 30 s read timeout applies to each read, not to the whole response. Don't describe this change as an end-to-end deadline.
+- **`SecurityException` and `ThreadDeath` handling may not matter in production.** If the production JRE is 24 or later, there's no SecurityManager, and `Thread.stop` throws `UnsupportedOperationException` from JDK 20 on. That branch would then only matter in the test fixtures. Record which JRE production runs.
+
+## Smaller test notes
+
+- The publication guard allows `checkConnect` for 127.0.0.1 on port 80 or -1, but `permissionChecks > 0` doesn't record which checks happened.
+- The `Fake` subclass of `Socket` overrides every method under test, so the helper test doesn't exercise any real `Socket` behaviour. The publication test fills part of that gap, but only for 5 cases.
+
+Taken together: this is fine to keep as a prototype. Items 1–4 need fixing before product integration, and items 5–7 should be.

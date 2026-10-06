@@ -1,0 +1,119 @@
+{
+  "action_scope_attestation": "Agent/tool history attestation, not packet or hardware evidence. All feature gates use headless guards, memory transport or no transport; diagnostics perform no discovery or launch.",
+  "all_sources_clean": true,
+  "application_source_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+  "assembly_correction": "Historical records preserved; this assembler writes distinct audit22 records after all assertions pass.",
+  "audit20_worker_reference_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
+  "audit21_reference_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+  "candidate_jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+  "candidate_version": "1.5.1-modern.audit.22",
+  "changed_entries_from_audit21": {
+    "com/apple/xsr/net/CommunicationsManager.class": {
+      "after": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "before": "bc6ff5078249e584dd81f102799b0c10870d8e37b194b48c3e39dd722c45eda6"
+    }
+  },
+  "checked_source_hash_definition": "Each gate source-map entry and tool hash, including repeated names, verified against its own clean fixture commit and current bytes. Historical application source is separate and remains pinned. Unit test sources also bound to QA commit.",
+  "checked_source_hash_entries": 217,
+  "controller_contact": false,
+  "evidence_assembly_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+  "excluded_runs": [
+    "Preliminary development sources before independent assertions/send-entry counters",
+    "PrintCompilation stdout interleaving",
+    "Full-Xcomp stale compilation task with no installed dispatch nmethod",
+    "Initial integrated diagnostics using obsolete audit21 golden; corrected explicitly before source commit"
+  ],
+  "fixture_commits": {
+    "admission": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "characterization": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "connect": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "factory": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "lock": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "posting": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "resources": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "runtime": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "security": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "shared": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "stop": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "transport": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+    "worker": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9"
+  },
+  "gate_observation_counts": {
+    "admission": 40,
+    "characterization": 8,
+    "connect": 46,
+    "factory": 4,
+    "lock": 20,
+    "posting": 10,
+    "resources": 8,
+    "runtime": 2,
+    "security": 2,
+    "shared": 4,
+    "stop": 104,
+    "transport": 6,
+    "worker": 120
+  },
+  "installed_application_modified": false,
+  "installed_contents_intake_pinned": true,
+  "installed_intake_map_digest": "192c2d06bce9b514580f44621aef938a10171fe0c21b246b5d2f3d233751d3c3",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_reference_files_and_modes_match": true,
+  "integrity_generator": "audit/stop-admission-evidence-assembler.py",
+  "integrity_generator_sha256": "266ea569318fa0475778217ff83529db981f7406067339b3e1a48177c92f780e",
+  "limits": "Native GUI, physical Intel, controller compatibility and release readiness unqualified. VME, ThreadDeath, allocation and metadata failure completion best-effort. Slow replies and connect/write/whole-operation deadlines unresolved. Final stop admission is qualified only in memory fixtures; no atomic stop-versus-TCP cancellation. After admission, wait for actual outcome or report unconfirmed; no same-worker replay. Async fatal-exit callbacks move to EDT; disposed AppContext unqualified. Outbound mutability, status/empty-ack ambiguity and GUI firmware-file binding open. HTTP remains plaintext. Original cache-disable/firmware flow unchanged.",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0444",
+  "packages": {
+    "aarch64": {
+      "application_notarization": "not performed",
+      "application_signing": null,
+      "bundle_tree_sha256": "5802543051fe7cf7cbafb467e018ec33b1177b22287ac75b7f525ea825fbff5b",
+      "packager_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+      "source_provenance_hashes": [
+        "b0ba005fd77144bac433f20316974faf5a0591738bb5231df50c9fd2003c38c4",
+        "8c1eaf663a006d1d776fd1445c8dc96876a8475f0ba065901a704676a3cd8e3b"
+      ],
+      "vendor_signature_verified": true
+    },
+    "x64": {
+      "application_notarization": "not performed",
+      "application_signing": null,
+      "bundle_tree_sha256": "b19f30a880b1d45397833b37d3a6ab5170ea271390508db0628ddc07584c2346",
+      "packager_commit": "1e659d5f8cf590a912eece9fc6e5ce12a54ae5f9",
+      "source_provenance_hashes": [
+        "b0ba005fd77144bac433f20316974faf5a0591738bb5231df50c9fd2003c38c4",
+        "8c1eaf663a006d1d776fd1445c8dc96876a8475f0ba065901a704676a3cd8e3b"
+      ],
+      "vendor_signature_verified": true
+    }
+  },
+  "production_or_mounted_volume_tests": false,
+  "python_tests_passed": 136,
+  "records": {
+    "audit/stop-admission-clean-admission.json": "26c38269619e7a5b5161b0f9803f941a694d4ace5685436448d99361fdffc154",
+    "audit/stop-admission-clean-connect.json": "8951cd89a8593a0d1eb688ebf8e3ac122e60f69f745d5e7ff642c616e2912c62",
+    "audit/stop-admission-clean-diagnostics-aarch64.json": "8bbe91334a45df09cb089b54099015d6acf56c12ae5a03d6d1df4f3eac099e25",
+    "audit/stop-admission-clean-diagnostics-x64.json": "6f6fe55b64bf93ccca35a359f058d7182117b464ef85243e106091dbb93a2d5f",
+    "audit/stop-admission-clean-factory.json": "9896389ec930e24c92ad8551292d21f407ecebaaed6401682fe11a7706192945",
+    "audit/stop-admission-clean-historical-characterization.json": "1874abd9d9a12f716a53a52f9c39b00aea34255ca98eb31b3080dcaed74e7e2a",
+    "audit/stop-admission-clean-lock.json": "4819f8c58ca5641437f923996d25ad543bff160fcb029fb7b4c8a9783fe5e6d3",
+    "audit/stop-admission-clean-packages.json": "28b5e36013982e15a4082289cc2c73d827fbb29bed6bb9d5828b6b33ea6f1bea",
+    "audit/stop-admission-clean-posting.json": "0d559126f6b9c4236b1e05bc9aec2d4178a401c80b7f20ec9a2614e69d5936f3",
+    "audit/stop-admission-clean-resources.json": "a4c13b2558b7f249b39bdf3d9cbe40088d1d0524ac7ee1cd280b461846a831b1",
+    "audit/stop-admission-clean-runtime.json": "b44ea35d78de532f781f8147b3b7e0ad80d8f38a4317863e7a7d07a4efeb3eee",
+    "audit/stop-admission-clean-security.json": "656d1870cd8768e25099f258f982db5afb382f3820d1c0479daf411354476cd3",
+    "audit/stop-admission-clean-shared.json": "41ea2ad8dff20f81f4fb695158009301940a26cc1b2b1ef5938c87ced2569ab1",
+    "audit/stop-admission-clean-stop.json": "9a84307aa99fa9770ff25ebb1ac4ec72186028d557d0c9afa5d4d6bb77db1b68",
+    "audit/stop-admission-clean-tests.json": "198810daa54552e695a35865e75d90e166e21a2dce7ad9e8e1fa2b43508229b1",
+    "audit/stop-admission-clean-transport.json": "bb392441b0a58dc416c1207c93b5fa29f8a93993a3dcb54d705d5c34a736c845",
+    "audit/stop-admission-clean-worker.json": "53f27d98a803d3c766eeb70df3809c1e378edd0cde4e682aaa6e517c03487ef9",
+    "audit/stop-admission-sbom.json": "6bde6726690ef15edb581728716cca310af58d2665754f8005a2481950337210"
+  },
+  "runtime_hash_scopes": {
+    "architecture_matrix": "Runtime.jdk/Contents/Home file-content map only",
+    "gate_lock": "Runtime.jdk files plus file modes; directory modes separately verified",
+    "package": "application files plus file and directory modes"
+  },
+  "source_cleanliness_scope": "Clean pinned application, fixture, packager and assembly checkout before archival writes",
+  "x64_execution": "Rosetta on arm64 host, not physical Intel"
+}

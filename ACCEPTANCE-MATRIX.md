@@ -401,3 +401,22 @@ changes and best-effort limits are documented. See [scope and bound evidence](au
 Stop-versus-active-send, native GUI, physical Intel, real controller behavior and
 signed release acceptance remain open. Original JAR and installed app are unchanged;
 HTTP remains plaintext. Earlier milestones and failed/excluded attempts are historical.
+
+
+### Audit.22 final stop admission (local qualification)
+
+Clean application source `1e659d5` retains JAR
+`202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd`.
+Thirteen regression gates and 137 unit tests pass; 217 gate source hash entries
+are verified. Twelve fixture records remain at `1e659d5`; clean QA `73ffa4e` makes
+test JAR archives reproducible and reruns all 104 stop vectors. Only Manager
+changes inside the application JAR from audit.21. A final volatile stop check
+refuses unsent claimed work before exposure; admitted work retains its actual
+reply or unconfirmed outcome. No command, polling interval or retry timing changes.
+Paired builds and repeated ARM/x64 packages match bytes and modes; x64 is Rosetta.
+Vendor runtimes are signature-verified; apps remain unsigned and unnotarized.
+See [qualification, corrections and limits](audit/STOP-BEFORE-SEND.md) and the
+[integrity ledger](audit/stop-admission-final-integrity.json).
+Native GUI, physical Intel, controller behavior and release acceptance remain open.
+No controller contact, production-volume test or installed-app change occurred.
+HTTP remains plaintext. Earlier milestone records remain historical.

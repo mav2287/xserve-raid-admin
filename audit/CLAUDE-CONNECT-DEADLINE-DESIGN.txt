@@ -1,0 +1,90 @@
+I read the design note, the timeout audit and the selected disassembly. I also cross-checked them against `CommunicationsManager.doConnect`, `isValidAddress`, the audit.18 connect-stop record, `WorkerExit`, `RejectionRecovery` and the static inventory. I didn't write or run anything.
+
+## Verdict
+
+**Yes, with one framing correction.** Replacing only the `createSocket` Code attribute with a helper that bounds the TCP connect and sets up the socket fail-closed is the smallest step that's justified. Keep port 80 and the per-read timeout as they are. Leave DNS, write and whole-operation bounds unresolved and say so in the record.
+
+The correction: this milestone combines two policies.
+
+- **(a) Fail-closed setup** is a pure safety repair with no new timing.
+- **(b) The 5000 ms connect deadline** is new behaviour. The source never enforced it, and it has an availability cost because audit.18 stops the session on a reported connect failure.
+
+One Code replacement is fine, but each half needs its own mutant control and its own disclosure. If reviewers won't accept (b)'s cost, (a) can ship alone.
+
+## Source facts
+
+- **One call site, constant 5000.** `connect()` runs `sipush 5000; invokespecial createSocket` (`interruption-transport-selected.javap:127-128`). `connect()` is reached from `open()` (`:186`), which `AcpxConnection.createConnection` calls (`:798`). It's also reached lazily from `getOutputStream`/`getInputStream` when `socket==null || !connected` (`:333-338`, `:356-361`). Before patching, confirm with a full-JAR constant-pool scan that `createSocket` has exactly one invoker. The selected file and inventory suggest so, but don't prove it.
+- **What `createSocket` does today** (`:403-424`):
+  - It ignores its argument and calls `new Socket(host, 80)`.
+  - It stores the socket into the field before `setSoTimeout(this.timeout)` runs.
+  - Only a `SocketException` from `setSoTimeout` is caught, and it is only logged.
+  - The only thing that can throw is the constructor, which runs before the field is stored.
+- **The read timeout value.** It is `this.timeout` at the moment of the call, not a hard-coded 30000. The constructor sets it to 30000 (`:15-17`). `setTimeout` maps 0 to 30000 and only stores the value after `setSoTimeout` succeeds (`:250-268`). A negative value throws `IllegalArgumentException` before the store. So the field is always positive. A value other than 30000 can only be present on the narrow lazy-reconnect path. The helper must read the field and not hard-code 30000.
+- **The socket field is always null on entry.** `connected` is set right after `createSocket` returns (`:129-131`). `disconnect` nulls `socket` and clears `connected` together, even when `close()` throws (`:160-166`). So `socket != null && !connected` can't happen, and failing before storing the socket leaves the same field state as today's constructor failure.
+- **DNS is reachable.** `isValidAddress` accepts any string of 7 or more characters except `"0.0.0.0"` (`audit/communications-manager-bytecode.txt:842-859`), so hostnames are accepted. `Socket(String,int)` and `InetSocketAddress(String,int)` both resolve with `getByName`, which returns a single address.
+- **Failure messages reach callbacks.** `doConnect` catches only `IOException` around construction (`:2239`). It wraps the failure as `new ConnectException(e.getMessage())` and delivers it via the -101 callback (`:2553-2586`, now routed through `WorkerExit.connectCallback`). Whatever message the helper throws is therefore what gets published.
+- **Existing helpers to leave alone.** `HttpConnection$SocketProducer` (uses `getAllByName` plus a thread), `SocketUtilities.connect` and `ObservableSocket` exist, but the inventory records no external construction of them. Don't reuse them: they bring threads, lifetime questions and multi-address iteration.
+
+## Policy choices to record
+
+1. **Configure before connecting.** Call `setSoTimeout(this.timeout)` on the unconnected socket, then `connect(addr, 5000)`, then read back `getSoTimeout()` and require it to match. A configuration failure then sends no SYN. Only store the fully configured socket. The design note asks for "exact original field publication order"; that contradicts fail-closed storage and should say "publish after configuration".
+2. **Only one exception type escapes.** Every failure must leave as an `IOException` with a fixed message: no host name, no cause text, no attached cause. A `RuntimeException` escaping `doConnect` misses its `IOException` handler; at the retry call site (`:1826`, outside the try range) it becomes a terminal worker exit.
+   - Decide explicitly how to handle `SecurityException`. The existing offline fixtures rely on a SecurityManager guard throwing it, so I'd close the socket and rethrow it unchanged.
+   - `ThreadDeath` and `Error` should propagate after a best-effort close.
+   - The fixed message must not start with `"PropertyListException"`. `run` checks that prefix (`:1769`), and the lazy-connect path inside `send` goes through that check.
+3. **Reject non-positive values.** If the connect or read timeout is ≤ 0, throw the fixed `IOException` before creating any socket. Never let 0 mean "infinite".
+4. **Fail on an unresolved address.** Check `isUnresolved()` and throw before `connect`. Don't rely on JDK-specific behaviour.
+5. **Close on failure, idempotently, and keep the original error.** A failing `close` must not mask the setup failure; emit only a fixed signal.
+6. **Keep single-address semantics.** Use `getByName`, never `getAllByName` iteration, so the same controller address is contacted.
+7. **Leave `setTimeout` reconfiguration out of scope.** It already throws before updating the field. In `send` it runs before any request bytes are written (`:577` vs `:584-593`), and audit.17/18 already treat it as a terminal fault and close the connection. Record the null-socket NPE and negative-value `IllegalArgumentException` paths as known and unchanged.
+
+## Controller-semantic risks
+
+- **Earlier terminal stop (the main cost).** Audit.18 stops the manager on a reported initial connect failure, and a stopped manager can't be reused; native GUI recovery is unqualified. The first report comes after one failure on a single-host system, or after the second attempt on a dual-host system. Today each attempt waits for the OS connect timeout, typically tens of seconds or more (not measured here). With a 5 s bound the stop comes after about 5 s (single host) or about 15–20 s (dual host, including the 5–10 s backoff). Controllers that are slow to accept connections, such as during boot, link negotiation or a full backlog, will now hit a terminal stop that they previously survived.
+- **More frequent connect attempts.** Retry loops with a null handler send SYNs more often under the existing backoff (`:2206-2219`). No HTTP or command bytes are sent.
+- **A connect timeout can't cause an ambiguous command.** No request bytes are written before `connect` returns, so a timed-out attempt never leaves a command half-executed. Say this explicitly as the safety argument for (b).
+- **A setup failure now refuses to connect.** Previously the session continued, possibly with no read timeout. This is intended fail-closed behaviour, but if some runtime spuriously fails `setSoTimeout`, that controller becomes permanently unreachable.
+- **Exception type changes.** A `SocketTimeoutException` is not a `ConnectException`. `doConnect` re-wraps it today, but the lazy-connect path inside `send` would deliver the helper's `IOException` subclass to `run`'s classifier. Test that path.
+- **No new security claims.** Connect bounds don't cover DNS, which is still unbounded for hostnames. For IP literals the JDK skips lookup, but that's unqualified here. They don't cover writes or the whole operation, and they don't make the thread interruptible. Port 80 HTTP stays plaintext, and this change doesn't alter that.
+
+## Memory-only tests worth having
+
+**Helper unit tests.** The helper needs a package-private seam for the socket and the address, so tests never resolve names or make syscalls. Use a fake `Socket` subclass that overrides `connect`, `setSoTimeout`, `getSoTimeout` and `close` with counters, plus address stand-ins created with `createUnresolved`. Cases:
+
+- **Success:** the order is `setSoTimeout(read)` → `connect(addr, 5000)` → readback; exactly one connect; zero closes.
+- **Connect throws** `SocketTimeoutException`, `ConnectException` or a plain `IOException`:
+  - Use hostile messages whose `getMessage`/`toString` trap if called.
+  - Expect the fixed message, no cause, and exactly one close.
+- **`setSoTimeout` throws `SocketException`:** zero connect calls and one close.
+- **Readback mismatch:** close, then throw.
+- **`close` throws:** the original fixed failure is preserved.
+- **Non-positive timeouts or unresolved address:** zero socket constructions or zero connect calls.
+- **Runtime exceptions** (`SecurityException`, `IllegalArgumentException`): behaviour matches the chosen policy, and close still runs.
+- **Fixed message:** it never starts with `PropertyListException`.
+
+**Patched `HttpConnection` tests.** Load the patched class in a child-first loader, read-only, with the seam injected:
+
+- After failure: `socket == null`, `connected == false`, `timeout` unchanged.
+- After success: the field holds the fake socket and `connected == true`.
+- A second `connect()` doesn't create another socket.
+- The helper receives the current `timeout` value, including a non-30000 value set through the fake.
+
+**`doConnect` integration.** Use the existing shadow pattern. Assert the -101 callback carries the fixed message, the hostile traps are never called, and single- and dual-host stop ordering is unchanged.
+
+**Bytecode gates:**
+
+- Only `createSocket`'s Code changes.
+- `connect()` still has `sipush 5000`.
+- Putting the original Code back reconstructs the audit.22 class hash exactly.
+- `HttpConnection` makes no remaining `Socket(String,int)` constructor call.
+- `SocketProducer` is still unreferenced.
+
+**Mutant controls.** Each of these must fail, and verifier errors or timeouts don't count as a pass:
+
+- Calling the constructor directly with no deadline.
+- Swallowing the `setSoTimeout` failure.
+- Storing the socket before configuring it.
+- Skipping the close on failure.
+- Passing 0 as the connect timeout.
+
+**Exclude** real-network or blackhole connect-timing tests. A loopback test can't reliably produce a connect timeout. Real timing, Intel and native-GUI behaviour stay unqualified.

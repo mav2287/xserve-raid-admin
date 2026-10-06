@@ -2,6 +2,12 @@
 
 Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS, retaining its existing Apple silicon and Intel runtime support. This audit candidate is not yet operationally qualified.
 
+Current local baseline is audit.22: thirteen regression gates, 137 unit tests
+and repeated ARM/x64 packages pass with pinned evidence. x64 execution uses
+Rosetta; native GUI, physical Intel and controller acceptance remain open. See
+[the qualified scope](audit/STOP-BEFORE-SEND.md). Transport prototypes are excluded
+from this application build.
+
 ## About
 
 The original RAID Admin was a Java application bundled with Mac OS X for managing Apple Xserve RAID hardware. It was compiled for Java 1.3 and relied on Apple-specific APIs that no longer exist in modern JVMs, making it unable to run on current macOS versions.

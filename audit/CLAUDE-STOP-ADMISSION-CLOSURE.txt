@@ -1,0 +1,31 @@
+I didn't find any blockers in the two items the follow-up review raised. Both are fixed in the code as far as reading can show. I only read files: I ran nothing and didn't recompute any hashes. That includes the ledger `df1e0ea…`, the assembler `5b6d974…` and the runner `5c9a51a…`, so those still rest on your own rehash.
+
+**Both blockers fixed**
+- **Unit result can now be checked:** The runner checks the exact test output with `fullmatch` and requires return code 0, empty stdout and Python inputs that match the QA commit (`stop-admission-unit-runner.py:11-20`). The stderr and stdout files and the runner itself are listed in the ledger's 21 records. The runner hash matches in `clean-tests.json:47` and `final-integrity.json:199`. The assembler re-runs the same checks from `build/` at lines 114-121.
+- **JIT checks now done:** The assembler checks the exact Xint/Xcomp flags and the log-path name for each row (`evidence-assembler.py:159-163`). The JIT wording in the ledger and in `STOP-BEFORE-SEND.md:95-98` is narrowed as asked.
+- **Smaller items 3–8 also done:** the exact fixture-commit mapping (line 28), raw record bytes cached and written as checked (26, 172), the reference checked against the tracked audit21 ledger (133-134), exact recovery counts (84), `chdir(ROOT)` (6), and "reproducibility" rather than "independent" in the docs (lines 92-94).
+
+## Remaining blockers (documentation only, no code or evidence changes)
+
+1. **The reproduction steps overwrite the archive and can't produce matching hashes** (`STOP-BEFORE-SEND.md:117-119`).
+   - Following them in place overwrites the files being checked: the runner rewrites `audit/stop-admission-clean-tests.{stdout,stderr}` (runner:23), and the assembler rewrites all 21 records, itself and the ledger (assembler:172-179).
+   - stderr includes the run time (`Ran 137 tests in 6.862s`), so a rerun will always give different hashes for stderr (`9bf25b…`), `clean-tests.json` (`abe5a8…`) and the ledger (`df1e0e…`).
+   - **Fix:** say to first check the archived hashes with `shasum -a 256` against the ledger. Then reproduce only in a throwaway worktree, and expect those three hashes to differ: compare everything else exactly and compare stderr ignoring the time. The assembler reads `ROOT.parent/audit/reference/RAID Admin.app` (line 96), so a separate worktree also needs that reference next to it. Say so.
+
+2. **The same document gives two test counts.** `STOP-BEFORE-SEND.md:25` says "The complete unit suite passes 136 tests" in the current description, while line 77 says 137. Change line 25 to 137, or mark it as the pre-review count.
+
+## Corrections to your summary (the docs themselves are accurate)
+- **"Complete 136 pre-review outputs preserved" isn't true.** `stop-admission-pre-review-tests.json` keeps only the stderr hash (`ba6089…`), not the stderr bytes. The docs only say the pre-review records are preserved, which is accurate. Don't repeat the stronger wording.
+- **"Verifies Python" means version and implementation only** (`audit_support.py:55-58`). It doesn't check the interpreter binary; the recorded command path is a Homebrew link. Also, `AUDIT-BASELINE.md:82` still says "Python version is recorded, not pinned", but the version is now pinned in `python-lock.json` and enforced, so that line is out of date.
+- **`clean-tests.json` isn't the runner's raw output.** The assembler re-serializes it (sorted keys) and adds four fields it checks itself (line 122). The runner's own `build/stop-admission-reviewed-tests-run.json` isn't archived. The ledger's contents are still right, but "raw record bytes" only applies to the 13 gate records.
+
+## Optional hardening (not blocking)
+- **The runner uses `assert`,** which `python -O` removes. The assembler re-checks nearly everything, but not "inputs unchanged during the run". Use raise checks, or record `sys.flags.optimize`.
+- **The 217 count isn't enforced.** `checked` is recorded but never compared to 217, so a smaller source map would pass quietly with a new number.
+- **No tracked doc cites the ledger hash `df1e0e…`.** Adding it to `STOP-BEFORE-SEND.md` would allow an outside check that doesn't depend on the git commit.
+- **Things I checked that were fine:**
+  - Tests and tools don't read any untracked `audit/stop-admission-*` file.
+  - Tests use `build/` only as a temp folder.
+  - Non-Python test inputs are tracked, so the clean `git status` covers them.
+
+Also note: the current working tree has modified docs and untracked `CLAUDE-*.txt` files, which don't fit the archival-only allowlist. So the assembly must have been run in a separate worktree, and the docs should say where.
