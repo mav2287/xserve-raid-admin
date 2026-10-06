@@ -16,7 +16,7 @@ class VerificationTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         root=Path(self.tmp.name); self.a=root/'a'; self.b=root/'b'; self.expected=root/'expected.json'
         reference=entries(baseline.ROOT/'original/RAID_Admin_original.jar')
-        reference.update({n:b'synthetic patch fixture' for n in baseline.PATCH_CLASSES})
+        reference.update({n:b'synthetic patch fixture' for n in baseline.ALLOWED_JAR_CHANGES})
         reference['META-INF/MANIFEST.MF']=b'Manifest-Version: 1.0\r\nMain-Class: Launcher\r\n\r\n'
         lock=json.loads((baseline.ROOT/'audit/jdk-lock.json').read_text())
         for output in [self.a,self.b]:

@@ -17,6 +17,7 @@ public final class OfflineGuard extends SecurityManager {
     }
     @Override public void checkRead(String path) {
         String normalized = new File(path).toPath().toAbsolutePath().normalize().toString();
+        if (normalized.startsWith("/__raid_security_fixture__")) throw deny("External fixture file read prohibited");
         if (normalized.contains("/Library/Preferences/") || normalized.endsWith("/Library/Preferences"))
             throw deny("Preference reads prohibited");
     }

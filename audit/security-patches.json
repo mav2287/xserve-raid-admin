@@ -1,0 +1,37 @@
+{
+  "com/apple/util/plist/PropertyListUtilities$Handler.class": {
+    "original_sha256": "29c3a81427b07fb9241df9560050dfddd72b231a6b6486686fb8414cbf79cb70",
+    "patched_sha256": "96aad9f04bc44c5a2134dbf3d02bf93882fd9b18b429b0375bf04f4bee579e5c",
+    "method": [
+      "resolveEntity",
+      "(Ljava/lang/String;Ljava/lang/String;)Lorg/xml/sax/InputSource;"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47
+  },
+  "com/apple/xsr/net/AbstractRequestMessage.class": {
+    "original_sha256": "609356596df9a6bcec557bc79407e440ff3633b0e1611f144faa4ce743689e44",
+    "patched_sha256": "6719802c1092e94eb99bde9dc8329b3f84f9ca014b370288691fdf70289caa39",
+    "method": [
+      "toString",
+      "()Ljava/lang/String;"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47
+  },
+  "compat/PropertyList.dtd": {
+    "sha256": "c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+    "size": 443,
+    "source": "Original Handler String constant, exact bytes"
+  },
+  "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class": {
+    "original_sha256": "8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37",
+    "patched_sha256": "7f4731a3170debe8083eb2009fd0b9006d4e8342072baab7bd484b26a35e934e",
+    "method": [
+      "toString",
+      "()Ljava/lang/String;"
+    ],
+    "original_major_version": 47,
+    "patched_major_version": 47
+  }
+}

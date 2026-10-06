@@ -13,25 +13,30 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "d32200e9718cd17252897a3d2f33822061d0ce63b0e546c5f60dc7311628d10d",
+      "Contents/Info.plist": "f22d0c83dccd0b04605d8b543022342c59f2afa2524b3071e71829b4e05762fa",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "89bb23ca403a7dbf8091b2ae8f334d5da6b273d141af2430f0fdc4857b6de3c7"
+      "Contents/Resources/RAID_Admin.jar": "ac8de395f17c158319ec7b5a6646d39a59a66973b7a111749e7438169ea5c950"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "build.sh": "7bd247a7393a16618280c8ec5a5c672de184ea322da2f3bde44991b6d45daef6",
+      "audit/security-patches.json": "63d36abc2ba214ec9a90046e62d338e7096d77b776aab7cd8597dc80031085c9",
+      "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
+      "packaging/audit-Info.plist": "9541012113c97bae55c4b735c34d2f838e352e4ccb4754f59824de21e284d538",
+      "packaging/audit-launcher": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "patches/Launcher.java": "eaa4f84e272d36f3d62e88464c1f041e6fdcfd28c1b928fc9bafe95d98198b45",
       "patches/com/apple/eio/FileManager.java": "ef3d0b2eef8301256781c1c53b3067ffc12e8661f97f4f69dd0d3a72278e72d9",
       "patches/com/apple/mrj/MRJApplicationUtils.java": "3affe88c3c87520a93c0fb878c910fad4b27ea6a0366bb4d2564c3c41a92d08b",
       "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
+      "patches/compat/SafePlistResolver.java": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "1c07e907d644c4e8df5f5e4843610ecd878a68c4082b25008c08c9decbf6ef4a"
+      "tools/baseline.py": "1b8f5e5067d37b9454a60098d5ebe183296faad2aca6785d28c84b76d696c404",
+      "tools/class_patch.py": "c1491d71775ee048af5d7b75c6ff75bd7ab02afa1f8335c2b2b967f942b0734b"
     },
     "jdk": {
       "architecture": "arm64",
@@ -41,9 +46,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "2178f19aba345205c27a9c6e9ccaae275981f49ce708e93796733a8e83b40de5",
-  "reason": "Same reviewed menu bridge artifact rebuilt twice from clean source commit 005e1a7",
+  "previous_record_sha256": "94d7d14108d148fce49e23f5fd3120f7df345cbcf1e95486a92d9b2874037ee4",
+  "reason": "audit.4: reviewed three Code-only resolver/request diagnostic substitutions, original embedded DTD, helper, and consolidated deterministic builder; offline security qualification in progress",
   "schema": 1,
-  "source_commit": "005e1a7f410a42c1705bba2ae6435b4e9a92f9f6",
-  "source_dirty": false
+  "source_commit": "14446f76d685683d02401ddbb3875077eae51ddc",
+  "source_dirty": true
 }

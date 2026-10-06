@@ -65,7 +65,7 @@ def request_sites(methods, request_types):
     return rows
 
 
-def disassemble_entries(jdk, jar, entries):
+def disassemble_entries(jdk, jar, entries, *, verbose=False):
     # Explicit class-file paths avoid javap resolving a platform class with the same name.
     with tempfile.TemporaryDirectory(prefix='raid-bytecode-') as tmp:
         paths = []
@@ -77,7 +77,7 @@ def disassemble_entries(jdk, jar, entries):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(archive.read(name))
                 paths.append(str(target))
-        return run_jdk(jdk, 'javap', ['-p', '-c', '-constants'] + paths)
+        return run_jdk(jdk, 'javap', ['-p', '-c', '-constants'] + (['-v'] if verbose else []) + paths)
 
 
 def main():

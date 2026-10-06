@@ -11,7 +11,7 @@
 | `patches/com/apple/mrj/MRJApplicationUtils.java` | Modernization: reflective Desktop/EAWT menu registration | audit.3 selects EAWT/modern handler API correctly; original About/Prefs/Quit/OpenFiles callbacks forwarded; native event qualification open |
 | `patches/com/apple/mrj/MRJFileUtils.java` | audit.2 single-method Desktop folder bridge | Other original stubs preserved; GUI callers not yet qualified |
 | `patches/sun/io/MalformedInputException.java` | Modernization: restores exception type required by legacy communications bytecode | Message constructor discards message; no controller implementation |
-| `build.sh` | Modernization: compiler selection, destructive cleanup of local `build/`, JAR rewrite, plist, shell launcher, ad-hoc signature | Compiler/runtime fallback, ZIP timestamps, no lock/allowlist, signing failure hidden |
+| `build.sh` | Delegates to the deterministic hash-locked audit builder | Refuses existing output; no signing, install, launch or cleanup |
 | `.gitignore` | Ignores generated builds/classes | New audit tooling also ignores Python caches |
 | `README.md` | Upstream build/usage claims | Claims of all functionality/all firmware support are not qualification evidence |
 | `tools/baseline.py` | New audit-only deterministic transformation and provenance | Exact local JDK lock, unsigned artifact, external-runtime launcher retained |
@@ -64,7 +64,7 @@ Observed static surfaces include add/discover/direct IP/remove systems; monitori
 
 ## Preservation decision
 
-Keep protocol/model/UI classes immutable for this milestone. The deterministic transformer verifies its input hash and the exact six-class output allowlist. A future overlay should be proven with class-origin/resource-loading tests before adoption; `java -jar` must not be assumed to honor a preceding patch classpath. Any OS-boundary fix should be a separate commit and test. Never duplicate the controller stack in a native helper.
+Preserve controller command, model and UI implementation bytes. audit.4 makes three explicit Code-only substitutions: the plist entity resolver and two request diagnostic toString methods. Original class versions, constant-pool prefixes and every other method remain unchanged, checked independently with javap. The deterministic builder verifies exact input hashes and its complete changed-entry allowlist. A future overlay should be proven with class-origin/resource-loading tests before adoption; `java -jar` must not be assumed to honor a preceding patch classpath. Any OS-boundary fix should be a separate commit and test. Never duplicate the controller stack in a native helper.
 
 The repository graph in the parent `graphify-out/` describes the six intake source/doc files only; README claims are marked unvalidated. It does not cover bytecode or the new audit tools, and is not the authoritative complete architecture inventory. Its hubs are FileManager and MRJApplicationUtils; no surprising cross-file edges were found. Token usage was unavailable and is labeled unknown.
 

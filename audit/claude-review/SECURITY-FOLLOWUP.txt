@@ -1,0 +1,26 @@
+I reviewed the four files against the review's eight items without running anything. I also read `check_artifact` in `tools/verify_builds.py` and `disassemble_entries` in `tools/inventory.py`, because `check_security.py` depends on both.
+
+**Verdict:** The follow-up covers all five areas you asked about, and items 5 and 8 are also fixed. Two defects in the new checks make them weaker than they claim. Neither defect hides a problem in the current build, because the patched class bytes are pinned by hash.
+
+## Addressed
+- **Verifier independence:** `independent_preservation` and the method check use the locked JDK's `javap` output instead of `class_patch.ClassFile`. They check major 47, that the constant pool is only extended, that non-target methods are unchanged, and the exact stub opcodes, the delegate and the redaction string. The helper class is checked for major 52.
+- **Reviewed artifact gating:** `check_security.py:59-61` requires the full identity (file hashes, modes, input hashes, JDK, builder) to match `expected-build.json`. That pins the JAR, including `compat/*`. `baseline.py:85` now checks the two copies of each original hash against each other.
+- **Allowlist (item 5):** `baseline.py:93` now requires the changed entries to equal exactly the allowlist plus the manifest.
+- **Payload, URI schemes, robustness:** The password-change request is built through the factory, and the payload is confirmed present in the original output and replaced by the redaction string in the fixed one. `jar:`, `ftp:`, `urn:` and a relative ID are tested both by calling the resolver and through the parser. `embedded_dtd` now checks the tag is 1, and `transform` rejects static targets.
+
+## Defects
+1. **Java 8 `javap` doesn't print the superclass or interfaces** (`check_security.py:23`). The `this_class`, `super_class` and `interfaces` lines only appear in `javap` from JDK 11 on. With the locked Java 8 JDK, the identity check only compares the version and flags lines. In Java 8 the hierarchy only appears on the class declaration line before `minor version`, and that line is never compared. So the independent check doesn't cover the superclass or interfaces of any of the three targets. `SecurityProbe` checks the superclass at runtime, but only for `Handler`. Fix: include that declaration line in the comparison.
+2. **The override inventory can miss overrides** (`check_security.py:43`). The pattern only matches exactly `public java.lang.String toString();`, so a `public final` or `public synchronized` override would be missed. Fix: match `^  (?:\w+ )*java\.lang\.String toString\(\);$`.
+3. **The override inventory only scans `com/apple/` and `com/chaotic/`** (`:34`). A request subclass in any other package is missed. So is a subclass whose chain to `RequestMessage` runs through a class outside those two packages. Fix: scan every class in the JAR.
+4. **Minor gaps in the independent check:**
+   - The target filter (`:22`) drops every method with the target's name, whatever its signature. Overloads therefore go unchecked, and so do the target's non-Code attributes, such as `Exceptions`.
+   - The opcode check (`:69-74`) runs `javap` without `-v`. Max stack, max locals, an empty exception table and the `resolve` method signature are never checked independently.
+   - The golden hashes cover all of this today.
+
+## Release qualification gaps (not defects)
+- **Dirty builds still pass.** `source_dirty` is recorded (`baseline.py:124`) and echoed, but neither the build nor `check_security.py` refuses a dirty tree, and the gate leaves out the source commit. Every file you named is modified or untracked in your working tree right now. Any fixture generated now therefore comes from a dirty tree and has to be regenerated after you commit.
+- **The verifier code isn't pinned.** The gate covers `baseline.py` and `class_patch.py`, but not `check_security.py`, `inventory.py`, `verify_builds.py` or the probe sources. The probe source hashes (`fixture_sources`) are printed but never compared against anything.
+- **The password-change path isn't confirmed.** The probe proves that the factory path it uses puts the payload in the output. These files don't show that it's the same call the app's password-change screen makes.
+- **Accepted as you stated:** Java 8 makes item 6 moot, and Python is a pinned host prerequisite, so item 7 is out. The declared limits still stand: no app-wide logging redaction, no XML size or entity-expansion limits, no real controller or GUI testing.
+
+Disposition: hierarchy declarations, all-JAR request hierarchy, modifier-tolerant override detection, exact descriptor selection, target non-Code attributes, stack/locals and exception tables are now checked independently. Verifier hashes are recorded. The actual password-change caller uses SYS_PASSWORD_RW in newSetPropertiesRequest (ManagementController original bytecode). Clean provenance is regenerated after the implementation commit. Python remains an explicitly trusted prerequisite, and compiler APIs come from the exact locked Java 8 tree.

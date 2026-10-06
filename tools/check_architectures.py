@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--folders', action='store_true', help='Also require the candidate Desktop bridge regression to pass')
     parser.add_argument('--menus', action='store_true', help='Check menu adapter callbacks without initializing native UI')
     parser.add_argument('--vendor-extensions', action='store_true', help='Use only the Java 8 runtime vendor extension directory, as the bundled launcher does')
+    parser.add_argument('--security', action='store_true', help='Require resolver isolation and request-format redaction regressions')
     args = parser.parse_args()
     verify_python()
     compiler = verify_jdk(args.compiler)
@@ -37,6 +38,9 @@ def main():
             sources += [ROOT / 'tests/java/fixture/OfflineGuard.java']
     if args.vendor_extensions:
         sources += [ROOT / 'tests/java/RuntimeProbe.java']
+    if args.security:
+        sources += [ROOT / 'tests/java/SecurityProbe.java', ROOT / 'tests/java/fixture/OfflineGuard.java']
+    sources = list(dict.fromkeys(sources))
     observations = []
     with tempfile.TemporaryDirectory(prefix='raid-architecture-') as tmp:
         run_jdk(args.compiler, 'javac', ['-source', '8', '-target', '8', '-cp', str(args.jar.resolve()) + ':' + str(original),
@@ -60,7 +64,7 @@ def main():
             def run(jar, entry, *arguments):
                 # These flags work on both Java 8 and 11. This is a runtime observation,
                 # separate from the Java-8-only reproducible build environment.
-                command = [str(runtime / 'bin/java')] + extension_flags + ['-Djava.awt.headless=true', '-Duser.home=' + tmp,
+                command = [str(runtime / 'bin/java'), '-Xverify:all'] + extension_flags + ['-Djava.awt.headless=true', '-Duser.home=' + tmp,
                            '-Dfile.encoding=UTF-8', '-Duser.language=en', '-Duser.country=US',
                            '-Duser.timezone=UTC', '-cp', tmp + ':' + str(jar.resolve()), entry] + list(arguments)
                 try:
@@ -85,6 +89,12 @@ def main():
                 observations[-1]['menu_regression'] = run(args.jar, 'com.apple.mrj.MenuProbe').strip()
             if args.vendor_extensions:
                 observations[-1]['vendor_extension_regression'] = run(args.jar, 'RuntimeProbe').strip()
+            if args.security:
+                original_security = run(original, 'SecurityProbe', 'false').splitlines()
+                candidate_security = run(args.jar, 'SecurityProbe', 'true').splitlines()
+                if original_security[:-1] != candidate_security[:-1]:
+                    raise RuntimeError('Allowed XML behavior differs across artifacts')
+                observations[-1]['security_regression'] = candidate_security
             if digest(tree(runtime)) != runtime_identity:
                 raise RuntimeError('Runtime changed during observation')
     if sha(args.jar) != candidate_sha:

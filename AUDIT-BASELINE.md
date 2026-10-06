@@ -174,3 +174,26 @@ to the original save-and-exit callback; a returning/failed callback cancels the
 platform quit. Finder file events invoke the original per-file alert callback.
 No controller command, polling or retry implementation changed. Headless bridge
 results are in `audit/menu-runtime-fixtures.json`; native GUI behavior remains open.
+
+## audit.4 security/build milestone
+
+Three hash-locked Code-only substitutions close observed external XML resolution
+and request diagnostic disclosure paths. See `audit/security-patches.json` for
+original/transformed class hashes and the extracted original DTD hash.
+`tools/check_security.py` gates the candidate against the reviewed build, compares
+verbose javap output independently, inventories request diagnostic overrides,
+and exercises Reader/InputStream parsing and password-change request formatting.
+All fixtures are synthetic; external access is blocked before parsing.
+
+The compatibility JAR SHA-256 is
+`ac8de395f17c158319ec7b5a6646d39a59a66973b7a111749e7438169ea5c950`.
+The audit bundle digest is
+`bf906dab8c75391702aef093ddba910d7f62321744189f5357fd4bd09dbabdde`.
+Only the three named method bodies are changed within the protocol/parser classes.
+No controller command, retry or polling implementation is changed.
+
+`build.sh` now delegates to the locked builder and refuses existing output. The
+compiler is the complete hash-locked Java 8 installation; Python is a trusted host
+prerequisite pinned by version, not independently authenticated executable bytes.
+These checks do not establish application-wide log confidentiality, XML resource
+limits, real controller response compatibility, or a qualified release.

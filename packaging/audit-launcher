@@ -1,0 +1,43 @@
+#!/bin/bash
+DIR="$(cd "$(dirname "$0")" && pwd)"
+RESOURCES_DIR="$(dirname "$DIR")/Resources"
+JAR="$RESOURCES_DIR/RAID_Admin.jar"
+ICON="$RESOURCES_DIR/AppIcon.icns"
+
+find_java() {
+    if [ -x "$(/usr/libexec/java_home -v 1.8 2>/dev/null)/bin/java" ]; then
+        echo "$(/usr/libexec/java_home -v 1.8)/bin/java"; return
+    fi
+    if [ -x "$(/usr/libexec/java_home -v 11 2>/dev/null)/bin/java" ]; then
+        echo "$(/usr/libexec/java_home -v 11)/bin/java"; return
+    fi
+    if [ -x "$(/usr/libexec/java_home 2>/dev/null)/bin/java" ]; then
+        echo "$(/usr/libexec/java_home)/bin/java"; return
+    fi
+    command -v java 2>/dev/null && return
+    return 1
+}
+
+JAVA=$(find_java)
+if [ -z "$JAVA" ]; then
+    osascript -e 'display dialog "Java Runtime not found.\n\nRAID Admin requires Java 8 or later.\n\nInstall Amazon Corretto, Azul Zulu, or Eclipse Temurin." with title "RAID Admin" buttons {"OK"} default button "OK" with icon stop' 2>/dev/null
+    exit 1
+fi
+
+ICON_PNG="/tmp/RAIDAdmin_icon.png"
+if [ -f "$ICON" ] && [ ! -f "$ICON_PNG" ]; then
+    sips -s format png "$ICON" --out "$ICON_PNG" --resampleWidth 256 >/dev/null 2>&1
+fi
+
+exec "$JAVA" \
+    -Xmx256m \
+    -Xdock:name="RAID Admin" \
+    -Xdock:icon="$ICON_PNG" \
+    -Dapple.laf.useScreenMenuBar=true \
+    -Dapple.awt.application.name="RAID Admin" \
+    -Dcom.apple.mrj.application.apple.menu.about.name="RAID Admin" \
+    -Djava.awt.headless=false \
+    -Dapple.awt.application.appearance=NSAppearanceNameAqua \
+    -Dswing.defaultlaf=com.apple.laf.AquaLookAndFeel \
+    -jar "$JAR" \
+    "$@"

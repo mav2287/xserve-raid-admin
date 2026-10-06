@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import zipfile
-from baseline import ROOT, PATCH_CLASSES, verify_original
+from baseline import ROOT, ALLOWED_JAR_CHANGES, verify_original
 from audit_support import tree, modes, digest, sha, verify_python
 
 EXPECTED = ROOT / 'audit/expected-build.json'
@@ -32,7 +32,7 @@ def check_artifact(output):
     reference = entries(original)
     actual = entries(app / 'Contents/Resources/RAID_Admin.jar')
     changed = {n for n in reference.keys() | actual.keys() if reference.get(n) != actual.get(n)}
-    if changed != PATCH_CLASSES | {'META-INF/MANIFEST.MF'}:
+    if changed != ALLOWED_JAR_CHANGES | {'META-INF/MANIFEST.MF'}:
         raise ValueError('Unexpected JAR change outside exact allowlist')
     for name, expected in manifest['input_hashes'].items():
         if name.startswith('/') or '..' in Path(name).parts or sha(ROOT / name) != expected:

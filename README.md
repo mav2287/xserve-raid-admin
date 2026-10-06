@@ -36,21 +36,18 @@ brew install --cask corretto8
 
 ## Building
 
-```bash
-./build.sh
-```
-
-This produces:
-- `build/RAID Admin.app` — unqualified development bundle
-- `build/RAID_Admin.jar` — standalone patched JAR
-
-## Installing
+Use the exact compiler recorded in `audit/jdk-lock.json` and Python version in
+`audit/python-lock.json`. Choose a new output directory for each build:
 
 ```bash
-cp -R "build/RAID Admin.app" /Applications/
+./build.sh --jdk /path/to/locked-jdk/Contents/Home --output build/audit-local
 ```
 
-Or download a pre-built release from the [Releases](../../releases) page.
+This produces `build/audit-local/RAID Admin.app` and `provenance.json`.
+The unsigned audit bundle retains a historical launcher for comparison. For a
+self-contained candidate, use the pinned runtime packaging described below.
+No build command installs, signs, launches, or deletes an existing output.
+Installation and hardware qualification remain separate acceptance work.
 
 ## Usage
 
@@ -64,11 +61,13 @@ Launch **RAID Admin** from Applications (or the build directory). Click the **+*
 
 ## Original Software
 
-The `original/` directory contains the unmodified JAR and icon assets from Apple's RAID Admin 1.5.1. The `patches/` directory contains the Java source files for all modifications.
+The `original/` directory contains the unmodified JAR and icon assets from Apple's RAID Admin 1.5.1. The `patches/` directory contains compatibility Java source. `tools/class_patch.py` performs three hash-locked, method-only substitutions documented in `audit/security-patches.json`.
 
 ## Audit tooling
 
-The upstream build entry point remains available and includes the Desktop bridge. Its original version remains in Git history; it is not the reproducible audit builder. Use the separate [hash-locked audit build](AUDIT-BASELINE.md#build-reproducibility) for deterministic local artifacts, and consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md), and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.
+`build.sh` delegates to the [hash-locked audit builder](AUDIT-BASELINE.md#build-reproducibility).
+Consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md),
+and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.
 
 ## Pinned runtime packaging
 
@@ -79,8 +78,6 @@ clean audit build; it never signs, installs or launches the app. Produce separat
 `aarch64` and `x64` artifacts to preserve both architectures. The bundled launcher
 uses only that runtime and a committed icon, with no temporary icon or PATH fallback.
 
-The old `build.sh` remains a development/comparison path: it selects external Java,
-clears `build/`, and attempts ad-hoc signing. It is **not** the pinned packaging path.
 The pinned vendor Java binaries require macOS 11.0 or later; this binary floor is
 not a claim that every OS version is qualified. These remain unsigned local
 candidates, not release artifacts.

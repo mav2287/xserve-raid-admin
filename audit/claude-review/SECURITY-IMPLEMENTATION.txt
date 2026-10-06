@@ -1,0 +1,42 @@
+**Verdict:** The bytecode substitution looks correct and preserves everything outside the target methods. The resolver does what the design says. What's weak is the verification: `check_security.py` never confirms that the JAR it tests is the reviewed build, and all the byte-level checks run through the same parser that did the patching. I'd fix items 1–3 before calling this qualified. I reviewed the files without running anything.
+
+## Confirmed correct
+- **`class_patch.py` replacement code** (`tools/class_patch.py:102-118`):
+  - The resolver stub is `aload_1, aload_2, invokestatic, areturn`, with stack 2, locals 3, and an empty exception table.
+  - The `toString` stub is `ldc_w` of the redaction string then `areturn`, with stack 1, locals 1.
+  - New constant-pool entries are appended in the same order their indices are assigned. The overflow limit (index 65534) is correct.
+  - Dropping the old line-number and local-variable tables is right; leaving them would make the class invalid.
+  - The checks at `:123-139` keep the first 8 bytes (so major 47), the original constant pool, the class hierarchy, fields, every non-target method byte for byte, and the target methods' access flags, signatures and non-Code attributes.
+- **`SafePlistResolver`:**
+  - A null ID or any ID outside the Apple prefix gets a `SAXException`.
+  - Like the original, it returns a `StringReader` with no publicId, systemId or encoding.
+  - It rejects a DTD resource over 4096 bytes.
+  - An `IOException` raised while reading becomes a `SAXException`, while a `SAXException` thrown inside the `try` passes through unchanged.
+  - IDs that start with the Apple prefix but have extra text are served locally and never fetched, so they aren't a bypass.
+- **`baseline.py:81-87`** checks the extracted DTD and each transformed class against the pinned hashes before writing the JAR.
+- **`build.sh`** only hands off to `baseline.py`. Nothing on that path signs, installs or clears a cache.
+
+## Defects and gaps
+1. **The security check doesn't confirm it's testing the reviewed build** (`tools/check_security.py:13-23`). `--jar` accepts any JAR that behaves correctly. The script never compares the candidate's three target classes, `compat/PropertyList.dtd` or `compat/SafePlistResolver.class` against `security-patches.json`, and it records no source commit or dirty flag. The current `audit/security-fixtures.json` was also produced from a working tree with uncommitted and untracked changes. It needs to be regenerated after you commit, with those hashes asserted.
+2. **No independent verifier test (missing).** `test_class_patch.py` checks `class_patch` using `class_patch`'s own `ClassFile` and `assert_preserved`. The golden hashes don't help here because the same tool produced them. Add a test that uses the locked JDK's `javap -v -p -c` on the original and patched classes and asserts:
+   - every non-target method's disassembly, the constant-pool prefix, the superclass, and major 47 are identical;
+   - each target's Code is exactly `aload_1, aload_2, invokestatic compat/SafePlistResolver.resolve, areturn`, or `ldc_w "RAID Admin request [details redacted]", areturn`;
+   - `SafePlistResolver.class` is major 52.
+
+   In the same test, assert that each `TARGETS[...][0]` equals `security-patches.json[...]['original_sha256']`. Right now those two copies of the original hash are never compared.
+3. **The redaction coverage doesn't test the reason the third target was added.**
+   - `SecurityProbe.java:74-75` never builds a password-change request, which is the stated reason for patching `AcpxRequestTemplate`. Add one through the factory and check that both the password and the payload are present in the original output and gone in the fixed output.
+   - Nothing finds other `toString` overrides further down the class tree. Add a static test, independent of `class_patch`, that walks the original JAR and fails if any subclass of `AbstractRequestMessage` or `AcpxRequestTemplate`, or any `RequestMessage` implementor, declares `toString()` and isn't covered.
+4. **The "unknown scheme" claim isn't covered.** The rejected IDs at `SecurityProbe.java:62-64` are only file, http, https, uppercase HTTP and `file://localhost`. Add `jar:file:…`, `ftp://…`, `urn:x`, and a relative `PropertyList.dtd`, which the parser expands against `user.dir`.
+5. **`ALLOWED_JAR_CHANGES` isn't enforced in `baseline.py:28`.** It's defined but never checked against `entry_changes` (`:129`). It also doesn't include `META-INF/MANIFEST.MF`, which line 89 always rewrites. I couldn't see whether `verify_builds.py` checks this (it was out of scope). Either way, the build itself should assert `entry_changes ⊆ ALLOWED_JAR_CHANGES ∪ {MANIFEST}`.
+6. **"Targets Java 8" is only half enforced.** `-source 8 -target 8` (`baseline.py:69`, `check_security.py:19`) without `--release 8` or a boot classpath compiles against the locked JDK's own API. If that JDK is newer than 8, use `--release 8`. The helper only uses APIs that exist in Java 8, so the risk today is small.
+7. **The build interpreter isn't pinned.** `build.sh:5,7` runs whichever `python3` comes first on `PATH`. `verify_python()` runs inside that same interpreter, so it can't vouch for it. Use the locked absolute path.
+8. **Minor robustness:**
+   - `embedded_dtd` (`class_patch.py:75`) doesn't check that the String constant's target entry has tag 1.
+   - `transform` doesn't reject a static target, and the stub assumes locals 1 and 2 hold the arguments.
+   - The mutation test (`test_class_patch.py:31-32`) can fail with `struct.error` or `KeyError`, which aren't `ValueError`, if the last byte it flips is a structural byte.
+
+The hash pins make all three harmless today, but each would be a one-line fix.
+
+## Accepted as declared
+These stay open as gaps you've already declared, not defects: no app-wide logging redaction, no XML size or entity-expansion limits, and unsupported external DTD formats such as `file://localhost/...`. Neither the probe nor the fixture `limits` text claims otherwise.

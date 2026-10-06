@@ -1,7 +1,7 @@
 {
   "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
   "fixture_sources": {
-    "tests/java/fixture/OfflineGuard.java": "743245c6a67fb789ebb666c5867d905d880a4d44c7c3603a20e9720c932d7121",
+    "tests/java/fixture/OfflineGuard.java": "910febc23c2d5cae719734ffd3398c2c485dca3c9ef17a410cb2188d38857d9b",
     "tests/java/com/apple/xsr/net/TransportObservation.java": "524b29297a72afba74326894b3076aa46c301e4e975ca1c35f87242200df48c0",
     "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f"
   },
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "jar_sha256": "89bb23ca403a7dbf8091b2ae8f334d5da6b273d141af2430f0fdc4857b6de3c7",
+      "jar_sha256": "ac8de395f17c158319ec7b5a6646d39a59a66973b7a111749e7438169ea5c950",
       "results": [
         "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values; application logging OFF",
         "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",

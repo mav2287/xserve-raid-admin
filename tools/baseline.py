@@ -12,7 +12,9 @@ import subprocess
 import tempfile
 import zipfile
 from datetime import datetime, timezone
-from audit_support import sha, tree, modes, digest, verify_jdk, verify_python, run_jdk
+from audit_support import sha, tree, modes, digest, verify_jdk, verify_python, run_jdk, isolated_env
+
+from class_patch import TARGETS, transform, embedded_dtd
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL_SHA256 = '5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449'
@@ -21,9 +23,10 @@ PATCH_CLASSES = {
     'com/apple/mrj/MRJApplicationUtils.class',
     'com/apple/mrj/MRJApplicationUtils$Adapter.class',
     'com/apple/mrj/MRJApplicationUtils$RuntimeApi.class', 'sun/io/MalformedInputException.class',
-    'com/apple/mrj/MRJFileUtils.class',
+    'com/apple/mrj/MRJFileUtils.class', 'compat/SafePlistResolver.class',
 }
-VERSION = '1.5.1-modern.audit.3'
+ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd'}
+VERSION = '1.5.1-modern.audit.4'
 
 
 def tree_hash(files):
@@ -74,22 +77,34 @@ def main():
                 raise ValueError('Duplicate original JAR entries')
             entries = {n: z.read(n) for n in names if not n.endswith('/')}
         before = {n: hashlib.sha256(v).hexdigest() for n, v in entries.items()}
+        security_lock = json.loads((ROOT / 'audit/security-patches.json').read_text())
+        entries['compat/PropertyList.dtd'] = embedded_dtd(entries['com/apple/util/plist/PropertyListUtilities$Handler.class'])
+        if hashlib.sha256(entries['compat/PropertyList.dtd']).hexdigest() != security_lock['compat/PropertyList.dtd']['sha256']:
+            raise ValueError('Embedded original DTD changed')
+        for name in TARGETS:
+            if TARGETS[name][0] != security_lock[name]['original_sha256']:
+                raise ValueError('Original class pins disagree')
+            entries[name] = transform(name, entries[name])
+            if hashlib.sha256(entries[name]).hexdigest() != security_lock[name]['patched_sha256']:
+                raise ValueError('Transformed method differs from reviewed golden bytes')
         entries.update(patches)
         entries['META-INF/MANIFEST.MF'] = b'Manifest-Version: 1.0\r\nMain-Class: Launcher\r\n\r\n'
+        changes = {n for n, v in entries.items() if before.get(n) != hashlib.sha256(v).hexdigest()}
+        if changes != ALLOWED_JAR_CHANGES | {'META-INF/MANIFEST.MF'} or set(before) - set(entries):
+            raise ValueError('Build changed entries outside reviewed allowlist')
         output.mkdir(parents=True)
         app = output / 'RAID Admin.app'
         resources = app / 'Contents/Resources'
         resources.mkdir(parents=True)
         (app / 'Contents/MacOS').mkdir()
         write_jar(resources / 'RAID_Admin.jar', entries)
-        # Reuse reviewed upstream bundle templates; no execution of build.sh.
-        script = (ROOT / 'build.sh').read_text()
-        plist = re.search(r"<< 'PLIST'\n(.*?)\nPLIST", script, re.S).group(1)
+        # Reviewed historical audit templates are separate from the bundled-runtime launcher.
+        plist = (ROOT / 'packaging/audit-Info.plist').read_text()
         metadata = plistlib.loads(plist.encode())
         metadata.update(CFBundleIdentifier='org.xserve-raid-admin.audit',
-                        CFBundleShortVersionString=VERSION, CFBundleVersion='3')
+                        CFBundleShortVersionString=VERSION, CFBundleVersion='4')
         (app / 'Contents/Info.plist').write_bytes(plistlib.dumps(metadata, sort_keys=True))
-        launcher = re.search(r"<< 'LAUNCHER'\n(.*?)\nLAUNCHER", script, re.S).group(1) + '\n'
+        launcher = (ROOT / 'packaging/audit-launcher').read_text()
         launchpath = app / 'Contents/MacOS/RAIDAdmin'
         launchpath.write_text(launcher)
         launchpath.chmod(0o755)
@@ -100,13 +115,13 @@ def main():
                 file.chmod(0o755 if file == launchpath else 0o644)
         files = tree(app)
         file_modes = modes(app)
-        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
-        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
+        commit = subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD'], cwd=ROOT, env=isolated_env(), text=True).strip()
+        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'audit/security-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
         provenance = {
             'schema': 2, 'purpose': 'unsigned offline audit build; not a qualified release',
             'apple_version': '1.5.1', 'compatibility_version': VERSION,
             'source_commit': commit,
-            'source_dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)),
+            'source_dirty': bool(subprocess.check_output(['/usr/bin/git', 'status', '--porcelain'], cwd=ROOT, env=isolated_env())),
             'build_timestamp_utc': datetime.now(timezone.utc).isoformat(),
             'builder': {'python': platform.python_version(), 'macos': platform.mac_ver()[0], 'architecture': platform.machine()},
             'input_hashes': inputs, 'original_jar_sha256': ORIGINAL_SHA256,

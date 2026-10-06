@@ -438,3 +438,18 @@ then exercise the ACP/logging/retry paths in isolation. Pin the evaluated runtim
 before menu/lifecycle fixes. Test the confirmed MRJ folder-null issue separately.
 The ordinary overlay remains a viable candidate: runtime shadowing also affects
 the existing transformation and does not by itself favor either strategy.
+
+## audit.4 implementation refinement
+
+Completed offline milestones: MRJ Desktop lookup, Java 8/11 menu adapter, pinned
+Corretto 8 packaging for both existing architectures, and narrow XML/request
+diagnostic hardening. The build entry point now uses the deterministic builder.
+The security patch preserves the original embedded DTD and all non-target methods;
+external entity resolution is intentionally rejected. Controller command creation,
+serialization, polling and retry semantics have not changed.
+
+Next: credential-safe application error reporting, firmware archive preflight
+fixtures, broader malformed-response and queue-order characterization, and
+controlled native UI qualification. App-wide logging, parser resource limits,
+physical Intel qualification, signing/notarization and real controller behavior
+remain open. Production hardware approval has not been given.

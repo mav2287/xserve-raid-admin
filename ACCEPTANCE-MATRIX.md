@@ -23,8 +23,8 @@ observable expected result, not the absence of an error dialog.
 | Connection | Quit/relaunch and reconnect |  |  |  |  | Not run |
 | Connection | One controller unavailable |  |  |  |  | Not run |
 | Connection | Controller timeout and later recovery |  |  |  |  | Not run |
-| Security | Password absent from all logs and diagnostics | Unsafe toString found statically | Harness allowlist tests pass; app logging unresolved | N/A | None | Open — [G04](GAPS.md#g04--credential-bearing-logging) |
-| Security | External XML entity/file/network access blocked | Fail: original and installed guarded fixtures | Fail: audit guarded fixture | N/A | Offline synthetic only | Fail — [G05](GAPS.md#g05--xml-external-resolution) |
+| Security | Password absent from all logs and diagnostics | Unsafe toString found statically | audit.4 request diagnostic redaction passes; app-wide logging unresolved | N/A | None | Open — [G04](GAPS.md#g04--credential-bearing-logging) |
+| Security | External XML entity/file/network access blocked | Fail: original and installed guarded fixtures | Pass: audit.4 guarded Reader/InputStream fixtures | N/A | Offline synthetic only; real response compatibility open | Partial — [G05](GAPS.md#g05--xml-external-resolution) |
 | Status | System overview |  |  |  |  | Not run |
 | Status | Both controller status pages |  |  |  |  | Not run |
 | Status | Drive inventory and state |  |  |  |  | Not run |
@@ -144,3 +144,12 @@ Corretto 8.504.04.1 arm64/x86_64. Intel execution on this host uses Rosetta.
 Native singleton registration, real AppleEvents, GUI, preference saves and physical
 Intel qualification remain unrun. A failed original save cancels quit and records
 a fixed code; visible in-app error presentation remains outstanding.
+
+## audit.4 offline security evidence
+
+`audit/security-fixtures.json` ties fixtures to the reviewed build and records an
+independent javap comparison of original class versions, constant-pool prefixes,
+and all non-target members. Request hierarchy inspection covers every original
+request diagnostic override. Password-change payloads and credential fields are
+redacted by the candidate. The original embedded DTD and valid plist fixture
+outputs match exactly. No controller operations or real credentials are involved.
