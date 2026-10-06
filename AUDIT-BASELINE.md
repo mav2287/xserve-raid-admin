@@ -241,3 +241,14 @@ replacement and intentional security rejections are recorded in
 polling and retry timing are unchanged. Production hardware approval remains absent.
 Safe work continues with HTTP allocation/framing, firmware preflight and isolated
 native UI qualification; successful parser fixtures do not close release acceptance.
+
+
+## Shared-stream G12 characterization
+
+Clean committed offline fixtures now demonstrate prior-body response association
+for missing/lowercase/duplicate-last-zero/declared-zero framing, and a stuck
+follow-on after chunked parsing failure. Original and audit.10 outcomes match on
+both pinned runtimes (x64 via Rosetta); no TCP or hardware qualification is claimed.
+The characterization changes no application bytes. Narrow framing policy is the
+next reviewed security milestone. See [evidence](audit/SHARED-RESPONSE-FRAMING.md)
+and [clean observations](audit/shared-stream-clean-results.json).

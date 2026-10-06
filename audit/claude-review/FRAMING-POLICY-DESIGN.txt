@@ -1,0 +1,77 @@
+## Bottom line
+
+The two-hook design is sound and can be enforced at the bytecode level. I recommend two changes to it. First, drop the deferred "terminal marker" header: throw `UntrustedResponseException` directly from `setHeader`. Second, do not add a remaining-bytes check or turn off persistent connections as part of this closure. The enforceable boundary is narrower than "responses are correctly associated." It is: **the client never interprets a response whose framing is ambiguous** (duplicate, case-variant, missing or Transfer-Encoding lengths). A wrong but unambiguous `Content-Length` (declared-zero, or too small) is still a gap, and header checks cannot close it.
+
+## Facts from the bytecode that shape the design
+
+- **No status decoding exists.** `parseHeaders` (http-response-allocation-bytecode.txt:159-173) only rejects an empty start line and discards the status. So there is no status or error decoding to preserve inside `HttpResponse`. Error meaning comes only from plist content, or from a null plist when `available()==0` (`send` offset 219). That means a legitimate empty response is a real signal, and the length check must not break it.
+- **Hook 1 (`parseHeaders` 88-95):** `2a 19 04 19 05 b6 00 36`. The stack is `[this,name,value]`, so `invokestatic (HttpResponse,String,String)V` is a same-length swap. The class is version 47, so there is no StackMapTable to fix. Connection-close detection at 96-127 reads locals 4 and 5 after the call, so it is unaffected.
+- **Hook 2 (`getBody` 2-7):** `2a 12 13 b6 00 14`. The stack is `[this,"Content-Length"]`, so `invokestatic (HttpResponse,String)String` is a same-length swap. Offset 5 comes before the try range 32-112, so it behaves exactly like the existing `parseLength` rejection at 14.
+- **Both throw sites are covered by the marker handler.** `getResponse` (183) and `getInputStream` (201/214) both fall inside the 32-271 range that `class_patch.py:126` gives to `sendFailure`. The existing `BoundedHeaderStream` rejection already throws from this same constructor path, so throwing during header parsing has a precedent.
+- **The chunked case shows a current gap.** It ends in an ordinary `ProtocolException` with `closes=0, pending_after_second=118` (shared-stream-results.json:31). The connection stays alive with stale bytes in it. Rejecting Transfer-Encoding up front moves this case onto the marker-and-retirement path, which is a real improvement.
+
+## Recommended policy
+
+**`ResponseFraming.setHeader(r, name, value)`:**
+1. Compare names case-insensitively using **ASCII-only folding or `equalsIgnoreCase`, never `toLowerCase()`**. Under a Turkish default locale, `"TRANSFER-ENCODING".toLowerCase()` yields a dotless ı and would slip past the check. (The original `connection` check at 98 has this same locale quirk. Leave it alone.)
+2. If the name is `Transfer-Encoding` (any case), throw the marker immediately.
+3. If the name is `Content-Length` (any case):
+   - If `r.getHeaderField("Content-Length") != null`, throw the marker. This rejects even identical duplicates.
+   - Otherwise delegate `r.setHeaderField("Content-Length", value)`.
+4. For any other header, delegate `r.setHeaderField(name, value)` unchanged.
+
+Detecting duplicates through the existing storage needs no new state. With immediate throws there is also no sentinel that a peer could forge or overwrite. If you keep a sentinel anyway, its name must contain `:`, because parsed names can never contain one.
+
+**`ResponseFraming.lengthHeader(r, name)`:** return `r.getHeaderField("Content-Length")`, or throw the marker if it is null. The `ifnull 23` branch becomes dead code, which is fine. Numeric parsing stays in `parseLength`.
+
+- Note that `Integer.parseInt` accepts `+5`, `-0` and leading zeros. That does no harm here because only one length can exist and there is no second parser. If you want, tightening `parseLength` to `1*DIGIT` is a one-line change inside an already-patched helper.
+- A legitimate `Content-Length: 0` still passes: zero bytes are read and the plist is null, exactly as before.
+
+## Facts to verify before writing code
+
+These are outside the requested scope, so I didn't read them:
+
+1. **Access level of `HttpMessage.setHeaderField` and `getHeaderField`.** If either is protected or package-private, `compat.ResponseFraming` cannot call it, and the delegation design fails. The only same-length alternative would be a helper class inside `com.apple.xsr.net`; check whether the jar is sealed first.
+2. **Storage semantics.** The fixture results imply exact-case lookup with last-write-wins. Confirm that, and confirm `HttpMessage.<init>` doesn't pre-populate `Content-Length`.
+3. **Pool entries.** #54 must resolve to `setHeaderField(Ljava/lang/String;Ljava/lang/String;)V`, #19 to the String `"Content-Length"`, and #20 to `getHeaderField(Ljava/lang/String;)Ljava/lang/String;`.
+4. **Callers.** `HttpConnection.getResponse` and `HttpResponse.getInputStream` must have no callers other than `AcpxConnection.send`. Otherwise the marker could escape without retirement.
+
+## `class_patch.py` changes needed
+
+- `TARGETS` holds one method per class, and `assert_preserved` (lines 210-218) currently fails on any change to `parseHeaders`. Add `parseHeaders` (`()V`, access `0x0002`) to the `HttpResponse` edit set.
+- In `parseHeaders`, lock code length 158, an empty exception table, unchanged Code subattributes, and the window `code[88:99] == 2a 19 04 19 05 b6 00 36 19 04 b6`. Mask only bytes 93-95, and assert byte 93 is `0xb8` with a `compat/ResponseFraming.setHeader` Methodref.
+- In `getBody`, add the lock window `code[2:9] == 2a 12 13 b6 00 14 4d`. Extend the mask in `assert_allocation_operands` from operands only to include the **opcode** at 14+5 (from `b6` to `b8`) plus 14+6..7, and assert that the target is `lengthHeader`.
+
+## On the residual-byte question
+
+**Don't add an `available()` check now, and don't force a close on empty bodies.**
+
+- The threat this would address is a peer, or a man-in-the-middle on plaintext HTTP, writing extra bytes into the stream. That party can already forge the next response outright, so the check adds no integrity. `acp-crypt` covers only the body and does not authenticate anything.
+- The check depends on timing: a later TCP segment is a false negative. It also risks false positives from legitimate firmware, such as a trailing CRLF. A false positive after the response means a lost command result after the command has already run on the controller.
+- Forcing a close on empty bodies changes how polling behaves, and it still misses a too-small non-zero length.
+- If you want it later, frame it as **reliability** against buggy firmware, not as security. Do it **before sending** the next request: stale bytes mean null the connection and let the existing `createConnection` path at `send` 14-22 reconnect. That loses no response and resends nothing. It needs access to `HttpConnection`'s stream and its own fixture, so treat it as a separate item.
+
+## Acceptance gates
+
+**Compatibility evidence, from existing captures or documentation only, with no hardware contact:**
+- Every legitimate response, including empty and auth-failure replies, carries exactly one `Content-Length`.
+- No firmware sends identical duplicates.
+
+Requiring a length to be present is the only rule here that can break today's working behaviour. Empty responses without a length currently decode as a null plist; under the new rule they would be rejected and the connection retired.
+
+**Fixture extensions:**
+- Canonical case and legitimate zero-length: no residual, two sends.
+- Lowercase single length: now expected to return `first`.
+- Rejections expected to close the connection with `sends=1`: missing length, identical duplicate, mixed-case `transfer-encoding`, and `TRANSFER-ENCODING` run under `-Duser.language=tr`.
+- `Connection: close` alongside a valid length: original close behaviour preserved.
+- Declared-zero: same output as before, kept and labelled as a known gap.
+
+**Clean tree:** the current results show `fixture_dirty: true`, and two files are untracked. Regenerate the results from a committed tree before citing them as evidence.
+
+## Limits that remain open
+
+1. **Dishonest but well-formed lengths.** Declared-zero with trailing bytes, or any too-small length, still lets the next request be answered with leftover bytes. No header rule can detect this.
+2. **No peer authentication or integrity.** Plaintext HTTP plus `acp-crypt` authenticates nothing. Stricter framing narrows ambiguity, not trust.
+3. **The status line is never validated,** so leftover bytes that start with any non-empty line are accepted as a status.
+4. **Ordinary parse errors don't retire the connection.** `ProtocolException` and "Premature end of stream" still take the original non-retiring path, so a stream with stale bytes can survive them unless `CommunicationsManager` recovers.
+5. **The x64 evidence ran under Rosetta.** There is no TCP, timing or real-controller evidence for any of this.

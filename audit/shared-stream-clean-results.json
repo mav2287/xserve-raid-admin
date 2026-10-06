@@ -1,0 +1,79 @@
+{
+  "fixture_commit": "c97b1d069e8afce9eabbf5089196fa013f2671b8",
+  "fixture_dirty": false,
+  "host_machine": "arm64",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "sources": {
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/xsr/net/SharedResponseObservation.java": "248dbf63a1b876264fbde1b6f17edb2429267207331b51c826961572cdc5b44d",
+    "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+    "tools/check_shared_stream.py": "390549f0ffd58b2a46e8d3b2b8c67db93024542cfff4e241021c30af841c32bd",
+    "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
+    "tools/baseline.py": "9e4078cae223ff10a2522d0e334b9b086bdf1d7b69c07734a93271c02c7f1126",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/class_patch.py": "3a90e60beb5975081e515bf37c0afd2c050a138ba8ca5c88b8e625eb520d8f3f"
+  },
+  "observations": [
+    {
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "architecture": "aarch64",
+      "results": [
+        "shared source-controls idle-timeout; terminal-close PASS",
+        "shared canonical first=first second=second pending_before_second=0 pending_after_second=0 reads=225 sends=2 closes=0",
+        "shared missing-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=141 sends=2 closes=0",
+        "shared lowercase-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=162 sends=2 closes=0",
+        "shared duplicate-last-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=181 sends=2 closes=0",
+        "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+        "shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked",
+        "PASS shared-stream association; guarded_operations=0"
+      ]
+    },
+    {
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "architecture": "x64",
+      "results": [
+        "shared source-controls idle-timeout; terminal-close PASS",
+        "shared canonical first=first second=second pending_before_second=0 pending_after_second=0 reads=225 sends=2 closes=0",
+        "shared missing-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=141 sends=2 closes=0",
+        "shared lowercase-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=162 sends=2 closes=0",
+        "shared duplicate-last-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=181 sends=2 closes=0",
+        "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+        "shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked",
+        "PASS shared-stream association; guarded_operations=0"
+      ]
+    },
+    {
+      "jar_sha256": "1526b6a5e6cb4be8515c74b8cf36271b405d19c7d9a4266378c5811785b9bdc1",
+      "architecture": "aarch64",
+      "results": [
+        "shared source-controls idle-timeout; terminal-close PASS",
+        "shared canonical first=first second=second pending_before_second=0 pending_after_second=0 reads=225 sends=2 closes=0",
+        "shared missing-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=141 sends=2 closes=0",
+        "shared lowercase-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=162 sends=2 closes=0",
+        "shared duplicate-last-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=181 sends=2 closes=0",
+        "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+        "shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked",
+        "PASS shared-stream association; guarded_operations=0"
+      ]
+    },
+    {
+      "jar_sha256": "1526b6a5e6cb4be8515c74b8cf36271b405d19c7d9a4266378c5811785b9bdc1",
+      "architecture": "x64",
+      "results": [
+        "shared source-controls idle-timeout; terminal-close PASS",
+        "shared canonical first=first second=second pending_before_second=0 pending_after_second=0 reads=225 sends=2 closes=0",
+        "shared missing-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=141 sends=2 closes=0",
+        "shared lowercase-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=162 sends=2 closes=0",
+        "shared duplicate-last-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=181 sends=2 closes=0",
+        "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+        "shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked",
+        "PASS shared-stream association; guarded_operations=0"
+      ]
+    }
+  ],
+  "limits": "One synthetic persistent InputStream per two actual ACP sends; replies appended only after request serialization. Chunked case has a third blocked send attempt with no output acquisition. Exhaustion throws immediate synthetic timeout, close is terminal: these are fixture controls, not measured legacy timeout handling. Peer EOF and Connection: close replies are not modeled. At most 8192 bytes per reply, 16384 read calls per source, 64 MiB heap and 20 second subprocess bound. No TCP, timing, controller, UI, authentication, polling or queue-retry qualification. No raw requests, peer content, credentials or exception messages printed. x64 here uses Rosetta, not physical Intel. Original and candidate have identical characterized framing gaps; stricter framing cannot encrypt or authenticate legacy HTTP."
+}

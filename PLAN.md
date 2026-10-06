@@ -532,3 +532,14 @@ real/idle reconnect timing and CLI lifecycle remain unqualified. G10/G12 framing
 and ambiguous IO replay remain open. Both runtime packages reproduce; no hardware,
 installed-app modification or third-party dependency change occurred. See
 [scope and evidence](audit/INVALID-LENGTH-GUARD.md).
+
+
+## Shared-stream G12 characterization
+
+Clean committed offline fixtures now demonstrate prior-body response association
+for missing/lowercase/duplicate-last-zero/declared-zero framing, and a stuck
+follow-on after chunked parsing failure. Original and audit.10 outcomes match on
+both pinned runtimes (x64 via Rosetta); no TCP or hardware qualification is claimed.
+The characterization changes no application bytes. Narrow framing policy is the
+next reviewed security milestone. See [evidence](audit/SHARED-RESPONSE-FRAMING.md)
+and [clean observations](audit/shared-stream-clean-results.json).
