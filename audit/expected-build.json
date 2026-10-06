@@ -55,9 +55,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "bb4aae0425fd35a0a36cdfa308cd6a06e60f27cb3f55a7d01de5fd4f3d9923ee",
-  "reason": "Audit.20 reviewed stopped admission and strict unexpected-stderr observation guard; development artifact pending clean qualification",
+  "previous_record_sha256": "3f378f16d569a45e775e9f92114122919bd449e9dc0bbbcba70701d71ea3a581",
+  "reason": "Actual Claude-reviewed audit.20 stopped admission: two identical builds from clean implementation 182cc2a; strict gates pending qualification anchor",
   "schema": 1,
-  "source_commit": "abf849b96a8d6a588e0b3562a958b05d9687155e",
-  "source_dirty": true
+  "source_commit": "182cc2a24aa3524c37f405529a011ef140909e90",
+  "source_dirty": false
 }
