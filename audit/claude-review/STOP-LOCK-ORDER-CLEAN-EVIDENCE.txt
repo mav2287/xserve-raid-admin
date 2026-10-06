@@ -1,0 +1,41 @@
+I've finished reading the records and checking them against each other. I found nothing that blocks qualification in the evidence. The one archive blocker is that `audit/STOP-LOCK-ORDER.md` still describes the milestone as development. I compared hash strings across files only. I did not recompute any checksum, run anything or edit anything.
+
+## What matches
+
+- **Identity:** `6e2c2107…` is the source, fixture and packager commit in every record I read, and every record shows a clean tree. Python ran 118 tests, all passed, exit 0.
+- **Ten gates:** In `stop-lock-run-results.json`, all ten show exit 0 and 0 stderr bytes. Each output hash matches the corresponding entry in `final-integrity.records`.
+- **Bundles:** There are two builds per architecture. Both builds, the comparison and diagnostics all exited 0 with no stderr. The bundled `RAID_Admin.jar` is the candidate `f7c829f8…`. The bundle digests are `fe9e875f…` (aarch64) and `7066617…` (x64). The bundles are not signed or notarized.
+- **Lock observation counts (20):** Per architecture:
+  - 4 candidate runs that completed (`-Xint`/`-Xcomp` × pc18/pc45), so 8 in total.
+  - 5 exact deadlock pairs: pc18-getter in both scenarios, pc45-getter in pc45, and the audit18 Manager in both. That gives 10 in total.
+  - 1 cross-control where the pc45-getter variant still completes pc18, so 2 in total.
+- **Audit18 baseline control:** The control's Manager hash is `a928b493…`. That is the same value as:
+  - `AUDIT18_MANAGER_SHA256` (`tools/class_patch.py:22`)
+  - the audit18 ledger's "after" hash (`audit/connect-stop-final-integrity.json:83`)
+  - the "before" hash in this run's comparison against audit18
+
+  The control JAR is `a0812d22…`, not `d1d09ce0…`. That fits the documented setup: the audit18 class inside the otherwise current candidate JAR, not the full historical app.
+- **Two changed entries against audit18:** The "before" hashes (`a928…`, `e288…`) are the audit18 ledger's "after" hashes. The new RejectionRecovery hash `2a369abb…` matches `recovery_class_sha256` in the connect record. The manifest hash `33c12af8…` is unchanged from the audit18 ledger. The reference JAR `d1d09ce0…` matches the audit18 `candidate_jar_sha256`.
+- **Runtime hashes:** All three scopes (files only, Home files only, files plus file modes) have the same values as in the audit18 ledger. The files-plus-modes values (`ce517f50…` / `6aa1fb2c…`) match `audit/runtime-lock.json:506,1011`, the bundle manifests, and `runtime_trees` in the lock and connect records. The scope labels were renamed and the definitions now say "fresh". The records can only state that the measurements were fresh. Values identical to audit18 are expected for an unchanged runtime, but they cannot prove a new measurement was taken.
+- **Patch check in `class_patch.py`:**
+  - The patch step (`:191-197`) requires the original field access to be `0x0002` and `b6001b` at PC18 and PC45. It then writes `0x42` and `b4000b`.
+  - The check (`:494-510`) requires access to be exactly `0x42`, code length 595 and stack/locals `0006/0009`. It confirms the new read refers to `CommunicationsManager.stopped:Z`. It then reverses the edits and requires the full-class SHA to equal the audit18 Manager hash.
+- **Excluded runs** (`final-integrity.excluded_runs`): The record keeps the first attempt's lock-output mismatch as excluded with the cause unresolved, states that its other gates were not promoted, excludes the traced 20/20 replay, and qualifies only the second plain set. Nothing in it claims the first cause was fixed.
+
+## Blockers and gaps
+
+1. **Archive blocker: the status doc is out of date.** `audit/STOP-LOCK-ORDER.md:3,41,77` still says development, "clean qualification pending" and "20 development observations". It also says audit18 is the current qualified candidate. You said this update is pending. When it lands, it needs to carry the excluded first attempt (cause unresolved, unexpected output not kept) and the exclusion of the traced replay. Right now that limitation is recorded only in `build/`.
+2. **Wording gap in the exclusion entry.** It says "no JVM/process failure". It does not record Java exit 0 or the absence of an assertion failure as you described them. Consider stating both.
+3. **Records are still in `build/`.** Earlier milestones archived theirs in `audit/`. Final-integrity is also missing a clean-review hash field; audit18 had `claude_clean_review_sha256`.
+4. **Recovery-expected file claims qualification early (minor).** `audit/stop-lock-recovery-expected.json:4` already says stop lock ordering is "separately qualified". That file was committed at `6e2c210`, before clean qualification.
+5. **Possible unchecked path (not assessed).** At `class_patch.py:400,463`, the stop-lock check runs only when the field is already volatile. I did not read the surrounding code, so I can't say whether a non-volatile class could pass those paths unchecked.
+
+## Confidence
+
+High that the files listed above agree with each other, judged by comparing hash strings. I did not read or check:
+- the other eight gate records
+- the diagnostics files
+- `check_stop_lock.py` and `StopLockObservation.java`
+- the 140 source-hash entries
+
+These results say nothing about the native GUI, hardware, physical Intel (the x64 runs used Rosetta), signing/notarization, or the remaining posting, exit, interrupt and callback races.

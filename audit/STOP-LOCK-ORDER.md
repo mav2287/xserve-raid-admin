@@ -1,7 +1,8 @@
 # Audit.19 local stop lock ordering
 
-Status: development; clean qualification pending. Audit.18 remains the current
-qualified candidate. This milestone does not change asynchronous admission or
+Status: clean qualification passed at source/fixture/package commit `6e2c210`.
+Audit.19 is the current scoped candidate; native GUI, hardware and release
+acceptance remain open. This milestone does not change asynchronous admission or
 callback timing.
 
 Fact: original run holds the queue monitor while invoking synchronized isStopped
@@ -38,7 +39,7 @@ name from outside the fixture, request or credential is logged. A watchdog,
 exception or verifier failure fails the check; it is never negative evidence.
 Deadlocked controls leave only daemon threads and exit naturally, without interrupt.
 
-There are 20 development observations: eight candidate interpreted/compiled
+There are 20 qualified lock observations: eight candidate interpreted/compiled
 positives on the two pinned runtimes, ten exact deadlock controls, and two restored-
 PC45 controls that still complete the PC18 scenario. This last cross-control
 attributes the two sites correctly. The full original both-getter variant would
@@ -74,4 +75,58 @@ no Phase B blocker. Its refinements are implemented: the both-restored control
 now uses the exact audit.18 Manager class (in the otherwise current candidate JAR),
 monitor ownership is asserted for both threads, and the classpath proof is based
 on the actual single-JAR launcher rather than vendor extension inventory. Clean
-qualification remains pending; development results are not release acceptance.
+qualification and evidence are archived below; this is not release acceptance.
+
+## Clean qualification and preservation
+
+Two clean source builds reproduce JAR
+`f7c829f83735ccd7fd6d36d6b7220bd4be8f82733b38bfa7d150d704f42a6775`.
+Ten gates passed with exit 0 and empty stderr at `6e2c210`:
+[security](stop-lock-clean-security-2.json), [transport](stop-lock-clean-transport-2.json),
+[runtime](stop-lock-clean-runtime-2.json), [resources](stop-lock-clean-resources-2.json),
+[shared stream](stop-lock-clean-shared-2.json), [request factory](stop-lock-clean-factory-2.json),
+[posting](stop-lock-clean-posting-2.json), [connection stop](stop-lock-clean-connect-2.json),
+[historical characterization](stop-lock-clean-characterization-2.json), and
+[lock ordering](stop-lock-clean-lock-2.json). The historical source remains
+`47166ed` with current `6e2c210` fixtures; it checks the measured audit.17 pin.
+[118 Python tests](stop-lock-clean-tests.json) cover every field/window byte,
+other-method/field mutations, independent javap masks and subclass rejection.
+The retained 143-line recovery matrix and 116-row factory table pass. Connection
+stop's 42 positives/controls and synchronous posting's ten observations also pass.
+
+[Packaging](stop-lock-bundle-results.json) reproduces files, modes and directory
+modes twice per architecture, preserving verified vendor runtime signatures.
+[Arm64 diagnostics](stop-lock-diagnostics-aarch64.json) and
+[x64 diagnostics](stop-lock-diagnostics-x64.json) match the reviewed artifact.
+X64 runs under Rosetta, not physical Intel; application signing and notarization
+are unperformed. Diagnostics contain filtered interface names, no addresses or
+credentials. [Run results](stop-lock-run-results.json) retain actual orchestrator
+exit codes, stderr sizes and gate output hashes, plus bundle/test statuses.
+
+[Final integrity](stop-lock-final-integrity.json), SHA-256
+`51927a3efc10d0e4fabfd1d6a3fcf71545cb79d4b84ca55ac221076d278e0ce6`, maps record filenames to hashes, checks committed source bytes,
+links the exact audit.18 reference JAR and changed entry before/after hashes,
+records a byte-identical manifest, and includes fresh runtime file-only/Home/
+files-plus-file-mode measurements with explicit formulas. Only Manager.class and
+the recovery constant class differ from audit.18 JAR entries. Original mode 444
+and installed-app files/modes remain unchanged; no controller contact or production/
+mounted-volume tests occurred. No new dependency was added.
+
+The first plain ten-gate attempt failed only the lock stdout-vector comparison
+after Java exit 0. No main assertion or verifier failure was observed; the
+unexpected output was not retained and the cause remains unresolved. That run
+and its other gates are not the qualified set. A parent-traced replay matched all
+20 cases but is also excluded. Only the second plain ten-gate set is qualified.
+The strict output checks were not loosened. This unresolved observation limits
+claims about fixture reliability; no root-cause fix is claimed.
+
+[Claude clean review](claude-review/STOP-LOCK-ORDER-CLEAN-EVIDENCE.txt) found the
+recorded evidence coherent and required this status/exclusion/archive update.
+Its possible optional-normalization concern is covered by the full
+[implementation review](claude-review/STOP-LOCK-ORDER-CODE-REVIEW.txt): non-volatile
+classes with new direct reads fail the exact audit.18/audit.17 restoration, while
+current run preservation requires the volatile field. Independent executed tests
+and integrity supply checksum verification; Claude compared recorded values.
+The pre-qualification recovery matrix's scope text describes separate gate
+boundaries, not a passing certificate. Passing gate records above establish the
+actual qualification. This archive changes no `6e2c210` qualification input.

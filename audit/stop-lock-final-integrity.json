@@ -1,0 +1,115 @@
+{
+  "source_commit": "6e2c2107d0e9d41a1a3c6b742576f34c5c62fdb1",
+  "fixture_commit": "6e2c2107d0e9d41a1a3c6b742576f34c5c62fdb1",
+  "source_dirty": false,
+  "fixture_dirty": false,
+  "historical_characterization_source_commit": "47166edbffb5bc07bc045d12fdf90b6b79d77f81",
+  "records": {
+    "security": "1c5a904078c540796afd50ec75f73cbfb206723d26e3f8a10d8017067df53ba8",
+    "transport": "ff3e0537614c05ff4120f8be631231ee071e58cb04958f69d267168970349a25",
+    "runtime": "ea3ed69c7198f0b329aeafe2ddf30ea59dec5ef1b93cd76ba13943c24902b8e1",
+    "resources": "c8d80b9b6ddedbce83264319c26350e63b34d91bb108f800a4b65e4f1848ce36",
+    "shared": "f6af1804826c0298430052ee4252426cf469e57ad6c25a185f819b43e708a230",
+    "factory": "eb80d478801dd8f6ae7bb5f24cfd99989afdb69974e2a27f05e8bfa1daccd0ee",
+    "posting": "f06d8e95a6e5db796955ed83a33a957950e79642f30c686dd6d7ecb271aba0f1",
+    "connect": "5c9ae773b5efd855eca011c9ff357b1a45c94038e731cfbed839d23d044353aa",
+    "characterization": "5a3b6c01d32906b75d8cba15d1a695b6fdf00459c775118cc2fc9fd4d85ca52c",
+    "lock": "45232a43e06cbec5d0ed312a41b656b0f14a0f7c1abde383f53529d570f3e829"
+  },
+  "record_files": {
+    "security": "stop-lock-clean-security-2.json",
+    "transport": "stop-lock-clean-transport-2.json",
+    "runtime": "stop-lock-clean-runtime-2.json",
+    "resources": "stop-lock-clean-resources-2.json",
+    "shared": "stop-lock-clean-shared-2.json",
+    "factory": "stop-lock-clean-factory-2.json",
+    "posting": "stop-lock-clean-posting-2.json",
+    "connect": "stop-lock-clean-connect-2.json",
+    "characterization": "stop-lock-clean-characterization-2.json",
+    "lock": "stop-lock-clean-lock-2.json"
+  },
+  "supplemental_records": {
+    "stop-lock-clean-tests": "9464953d3137b41fb3842ac197c0223419950b754341ecd1fdc2a332aa1706ad",
+    "stop-lock-bundle-results": "8911f3d97f794421c216aef27f652b35681990637f461f202882b67da1abb565",
+    "stop-lock-diagnostics-aarch64": "1ad48cf38d32f4da6de086d66d4eb4006c45a070957ddcc18ad6e9065af3a8d0",
+    "stop-lock-diagnostics-x64": "74c552b5702e71d3370b85defad6d2e69fe2c59c557710400dcef212615a57ef",
+    "stop-lock-run-results": "bcf8837bdd274319f7bdfac4aab19eac895dce4e8f2963b19cedb38e1d403c4c"
+  },
+  "candidate_jar_sha256": "f7c829f83735ccd7fd6d36d6b7220bd4be8f82733b38bfa7d150d704f42a6775",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": "0o444",
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "installed_matches_reference_files_and_modes": true,
+  "fixture_sources_match_committed_bytes": true,
+  "checked_source_hash_entries": 140,
+  "python_tests_passed": 118,
+  "connection_stop_records": 42,
+  "interpreted_compiled_connection_positives": 36,
+  "semantic_mutants_per_architecture": 3,
+  "historical_characterization_records": 8,
+  "changed_jar_entries_from_audit18": [
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "compat/RejectionRecovery.class"
+  ],
+  "architectures": [
+    "aarch64",
+    "x64"
+  ],
+  "x64_execution": "Rosetta, not physical Intel",
+  "controller_contact": false,
+  "production_or_mounted_volume_tests": false,
+  "installed_application_modified": false,
+  "runtime_hash_scopes": {
+    "aarch64": {
+      "Runtime.jdk files only": "e599cb3abe9ac6b09164cec18f6fca71625a16522d186ba7148e08a218d354c0",
+      "Runtime.jdk/Contents/Home files only": "278ffbb3a133dcc0afa01170d502d7ebc2109d9d0cf87ef8fe37fd04f9d5aac2",
+      "Runtime.jdk files and file_modes": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187"
+    },
+    "x64": {
+      "Runtime.jdk files only": "bddb573491588b48dee81e1b2461fb71765a0dbeb005ddb9337e211f52fc6d39",
+      "Runtime.jdk/Contents/Home files only": "a4747957a99b5b093781ea99017efebb2459a66e62182d1ee24e294a35b5389d",
+      "Runtime.jdk files and file_modes": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    }
+  },
+  "limits": "Native GUI recovery, hardware behavior, physical Intel, signing/notarization and outstanding posting/exit/interruption/callback races and arbitrary clone/callback lock behavior remain unqualified.",
+  "audit18_reference_jar_sha256": "d1d09ce03e39b507225eb11c1704925161a03d0440518ef94fab5d97e998bfd6",
+  "changed_entry_sha256_from_audit18": {
+    "com/apple/xsr/net/CommunicationsManager.class": {
+      "before": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893",
+      "after": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24"
+    },
+    "compat/RejectionRecovery.class": {
+      "before": "e288eb83a4df7720aee6bc10d6acbd4d5eabb1101d555ba6d7ef42972eb15b97",
+      "after": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d"
+    }
+  },
+  "manifest_entry_unchanged_from_audit18": {
+    "entry": "META-INF/MANIFEST.MF",
+    "byte_identical": true,
+    "sha256": "33c12af863951b01abc7f8fd9f283bac409d7a63af4c2901358abf88371c005a"
+  },
+  "lock_observation_records": 20,
+  "exact_deadlock_controls": 10,
+  "interpreted_compiled_lock_positives": 8,
+  "site_attribution_cross_controls": 2,
+  "runtime_hash_scope_definitions": {
+    "Runtime.jdk files only": "Fresh file-content-map digest excluding modes",
+    "Runtime.jdk/Contents/Home files only": "Fresh Home file-content-map digest excluding modes",
+    "Runtime.jdk files and file_modes": "Fresh digest({files: file-content map, file_modes: mode map}); matches exact vendor lock/gate/package digest; directory modes separately verified"
+  },
+  "excluded_runs": {
+    "first_clean_attempt": {
+      "gate": "lock",
+      "gate_exit_code": 1,
+      "java_exit_code": 0,
+      "main_assertion_or_verifier_failure_observed": false,
+      "failure": "Strict stdout-vector mismatch; unexpected output not retained",
+      "cause": "Unresolved",
+      "other_first_run_gates_promoted": false
+    },
+    "traced_replay": "All20 cases matched strictly with added parent output tracing; excluded from qualification.",
+    "qualified_set": "Second plain ten-gate run only, exact unchanged source/fixture/package commit."
+  },
+  "claude_clean_review_sha256": "30b3291b89f84b6209873c75abac0ab5b0721172c42c93ab9c7e48c7219f11f9",
+  "claude_implementation_review_sha256": "2901457f87a6bbfa8cdcca8bcffd2bec06eec9f990a923d5aae4b6d87654aebf"
+}

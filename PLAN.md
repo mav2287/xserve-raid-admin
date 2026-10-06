@@ -671,3 +671,15 @@ pass at clean source/fixture/package commit `7aa02c5`; x64 runs under Rosetta.
 See [scope and evidence](audit/CONNECT-FAILURE-STOP.md). No controller or installed
 app was modified. Interrupted waits, synchronous enqueue/exit hangs, late async
 posts, callback cleanup, lock ordering and hardware/release acceptance remain open.
+
+### Audit.19 local stop lock ordering (clean fixtures)
+
+Private stopped is volatile, and the worker's two queue-held reads avoid acquiring
+the Manager monitor. Shutdown, callback timing and admission stay unchanged.
+The isolated fixture proves completion and exact deadlock pairs when original
+lock calls are restored. Ten gates, 118 tests and duplicate arm64/x64 packages pass
+at clean source/fixture/package commit `6e2c210`. The first output-mismatch attempt
+has an unresolved cause and is excluded; only the second plain set qualifies.
+See [scope, limits and evidence](audit/STOP-LOCK-ORDER.md). Posting/exit stranding,
+interrupted waits, callback failure cleanup, native GUI and hardware/release
+acceptance remain open. No controller or installed-app modification occurred.
