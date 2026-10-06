@@ -146,7 +146,7 @@ def main():
                'tests/java/com/apple/xsr/net/TransportObservation.java', 'patches/sun/io/MalformedInputException.java','tests/java/com/apple/xsr/net/HeaderObservation.java')]
     identity_sources=sources+[ROOT/'patches/compat/RejectionRecovery.java']
     source_hashes = {str(p.relative_to(ROOT)): sha(p) for p in identity_sources}
-    helpers = [ROOT/'tools'/name for name in ('audit_support.py','baseline.py','class_patch.py','runtime.py','sync_ownership_patch.py','worker_exit_patch.py')]
+    helpers = [ROOT/'tools'/name for name in ('audit_support.py','baseline.py','class_patch.py','runtime.py','sync_ownership_patch.py','worker_exit_patch.py','stop_admission_patch.py','stop_admission_structure.py')]
     helper_hashes = {str(p.relative_to(ROOT)): sha(p) for p in helpers}
     tool_hash = sha(Path(__file__))
     observations = []

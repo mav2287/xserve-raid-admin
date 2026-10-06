@@ -1,0 +1,51 @@
+I found no defect in the patch bytes themselves. But the evidence doesn't yet support promotion: the hook jars can't be reproduced from what I read, and the synchronous guarded vectors can pass for the wrong reason.
+
+I only read files. Nothing was written, run or contacted. Beyond the nine files you listed, I also read the original `dispatchLoop` disassembly, `tools/class_patch.py`, `tools/sync_ownership_patch.py` and the memory `AcpxConnection` shadow.
+
+## What checks out in `stop_admission_patch.py`
+- **The replaced bytes are right.** At 644, `2a 04 b5 019e` is the start of the worker-exit tail that sets `workerActiveStarted=true`. It becomes `goto_w 709`.
+- **The new tail at 709–725 is right.** It reads `stopped` directly (`getfield #11`, the private volatile field), then `ifne` back by 440 to 273. Otherwise it runs the original 5 bytes and `goto_w 649`, which resumes at the `getMessage`/`astore 5` code and then sends at 255.
+- **Jumping to 273 is safe.** The stack is empty and no monitor is held at 713 or at the original 235. Local 5 hasn't been set yet in this pass at the new check, and the 273 block stores it before reading it, so both paths reach 273 in the same state. The 709–726 handler rows copy the 644–660 rows in the same order.
+- **Reversal is whole-class.** `normalize` requires both `sha(restored)==PIN` and `plan(restored)==data`, so it doesn't rely on its weak shape checks. The constant pool count is unchanged (433).
+- **The remaining race is correctly documented.** A stop that lands after the read at 710 still sends. This narrows the window; it doesn't make stop atomic.
+
+## Blocking: evidence that can't be reproduced or tied to the input
+1. **No reviewed script builds the hook jars.** Nothing I read builds `build/stop-admission-{legacy,guarded}-hook.jar` or `build/stop-admission-development.jar` (`1d3c…`). The claims that "whole seam reversal checked" and "CP appended only fixtures" therefore can't be checked here. `run-stop-admission-development.py:16-28` records each jar's hash but never compares it to anything.
+2. **The identity manifest checks the jar against itself.** It is computed from the jar under test (`:17-20`), so `FixtureIdentity` only proves the classes match the jar they were loaded from.
+3. **What's needed:** a pinned builder plus independent checks:
+   - original 235 call = `b6 001b`, i.e. `isStopped`;
+   - hook Manager = input with only 235 swapped for `invokestatic …StopAdmissionObservation.read(L…CommunicationsManager;)Z`, plus appended constants;
+   - legacy input SHA = `bc6…`, guarded input = `plan(bc6…)`;
+   - every non-Manager class identical to `worker-exit-clean-3`;
+   - `1d3c…`'s Manager, normalized, gives `bc6…`.
+4. **`bc6…` isn't tied to its source.** Nothing shows `bc6…` equals `tools/class_patch.transform_current(original)`. There's also an import ambiguity: `build/worker_exit_patch.py` is a different file from `tools/worker_exit_patch.py` (direct `CALL` vs the `connectCallback` helper at :64). `jump` is the same in both, but which file gets imported depends on `sys.path`.
+
+## False-positive risks in `StopAdmissionObservation`
+5. **High: the sync guarded outcome has two possible causes.** A worker that dies with an unstarted transaction is reported as `CommShutdownException`. Nothing the test checks tells that apart from the guard working. `workerError` is always null because the wrapper catches the failure. Async is partly protected by the `callbackThread==worker` check; sync has no equivalent. To fix, assert:
+   - the exception's top stack frame is `dispatchLoop`, created at 280;
+   - SyncSender `claimed==true` and handled;
+   - the hook ran exactly once.
+6. **"Zero sends" comes from how the shadow is built, not from observation.** The memory `AcpxConnection` (`tests/java/ownershipfixture/AcpxConnection.java:35`) only records after `writeTo` returns. A `send` that was entered and then threw would also show zero. Add a counter at the start of `send`.
+7. **One hook assertion can be swallowed.** In `read()`, the `check(!stopped,"Premature stop")` failure is never stored in `assertions`. If it fired on a second call, the worker containment would absorb it and the test could still pass. Record every hook assertion and count calls.
+8. **`-Xcomp` doesn't prove compiled code ran.** If the JIT skips a method it can't compile (e.g. an unbalanced monitor), that method quietly runs in the interpreter. Capture `-XX:+PrintCompilation` and require `dispatchLoop` to be compiled with no `COMPILE SKIPPED`.
+9. **`guarded_operations=0` is a fixed string** (`:45`), not a measurement. Remove it or measure it.
+
+## Correctness gaps without vectors
+10. **One sub-branch of 273 is never exercised.** With `connectionFailureSent=true`, 273 goes to 304 with no response, so no callback runs. For a claimed SyncSender, a dropped response would mean a caller that interrupt can't release.
+    - It looks unreachable: the flag is set only in `doConnect`, alongside `retire`, and reset at 514. A handler failed there is already handled, so `claim` fails.
+    - Prove that statically or add a vector.
+11. **Missing vectors:**
+    - a claimed sync caller that is interrupted before the guard stops it; it must get −102 and not hang;
+    - two or more queued transactions, where every one must get −102 and nothing is sent;
+    - an async after-admission control; all four controls are sync-only GetTime runs;
+    - a stop while `claim` is blocked on the Sender monitor;
+    - a mutating command.
+12. **Structural checkers aren't updated.** `plan()` relies on the hash alone and never asserts the 234–241 / 273–304 code. Before promotion, update the `TAIL` expectation in `worker_exit_structure.py` and the reachable set in `assert_retry_unreachable`, as the earlier review said.
+13. **The fixture isn't a real Manager.** It is built with `Unsafe.allocateInstance` and `prepare()` is called by hand, so constructor wiring isn't covered.
+
+## Security
+14. **Hook jars must stay out of the product.** Their Manager calls a fixture class placed in `com.apple.xsr.net`. `normalize()` would reject them by hash, but the product gate should also reject any constant that references `StopAdmissionObservation`. The hook jars should live somewhere other than next to candidate jars in `build/`.
+15. **The scope label is still accurate.** No cancellation or receipt claim is made, and nothing limits the time spent after admission.
+16. **The design doc is out of date.** `audit/STOP-ACTIVE-SEND-DESIGN.md:47-48` still says the async and pre-admission fixtures "remain required". It should be updated to record this prototype, its evidence and the open items above.
+
+Recommendation: hold promotion until items 1–8 are done and the interrupted-caller and multi-queue vectors from 11 exist. The rest can be recorded as known limits.

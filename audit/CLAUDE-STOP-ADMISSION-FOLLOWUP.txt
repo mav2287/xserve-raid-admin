@@ -1,0 +1,51 @@
+I've now read all the referenced material. Here is the analysis of the `connectionFailureSent` concern, confined to reasoning about the bytecode and the notes (no execution, writes, or controller contact).
+
+## What the new guard does and where 273 sits
+
+The candidate send path is: `234 isStopped` → false → `goto_w 595` → SyncSender `claim()` at `606` → on true `goto_w 644` → `workerActiveStarted=true` (`644`) → `getMessage` → send at `247/255` (`guarded-worker-candidate-manager.javap:841-850`, `1011-1038`).
+
+The prototype patch (per `STOP-ADMISSION-PROTOTYPE-REVIEW.txt:6-8`) replaces the `644` bytes that set `workerActiveStarted=true` with `goto_w 709`, and the new tail re-reads the volatile `stopped` (`getfield #11`) and, if set, jumps **back by 440 to 273**. So the question is entirely about what happens at `273` when a *claimed* SyncSender lands there after a stop.
+
+At `273` (`:859-874`): `getfield connectionFailureSent; ifne 304`. If true → `304 → 489`; with response (local 4) still null, `489` sends both to `514` (`:969-980`) → `689` → `connectionFailureSent=false`, no callback. For a claimed SyncSender that is the **hang**: the caller in `getResponse()` is never released, and `workerActiveTxn` is cleared so `WorkerExit.exit` won't deliver either.
+
+## Can a claimed SyncSender see `connectionFailureSent==true` at 273?
+
+**`connectionFailureSent` lifecycle:**
+- Constructor sets it false (`:514`).
+- `doConnect` resets it false at entry (`:1100-1102`, bci 10-12).
+- It is set **true only inside `doConnect`**: the no-valid-address path (`718`, `:1431-1433`) and the connect-failure retry path (`594`, `:1377-1379`) — and in **both** cases a connect-failure (`-101`) is delivered to the handler via `connectCallback` *before* the flag matters (`754/774`, `:1446-1456`).
+- It is reset false on **every** per-transaction terminal in `dispatchLoop` at `699` (`:1056-1058`), which lies on the `514→689` path that every loop-back to `0` passes through (`519→0`, `704→519`). The only completion that skips `689` is the stop-exit at `522→552 return` (`:982-995`), which ends the worker and never loops.
+
+So at the **start of each iteration the flag is false**, and the only way it is true at `273` is if `doConnect` set it true *this* iteration. The relevant sub-cases:
+
+- **Connect succeeds** (`497 return`, `:1325`): flag was reset to false at entry and not re-set — **false at 273**. This is the common stop-races-the-claim case: `273` builds the `-102`/`CommShutdownException` at `280` and delivers it. No hang.
+- **Retry path sets it true then returns** (`594`): it only returns while holding the failure if `isStopped` became true (`599→692 return`, `:1380-1383`). Then `234` already sees `stopped` → `ifne 273` **directly, never reaching `595`/`claim`** — so this is an *unclaimed* txn, and the `-101` was already delivered in `doConnect`, so suppression at `273` is correct (no double-send, no hang). This is the original behavior, untouched by the patch.
+- **No-valid-address returns true** (`718→414`): flag true, `-101` already delivered via `connectCallback`. For a SyncSender that delivery should mark it handled, so the later `claim()` at `606` returns false → `ifeq 489` → terminal, no second delivery. **Only if `claim()` still returned true** would a claimed sender reach the guard with the flag true — i.e. the hang.
+
+So the hang reduces to a single invariant: **"a connect-failure callback delivered to a SyncSender's handler this iteration forces `claim()` false."** That is exactly the argument `STOP-ADMISSION-PROTOTYPE-REVIEW.txt:34-36` offered, and it is plausible (the SyncSender is its own handler, so `connectCallback → handleResponse` latches it).
+
+## No complete proof is available from the reviewed files
+
+The invariant cannot be closed here: `SyncSender.claim()` and `handleResponse()` are an inner class (`#30`) whose bytecode is **not** in `guarded-worker-candidate-manager.javap` or any file in the notes. The "claim-false after connect-failure" link is assumed, not verified. So per your instruction I evaluate the conservative retarget.
+
+## Guard-only jump to 280 is the honest, safe target
+
+Retargeting the new tail's `ifne` to **280** instead of **273** (skipping only the `connectionFailureSent` read at `273-277`):
+
+- **Honest unsent completion** — `280-302` builds `BasicResponse(code 2, result=null, status −102, CommShutdownException)` (`:862-873`): the exact same "stopped, not sent" response the original `273` path produces when the flag is false; `result=null` makes no sent/received claim. ✓
+- **Preserves the worker thread** — routes `304→489→660→514→689→519→0` (`:874`, `1039-1059`); no throw unwinds the worker; the next iteration sees `stopped` and exits cleanly at `51-53`. ✓
+- **No replay / no new command** — it does not touch the send path (`247`) or the re-queue `addFirst` (`404-416`); it only constructs and delivers a terminal response. ✓
+- **Exact existing active-callback protection** — with a non-null response, `489` takes the `498→goto_w 660` arm, and `660` applies the existing `workerActiveTxn != null` guard, clearing it before `handleResponse` (`:1039-1046`). `workerActiveTxn` was set this iteration at `627-629` (`:1023-1025`); `workerActiveStarted` stays false because the patch replaced the `644` store — so the `run()`/`WorkerExit.exit` guard (`:1553-1575`) sees started=false, i.e. unsent. This is the *same* protection the normal delivery uses. ✓
+
+Crucially, `280` is **identical to `273` in the proven case** (flag false → both build `-102`), and in the *unproven* case it degrades to a second `handleResponse` after an earlier `-101` rather than a hang. A duplicate honest "not sent" callback to an already-latched SyncSender is harmless; a dropped response is not. So `280` strictly dominates `273` for the claimed-sender concern.
+
+## Remaining blockers
+
+1. **The `273`-safety invariant is still unproven statically** (SyncSender `claim()`/`handleResponse()` bytecode absent). Either verify it directly, or adopt the `280` retarget, which removes the dependency.
+2. **The `280` option carries a weaker, still-unverified assumption**: `SyncSender.handleResponse` must latch the first response (idempotent) so a post-`-101` `-102` is dropped. Confirm from SyncSender bytecode.
+3. **No vector exercises this edge** (prior review item 11). There is no test that drives a claimed sync txn whose `doConnect` set `connectionFailureSent=true` in the same iteration — so neither `273`-safety nor `280`-behavior is empirically observed. If such a state is even constructible, it needs a vector asserting no hang and no false "sent".
+4. **Structural checkers not updated for this region** (prior item 12): `plan()`/`TAIL` in `worker_exit_structure.py` and `assert_retry_unreachable` must pin the `273–304`/new-tail code and the chosen jump target, rather than relying on the whole-class hash.
+5. **The strengthened false-positive assertions (prior items 5–8) are claimed done in the notes but the 40-vector suite is still running** — top stack frame = `dispatchLoop@280`, `claim==true`+handled, hook-ran-once, send-entry counter, per-call hook-assertion recording, and `-Xcomp` compilation proof are not yet confirmed green here.
+6. **Build-side provenance (prior items 1–4)** is claimed addressed via `stop_admission_fixtures.py`/`stop_admission_structure.py`; I did not run them, so I can't confirm the hook-jar reproduction or the `bc6…`↔`transform_current(original)` tie from a read-only pass.
+
+**Recommendation:** retarget the new guard's `ifne` from `273` to `280`. It is behaviorally identical wherever the `273` path is provably safe and strictly safer where it is not, while preserving the worker thread, the unsent `-102` outcome, and the existing `workerActiveTxn` callback protection — without depending on the unproven `claim()`-after-connect-failure invariant. Hold promotion until blockers 2–5 are closed; do not implement yet.

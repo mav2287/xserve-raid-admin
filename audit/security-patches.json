@@ -73,8 +73,9 @@
     "original_major_version": 47,
     "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
     "patched_major_version": 47,
-    "patched_sha256": "bc6ff5078249e584dd81f102799b0c10870d8e37b194b48c3e39dd722c45eda6",
-    "scope": "Audit.21: exact audit.20 predecessor retained under ownership claim and guarded private dispatch loop; constructor preparation, tracking, at-most-once delivery, nonrendering connect callback boundary and terminal completion wrapper. Whole-class reconstruction to reviewed predecessors required."
+    "patched_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+    "scope": "Audit.22: audit.21 ownership/worker containment plus final volatile stopped read before exposure, guard-only unsent response independent of stale connection-failure suppression. Other members, pool, commands, polling and retry timing remain unchanged.",
+    "stop_before_send_scope": "audit.22: final volatile stopped read after ownership claim and before exposure. Guard-only stopped path constructs the original -102 unsent response at280 irrespective of stale connectionFailureSent; original first-response and callback-attempt protections remain. After final read, actual reply or unconfirmed outcome retained; no atomic TCP cancellation or deadline claim."
   },
   "com/apple/xsr/net/HttpResponse.class": {
     "method": [

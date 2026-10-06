@@ -92,9 +92,10 @@ The original application offers a **+** workflow for discovery or manual IP entr
 That GUI/network workflow has not been qualified in this audit. Hardware testing
 of these candidates requires an approved test context.
 
-Original retry behavior is preserved: a dropped response can cause a mutation to
-be sent again without a fixed retry limit; exhausted firmware streams can produce
-an empty retry body. Firmware and other mutation workflows remain unqualified.
+The original application can replay a mutation after a dropped response. The
+current compatibility guards stop the affected worker session on the verified
+ambiguous-failure paths and preserve honest uncertain outcomes. Full GUI/CLI
+retry and firmware workflows remain unqualified; launch is not feature proof.
 See [G10](GAPS.md#g10--ambiguous-writes-and-queue-retry-semantics).
 
 ## Hardware Compatibility

@@ -79,6 +79,11 @@ def plan(data):
 
 def normalize(data):
  c=ClassFile(data)
+ if any(m['name']=='dispatchLoop' for m in c.methods):
+  b,e=method_code(c,'dispatchLoop','()V')
+  if u4(data,b+10)==726:
+   from stop_admission_patch import normalize as normalize_stop
+   data=normalize_stop(data);c=ClassFile(data)
  if c.pool_count==408:
   if hashlib.sha256(data).hexdigest()!=PIN:raise ValueError('Unreviewed worker predecessor')
   return data

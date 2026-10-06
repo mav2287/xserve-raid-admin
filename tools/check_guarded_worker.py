@@ -45,9 +45,11 @@ def main():
  with zipfile.ZipFile(candidate) as z:entries={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
  with zipfile.ZipFile(reference) as z:old={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
  if normalize_manager(normalize(entries[MANAGER]))!=old[MANAGER] or normalize_sender(entries[SENDER])!=old[SENDER]:raise ValueError('Exact predecessor reconstruction differs')
+ from stop_admission_structure import normalize_stop_admission
+ normalize_stop_admission(disassemble_entries(a.jdk,candidate,[MANAGER],verbose=True),True)
  for entry in (MANAGER,SENDER):
   text=disassemble_entries(a.jdk,candidate,[entry],verbose=True);normalize_extensions(text)
- names=SOURCES+('tests/java/ownershipfixture/AcpxConnection.java','tools/check_guarded_worker.py','tools/worker_exit_structure.py','tools/worker_exit_patch.py','tools/sync_ownership_patch.py','tools/sync_ownership_structure.py','tools/class_patch.py','tools/audit_support.py','tools/baseline.py','tools/runtime.py','tools/verify_builds.py','tools/inventory.py','tools/check_security.py','tools/check_sync_ownership.py','audit/expected-build.json','audit/security-patches.json','audit/runtime-lock.json','audit/python-lock.json','audit/jdk-lock.json','patches/compat/WorkerExit.java')
+ names=SOURCES+('tests/java/ownershipfixture/AcpxConnection.java','tools/check_guarded_worker.py','tools/worker_exit_structure.py','tools/worker_exit_patch.py','tools/stop_admission_patch.py','tools/stop_admission_structure.py','tools/sync_ownership_patch.py','tools/sync_ownership_structure.py','tools/class_patch.py','tools/audit_support.py','tools/baseline.py','tools/runtime.py','tools/verify_builds.py','tools/inventory.py','tools/check_security.py','tools/check_sync_ownership.py','audit/expected-build.json','audit/security-patches.json','audit/runtime-lock.json','audit/python-lock.json','audit/jdk-lock.json','patches/compat/WorkerExit.java')
  names+=tuple('tests/fixtures/'+n+'.javap' for n in ('sync-ownership-candidate-manager','sync-ownership-reference-manager','sync-ownership-reference-sender'))
  hashes={n:sha(ROOT/n) for n in names};lock=runtime_manifest();runtimes=[];seen=set()
  for root in a.runtime:

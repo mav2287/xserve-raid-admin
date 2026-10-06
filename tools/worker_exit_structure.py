@@ -40,6 +40,8 @@ WRAPPER=[(0,'invokestatic #425 // Method compat/WorkerExit.ensurePrepared:()V'),
 
 
 def normalize_worker(after,required=False):
+ from stop_admission_structure import normalize_stop_admission
+ after=normalize_stop_admission(after)
  if 'private void dispatchLoop();' not in after:
   if required:raise ValueError('Worker wrapper missing')
   return after

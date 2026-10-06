@@ -44,7 +44,7 @@ def main():
     assert_stop_lock_order(before,entries[ENTRY])
     reference=json.loads((ROOT/'audit/connect-stop-final-integrity.json').read_text())
     if reference['changed_entry_sha256_from_audit17'][ENTRY]['after']!=AUDIT18_MANAGER_SHA256:raise ValueError('Audit.18 class pin differs from measured qualification ledger')
-    names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StopLockObservation.java','tools/check_stop_lock.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json','audit/connect-stop-final-integrity.json')
+    names=('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/StopLockObservation.java','tools/check_stop_lock.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/stop_admission_patch.py','tools/stop_admission_structure.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json','audit/connect-stop-final-integrity.json')
     inputs=[ROOT/n for n in names];hashes={n:sha(ROOT/n) for n in names};runtimes=[];seen=set();lock=runtime_manifest()
     for root in a.runtime:
         arch=None

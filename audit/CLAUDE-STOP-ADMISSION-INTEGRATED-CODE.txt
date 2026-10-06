@@ -1,0 +1,56 @@
+I found no defect in the guard bytecode itself. What blocks a clean integrated gate set is evidence linkage, plus a few stale labels. All findings come from reading files only; I didn't run anything.
+
+## Blockers
+
+1. **The 88-vector evidence was built from different tool sources than the build pins.** `build/stop-admission-refined-development.json` records `tools/class_patch.py` = `f6cd5d…` and `tools/worker_exit_patch.py` = `b4223f…`. `audit/expected-build.json:49,52` pins `96fba6…` and `078a49…`. Only `stop_admission_patch.py` matches (`e10a93…`). The record also has `fixture_dirty: true`. That set must be regenerated clean against the current sources.
+
+2. **Nothing ties the tested Manager bytes to the shipped JAR.**
+   - The experiment builds its fixtures from the audit21 JAR (`REFERENCE` `9f3f521d…`, `check_stop_admission_experiment.py:12`). It runs hooked versions of `plan(source)` and only javap-checks the unhooked prototype.
+   - It never records the prototype's SHA or compares it to `f2960fbf…`. That hash appears only in `audit/security-patches.json:76`.
+   - `expected-build.json` and `security-patches.json` are not in its `SOURCES` list.
+   - The fixture JARs carry audit21's non-Manager entries. Nothing shows that `202c9e1e…` differs from `9f3f521d…` only in `CommunicationsManager.class`.
+   
+   The equality holds by construction (`class_patch.py:105-116` applies the same plan chain), but the evidence doesn't prove it. Suggested fix: record `sha(plan(...))`, assert it equals `patched_sha256`, and assert the audit21 → audit22 JAR diff is exactly the Manager entry.
+
+3. **Labels still say "not integrated" although the guard now is.**
+   - `stop_admission_patch.py:1` says "not build-integrated", but `transform_current` calls it and its hash is a build input.
+   - `tests/test_stop_admission.py:1` and the experiment's `purpose` text say "unintegrated".
+   - The Manager's `scope` in `security-patches.json:77` still reads "Audit.21".
+   
+   Editing `stop_admission_patch.py` changes the pinned input hash, so fix the wording before the final clean build, not after.
+
+## Lower severity
+
+- **The normalizers accept a Manager without the guard.** `worker_exit_patch.normalize` (`:84`) only strips the guard when the dispatch code is 726 bytes long. `normalize_worker` calls `normalize_stop_admission(after)` with `required=False` (`worker_exit_structure.py:44`). So an audit21 Manager passes both structural paths, and only the hash check at `baseline.py:92` enforces the guard. Consider `required=True` in the integrated gates.
+- **Unpinned fixtures.**
+  - `tests/fixtures/stop-admission-candidate-manager.javap` (untracked) is read by the unit test with no hash pin.
+  - `tests/fixtures/sync-ownership-candidate-sender.javap` is not referenced by any tool (see the correction below).
+- **The reported-failure bypass control runs on stripped bytes.** In `check_connect_stop.py:83`, that mutant uses `normalize_current_extensions(...)`, so the guard is removed before it runs. The terminal modes (`:104-107`) do run on the real candidate JAR. Stale-flag coverage of the guard path therefore comes only from the experiment's artificial `sync-flag`/`async-flag` vectors.
+- **Docstring.** `normalize_current_extensions` (`class_patch.py:120`) says it strips only "worker/ownership" edits; it now also strips the guard.
+
+## Correction to the stated premises
+
+- The SyncSender bytecode in `sync-ownership-candidate-sender.javap` does show the latch. `handleResponse` is `synchronized` and returns early on `handled` (`:197-214`). `claim()` refuses when `handled || claimed` (`:225-242`).
+- However, no gate pins or reads that file. Only the file itself matches a search for its name. The gates check the candidate sender against the reference sender instead (`sync_ownership_structure.py:41-44`, called from `worker_exit_structure.py:84-85`). The behaviour is verified, but not through this file.
+
+## What checks out
+
+- **Layout:**
+  - `644: goto_w 709`.
+  - The 17-byte tail is `aload_0; getfield #11; ifne 280; aload_0; iconst_1; putfield #414; goto_w 649`, ending at 726.
+  - Exactly four handler rows are appended for 709–726, mirroring the 644–660 handlers. The handler count goes from 24 to 28.
+  - Pool (433), fields and methods are unchanged, and `stack=6, locals=9` is unchanged.
+- **Reversal:** `normalize` restores the exact pinned predecessor and requires `plan(restored)==data`.
+- **Javap gate:** it pins the reference text, compares the whole pool and identity, and checks every instruction and handler row. The unit test has mutants for `ifne`, the field ref, the `putfield` and the jump target.
+- **Stop path is safe to send regardless of the flag.**
+  - `stopped` is volatile (javap line 465).
+  - Offset 280 builds the original −102 `CommShutdownException` response, and only the guard path skips the `connectionFailureSent` check.
+  - A duplicate delivery is prevented because `doConnect` clears `workerActiveTxn` before its callback (line 756), and delivery at 660 requires `workerActiveTxn != null`. `workerActiveStarted` stays false on the stop path.
+- **Hooks:** the admission hook replaces `isStopped` at offset 235. The exposure hook pauses *before* the guard read in the guarded variant. Both reverse byte-for-byte and change only the Manager entry.
+- **Vector count:** 11 scenarios × 2 policies × 2 architectures × 2 execution modes = 88, of which 44 are Xcomp. Each Xcomp run requires an installed `dispatchLoop` nmethod and no compile failure.
+
+## Residual (as documented, not a defect)
+
+There is still a race between the read at offset 710 and `AcpxConnection.send` at 255: a stop that lands in that window still sends. The guard narrows the window rather than cancelling sends. Nothing here supports release, hardware, native GUI, whole-app compiled or controller qualification.
+
+I didn't review `build/stop-active-async-development.json` (the eight after-admission controls). I also couldn't see the unit-test rerun results, so I can't say whether that rerun passed.

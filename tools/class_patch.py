@@ -108,7 +108,8 @@ def transform_current(entry, data):
     if entry=='com/apple/xsr/net/CommunicationsManager.class':
         from sync_ownership_patch import transform_manager
         from worker_exit_patch import plan
-        result=plan(transform_manager(result))
+        from stop_admission_patch import plan as stop_plan
+        result=stop_plan(plan(transform_manager(result)))
     elif entry=='com/apple/xsr/net/CommunicationsManager$SyncSender.class':
         from sync_ownership_patch import transform_sender
         result=transform_sender(result)
@@ -116,7 +117,7 @@ def transform_current(entry, data):
 
 
 def normalize_current_extensions(data):
-    """Strip only exact new worker/ownership edits before historical feature gates."""
+    """Strip only exact stop/worker/ownership edits before historical feature gates."""
     cls=ClassFile(data)
     if any(m['name']=='dispatchLoop' for m in cls.methods):
         from worker_exit_patch import normalize

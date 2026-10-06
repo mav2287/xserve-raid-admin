@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "e7990447db569acf9be8f3037bc2d2e91fd8032aec03e980cc4371dd7b1d36bc",
+      "Contents/Info.plist": "433d631ab8194ac114dacbb54b5c0e64d125f346483ee133c163978ab57b5f13",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd"
+      "Contents/Resources/RAID_Admin.jar": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "7484bdb87dc58d59ea9eb0bd7c482791d0a0bb0383480cbdd7a5796d18acd5d9",
+      "audit/security-patches.json": "cce611b29591e2e929ce3b3224ddc28307d8ae0b198ac13e0d7703290ccad610",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -45,11 +45,10 @@
       "patches/compat/WorkerExit.java": "10473b5eb8eb610fdc54df9a34f50035ac266048a73d45bed5f3cb8d2ebcb0b2",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
-      "tools/baseline.py": "9173f563bfc2577a18459cf3c313e481f53a29daebdb51f0ec22a844bc346549",
-      "tools/class_patch.py": "b3332a8a9ab8a732aef5eb1271a729e5a6d67affe34d5657c2011937ccbd6533",
-      "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+      "tools/baseline.py": "f850298121b8f5924d8b99ae3fc32e1afa48965ccaa7e4146aa2ce8fb0e6b326",
+      "tools/class_patch.py": "f6cd5da90030bdc8f107436a35108e3e0b75ad286b85e14dd7e1de7802b691f4",
       "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
-      "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6"
+      "tools/worker_exit_patch.py": "b4223f29e6b7401520abd34807d9074fced8375424754878e40ea579a3852e7f"
     },
     "jdk": {
       "architecture": "arm64",
@@ -59,9 +58,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "47a5cc8eb251c1af8feebf2c24922aedeef8eb7f321df804b6750cddcc2aa23c",
-  "reason": "Audit.22 final stop guard and documentation/provenance fixes following Claude integrated review. Exact Manager reconstruction f2960fbf, independent full javap/CFG, 88 development memory controls and 136 tests pass; paired current-source builds verified. New clean integrated runtime gates, hardware/nativeGUI and release acceptance remain pending.",
+  "previous_record_sha256": "eb696f5afce4b35cd328d412dbbd2296b45d032ff300fb94d5122f18bf0876ef",
+  "reason": "Audit.21 contains connect callback exceptions before legacy transport classification, as required by Claude security review; exact predecessor reconstruction and paired reproducibility pass. Runtime and clean qualification pending.",
   "schema": 1,
-  "source_commit": "5ab6dc84b18f1e15ab28fa79903f847677a4a2f7",
+  "source_commit": "43308b9e3375d6b02f5cb6f07bab6704092c2b87",
   "source_dirty": true
 }

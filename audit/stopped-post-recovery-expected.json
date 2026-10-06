@@ -1,5 +1,5 @@
 {
-  "candidate_jar_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+  "candidate_jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
   "lines": [
     "ordinary logger owner=CommunicationsManager method=run; terminal=-102; sends=1; connected=false; stop=true",
     "length gates: runtime parseInt parity, malformed/overflow/negative fixed markers; no-input-or-cause",
@@ -145,8 +145,8 @@
     "containment callback-throws null_io=true; sends=1; stopped=true; queued=1; callback-drain-unqualified",
     "PASS recovery fixed=true; guarded_operations=0"
   ],
-  "previous_candidate_jar_sha256": "f6e545bbd90e7f9616df448f09cc4a889b909fa8e79a8183af8fa96a71d9f859",
-  "roll_forward_reason": "Audit.21 exact predecessor normalization preserves audit.20 admission; combined worker gate pending clean qualification. Historical evidence unchanged.",
+  "previous_candidate_jar_sha256": "9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562",
+  "roll_forward_reason": "audit.22 final stop guard; unchanged response recovery vector must still be observed by both runtimes, no output changes presumed.",
   "schema": 1,
   "scope": "Audit.20 retained recovery matrix; stopped post admission separately qualified."
 }

@@ -736,3 +736,11 @@ changes and best-effort limits are documented. See [scope and bound evidence](au
 Stop-versus-active-send, native GUI, physical Intel, real controller behavior and
 signed release acceptance remain open. Original JAR and installed app are unchanged;
 HTTP remains plaintext. Earlier milestones and failed/excluded attempts are historical.
+
+### Audit.22 implementation: final stop admission boundary
+
+The guard is integrated and paired development builds match. 136 unit tests and
+104 artifact-bound memory observations pass. Only Manager changes within the JAR
+from audit.21. See [scope and pending clean qualification](audit/STOP-BEFORE-SEND.md).
+Next: commit source, produce paired clean builds, rerun the complete regression
+set and package both pinned runtimes. Do not infer hardware/release readiness.

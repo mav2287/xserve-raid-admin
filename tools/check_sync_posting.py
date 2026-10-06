@@ -47,7 +47,7 @@ def main():
     with zipfile.ZipFile(a.candidate) as z:entries={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
     assert_preserved(before,entries[ENTRY],'<init>','(Lcom/apple/xsr/net/CommunicationsManager;Lcom/apple/xsr/net/RequestMessage;)V')
     assert_sync_preenqueue(before,entries[ENTRY])
-    sources=[ROOT/name for name in ('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/TransportObservation.java','tests/java/com/apple/xsr/net/HeaderObservation.java','patches/sun/io/MalformedInputException.java','tools/check_sync_posting.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json')]
+    sources=[ROOT/name for name in ('tests/java/fixture/OfflineGuard.java','tests/java/com/apple/xsr/net/TransportObservation.java','tests/java/com/apple/xsr/net/HeaderObservation.java','patches/sun/io/MalformedInputException.java','tools/check_sync_posting.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/stop_admission_patch.py','tools/stop_admission_structure.py','tools/baseline.py','tools/audit_support.py','tools/runtime.py','tools/verify_builds.py','audit/expected-build.json','audit/stopped-post-recovery-expected.json','audit/runtime-lock.json')]
     hashes={str(x.relative_to(ROOT)):sha(x) for x in sources}
     runtimes=[];seen=set();runtime_lock=runtime_manifest()
     for root in a.runtime:

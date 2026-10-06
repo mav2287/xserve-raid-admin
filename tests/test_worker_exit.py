@@ -20,7 +20,8 @@ class WorkerExitTests(unittest.TestCase):
   before=self.predecessor();self.assertEqual(hashlib.sha256(before).hexdigest(),PIN)
   after=plan(before);self.assertEqual(normalize(after),before)
   with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as z:
-   self.assertEqual(transform_current(ENTRY,z.read(ENTRY)),after)
+   from stop_admission_patch import normalize as normalize_stop
+   self.assertEqual(normalize_stop(transform_current(ENTRY,z.read(ENTRY))),after)
    self.assertEqual(normalize_current_extensions(after),transform(ENTRY,z.read(ENTRY)))
  def test_every_code_byte_is_locked(self):
   after=plan(self.predecessor())

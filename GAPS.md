@@ -298,7 +298,7 @@ controller failure. See [experiment and controls](audit/SYNC-OWNERSHIP-EXPERIMEN
 and [worker-exit design under review](audit/WORKER-EXIT-DESIGN.md).
 
 
-### Audit.21 combined worker security guards (qualification pending)
+### Audit.21 combined worker security guards (local qualification complete)
 
 Development now includes preclaim cancellation, claim-once/first-reply ownership,
 stopped terminal worker cleanup, explicit unsent versus unconfirmed completion,
@@ -307,8 +307,10 @@ Mixed synchronous/asynchronous cleanup releases callers before Manager-lock
 cleanup and defers async exit callbacks to EDT. Callback-failure semantics and
 logger stack location are deliberate documented changes. See
 [audit/WORKER-EXIT-DESIGN.md](audit/WORKER-EXIT-DESIGN.md) and archived Claude reviews.
-The latest complete unit suite passes 133 tests; final clean runtime qualification
-is pending. Do not infer feature completeness or production safety from launch.
+The audit.21 suite passed 133 tests and twelve pinned regression gates. The
+[qualification ledger](audit/WORKER-EXIT-QUALIFICATION.md) records clean product/fixture
+commits, paired builds and packages, excluded runs and limits. Additional stop-guard
+experiment tests do not promote a new application baseline. Do not infer feature completeness or production safety from launch.
 Remaining: stop-versus-active-send, explicit connect/write/overall deadlines,
 VM/ThreadDeath completion limits, native GUI/disposed AppContext, outbound mutable
 body/headers, status/empty-ack ambiguity, GUI firmware-file binding, discovery,
