@@ -88,13 +88,15 @@ public final class RecoveryObservation {
         }
         @Override public void close(){} @Override public boolean requiresLayout(){return false;}
     }
+    private static boolean workerFaultStop()throws Exception{try{return Class.forName("compat.RejectionRecovery").getField("STOPS_OPERATION_FAILURES").getBoolean(null);}catch(ClassNotFoundException e){return false;}catch(NoSuchFieldException e){return false;}}
     private static void ordinaryLogging()throws Exception {
+        final boolean stopped=workerFaultStop();
         Logger logger=Logger.getLogger(CommunicationsManager.class);boolean add=logger.getAdditivity();Level level=logger.getLevel();Recorder recorder=new Recorder(false);logger.setAdditivity(false);logger.setLevel(Level.ERROR);logger.addAppender(recorder);
         try {
-            final State state=new State();state.ordinary=true;final CommunicationsManager m=manager(transport(new Memory(state)));final int[] n={0};
-            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-102&&!m.isStopped()&&m.isConnected()&&state.closes==0);n[0]++;m.shutdown();}},new AcpxMessageFactory().newGetStatusRequest());m.run();
+            final State state=new State();state.ordinary=true;final CommunicationsManager m=manager(transport(new Memory(state)));final int[] n={0};recorder.observed=m;recorder.requireStop=stopped;
+            m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-102&&m.isStopped()==stopped&&m.isConnected()!=stopped&&state.closes==(stopped?1:0));n[0]++;m.shutdown();}},new AcpxMessageFactory().newGetStatusRequest());m.run();
             check(n[0]==1&&state.sent.size()==1&&recorder.events==1&&recorder.safe&&"com.apple.xsr.net.CommunicationsManager".equals(recorder.owner)&&"run".equals(recorder.method));
-            out.println("ordinary logger owner=CommunicationsManager method=run; terminal=-102; sends=1; connected=true");
+            out.println("ordinary logger owner=CommunicationsManager method=run; terminal=-102; sends=1; "+(stopped?"connected=false; stop=true":"connected=true"));
         } finally {logger.removeAppender(recorder);logger.setAdditivity(add);logger.setLevel(level);}
     }
     private static void pair(final byte[] raw,final int closeFailure,final boolean loggingFailure,final boolean stopExpected)throws Exception {

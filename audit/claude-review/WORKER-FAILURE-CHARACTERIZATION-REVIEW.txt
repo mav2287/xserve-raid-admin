@@ -1,0 +1,82 @@
+I've finished the review and made no edits. I ran no commands, so I could not recompute any file hashes; the hash point under blocker 3 is a step for the clean rerun.
+
+## Verdict
+
+The characterization is sound and appropriately limited, apart from the issues below. For original and audit.15 on both architectures it shows the same thing: prefix, shim and generic failures, and the getPath fault, all deliver the original exception object, the session is not stopped when the callback runs, and the queued synthetic restart is then sent. I found no safety problem in the fixture. The new code calls only the in-memory test transport, and `connect()` still throws. Three things block the characterization commit.
+
+## Blockers before the commit
+
+**1. The findings doc claims "Fact" for methods that its cited bytecode file does not contain.**
+- `NEXT-SESSION-SAFETY-FINDINGS.md:6-8` says the facts come from `next-session-safety-selected-bytecode.txt`.
+- That file only contains these methods:
+  - `AcpxConnection.close` and `disconnect`
+  - the manager's `isStopped`, `exit`, `shutdown` and `run`
+  - SyncSender's constructor and `handleResponse`
+  - `RaidSystem.disconnect` and `updateImmediately`
+  - the agent's `updateImmediately`, `isStopped`, `run` and `shutdown`
+- These claims have no supporting bytecode in that file:
+  - Line 21–23: the stop check comes before the synchronous enqueue, and late async posts are not checked. This needs `postMessage` and `postMessageAsync`.
+  - Line 28–29: `doConnect` reports -101 and keeps retrying.
+  - Line 40–42: the getter, the String constructor and the copy constructor.
+  - Line 45–48: `HttpConnection.close`/`disconnect` and the finally block in `AcpxConnection.send`.
+- The full disassembly is in `build/next-session-safety-bytecode.txt`, but `build/` is gitignored. I checked it, and it does support the line 40–42 claim:
+  - `comms` is `private` (`:4009`).
+  - It has exactly one `putfield`, at offset 393 in `RaidSystem(String)` (`:4275`).
+  - The copy constructor begins at `:4289`, and no `putfield` of `comms` follows it.
+  - The getter does `getfield`/`areturn` (`:8632`).
+- **Fix:** add those method bodies to the selected file and regenerate `selected_disassembly_sha256`. The alternative is to downgrade those lines from "Fact".
+- Both review documents cite `build/...:NNNN` line numbers. Those references can't be resolved from the commit; the doc should say so, or the full disassembly should be preserved.
+
+**2. A "single assignment" claim needs a field scan, not a method scan.**
+- The identities JSON records method references (Methodrefs) only.
+- "The String constructor is the only direct field assignment" is true within RaidSystem, and because the field is private that comes close to settling it for the whole jar. The doc should still say that, or record a jar-wide scan for references to the `comms` field.
+- **New, non-blocking:** `RaidSystemAgent` keeps its own copy of the manager in a separate field (`#27`, `:11212-11213`). So even if something replaced `RaidSystem.comms`, the agent would keep using the stopped manager. That supports "no automatic recreation" and should be stated.
+
+**3. The artifact was produced from a dirty tree.**
+- `fixture_dirty: true` at `0e04ce3`, and the identities and selected-bytecode files are untracked.
+- Treat `build/operation-failure-audit15-characterization.json` as development evidence only. The clean rerun has to come after the commit, with `fixture_dirty: false`.
+- Before committing, confirm that the current `TransportObservation.java` and `check_transport.py` still match the hashes recorded in the artifact (`c6f1d4d7…` and `b84eb14a…`). I did not compute them.
+
+## Precision fixes to make in the same commit
+
+- **`queued_restart=sent` depends on the fixture's own setup.** The fixture clears `requestOutstanding` itself (`TransportObservation.java:82`).
+  - For a real prefix failure that happens after the whole body has been read, that matches how the original behaves: the response stream's close clears the flag.
+  - For shim or generic failures thrown partway through a response, the flag may stay set. The next `newRequest` would then throw `IllegalStateException` before writing anything (`REJECTION-RECOVERY-FOLLOWUP-DESIGN.txt:27`). In that case the restart gets -102 without being sent, and the session still does not stop.
+  - The doc should keep these apart: "not stopped" holds whether or not the flag is cleared, while "restart sent" holds only when the connection is reusable.
+  - Findings line 15–16 ("can process queued writes") should say this. The `operation_failure_scope` wording ("…not all failures and queued synthetic restart…") is garbled and should be rewritten.
+- **The labels for the getPath fault disagree.**
+  - The `--operation-failure-characterization` help text (`check_transport.py:114`) and the refinement doc §5 both say "pre-serialization".
+  - The fixture and the scope string say "before-request-creation".
+  - Use "before-request-creation" everywhere, and add that the fault comes from a proxy seam, not from a throw site in real code.
+- **The shim claim** (findings line 51–52) should say "the shim class's only constant-pool reference is in Manager, and `run`'s catch table uses it". A constant-pool scan doesn't show which instructions in Manager use the class.
+- `operation_failure_scope` is written out even when the flag is off. The other `*_limits` fields use `None` in that case.
+- The identities JSON says "All2844"; it needs a space.
+
+## Gate assessment
+
+- The exact-line Python gate is solid. It rejects truncated, duplicated, prefixed and wrong-mode output, and its error text never contains the raw output. However:
+  - **The unit test is circular.** `OperationFailureGateTests` builds its expected lines with the same formula as `completed_operation_failures`. Add the literal four original-mode lines from the artifact as a golden copy.
+  - **The stop mode is detected from the jar, not required by a flag.** The tool searches the class bytes for `STOPS_OPERATION_FAILURES`; the fixture reads the field's value. If the two disagree, the gate fails closed, which is good. But a candidate without the marker silently runs as a characterization. That's fine for this commit. The worker-stop patch needs a required `--operation-failure-policy` flag that must match the jar, like the terminal-I/O check at `:166-167`.
+- **The stop-mode branch has never run** (`TransportObservation.java:469-470`); no jar has the marker yet. Either label it as such in the commit message or doc, or hold it back until the patch.
+- **Gaps to close in the stop patch, not now:**
+  - `-Xint`/`-Xcomp` runs
+  - close counts
+  - checking that the second request's bytes are actually a restart (today only the count is checked)
+  - a queued restart with no handler
+  - the NPE when the connection is null, and a -101 callback that throws
+  - mutant tests
+  - logging, which is currently forced off, so the refinement's logger caveats are untested
+
+## Corrections to the initial design
+
+The corrections I checked are accurate:
+- the polling-interrupt claim is narrowed to "polling enabled **and** sleeping";
+- the close path performs "no new application writes";
+- "generic" failures cover more than ambiguous I/O;
+- the stop is permanent for that RaidSystem.
+
+Two items from the refinement belong in the doc's list of open items but aren't there:
+- **Healthy controls (refinement §3.3):** after the stop, every IOException path is terminal, so the only remaining "continue" control is a successful reply with a negative controller result code.
+- **Logger throw (refinement §3.5):** a throw from the logger at 374 can still kill the worker.
+
+Once blockers 1–3 are resolved, the commit and clean rerun can go ahead.

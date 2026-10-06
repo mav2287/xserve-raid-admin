@@ -236,3 +236,17 @@ failed reads. This supersedes audit.14 statements that ordinary nonnull I/O stil
 retries. Healthy replies and prefix -103 behavior remain original. Clean qualification passes on both pinned runtimes. See the linked evidence
 for the 93-test suite, deterministic artifacts and narrowly stated limits. Prefix/generic failure sequencing,
 synchronous cancellation/liveness, UI recovery and hardware acceptance remain open.
+
+### Audit.16 worker-failure containment (development)
+
+The next narrowly scoped patch stops the local session before callbacks after
+legacy prefix parse failures, typed malformed-input failures and generic worker
+exceptions. It preserves their original result codes and exception objects;
+healthy negative controller replies still permit the next request. This refines
+the audit.15 statement that prefix behavior remains original: its error code is
+preserved, but session continuation is deliberately removed for security.
+Claude reviewed the design, implementation and follow-up; 103 development tests
+pass. Clean qualification is pending. See [scope, evidence and remaining holes](audit/WORKER-FAILURE-STOP.md).
+Interrupted synchronous waits, premature connection completion, queue exit races,
+GUI recovery and hardware qualification remain unresolved. No controller command
+or installed-app modification is part of this change.

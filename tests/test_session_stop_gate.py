@@ -6,7 +6,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from check_security import assert_session_containment
 from check_architectures import validate_containment_recovery
 
-class SessionStopGateTests(unittest.TestCase):
+class HistoricalAudit14SessionStopGateTests(unittest.TestCase):
     def setUp(self):
         self.text=(Path(__file__).parent/'fixtures/session-stop-prefix.javap').read_text()
 

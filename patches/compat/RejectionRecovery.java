@@ -7,10 +7,11 @@ import java.lang.reflect.Modifier;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-/** Retire rejected responses without replay; generic exception handling stays legacy. */
+/** Stop worker faults before callbacks; never replay an unconfirmed operation. */
 public final class RejectionRecovery {
     public static final boolean STOPS_REJECTED_SESSIONS = true;
     public static final boolean TERMINATES_AMBIGUOUS_IO = true;
+    public static final boolean STOPS_OPERATION_FAILURES = true;
     /** The controller may have acted; never retain an untrusted cause chain. */
     public static Exception nullMessage() {
         return new UntrustedResponseException("Response transport failed; outcome is unconfirmed");
@@ -54,17 +55,28 @@ public final class RejectionRecovery {
         catch(Exception ignored) {} catch(LinkageError ignored) {}
         signal();
     }
+    private static void shutdownRequired(CommunicationsManager manager) {
+        if(manager==null || manager.getClass()!=CommunicationsManager.class)
+            throw new IllegalStateException("Response session stop failed");
+        try { manager.shutdown(); }
+        catch(Exception ignored) { throw new IllegalStateException("Response session stop failed"); }
+        catch(LinkageError ignored) { throw new IllegalStateException("Response session stop failed"); }
+    }
+    /** Worker only: stopping precedes cleanup and the original prefix error log. */
+    public static void retire(CommunicationsManager manager) {
+        shutdownRequired(manager);
+        retireConnection(manager);
+    }
     public static void report(CommunicationsManager manager, Exception failure) {
-        if(failure==null || failure.getClass()!=UntrustedResponseException.class) {
-            log(failure); return;
-        }
-        // Stop local dispatch before any logger or callback can run dependent writes.
-        // This does not transmit a controller shutdown command.
-        manager.shutdown();
-        // The new security path contains logging failures so they cannot skip retirement.
+        // Stop local dispatch before logging or callback code can post dependent writes.
+        // This is not a controller shutdown command. A failed stop never returns.
+        shutdownRequired(manager);
         try { log(failure); } catch(Exception ignored) {} catch(LinkageError ignored) {}
+        retireConnection(manager);
+    }
+    private static void retireConnection(CommunicationsManager manager) {
         try {
-            if(manager.getClass()!=CommunicationsManager.class || !metadata()) { stop(manager); return; }
+            if(!metadata()) { stop(manager); return; }
             AcpxConnection connection;
             synchronized(manager) {
                 connection=(AcpxConnection)connectionField.get(manager);

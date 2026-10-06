@@ -1,0 +1,460 @@
+{
+  public static final boolean STOPS_REJECTED_SESSIONS = true;
+    descriptor: Z
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+
+  public static final boolean TERMINATES_AMBIGUOUS_IO = true;
+    descriptor: Z
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+
+  public static final boolean STOPS_OPERATION_FAILURES = true;
+    descriptor: Z
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+
+  private static java.lang.reflect.Field connectedField;
+    descriptor: Ljava/lang/reflect/Field;
+    flags: ACC_PRIVATE, ACC_STATIC
+
+  private static java.lang.reflect.Field connectionField;
+    descriptor: Ljava/lang/reflect/Field;
+    flags: ACC_PRIVATE, ACC_STATIC
+
+  private static boolean initialized;
+    descriptor: Z
+    flags: ACC_PRIVATE, ACC_STATIC
+
+  public compat.RejectionRecovery();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 11: 0
+
+  public static java.lang.Exception nullMessage();
+    descriptor: ()Ljava/lang/Exception;
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=3, locals=0, args_size=0
+         0: new           #2                  // class compat/UntrustedResponseException
+         3: dup
+         4: ldc           #3                  // String Response transport failed; outcome is unconfirmed
+         6: invokespecial #4                  // Method compat/UntrustedResponseException."<init>":(Ljava/lang/String;)V
+         9: areturn
+      LineNumberTable:
+        line 17: 0
+
+  private static org.apache.log4j.Logger logger();
+    descriptor: ()Lorg/apache/log4j/Logger;
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=1, locals=0, args_size=0
+         0: ldc           #5                  // class com/apple/xsr/net/CommunicationsManager
+         2: invokestatic  #6                  // Method org/apache/log4j/Logger.getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+         5: areturn
+      LineNumberTable:
+        line 21: 0
+
+  private static void log(java.lang.Exception);
+    descriptor: (Ljava/lang/Exception;)V
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=5, locals=1, args_size=1
+         0: invokestatic  #7                  // Method logger:()Lorg/apache/log4j/Logger;
+         3: ldc           #8                  // String compat.RejectionRecovery
+         5: getstatic     #9                  // Field org/apache/log4j/Level.ERROR:Lorg/apache/log4j/Level;
+         8: aload_0
+         9: aload_0
+        10: invokevirtual #10                 // Method org/apache/log4j/Logger.log:(Ljava/lang/String;Lorg/apache/log4j/Priority;Ljava/lang/Object;Ljava/lang/Throwable;)V
+        13: return
+      LineNumberTable:
+        line 23: 0
+        line 24: 13
+
+  private static void signal();
+    descriptor: ()V
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=0
+         0: invokestatic  #7                  // Method logger:()Lorg/apache/log4j/Logger;
+         3: ldc           #11                 // String RAID_ADMIN_REJECTION_CLEANUP_FAILED
+         5: invokevirtual #12                 // Method org/apache/log4j/Logger.error:(Ljava/lang/Object;)V
+         8: goto          16
+        11: astore_0
+        12: goto          16
+        15: astore_0
+        16: return
+      Exception table:
+         from    to  target type
+             0     8    11   Class java/lang/Exception
+             0     8    15   Class java/lang/LinkageError
+      LineNumberTable:
+        line 26: 0
+        line 27: 8
+        line 28: 16
+      StackMapTable: number_of_entries = 3
+        frame_type = 75 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Exception ]
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 0 /* same */
+
+  private static void close(com.apple.xsr.net.AcpxConnection);
+    descriptor: (Lcom/apple/xsr/net/AcpxConnection;)V
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=1, locals=2, args_size=1
+         0: aload_0
+         1: ifnull        22
+         4: aload_0
+         5: invokevirtual #15                 // Method com/apple/xsr/net/AcpxConnection.close:()V
+         8: goto          22
+        11: astore_1
+        12: invokestatic  #16                 // Method signal:()V
+        15: goto          22
+        18: astore_1
+        19: invokestatic  #16                 // Method signal:()V
+        22: return
+      Exception table:
+         from    to  target type
+             4     8    11   Class java/lang/Exception
+             4     8    18   Class java/lang/LinkageError
+      LineNumberTable:
+        line 30: 0
+        line 31: 8
+        line 32: 22
+      StackMapTable: number_of_entries = 3
+        frame_type = 75 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Exception ]
+        frame_type = 70 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 3 /* same */
+
+  public static java.lang.Throwable sendFailure(java.lang.Throwable, com.apple.xsr.net.AcpxConnection);
+    descriptor: (Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: ifnull        17
+         4: aload_0
+         5: invokevirtual #17                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         8: ldc           #2                  // class compat/UntrustedResponseException
+        10: if_acmpne     17
+        13: aload_1
+        14: invokestatic  #18                 // Method close:(Lcom/apple/xsr/net/AcpxConnection;)V
+        17: aload_0
+        18: areturn
+      LineNumberTable:
+        line 35: 0
+        line 36: 17
+      StackMapTable: number_of_entries = 1
+        frame_type = 17 /* same */
+
+  private static synchronized boolean metadata();
+    descriptor: ()Z
+    flags: ACC_PRIVATE, ACC_STATIC, ACC_SYNCHRONIZED
+    Code:
+      stack=2, locals=2, args_size=0
+         0: getstatic     #19                 // Field initialized:Z
+         3: ifne          90
+         6: iconst_1
+         7: putstatic     #19                 // Field initialized:Z
+        10: ldc           #5                  // class com/apple/xsr/net/CommunicationsManager
+        12: ldc           #20                 // String connected
+        14: invokevirtual #21                 // Method java/lang/Class.getDeclaredField:(Ljava/lang/String;)Ljava/lang/reflect/Field;
+        17: astore_0
+        18: ldc           #5                  // class com/apple/xsr/net/CommunicationsManager
+        20: ldc           #22                 // String connection
+        22: invokevirtual #21                 // Method java/lang/Class.getDeclaredField:(Ljava/lang/String;)Ljava/lang/reflect/Field;
+        25: astore_1
+        26: aload_0
+        27: invokevirtual #23                 // Method java/lang/reflect/Field.getType:()Ljava/lang/Class;
+        30: getstatic     #24                 // Field java/lang/Boolean.TYPE:Ljava/lang/Class;
+        33: if_acmpne     61
+        36: aload_1
+        37: invokevirtual #23                 // Method java/lang/reflect/Field.getType:()Ljava/lang/Class;
+        40: ldc           #25                 // class com/apple/xsr/net/AcpxConnection
+        42: if_acmpne     61
+        45: aload_0
+        46: invokevirtual #26                 // Method java/lang/reflect/Field.getModifiers:()I
+        49: iconst_2
+        50: if_icmpne     61
+        53: aload_1
+        54: invokevirtual #26                 // Method java/lang/reflect/Field.getModifiers:()I
+        57: iconst_2
+        58: if_icmpeq     63
+        61: iconst_0
+        62: ireturn
+        63: aload_0
+        64: iconst_1
+        65: invokevirtual #28                 // Method java/lang/reflect/Field.setAccessible:(Z)V
+        68: aload_1
+        69: iconst_1
+        70: invokevirtual #28                 // Method java/lang/reflect/Field.setAccessible:(Z)V
+        73: aload_0
+        74: putstatic     #29                 // Field connectedField:Ljava/lang/reflect/Field;
+        77: aload_1
+        78: putstatic     #30                 // Field connectionField:Ljava/lang/reflect/Field;
+        81: goto          90
+        84: astore_0
+        85: iconst_0
+        86: ireturn
+        87: astore_0
+        88: iconst_0
+        89: ireturn
+        90: getstatic     #29                 // Field connectedField:Ljava/lang/reflect/Field;
+        93: ifnull        106
+        96: getstatic     #30                 // Field connectionField:Ljava/lang/reflect/Field;
+        99: ifnull        106
+       102: iconst_1
+       103: goto          107
+       106: iconst_0
+       107: ireturn
+      Exception table:
+         from    to  target type
+            10    62    84   Class java/lang/Exception
+            63    81    84   Class java/lang/Exception
+            10    62    87   Class java/lang/LinkageError
+            63    81    87   Class java/lang/LinkageError
+      LineNumberTable:
+        line 39: 0
+        line 40: 6
+        line 42: 10
+        line 43: 18
+        line 44: 26
+        line 45: 46
+        line 46: 61
+        line 47: 63
+        line 48: 73
+        line 49: 81
+        line 51: 90
+      StackMapTable: number_of_entries = 7
+        frame_type = 253 /* append */
+          offset_delta = 61
+          locals = [ class java/lang/reflect/Field, class java/lang/reflect/Field ]
+        frame_type = 1 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 20
+          locals = []
+          stack = [ class java/lang/Exception ]
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 2 /* same */
+        frame_type = 15 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+
+  private static void stop(com.apple.xsr.net.CommunicationsManager);
+    descriptor: (Lcom/apple/xsr/net/CommunicationsManager;)V
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=1, locals=2, args_size=1
+         0: aload_0
+         1: invokevirtual #31                 // Method com/apple/xsr/net/CommunicationsManager.shutdown:()V
+         4: goto          12
+         7: astore_1
+         8: goto          12
+        11: astore_1
+        12: invokestatic  #16                 // Method signal:()V
+        15: return
+      Exception table:
+         from    to  target type
+             0     4     7   Class java/lang/Exception
+             0     4    11   Class java/lang/LinkageError
+      LineNumberTable:
+        line 54: 0
+        line 55: 4
+        line 56: 12
+        line 57: 15
+      StackMapTable: number_of_entries = 3
+        frame_type = 71 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Exception ]
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 0 /* same */
+
+  private static void shutdownRequired(com.apple.xsr.net.CommunicationsManager);
+    descriptor: (Lcom/apple/xsr/net/CommunicationsManager;)V
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=3, locals=2, args_size=1
+         0: aload_0
+         1: ifnull        13
+         4: aload_0
+         5: invokevirtual #17                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         8: ldc           #5                  // class com/apple/xsr/net/CommunicationsManager
+        10: if_acmpeq     23
+        13: new           #32                 // class java/lang/IllegalStateException
+        16: dup
+        17: ldc           #33                 // String Response session stop failed
+        19: invokespecial #34                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        22: athrow
+        23: aload_0
+        24: invokevirtual #31                 // Method com/apple/xsr/net/CommunicationsManager.shutdown:()V
+        27: goto          52
+        30: astore_1
+        31: new           #32                 // class java/lang/IllegalStateException
+        34: dup
+        35: ldc           #33                 // String Response session stop failed
+        37: invokespecial #34                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        40: athrow
+        41: astore_1
+        42: new           #32                 // class java/lang/IllegalStateException
+        45: dup
+        46: ldc           #33                 // String Response session stop failed
+        48: invokespecial #34                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        51: athrow
+        52: return
+      Exception table:
+         from    to  target type
+            23    27    30   Class java/lang/Exception
+            23    27    41   Class java/lang/LinkageError
+      LineNumberTable:
+        line 59: 0
+        line 60: 13
+        line 61: 23
+        line 63: 27
+        line 62: 30
+        line 63: 41
+        line 64: 52
+      StackMapTable: number_of_entries = 5
+        frame_type = 13 /* same */
+        frame_type = 9 /* same */
+        frame_type = 70 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Exception ]
+        frame_type = 74 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 10 /* same */
+
+  public static void retire(com.apple.xsr.net.CommunicationsManager);
+    descriptor: (Lcom/apple/xsr/net/CommunicationsManager;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokestatic  #35                 // Method shutdownRequired:(Lcom/apple/xsr/net/CommunicationsManager;)V
+         4: aload_0
+         5: invokestatic  #36                 // Method retireConnection:(Lcom/apple/xsr/net/CommunicationsManager;)V
+         8: return
+      LineNumberTable:
+        line 67: 0
+        line 68: 4
+        line 69: 8
+
+  public static void report(com.apple.xsr.net.CommunicationsManager, java.lang.Exception);
+    descriptor: (Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=1, locals=3, args_size=2
+         0: aload_0
+         1: invokestatic  #35                 // Method shutdownRequired:(Lcom/apple/xsr/net/CommunicationsManager;)V
+         4: aload_1
+         5: invokestatic  #37                 // Method log:(Ljava/lang/Exception;)V
+         8: goto          16
+        11: astore_2
+        12: goto          16
+        15: astore_2
+        16: aload_0
+        17: invokestatic  #36                 // Method retireConnection:(Lcom/apple/xsr/net/CommunicationsManager;)V
+        20: return
+      Exception table:
+         from    to  target type
+             4     8    11   Class java/lang/Exception
+             4     8    15   Class java/lang/LinkageError
+      LineNumberTable:
+        line 73: 0
+        line 74: 4
+        line 75: 16
+        line 76: 20
+      StackMapTable: number_of_entries = 3
+        frame_type = 75 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Exception ]
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 0 /* same */
+
+  private static void retireConnection(com.apple.xsr.net.CommunicationsManager);
+    descriptor: (Lcom/apple/xsr/net/CommunicationsManager;)V
+    flags: ACC_PRIVATE, ACC_STATIC
+    Code:
+      stack=3, locals=4, args_size=1
+         0: invokestatic  #38                 // Method metadata:()Z
+         3: ifne          11
+         6: aload_0
+         7: invokestatic  #39                 // Method stop:(Lcom/apple/xsr/net/CommunicationsManager;)V
+        10: return
+        11: aload_0
+        12: dup
+        13: astore_2
+        14: monitorenter
+        15: getstatic     #30                 // Field connectionField:Ljava/lang/reflect/Field;
+        18: aload_0
+        19: invokevirtual #40                 // Method java/lang/reflect/Field.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        22: checkcast     #25                 // class com/apple/xsr/net/AcpxConnection
+        25: astore_1
+        26: getstatic     #29                 // Field connectedField:Ljava/lang/reflect/Field;
+        29: aload_0
+        30: iconst_0
+        31: invokevirtual #41                 // Method java/lang/reflect/Field.setBoolean:(Ljava/lang/Object;Z)V
+        34: aload_2
+        35: monitorexit
+        36: goto          44
+        39: astore_3
+        40: aload_2
+        41: monitorexit
+        42: aload_3
+        43: athrow
+        44: aload_1
+        45: invokestatic  #18                 // Method close:(Lcom/apple/xsr/net/AcpxConnection;)V
+        48: goto          64
+        51: astore_1
+        52: aload_0
+        53: invokestatic  #39                 // Method stop:(Lcom/apple/xsr/net/CommunicationsManager;)V
+        56: goto          64
+        59: astore_1
+        60: aload_0
+        61: invokestatic  #39                 // Method stop:(Lcom/apple/xsr/net/CommunicationsManager;)V
+        64: return
+      Exception table:
+         from    to  target type
+            15    36    39   any
+            39    42    39   any
+             0    10    51   Class java/lang/Exception
+            11    48    51   Class java/lang/Exception
+             0    10    59   Class java/lang/LinkageError
+            11    48    59   Class java/lang/LinkageError
+      LineNumberTable:
+        line 79: 0
+        line 81: 11
+        line 82: 15
+        line 83: 26
+        line 84: 34
+        line 87: 44
+        line 88: 48
+        line 89: 64
+      StackMapTable: number_of_entries = 6
+        frame_type = 11 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 27
+          locals = [ class com/apple/xsr/net/CommunicationsManager, top, class java/lang/Object ]
+          stack = [ class java/lang/Throwable ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 4
+          locals = [ class com/apple/xsr/net/CommunicationsManager, class com/apple/xsr/net/AcpxConnection ]
+          stack = []
+        frame_type = 255 /* full_frame */
+          offset_delta = 6
+          locals = [ class com/apple/xsr/net/CommunicationsManager ]
+          stack = [ class java/lang/Exception ]
+        frame_type = 71 /* same_locals_1_stack_item */
+          stack = [ class java/lang/LinkageError ]
+        frame_type = 4 /* same */
+}
+SourceFile: "RejectionRecovery.java"

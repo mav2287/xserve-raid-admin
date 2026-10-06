@@ -1,0 +1,78 @@
+I found no blocking issues. The bytecode change, the helper's ordering and the gates match the approved design. I didn't edit anything, run any commands or recompute any hashes. I also didn't see the latest transport run, so the review only covers the code as it stands.
+
+## Confirmed
+
+**Patcher (`tools/class_patch.py:130-138`, `:362-378`)**
+- The tail is 17 bytes at 578, so the code is now 595 bytes. 573 jumps to 578, 583 branches back to 563, and 590 jumps to 352.
+- Only the malformed-input handler entry changes, from 307 to 462. Its position, range and type stay the same.
+- `assert_recovery_edit` checks everything outside a fixed set of allowed windows:
+  - It checks the lengths and the frame values (max stack 6, max locals 9).
+  - Each added instruction byte must match exactly, except the constant-pool references.
+  - Those references are checked by `methodref()`.
+  - After the allowed windows (339–343, 350–351, 464–473, the added block and the handler entry) are put back, the result must equal the original byte for byte.
+- `test_class_patch.py:103` flips every byte in 339–351 and 553–594.
+
+**Independent check (`tools/check_security.py:17-63`, `:137-159`)**
+- The control-flow walk requires the unreachable code to be exactly 380–458, 307–336 and 344–351.
+- Everything else must be reachable, including the prefix path at 352–379, which can now only be reached from 590.
+- The ordering checks are exact:
+  - `retire`: stop, then close.
+  - `report`: stop, then log (only the log call is inside the try/catch), then close.
+  - `shutdownRequired`: always throws a new `IllegalStateException` with a fixed message and no cause, and its handler covers only the `shutdown` call at 23–27.
+
+**Helper (`patches/compat/RejectionRecovery.java`)**
+- The prefix path is stop → close → original log at PC 374 → callback.
+- The generic path is stop → log → close → callback.
+- A failed stop never returns. At 464 and 586 the worker holds no monitors, so calling `shutdown()` from the worker doesn't add a new lock-order risk.
+
+**Runtime fixtures**
+- The tests confirm:
+  - one close, with the close at worker exit doing nothing;
+  - the session is already stopped inside the callback;
+  - a synchronous post from inside the callback is rejected without being queued;
+  - the null-handler restart gets no callback;
+  - the healthy −27 reply lets the next request go out;
+  - the same synchronous call gets a plain `IOException` (same message, checked by class, no cause), and the next call is rejected without being queued.
+- The negative runs only count if `unsafeWorkerFailureObserved` is set. A linkage error or verify error ends the run with a nonzero exit instead of counting as a pass.
+- The helper compiled from source must equal the candidate's bytes before the mutants run (`check_transport.py:204-206`).
+- The 583→464 mutant was correctly adapted for the worker build.
+
+**Flags**
+- check_transport (`:171-172`) and check_architectures (`:55`) both fail if the jar's marker and the flag disagree.
+- `operation_failure_scope` is `None` when the flag is off.
+- The literal original golden vector is in `test_terminal_io_gate.py:46`. In stop mode, the expected lines are a literal list run through the formula.
+
+**Evidence archive**
+- The selected bytecode now includes `postMessage` and `postMessageAsync`, `doConnect`, both `RaidSystem` constructors, the getter and HttpConnection.
+- The Fieldref and shim scans cover all 2844 classes.
+
+## Gaps worth closing (not blockers)
+
+1. **`assert_worker_failure_stop` doesn't check `retire`'s exception table** (`check_security.py:57`).
+   - A row like `0 4 8 Class java/lang/Throwable` would send a failed stop to the existing `return` at 8. That passes the verifier and leaves the instructions unchanged, so the callback would run without a stop.
+   - `report` and `shutdownRequired` already check their exception tables, so `retire` should too.
+   - Today's risk is low, because the source-to-jar byte match pins the actual bytes. Add the check and a test case to `test_worker_stop_gate.py`.
+2. **The exact-class check relies on an unrecorded fact.** `manager.getClass()!=CommunicationsManager.class` turns any subclass into a guaranteed worker death.
+   - In that case there is no callback, synchronous waiters hang, and on the prefix path the connection isn't closed (`retire` stops before closing).
+   - Record a scan of all 2844 classes showing that nothing extends `CommunicationsManager`.
+   - Also write the failed-stop outcome down as an accepted residual: worker dies, no exit cleanup, waiters stranded. There is no runtime test of that path; only the static bytecode check covers it.
+3. **The rerouted handler field has no unit test.** It is enforced at `class_patch.py:374`, but no test in `test_class_patch.py` flips the bytes of the 462 handler target.
+4. **check_architectures' first-line comparison can pass vacuously** (`:168`).
+   - If `a[0]` lacks `connected=true`, `.replace` changes nothing and the check becomes a plain equality.
+   - Assert that the token appears exactly once.
+5. **Stale wording:**
+   - The identities JSON's `scan_scope` says "five full disassemblies", but there are now six class hashes (HttpConnection was added).
+   - The run description at `check_security.py:287` says "original handler metadata retained", but 307→462 changed.
+   - `terminal_io_scope` in check_architectures doesn't mention that worker qualification lives in check_transport.
+   - `assert_session_containment` and `test_session_stop_gate.py` no longer check the real build. Either retire them or label them historical.
+6. **Two design-list items were not implemented.**
+   - Bytecode mutants 307→307 and 573→344: these are covered by the source mutants plus the original-mode differential. The combined commit should state that.
+   - The `RaidSystemAgent` "Terminating Updates" test: still unmeasured, so make no claim about it.
+
+## Still open, as you already noted
+
+- If the prefix logger at PC 374 throws, the already-stopped worker dies and synchronous waiters are stranded.
+- Nothing changed for caller-thread shutdown, interrupts, queue/exit races, the lock-order deadlock risk, `doConnect`, or timers.
+- Logging is forced off in check_transport. The ordinary case in RecoveryObservation covers where the `report` log is attributed (method `run`).
+
+None of this supports a whole-GUI or controller claim, and none of it needs request credentials.

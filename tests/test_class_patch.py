@@ -100,15 +100,15 @@ class ClassPatchTests(unittest.TestCase):
         entry='com/apple/xsr/net/CommunicationsManager.class'
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
         after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
-        for offset in list(range(339,352))+list(range(553,578)):
+        for offset in list(range(339,352))+list(range(553,595)):
             changed=bytearray(after);changed[begin+14+offset]^=1
             with self.subTest(offset=offset),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
     def test_null_io_code_lengths_and_handler_rows_are_locked(self):
         entry='com/apple/xsr/net/CommunicationsManager.class'
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
         after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
-        # Twelve preserved rows follow the 578-byte code. IO is row5; generic Exception row10.
-        offsets=list(range(begin+2,begin+6))+list(range(begin+10,begin+14))+[begin+14+578+2+4*8+6,begin+14+578+2+9*8+6]
+        # Twelve preserved rows follow the 595-byte code. IO is row5; generic Exception row10.
+        offsets=list(range(begin+2,begin+6))+list(range(begin+10,begin+14))+[begin+14+595+2+4*8+6,begin+14+595+2+9*8+6]
         for offset in offsets:
             changed=bytearray(after);changed[offset]^=1
             with self.subTest(offset=offset),self.assertRaises((ValueError,KeyError,struct.error)):assert_recovery_edit(before,bytes(changed),'run')
@@ -148,3 +148,11 @@ class ClassPatchTests(unittest.TestCase):
         for value in ('001f','00e5','00d5','00d7','00e0','00cc','0073','006e'):
             changed=bytearray(after);changed[begin+14+350:begin+14+352]=bytes.fromhex(value)
             with self.subTest(value=value),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
+
+    def test_worker_typed_handler_target_is_locked(self):
+        entry='com/apple/xsr/net/CommunicationsManager.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
+        for offset in (begin+14+595+30,begin+14+595+31):
+            changed=bytearray(after);changed[offset]^=1
+            with self.subTest(offset=offset),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')

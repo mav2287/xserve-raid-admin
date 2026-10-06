@@ -10,6 +10,7 @@ import sun.misc.Unsafe;
 /** Real ACP/queue code, in-memory HTTP transport; no actual connect or controller. */
 public final class TransportObservation {
     private static PrintStream fixtureOut;
+    private static boolean unsafeWorkerFailureObserved;
     private static void emit(String value) { fixtureOut.println(value); }
     private static final byte[] XML;
     static {
@@ -39,6 +40,10 @@ public final class TransportObservation {
         int drops;
         int nullDrops;
         IOException injectedFailure;
+        RuntimeException injectedRuntime;
+        boolean clearOutstandingBeforeFailure;
+        int preRequestFaultCalls;
+        CommunicationsManager stopOnSecondResponse;
         int writeFault=-1;
         boolean bodyWriteFault;
         boolean bodyFaultReached;
@@ -76,6 +81,9 @@ public final class TransportObservation {
             check(state.sent.size() < 16, "Fixture send bound exceeded");
             state.sent.add(pending.toByteArray()); pending = null;
             state.connections.add(ordinal);
+            if(state.stopOnSecondResponse!=null&&state.sent.size()==2)state.stopOnSecondResponse.shutdown();
+            if(state.clearOutstandingBeforeFailure&&(state.injectedRuntime!=null||state.injectedFailure!=null))setRequestOutstanding(false);
+            if(state.injectedRuntime!=null){RuntimeException failure=state.injectedRuntime;state.injectedRuntime=null;throw failure;}
             if(state.injectedFailure!=null&&state.attempts>=state.failureAfter){IOException failed=state.injectedFailure;state.injectedFailure=null;throw failed;}
             if(state.nullDrops>0){state.nullDrops--;throw new IOException();}
             if (state.drops-- > 0) throw new IOException("synthetic response loss");
@@ -268,7 +276,8 @@ public final class TransportObservation {
                         check(received == context, "Callback context lost");
                         check(response.getResultCode() == expectedResult, "Unexpected terminal result");
                         if(terminal){Exception e=response.getException();check(manager.isStopped()&&!manager.isConnected()&&e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null,"Ambiguous IO not contained");}
-                        if(expectedResult==-103||healthyReply||(!terminal&&expectedResult!=-102))check(!manager.isStopped(),"Healthy/prefix policy changed");
+                        if(expectedResult==-103)check(manager.isStopped()==operationFailureStop(),"Parser-prefix stop policy differs");
+                        else if(healthyReply||(!terminal&&expectedResult!=-102))check(!manager.isStopped(),"Healthy policy changed");
                         callbacks[1]++; manager.shutdown();
                     }
                 } catch (Exception e) { throw new AssertionError("Fixture injection failed"); }
@@ -329,7 +338,7 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization","null-io-policy","terminal-io-policy","verify-manager-unsafe-policy","verify-manager-corrupt").contains(args[0])), "Unknown fixture arguments");
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization","null-io-policy","terminal-io-policy","operation-failure-characterization","worker-failure-policy","verify-worker-stop-prefix","verify-worker-stop-report","verify-worker-stop-shim","verify-worker-stop-tail","verify-manager-unsafe-policy","verify-manager-corrupt").contains(args[0])), "Unknown fixture arguments");
         boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].endsWith("-default-logging"));
         boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
@@ -350,6 +359,13 @@ public final class TransportObservation {
                 boolean rejected=false;try{fixedFailure(unsafeState,"unsafe-negative",false,1);}catch(AssertionError expected){rejected=unsafeState.unsafeFailureObserved;}
                 check(rejected,"Unsafe semantic policy not specifically observed");OfflineGuard.assertUntouched();emit("PASS verified unsafe manager fails containment fixture; guarded_operations=0");
             }
+            else if(args.length==1 && args[0].startsWith("verify-worker-stop-")) {
+                Class.forName("com.apple.xsr.net.CommunicationsManager").getDeclaredMethods();Class.forName("compat.RejectionRecovery").getDeclaredMethods();unsafeWorkerFailureObserved=false;
+                boolean rejected=false;try{operationFailures(new String[]{args[0].endsWith("prefix")||args[0].endsWith("tail")?"prefix":args[0].endsWith("shim")?"shim":"generic"});}catch(AssertionError expected){rejected=unsafeWorkerFailureObserved;}
+                check(rejected,"Worker-stop bypass not specifically observed");OfflineGuard.assertUntouched();emit("PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0");
+            }
+            else if(args.length==1 && args[0].equals("worker-failure-policy")) {operationFailures();workerFailureExtras();}
+            else if(args.length==1 && args[0].equals("operation-failure-characterization")) operationFailures();
             else if(args.length==1 && args[0].equals("terminal-io-policy")) terminalIoFaults();
             else if(args.length==1 && args[0].equals("null-io-policy")) nullIoPolicy();
             else if(args.length==1 && args[0].equals("io-characterization")) ioCharacterization();
@@ -433,6 +449,69 @@ public final class TransportObservation {
             check(state.sent.size()==sent,"Stopped sync send escaped containment");
         }
         if(print)emit("null_io "+label+" terminal=-102; fixed-no-cause; failed_sends=1; "+(containment?"next_distinct=-102; session-stopped":"next_distinct=0; worker-survives"));
+    }
+    private static Object queueValue(CommunicationsManager m)throws Exception{Field field=CommunicationsManager.class.getDeclaredField("queue");field.setAccessible(true);return field.get(m);}
+    private static boolean operationFailureStop()throws Exception {
+        try{return Class.forName("compat.RejectionRecovery").getField("STOPS_OPERATION_FAILURES").getBoolean(null);}
+        catch(ClassNotFoundException absent){return false;}catch(NoSuchFieldException absent){return false;}
+    }
+    private static void operationFailures()throws Exception {operationFailures(new String[]{"prefix","shim","generic","before-request-creation"});}
+    private static void operationFailures(String[] labels)throws Exception {
+        org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+        final boolean stopped=operationFailureStop();
+        for(final String label:labels){
+            final State state=new State();state.clearOutstandingBeforeFailure=true;final Exception failure;
+            if(label.equals("prefix")){failure=new IOException("PropertyListException synthetic");state.injectedFailure=(IOException)failure;}
+            else if(label.equals("shim")){failure=new sun.io.MalformedInputException();state.injectedFailure=(IOException)failure;}
+            else {failure=new IllegalStateException("DO_NOT_RENDER_OPERATION_FAILURE");if(!label.equals("before-request-creation"))state.injectedRuntime=(RuntimeException)failure;}
+            final CommunicationsManager m=ioManager(state);final Object[] contexts={new Object(),new Object()};final int[] count={0};
+            final AcpxMessageFactory f=new AcpxMessageFactory();RequestMessage first=f.newSetTimeRequest(new Date(0));
+            if(label.equals("before-request-creation")){
+                final RequestMessage base=first;
+                first=(RequestMessage)java.lang.reflect.Proxy.newProxyInstance(RequestMessage.class.getClassLoader(),new Class[]{RequestMessage.class},new java.lang.reflect.InvocationHandler(){public Object invoke(Object proxy,java.lang.reflect.Method method,Object[] args)throws Throwable{
+                    if(method.getName().equals("clone"))return proxy;
+                    if(method.getName().equals("getPath")){state.preRequestFaultCalls++;throw failure;}
+                    try{return method.invoke(base,args);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}
+                }});
+            }
+            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){try{
+                int i=count[0]++;check(i<2&&response.getType()!=Response.TYPE_CONNECT&&seen==contexts[i],"Operation callback order differs");
+                check(response.getResultCode()==(i==0?(label.equals("prefix")?-103:-102):(stopped?-102:0)),"Operation result differs");
+                if(i==0){unsafeWorkerFailureObserved=stopped&&!m.isStopped();check(state.closes==(stopped?1:0),"Worker fault close count differs");check(response.getException()==failure&&m.isStopped()==stopped&&m.isConnected()!=stopped,"Operation exception/stop state differs");if(stopped){int size=((LinkedList)queueValue(m)).size();try{m.postMessage(f.newRestartSystemRequest());throw new AssertionError("Stopped callback sync accepted");}catch(CommShutdownException expected){}check(((LinkedList)queueValue(m)).size()==size,"Stopped callback sync enqueued");}}
+                else {if(stopped)check(response.getException() instanceof CommShutdownException,"Queued operation not shutdown");m.shutdown();}
+            }catch(Exception e){throw new AssertionError("Operation fixture failed");}}};
+            m.postMessageAsync(handler,first,contexts[0]);m.postMessageAsync(handler,f.newRestartSystemRequest(),contexts[1]);m.run();
+            int firstAttempts=label.equals("before-request-creation")?0:1;
+            check(count[0]==2&&state.attempts==firstAttempts+(stopped?0:1)&&state.sent.size()==firstAttempts+(stopped?0:1)&&state.preRequestFaultCalls==(label.equals("before-request-creation")?1:0)&&state.closes==1,"Operation send/close counts differ");
+            if(!stopped)check(matchesBody(state.sent.get(state.sent.size()-1),f.newRestartSystemRequest()),"Follow-up bytes are not restart");
+            emit("operation_failure "+label+" first="+(label.equals("prefix")?-103:-102)+" exception_identity=true stop_before_callback="+stopped+" attempts="+state.attempts+" response_entries="+state.sent.size()+" queued_restart="+(stopped?"blocked":"sent"));
+        }
+        OfflineGuard.assertUntouched();emit("PASS operation failure characterization; guarded_operations=0");
+    }
+    private static boolean matchesBody(byte[] wire,RequestMessage request)throws Exception {
+        ByteArrayOutputStream body=new ByteArrayOutputStream();request.writeTo(body);
+        for(int i=0;i+3<wire.length;i++)if(wire[i]==13&&wire[i+1]==10&&wire[i+2]==13&&wire[i+3]==10)return Arrays.equals(Arrays.copyOfRange(wire,i+4,wire.length),body.toByteArray());
+        return false;
+    }
+    private static void workerFailureExtras()throws Exception {
+        check(operationFailureStop(),"Worker-fault policy missing");
+        for(final boolean throwConnect:new boolean[]{false,true}){
+            final State state=new State();final CommunicationsManager m=ioManager(state);set(m,"connected",false);set(m,"connection",null);final int[] commands={0},connects={0};final RuntimeException thrown=new IllegalStateException("DO_NOT_RENDER_CONNECT_CALLBACK");
+            CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){
+                if(response.getType()==Response.TYPE_CONNECT){check(++connects[0]==1&&response.getResultCode()==-101&&!m.isStopped(),"Invalid-address seam differs");if(throwConnect)throw thrown;return;}
+                int i=commands[0]++;check(i<2&&response.getResultCode()==-102&&m.isStopped()&&!m.isConnected(),"Connection worker fault not stopped");
+                if(i==0)check(throwConnect?response.getException()==thrown:response.getException() instanceof NullPointerException,"Connection fault identity/type differs");else check(response.getException() instanceof CommShutdownException,"Connection follow-up not rejected");
+            }};
+            AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newSetTimeRequest(new Date(0)));m.postMessageAsync(handler,f.newRestartSystemRequest());m.run();check(commands[0]==2&&connects[0]==1&&state.attempts==0&&state.sent.size()==0&&state.closes==0,"Connection worker fault wrote bytes");emit("worker_failure "+(throwConnect?"throwing-connect-callback":"null-connection")+" attempts=0 stopped=true queued_restart_blocked=true");
+        }
+        final State nul=new State();nul.injectedFailure=new IOException("PropertyListException synthetic");nul.clearOutstandingBeforeFailure=true;final CommunicationsManager nm=ioManager(nul);final int[] callback={0};AcpxMessageFactory f=new AcpxMessageFactory();
+        nm.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(response.getResultCode()==-103&&nm.isStopped()&&!nm.isConnected(),"Null-handler prerequisite not stopped");callback[0]++;}},f.newSetTimeRequest(new Date(0)));nm.postMessageAsync(null,f.newRestartSystemRequest());nm.run();check(callback[0]==1&&nul.attempts==1&&nul.sent.size()==1&&nul.closes==1,"Null-handler queued write escaped");emit("worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true");
+        final State healthy=new State();byte[] negative="<plist version=\"1.0\"><dict><key>status</key><integer>-27</integer></dict></plist>".getBytes("UTF-8");healthy.rawResponse=reply("HTTP/1.1 200 Fixture","Content-Length: "+negative.length+"\r\n",negative);final CommunicationsManager hm=ioManager(healthy);final int[] hc={0};
+        CommunicationHandler good=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){check(!hm.isStopped()&&response.getResultCode()==(hc[0]==0?-27:0),"Healthy negative result stopped continuation");if(++hc[0]==2)hm.shutdown();}};hm.postMessageAsync(good,f.newGetStatusRequest());hm.postMessageAsync(good,f.newGetTimeRequest());hm.run();check(hc[0]==2&&healthy.attempts==2&&healthy.sent.size()==2,"Healthy follow-up missing");emit("worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true");
+        final State sync=new State();sync.injectedFailure=new IOException("PropertyListException synthetic");final CommunicationsManager sm=ioManager(sync);final Throwable[] escaped={null};Thread worker=new Thread(new Runnable(){public void run(){sm.run();}},"fixture-worker-fault-sync");worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
+        try{worker.start();try{sm.postMessage(f.newSetTimeRequest(new Date(0)));throw new AssertionError("Faulted sync post accepted");}catch(IOException expected){check(expected.getClass()==IOException.class&&"PropertyListException synthetic".equals(expected.getMessage())&&expected.getCause()==null,"Faulted sync exception changed");}int size=((LinkedList)queueValue(sm)).size();try{sm.postMessage(f.newRestartSystemRequest());throw new AssertionError("Stopped next sync accepted");}catch(CommShutdownException expected){}check(((LinkedList)queueValue(sm)).size()==size&&sm.isStopped()&&!sm.isConnected(),"Next sync enqueued");worker.join(5000);check(!worker.isAlive()&&escaped[0]==null&&sync.attempts==1&&sync.sent.size()==1&&sync.closes==1,"Sync fault worker did not exit");}
+        finally{sm.shutdown();worker.interrupt();worker.join(5000);check(!worker.isAlive(),"Sync fault cleanup did not exit");}
+        emit("worker_failure sync same_call=plain-IOException next_call=CommShutdownException no-enqueue=true attempts=1");OfflineGuard.assertUntouched();emit("PASS worker failure policy; guarded_operations=0");
     }
     private static void terminalIoFaults()throws Exception {
         check(terminalIoPolicy()&&sessionContainment(),"Terminal IO policy missing");

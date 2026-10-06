@@ -127,11 +127,15 @@ def transform(entry, data):
             if tag!=8 or cls.text(u2(value,0))!='PropertyListException':raise ValueError('IO prefix classification differs')
             null_signature=append(12,word(utf8('nullMessage'))+word(utf8('()Ljava/lang/Exception;')))
             null_reference=append(10,word(owner)+word(null_signature))
+            retire_signature=append(12,word(utf8('retire'))+word(utf8('(Lcom/apple/xsr/net/CommunicationsManager;)V')))
+            retire_reference=append(10,word(owner)+word(retire_signature))
             code=bytearray(original_code)
             code[339:344]=bytes.fromhex('c8000000d6')
             code[350:352]=bytes.fromhex('00d6')
             code[464:474]=b'\x2a\x19\x05\xb8'+word(reference)+bytes(4)
-            code.extend(bytes.fromhex('1905b6004759c7000e57b8')+word(null_reference)+bytes.fromhex('3a05c8ffffff98c8ffffff1b'))
+            code.extend(bytes.fromhex('1905b6004759c7000e57b8')+word(null_reference)+bytes.fromhex('3a05c8ffffff98c800000005'))
+            code.extend(bytes.fromhex('1248b6004999ffec2ab8')+word(retire_reference)+bytes.fromhex('c8ffffff12'))
+            tail=bytearray(tail);tail[30:32]=word(462)
             body=data[begin+6:begin+10]+struct.pack('>I',len(code))+code+tail
             replacement=data[begin:begin+2]+struct.pack('>I',len(body))+body
         else:
@@ -357,14 +361,19 @@ def assert_recovery_edit(before,after,name):
         except (KeyError,struct.error):raise ValueError('Recovery helper reference invalid') from None
     if name=='run':
         window=b[14+464:14+474]
-        if len(b)!=len(a)+25 or a[:2]!=b[:2] or u4(b,2)!=u4(a,2)+25 or a[6:10]!=b[6:10] or a[6:10]!=bytes.fromhex('00060009') or u4(a,10)!=553 or u4(b,10)!=578 or window[:4]!=b'\x2a\x19\x05\xb8' or window[6:]!=bytes(4):raise ValueError('Recovery run frames or report substitution differs')
+        if len(b)!=len(a)+42 or a[:2]!=b[:2] or u4(b,2)!=u4(a,2)+42 or a[6:10]!=b[6:10] or a[6:10]!=bytes.fromhex('00060009') or u4(a,10)!=553 or u4(b,10)!=595 or window[:4]!=b'\x2a\x19\x05\xb8' or window[6:]!=bytes(4):raise ValueError('Recovery run frames or report substitution differs')
         methodref(u2(window,4),'report','(Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V')
         if a[14+349:14+352]!=bytes.fromhex('99001f') or b[14+349:14+352]!=bytes.fromhex('9900d6') or b[14+380:14+459]!=a[14+380:14+459]:raise ValueError('Ambiguous IO branch or retained retry block differs')
         if b[14+339:14+344]!=bytes.fromhex('c8000000d6'):raise ValueError('IO trampoline entry differs')
         added=b[14+553:14+578]
-        if added[:11]!=bytes.fromhex('1905b6004759c7000e57b8') or added[13:]!=bytes.fromhex('3a05c8ffffff98c8ffffff1b'):raise ValueError('IO trampoline branches or stack operations differ')
+        if added[:11]!=bytes.fromhex('1905b6004759c7000e57b8') or added[13:]!=bytes.fromhex('3a05c8ffffff98c800000005'):raise ValueError('IO trampoline branches or stack operations differ')
         methodref(u2(added,11),'nullMessage','()Ljava/lang/Exception;')
-        masked=bytearray(b[:14+553]+b[14+578:]);masked[:14]=a[:14]
+        tail_block=b[14+578:14+595]
+        if tail_block[:10]!=bytes.fromhex('1248b6004999ffec2ab8') or tail_block[12:]!=bytes.fromhex('c8ffffff12'):raise ValueError('Prefix stop tail differs')
+        methodref(u2(tail_block,10),'retire','(Lcom/apple/xsr/net/CommunicationsManager;)V')
+        if b[14+595+30:14+595+32]!=word(462) or a[14+553+30:14+553+32]!=word(307):raise ValueError('Malformed-input handler routing differs')
+        masked=bytearray(b[:14+553]+b[14+595:]);masked[:14]=a[:14]
+        masked[14+553+30:14+553+32]=word(307)
         masked[14+339:14+344]=a[14+339:14+344];masked[14+350:14+352]=a[14+350:14+352];masked[14+464:14+474]=a[14+464:14+474]
         if bytes(masked)!=a:raise ValueError('Run changed outside exact IO/report windows and appended block')
     else:

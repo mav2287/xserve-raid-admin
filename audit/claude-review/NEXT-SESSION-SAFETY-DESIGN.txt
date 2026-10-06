@@ -1,0 +1,111 @@
+I've read all four artifacts plus the related audit notes and `audit/static-inventory.json`. I'm now pulling the facts together; nothing was edited and no commands were run.
+
+# Design consultation: next fail-closed step after audit.15
+
+**Summary.** I recommend making the three remaining worker-thread failure handlers stop the session as the first step. On interrupted waits I don't recommend shutting down the whole manager. The evidence suggests interrupts are a routine "refresh now" signal, so stopping the manager there would likely break healthy polling. A worker-side "already answered" skip is safer, and I'd do it as a second step. Stopping on failed-connection callbacks is reasonable but blocked by an availability question. Separately, there is a lock-order deadlock in the original code that matters for any `shutdown()` call from a thread other than the worker.
+
+Evidence key: **F** = seen directly in bytecode or inventory, **I** = inference.
+
+## 1. Facts versus inferences
+
+### A. Interrupted SyncSender wait reports -102 while the command can still run
+- **F** The SyncSender constructor queues the transaction (`postMessageAsync`, build file `:25`) before it takes its own lock (`:29`) and waits (`:43`).
+- **F** The InterruptedException handler covers PCs 31–55 only (`:75`). It sets a `-102` response wrapping `InterruptedIOException("communications shutdown")` and sets `handled=true` (`:46-62`). It does not remove the queued transaction and does not restore the interrupt flag.
+- **F** `postMessage` turns that into a plain `IOException("communications shutdown")`, not a `CommShutdownException` (`:255-267`). The worker can later send the transaction and call `handleResponse` on the abandoned SyncSender, which harmlessly overwrites the response.
+- **F** Same pattern: a synchronous post from the worker thread queues first, then throws `IllegalStateException` (`:36-41`). That command will still be sent.
+- **F (inventory only)** `RaidSystemAgent` extends Thread. `updateImmediately()` calls `isPollingEnabled` and `interrupt()` on itself. Its `do*Update` methods use synchronous `postMessage` (`audit/static-inventory.json:45303-45307`, `:45441+`).
+- **I** "Update now" can therefore interrupt a polling getter that is blocked in `SyncSender.wait`. I haven't seen the branch structure of `updateImmediately` or `run`, only call lists.
+
+### B. Race between the stop check in postMessage and the worker exiting
+- **F** `postMessage` checks `isStopped()` under the manager lock and releases it (`:224`). `postMessageAsync` never checks `stopped` (`:183-214`).
+- **F** The worker exits only when the queue is empty and it is stopped, decided under the queue lock (`:349-358`). It never notifies SyncSenders on exit.
+- **F, consequence:** if `shutdown()` and the worker's exit fall between the stop check and the enqueue, the SyncSender waits forever, because `Object.wait()` has no timeout. Late async posts sit in the queue with no callback.
+- **F** If instead the worker dequeues after the stop, the check at PC 234 sends `-102 CommShutdownException` without transmitting. A send already past PC 234 is in flight, and its outcome is unknown.
+- **F** The worker's `InterruptedException` exit (`:607`) leaves `stopped=false`, so later posts would hang.
+
+### C. Connection-failure callback, then the same transaction is sent later
+- **F** In `doConnect`, after one failed attempt (single address) or two (dual address), the handler receives a `BasicResponse(0, null, -101, ConnectException)` (`:862-901`). The `0` type is distinct from the `2` used elsewhere; that it means TYPE_CONNECT is **I**. `connectionFailureSent` is set, and the retry loop continues with backoff starting at 5–10 s and capped near one hour (`:924-941`).
+- **F** When it eventually connects, `run` reaches PC 234 with `stopped` false and sends the transaction (`:439-456`). SyncSender accepts any response type (`:79-90`), so the caller has already thrown `ConnectException` by the time the command goes out, possibly hours later.
+- **F** A second -101 site, "No valid host address" (`:768-803`), returns without setting `connectionFailureSent`. `run` then sends on the `connection` field. If that is null, the result is an NPE caught by the generic handler, and the handler is called back a second time.
+- **I** If a stale earlier `AcpxConnection` is still in that field, the send might succeed. `connected` is cleared on the old paths, but the field isn't nulled, and the constructor failing at `:415` leaves the old value in place.
+- **F** Null-handler async posts never get the -101 (`:868-869`). They stay queued and go out in order after reconnection.
+
+### D. Failures that let queued writes continue (-103 prefix, MalformedInputException, generic Exception)
+- **F, audit.15 fixture** (`tests/fixtures/terminal-io-run.javap`):
+  - IOExceptions without the prefix and with a null message are terminal (`:162`, `:267-275`).
+  - The -103 prefix path (`:163-175`) and the MalformedInputException handler (`:144-157`, which wins because it comes first in the exception table at `:281`) both reach the callback at 489. They then return to PC 0 and send the next queued transaction on the same connection, with `connected` unchanged.
+  - The generic Exception handler (`:222-237`) calls `report()`, which retires the session only for the exact `UntrustedResponseException` class (`RejectionRecovery.java:58-60`). Everything else continues.
+- **I** Callers that queue null-handler follow-ups (restart, flush, mapping; `REQUEST-OPERATION-SEQUENCES.md:13-16`) can run after a prerequisite whose outcome is unknown.
+- **I** Whether the stream is desynchronised after a -103 depends on `AcpxConnection`/HTTP framing, which I haven't inspected.
+- **Unknown:** the throw sites of the `sun.io.MalformedInputException` shim.
+
+### E. Lock order (original code, all F)
+| Path | Locks held, in order |
+|---|---|
+| `run` PCs 6–68 | queue → manager (`isStopped` is synchronized, `:343`, `:354`) |
+| `shutdown` / `exit` | manager → queue (`:302-316`) |
+| `postMessageAsync` | queue only |
+| SyncSender constructor | queue (released), then SyncSender |
+| Worker calling `handleResponse` (`:509`, `:409`, `:586`) | no lock held → SyncSender |
+| `report()` (on the worker) | manager → queue, then manager; queue is not held |
+
+- **F, consequence:** `run` and `shutdown()` take the same two locks in opposite order. That is a deadlock risk whenever `shutdown()` is called from a non-worker thread while the worker is in PCs 7–68.
+- There is no edge from manager or queue into SyncSender. So shutting down from the interrupt handler, while holding the SyncSender lock, adds no new cycle, but it does expose the caller to this existing deadlock.
+- **F** Exceptions thrown from callbacks at 509 (outside 215–304), and Errors anywhere, kill the worker without stopping it. Every SyncSender waiting at that point hangs.
+
+## 2. Recommended first step: worker-side terminal stop for operation failures
+
+**Scope:** the three continuation handlers in `run` only. SyncSender, `postMessage`, `postMessageAsync`, `shutdown`, `exit` and `doConnect` stay byte-identical.
+
+1. **Generic Exception (PC 462).** No change to Manager bytecode. Change `RejectionRecovery.report` so it always retires the session (shut down first, then log, then retire the connection) for any exception, not just the marker class.
+2. **MalformedInputException.** Change only the exception-table handler PC from 307 to 462. The catch type stays, so the shim is still needed. The original exception object and the `-102` code are kept. 307–336 become unreachable.
+3. **-103 prefix.** Replace the 5-byte `goto_w 344` at PC 573 with a new tail: the prefix test, `ifeq 563`, a call to a new `retire(manager)`, then `goto_w 352`. 344–349 become unreachable. The original `-103` response, its exception and its log at 367 are kept, and the stop happens before both the log and the callback.
+   - This needs one new constant-pool Methodref.
+   - The new branches back to 352 and 563 carry no uninitialized objects.
+   - **I** The `class$` idiom suggests a class version of 48 or lower, so no StackMapTable is needed. Confirm the version.
+
+**Why stop before the callback.** Only the worker sends, so stopping anywhere before it returns to PC 234 is enough to prevent dispatch. Stopping before the callback additionally means a woken synchronous caller gets `CommShutdownException` at `postMessage`, instead of queueing and risking the hang in 1B.
+
+**In-flight retirement.**
+- **F** `connection` is private and `send` is called only at PC 255, on the worker. Retirement in these three paths runs on the worker after `send` has thrown, so it does not run at the same time as a request on that manager's connection.
+- **Uncertain:** `AMBIGUOUS-IO-NO-REPLAY.md:65` records that `HttpOutputStream.close` calls `send` if the stream hasn't been sent yet. A generic or MalformedInputException fault before the request is fully written, followed by retirement calling `close()`, could transmit. This must be measured, not assumed.
+
+**What stays the same:** successful responses, controller result codes, -101/-102/-103 codes and exception objects, `doConnect` backoff constants, polling and Restarter timers. No controller operations are added. Nothing is claimed about undoing the command that was attempted.
+
+### Bounded offline tests (no sockets)
+- One case each for MalformedInputException, the `PropertyListException…` prefix, `IllegalStateException` thrown from the send seam, and an RPC failing before serialization. For each, assert:
+  - exactly one callback with the expected code and the same exception instance;
+  - `isStopped()` is already true inside the callback;
+  - a queued synthetic restart is never sent and gets a `-102 CommShutdownException`;
+  - the send-attempt count is exactly 1 (or 0 for the pre-serialization fault), with close counts asserted;
+  - the worker joins within 5 s;
+  - a synchronous post from inside the callback gets `CommShutdownException` with no enqueue.
+- Healthy controls: negative controller result codes, prefix-case variants, and the next queued item still sent.
+- CFG and identity gates: only the 307 handler PC and the 573 tail differ from audit.15; the listed methods are byte-identical.
+- Verifier-valid mutants that drop each stop call must fail.
+- Run under Xint and Xcomp on arm64 and x64, as in audit.15.
+
+## 3. Later steps (not first)
+
+- **Second: worker-side "answered" skip.** At PC 234, if the handler is a SyncSender and `getResponse()` is already non-null, skip the send and the callback.
+  - This uses only existing constant-pool entries #30, #32 and #27. The worker takes the SyncSender lock while holding no other lock, so there is no cycle.
+  - It covers interrupted waits and synchronous -101 failures without losing the session.
+  - Remaining race: a check that passes just before the interrupt still sends, and the outcome is unconfirmed.
+  - **I'd avoid manager shutdown on interrupt** because of `updateImmediately`.
+- **Third: async-handler -101 sites (`:409`, `:586`).** Retiring on the worker is safe for dispatch, but it's blocked on availability (see Q2).
+- **Fourth: liveness work.**
+  - Have `shutdown` set `stopped` and notify without holding the manager lock while taking the queue lock (and the same for `exit`).
+  - Make the enqueue and exit decisions atomic.
+  - Make sure worker death or callback exceptions release waiters.
+  - Add a ThreadMXBean deadlock test for the `run`/`shutdown` lock-order problem.
+
+## 4. Blockers and unresolved questions
+
+1. audit.15 clean qualification isn't complete. The next step must start from a committed clean identity.
+2. Production hardware is unavailable and off-limits. Whether healthy firmware ever produces -103 or MalformedInputException can't be measured; if it does, the first step turns that into a session stop.
+3. `RaidSystemAgent.updateImmediately`/`run` bytecode isn't inspected, and callers of `CommunicationsManager.shutdown`/`exit` aren't enumerated. Both are needed before settling the interrupt policy.
+4. Does `RaidSystem.getCommunicationsManager` ever recreate a stopped manager? This blocks the third step and any claim about GUI recovery.
+5. `AcpxConnection.close` behaviour when the stream hasn't been sent, for the new fault stages.
+6. Throw sites of the `sun.io.MalformedInputException` shim, and the class-file major version.
+7. Which async non-null handlers post mutating commands (affects the residual -101 later-send risk).
+8. Does any handler callback call `postMessage` synchronously (the queue-then-`IllegalStateException` pattern)?

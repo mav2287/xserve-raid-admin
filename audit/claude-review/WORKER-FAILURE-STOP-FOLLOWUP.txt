@@ -1,0 +1,46 @@
+## Verdict: no concrete blockers
+
+You can commit the source characterization and the audit.16 implementation together, then run the clean qualification. I only read files. I ran no commands and recomputed no hashes.
+
+## Follow-ups confirmed
+
+- **Retire handler check (`tools/check_security.py:57`):** the gate now rejects any handler row on `retire`.
+  - The negative test at `tests/test_worker_stop_gate.py:30-33` inserts a `0 4 8 Throwable` row after the first `8: return`. In the fixture, that line is the `retire` method's line (fixture line 345), so the row lands in the right method.
+  - The added row doesn't match the instruction regex, so only the new handler check can make the test fail.
+  - `part('retire')` doesn't also match `retireConnection`, because the pattern needs `retire(`.
+- **Subclass scan:** the identities JSON records `communications_manager_direct_subclasses: []` across 2844 classes. With no direct subclasses in the jar, there can't be indirect ones either.
+  - `scan_scope` now says "six full disassemblies", which matches the six class hashes.
+  - `WORKER-FAILURE-STOP.md:103-106` records the unsupported-subclass and failed-stop outcome: the worker dies, exit cleanup doesn't run and waiters can be stranded. It says this is checked statically only.
+- **Handler 462 unit test (`tests/test_class_patch.py:152-158`):** flips both bytes at code+30/31, which is the target of the fourth handler row. `class_patch.py:374` enforces 462 in the candidate and 307 in the original.
+- **check_architectures:**
+  - `:168` requires `connected=true` exactly once in the original's first line before the replace at `:169`.
+  - The expected record has exactly 143 lines and is pinned to `73d155bf…`. Its first line is the intentional `connected=false; stop=true`.
+  - `terminal_io_scope` says that worker qualification lives in check_transport.
+- **Historical gates:** the `assert_session_containment` docstring and the `HistoricalAudit14SessionStopGateTests` class name both label them as historical audit.14/15 gates.
+- **check_security description (`:289`):** now says "typed handler reroute … original handler ranges/types … retained", which is accurate.
+- **check_transport:**
+  - `-Xint` and `-Xcomp` runs on each runtime.
+  - The unmodified helper source must compile to the candidate's exact bytes (`:202-206`).
+  - Prefix and report source mutants have a guard that fails if the substitution changes nothing.
+  - Two bytecode mutants:
+    - The shim mutant changes the handler target `01ce`→`0133` (462→307).
+    - The tail mutant changes the jump at 573 from 578 to 344 (`ffffff1b`, −229), the original jump.
+    - Both require the exact sequencing-fixture failure line.
+  - The terminal negative changes PC 583 to branch to 464.
+  - Every mutant runs on each architecture.
+- **Test count:** 103 `def test_` methods across 19 files.
+- **Expected build:** the jar hash `73d155bf…` matches `worker-stop-recovery-expected.json`. The record is marked development (`source_dirty: true`) with the reason "clean qualification pending".
+
+## Things to watch (none block the commit)
+
+1. **Input hashes must match the committed files.** `expected-build.json` pins the hashes of `RejectionRecovery.java`, `class_patch.py` and `baseline.py`. If the clean build reports any input-hash change, the jar identity changes too, and both expected JSONs need a new reviewed record. Don't just overwrite them.
+2. **No tool regenerates the subclass and identities scan.** It's a recorded artifact, as `terminal-io-source-identities.json` was before. That's acceptable for a static claim, but it isn't re-proved by the six gates.
+3. **Minor style:** `check_transport.py:207` imports `re` inside the per-architecture loop. It works, because `re` isn't used earlier in `main()`.
+
+## Still unqualified, as you stated
+
+- The whole RaidSystemAgent "Terminating Updates" test.
+- Liveness when the prefix logger throws at PC 374.
+- The failed-stop and subclass paths at runtime.
+
+The current dev records don't qualify anything clean.

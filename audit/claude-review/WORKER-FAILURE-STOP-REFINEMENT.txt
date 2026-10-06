@@ -1,0 +1,99 @@
+I've checked everything I need; writing up the review now.
+
+# Review: audit.16 design (worker-only failure stop)
+
+**I found no blockers.** The bytecode arithmetic, the verifier reasoning and where the stop is placed all check out against the original `run` (`build/next-session-safety-bytecode.txt:1476-1756`) and the audit.15 fixture (`tests/fixtures/terminal-io-run.javap`). The design doc itself is now stale in several places, and a few test assertions are wrong as written. Details below. I didn't edit anything or run any commands.
+
+## 1. Verifier arithmetic and control flow: confirmed
+
+- **Length:** the audit.15 code ends at 573 + 5 = 578. The new tail is ldc (2) + invokevirtual (3) + ifeq (3) + aload_0 (1) + invokestatic (3) + goto_w (5) = 17 bytes, so the new length is 595.
+- **Branch targets:** the `ifeq` at 583 jumps −20 to 563, which fits in a signed 16-bit offset.
+- **Stack depths:**
+  - At 573 the stack is `[String]`, left by the `dup`/`ifnonnull` at 558–559.
+  - The tail peaks at depth 2 (580). It is empty at 583→563, at 587 after the void invokestatic, and at 590→352.
+  - Stack is empty at 352 (as in the original fallthrough from 349) and at 563 (as after the `pop` at 562). `max_stack=6` and `max_locals=9` are unchanged.
+- **Locals:** the only live edge into 352 is now 590. Local 5 holds the IOException stored at 337, which satisfies the `Exception` parameter at 362. Locals 1, 2 and 4 come through the handler merge of 215–304 exactly as before.
+- **Rerouting 307→462:** the entry keeps its position and range (215–304), so MalformedInputException still matches first. The merged stack type at 462 is `Exception` and the locals are the same as for the generic entry. The exception-table length and every from/to value are unchanged.
+- **Dead code:**
+  - Newly dead: 307–336 and 344–351.
+  - Already dead in audit.15: 380–458, because `ifeq` at 349 already went to 563.
+  - The type-inference verifier (major 47, no StackMapTable, confirmed at `:835`) never visits unreachable code. 380–458, including its monitor handlers, already passed audit.15 in this state.
+- **New tail is outside every try range**, including the 0–522 InterruptedException range. So a RuntimeException or Error escaping `retire` would kill the worker. `retire` must therefore contain everything the same way `report` does, and the stop must come first.
+- **Optional tweak:** you could write the ldc directly at 573 instead of `goto_w 578` (12 bytes instead of 17). Both behave the same, and the trampoline keeps the byte-diff gate to "offset changed + tail appended". Keep whichever makes the gate simpler.
+
+## 2. Stop placement and no-transmit: confirmed, with wording fixes
+
+- **Close path:** `AcpxConnection.close` → `HttpConnection.close` → `disconnect` → `Socket.close` (`:391-405`, `http-send-lifecycle-bytecode.txt:135-176`) never touches the request stream. `AcpxConnection.close` nulls its field, so the exit-time close at 541–545 becomes a no-op.
+  - Fix the doc's claim: say **"no new application writes"**. Bytes that `send` already wrote can still drain from the kernel buffer after close.
+- **`send`'s own finally** (`:326-388`) only closes the input stream and may `disconnect()`. It never closes the request `OutputStream`. So the old worry about `HttpOutputStream.close` sending is gone, for both `send`'s finally and retirement.
+- **Draining after the stop:**
+  - At 514 `connectionFailureSent` is cleared, then the loop drains the queue.
+  - 215 sees `isConnected` false and `isStopped` true, so it skips `doConnect`; 234→273 then builds a `-102 CommShutdownException`.
+  - Queued items with a non-null handler get that response. **Null-handler items get no callback at all.** The doc's "queued restart … gets -102" is only true for a non-null handler. The test should assert zero sends and zero callbacks for null-handler restarts.
+- **Same-call semantics (you were right):**
+  - The interrupted or failed synchronous caller still gets a **new** plain `IOException(message)` (`postMessage:87-103`). That is a different instance, so assert on the message only.
+  - Only the *next* `postMessage` throws `CommShutdownException`, and it does so without enqueueing. Line 67 of the doc needs rewriting.
+- **Agent consequence (new, and good):**
+  - The plain IOException reaches the agent's generic handler (`RaidSystemAgent.run:539-562`), which sets message index 5 and jumps straight to `goto 2` without sleeping.
+  - The next `doPowerStateUpdate` gets `CommShutdownException`, so 520→565 ends with "Terminating Updates".
+  - The ending is bounded and makes no second send. It's worth one test.
+
+## 3. Things to fix before implementing
+
+1. **"Generic Exception" covers more than ambiguous I/O.** Range 215–304 includes `doConnect` (231), and `doConnect` invokes `handleResponse(-101)` inside that range.
+   - So a handler that throws during a -101 callback, or the NPE when `connection` is null after "No valid host address", now **permanently** stops the session where it used to continue.
+   - Stopping there is fail-closed and nothing was transmitted, which is acceptable. But the doc should call these "worker faults", not "ambiguous I/O".
+   - Add bounded tests for both cases, asserting zero sends.
+2. **The stop is permanent for that `RaidSystem`.** `getCommunicationsManager` returns the field and only the String constructor creates one. State this as an accepted availability change, along with "-103 on healthy firmware becomes a session stop".
+3. **Healthy controls are wrong in the doc** (line 83). After audit.15 and this change, every IOException path is terminal: null message, non-prefix, and prefix. Prefix-case variants therefore go 563 → `nullMessage` → stop, so they are not continue controls. The only continue control left is a successful response with a negative controller result code, after which the next queued item is still sent.
+4. **Logging has two caveats:**
+   - "retire logs nothing" is false at the transport layer: `HttpConnection.disconnect` emits `debug("Socket closed")` (`:143-145`). The logging gate should exclude that logger, or count it.
+   - The MalformedInputException log now comes from `RejectionRecovery.log`. Same logger name, level, message and throwable, but the FQCN differs (location info only). The gate should record this as an intended change, not as byte-identical.
+5. **A logger throw at 374 is still unguarded.** After the stop, a throwing appender would kill the worker before the callback, and a synchronous waiter would hang with no timeout. The original code also died there, so this isn't a regression, but don't claim the prefix path is liveness-safe. If you test it, record it as a known residual.
+6. **Contain `report`'s first `manager.shutdown()`** (`RejectionRecovery.java:63`) the same way `retire` will be. Also update the class doc comment on line 10 ("generic exception handling stays legacy").
+7. **The evidence scope for the shim claim is narrower than stated.**
+   - `next-session-safety-source-identities.json` lists shim class refs and no shim Methodrefs, but only for the five hashed classes.
+   - Either record a jar-wide scan, or limit the claim to "in these five classes".
+   - Keep the 307 reroute regardless: it costs two bytes and covers any runtime where a real `sun.io` class is thrown.
+
+## 4. Stale doc sections to rewrite
+
+- **Line 1:** remove the conversational preamble.
+- **§1A I (line 17) and §3 "avoid shutdown on interrupt":** replace with the F facts.
+  - `updateImmediately` interrupts only when `pollingEnabled && sleeping` (`:11375-11386`).
+  - `sleeping` is set after the updates (304–306) and cleared in the jsr finally (422–424).
+  - Residual race: an interrupt that arrives after `sleep` returns but before the finally takes the lock stays pending, because nothing calls `Thread.interrupted()`. The next iteration's `SyncSender.wait` then throws immediately. The window is narrow but real, plus external interrupts.
+- **§2 "Uncertain" in-flight retirement:** now F (see section 2 above).
+- **§2 "I" class version:** now F (major 47).
+- **§4:**
+  - Q1, Q4, Q5 and the version half of Q6 are resolved.
+  - Q3 is resolved for `updateImmediately`.
+  - Callers of `shutdown` are still not enumerated jar-wide. `RaidSystem.disconnect` calls `agent.shutdown()` then `comms.shutdown()` from a caller thread, which is the existing lock-order risk.
+
+## 5. Test list: refined
+
+- **Seams:** for each of MalformedInputException, prefix IOException, generic RuntimeException from the send seam, pre-serialization proxy fault, NPE on null connection, and a throwing -101 callback inside `doConnect`, assert:
+  - exactly one callback, with the expected code (-102/-103) and the same exception instance;
+  - `isStopped()` is already true inside the callback;
+  - send count of 1, or 0 for pre-serialization, null connection and `doConnect` faults;
+  - close count ≥ 1, with exit close a no-op;
+  - worker joins within 5 s.
+- **Queued restart:** non-null handler gets `-102 CommShutdownException`; null handler gets zero callbacks; zero sends either way.
+- **Synchronous calls:**
+  - Faulted call: plain IOException with the same message (not identity).
+  - Next post: `CommShutdownException` and the queue size is unchanged.
+  - Post from inside the callback on the worker: `CommShutdownException` before SyncSender is constructed, so no enqueue and no `IllegalStateException`.
+- **Original differential:** with the stop methods stubbed out, the original classes continue and send the queued item. That proves the tests detect the difference.
+- **Negative mutants** (each must fail, all verifier-valid):
+  - `retire` replaced by a no-op;
+  - `report`'s stop removed;
+  - 307 entry pointing back to 307;
+  - 573 pointing back to 344.
+- **Gates:**
+  - Only the 307 handler entry, the offset at 574–577, the 17-byte tail, the code length and attribute lengths, and the new constant-pool entries differ from audit.15. The new entries are Methodref, NameAndType, Utf8 `retire`, and likely the Utf8 descriptor `(Lcom/apple/xsr/net/CommunicationsManager;)V`, which I don't believe exists yet.
+  - SyncSender, `postMessage*`, `shutdown`, `exit`, `doConnect` and AcpxConnection are byte-identical.
+  - Run under Xint and Xcomp on arm64 and x64.
+
+## 6. Simpler alternative considered and rejected
+
+Putting `aload_0; invokestatic retire` unconditionally at 573 (+4 bytes, no new branch) would also stop the prefix path. But it would close the connection before `report` logs on the non-prefix path, and then close it a second time. That changes audit.15's qualified ordering. Your conditional tail keeps the non-prefix path byte-for-byte, so stick with it.

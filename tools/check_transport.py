@@ -54,6 +54,12 @@ def completed_null_io(result, session_containment=False, terminal_io_policy=Fals
     if result.splitlines()!=expected:raise ValueError('Null IO policy differs; raw output withheld')
     return expected
 
+def completed_operation_failures(result, stop=False):
+    expected=['operation_failure '+label+' first='+str(-103 if label=='prefix' else -102)+' exception_identity=true stop_before_callback='+str(stop).lower()+' attempts='+str((0 if label=='before-request-creation' else 1)+(0 if stop else 1))+' response_entries='+str((0 if label=='before-request-creation' else 1)+(0 if stop else 1))+' queued_restart='+('blocked' if stop else 'sent') for label in ('prefix','shim','generic','before-request-creation')]+['PASS operation failure characterization; guarded_operations=0']
+    if result.splitlines()!=expected:raise ValueError('Operation failure characterization differs; raw output withheld')
+    return expected
+
+
 def common_observations(lines, require_length_policy=False, require_framing_policy=False, require_invalid_header_policy=False, require_terminal_io_policy=False):
     terminal_map={
         'dispatch drops=1 malformed=false sends=1 terminal_callbacks=1':'dispatch drops=1 malformed=false sends=2 terminal_callbacks=1',
@@ -105,6 +111,8 @@ def main():
     parser.add_argument('--allocation-policy', action='store_true', help='Candidate-only oversized response rejection before allocation; original never receives oversized fixture')
     parser.add_argument('--length-policy', action='store_true', help='Require candidate malformed/negative-length markers; recovery separately recorded')
     parser.add_argument('--framing-policy', action='store_true', help='Require candidate explicit unambiguous length policy')
+    parser.add_argument('--operation-failure-characterization',action='store_true',help='Memory-only prefix/shim/generic/before-request-creation operation sequencing')
+    parser.add_argument('--worker-failure-stop',action='store_true',help='Require stopped-session operation-failure cases')
     parser.add_argument('--terminal-io-policy',action='store_true',help='Require non-prefix IO to stop without resend')
     parser.add_argument('--session-containment',action='store_true',help='Require terminal rejected session and blocked follow-up writes')
     parser.add_argument('--null-io-policy', action='store_true', help='Require terminal null-message IO recovery and verifier negative control')
@@ -136,7 +144,8 @@ def main():
     if not runtimes: runtimes = [(args.jdk, 'compiler-runtime', None)]
     sources = [ROOT / p for p in ('tests/java/fixture/OfflineGuard.java',
                'tests/java/com/apple/xsr/net/TransportObservation.java', 'patches/sun/io/MalformedInputException.java','tests/java/com/apple/xsr/net/HeaderObservation.java')]
-    source_hashes = {str(p.relative_to(ROOT)): sha(p) for p in sources}
+    identity_sources=sources+[ROOT/'patches/compat/RejectionRecovery.java']
+    source_hashes = {str(p.relative_to(ROOT)): sha(p) for p in identity_sources}
     helpers = [ROOT/'tools'/name for name in ('audit_support.py','baseline.py','class_patch.py','runtime.py')]
     helper_hashes = {str(p.relative_to(ROOT)): sha(p) for p in helpers}
     tool_hash = sha(Path(__file__))
@@ -147,6 +156,8 @@ def main():
     io_observations = []
     null_io_observations = []
     terminal_io_observations = []
+    operation_failure_observations = []
+    worker_failure_observations = []
     with tempfile.TemporaryDirectory(prefix='raid-transport-') as tmp:
         run_jdk(args.jdk, 'javac', ['-source','8','-target','8','-cp',str(original),'-d',tmp] + [str(p) for p in sources])
         shim = Path(tmp) / 'sun/io/MalformedInputException.class'
@@ -156,6 +167,8 @@ def main():
             with zipfile.ZipFile(jar) as archive:
                 if jar!=original:
                     terminal_feature='compat/RejectionRecovery.class' in archive.namelist() and b'TERMINATES_AMBIGUOUS_IO' in archive.read('compat/RejectionRecovery.class')
+                    worker_feature=b'STOPS_OPERATION_FAILURES' in archive.read('compat/RejectionRecovery.class') if 'compat/RejectionRecovery.class' in archive.namelist() else False
+                    if worker_feature!=args.worker_failure_stop or worker_feature and not args.operation_failure_characterization:raise ValueError('Worker fault qualification flag differs')
                     if terminal_feature!=args.terminal_io_policy:raise ValueError('Terminal IO qualification flag differs')
                     if terminal_feature:
                         cls=ClassFile(archive.read('com/apple/xsr/net/CommunicationsManager.class'));method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
@@ -170,6 +183,59 @@ def main():
                     output=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,
                         '-cp',tmp+':'+str(jar.resolve()),'com.apple.xsr.net.TransportObservation','io-characterization'],timeout=20)
                     io_observations.append({'jar_sha256':identity,'architecture':architecture,'results':completed_io(output,args.invalid_header_policy and jar!=original,args.null_io_policy and jar!=original,args.session_containment and jar!=original,args.terminal_io_policy and jar!=original)})
+                if args.operation_failure_characterization:
+                    output=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',tmp+':'+str(jar.resolve()),'com.apple.xsr.net.TransportObservation','operation-failure-characterization'],timeout=20)
+                    with zipfile.ZipFile(jar) as archive:operation_stop='compat/RejectionRecovery.class' in archive.namelist() and b'STOPS_OPERATION_FAILURES' in archive.read('compat/RejectionRecovery.class')
+                    operation_failure_observations.append({'jar_sha256':identity,'architecture':architecture,'results':completed_operation_failures(output,operation_stop)})
+                if args.worker_failure_stop and jar!=original:
+                    expected_worker=completed_operation_failures('\n'.join(['operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked','operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked','operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked','operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked','PASS operation failure characterization; guarded_operations=0']),True)+[
+                        'worker_failure null-connection attempts=0 stopped=true queued_restart_blocked=true',
+                        'worker_failure throwing-connect-callback attempts=0 stopped=true queued_restart_blocked=true',
+                        'worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true',
+                        'worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true',
+                        'worker_failure sync same_call=plain-IOException next_call=CommShutdownException no-enqueue=true attempts=1',
+                        'PASS worker failure policy; guarded_operations=0']
+                    for execution in ('-Xint','-Xcomp'):
+                        output=run_jdk(home,'java',['-Xverify:all',execution,'-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',tmp+':'+str(jar.resolve()),'com.apple.xsr.net.TransportObservation','worker-failure-policy'],timeout=30)
+                        if output.splitlines()!=expected_worker:raise ValueError('Worker failure matrix differs; raw output withheld')
+                        worker_failure_observations.append({'jar_sha256':identity,'architecture':architecture,'execution':execution,'results':expected_worker})
+                    helper_path=ROOT/'patches/compat/RejectionRecovery.java';helper_source=helper_path.read_text()
+                    control=Path(tmp)/'worker-helper-control';control.mkdir(exist_ok=True)
+                    run_jdk(args.jdk,'javac',['-source','8','-target','8','-cp',str(jar),'-d',str(control),str(helper_path)])
+                    with zipfile.ZipFile(jar) as archive:
+                        if (control/'compat/RejectionRecovery.class').read_bytes()!=archive.read('compat/RejectionRecovery.class'):raise ValueError('Worker helper source does not compile to candidate bytes')
+                    import re
+                    for label in ('prefix','report'):
+                        mutant=Path(tmp)/('worker-stop-negative-'+label);mutant.mkdir(exist_ok=True);source=mutant/'RejectionRecovery.java'
+                        if label=='prefix':
+                            modified=re.sub(r'    public static void retire\(CommunicationsManager manager\) \{.*?^    }','    public static void retire(CommunicationsManager manager) {}',helper_source,count=1,flags=re.M|re.S)
+                        else:
+                            match=re.search(r'    public static void report\(CommunicationsManager manager, Exception failure\) \{.*?^    }',helper_source,re.M|re.S)
+                            modified=helper_source[:match.start()]+match[0].replace('        shutdownRequired(manager);','',1)+helper_source[match.end():]
+                        if modified==helper_source:raise ValueError('Worker negative source substitution missing')
+                        source.write_text(modified);classes=mutant/'classes';classes.mkdir(exist_ok=True)
+                        run_jdk(args.jdk,'javac',['-source','8','-target','8','-cp',str(jar),'-d',str(classes),str(source)])
+                        negative=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',str(classes)+':'+tmp+':'+str(jar),'com.apple.xsr.net.TransportObservation','verify-worker-stop-'+label],timeout=20)
+                        if negative!='PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0\n':raise ValueError('Worker stop semantic negative differs; raw output withheld')
+                        worker_failure_observations.append({'jar_sha256':identity,'architecture':architecture,'mutant':label,'generated_source_sha256':sha(source),'generated_helper_sha256':sha(classes/'compat/RejectionRecovery.class'),'semantic_negative_control':negative.strip()})
+                    for label in ('shim','tail'):
+                        corrupted=Path(tmp)/('worker-'+label+'-manager.jar')
+                        with zipfile.ZipFile(jar) as archive,zipfile.ZipFile(corrupted,'w') as bad:
+                            for entry in archive.namelist():
+                                data=archive.read(entry)
+                                if entry=='com/apple/xsr/net/CommunicationsManager.class':
+                                    cls=ClassFile(data);method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code');data=bytearray(data)
+                                    if int.from_bytes(data[begin+10:begin+14],'big')!=595:raise ValueError('Worker code length differs')
+                                    if label=='shim':
+                                        if data[begin+14+595+30:begin+14+595+32]!=bytes.fromhex('01ce'):raise ValueError('Worker typed handler missing')
+                                        data[begin+14+595+30:begin+14+595+32]=bytes.fromhex('0133')
+                                    else:
+                                        if data[begin+14+573:begin+14+578]!=bytes.fromhex('c800000005'):raise ValueError('Worker prefix trampoline missing')
+                                        data[begin+14+574:begin+14+578]=bytes.fromhex('ffffff1b')
+                                bad.writestr(entry,data)
+                        negative=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',tmp+':'+str(corrupted),'com.apple.xsr.net.TransportObservation','verify-worker-stop-'+label],timeout=20)
+                        if negative!='PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0\n':raise ValueError('Worker handler/tail semantic negative differs; raw output withheld')
+                        worker_failure_observations.append({'jar_sha256':identity,'architecture':architecture,'mutant':label,'generated_jar_sha256':sha(corrupted),'semantic_negative_control':negative.strip()})
                 if args.terminal_io_policy and jar!=original:
                     expected_faults=['terminal_io '+label+' attempts=1 response_entries='+str(0 if label.startswith('write-') or label in ('prewrite-seam','legacy-codec-body-write') else 1)+' stopped=true queued_restart_blocked=true' for label in ('response-loss','empty-message','timeout','eof','write-after-0','write-after-8','write-body-before-first-byte','prewrite-seam','cleanup-after-reply','legacy-codec-body-write')]+['terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true','PASS terminal IO faults; guarded_operations=0']
                     for execution in ('-Xint','-Xcomp'):
@@ -183,7 +249,8 @@ def main():
                             if entry=='com/apple/xsr/net/CommunicationsManager.class':
                                 cls=ClassFile(data);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code');data=bytearray(data)
                                 if data[begin+14+349:begin+14+352]!=bytes.fromhex('9900d6'):raise ValueError('Required terminal branch missing')
-                                data[begin+14+350:begin+14+352]=bytes.fromhex('0073') # valid boundary 464: ordinary report, without marker/stop
+                                if worker_feature:data[begin+14+584:begin+14+586]=bytes.fromhex('ff89')
+                                else:data[begin+14+350:begin+14+352]=bytes.fromhex('0073') # valid boundary 464: ordinary report, without marker/stop
                             bad.writestr(entry,data)
                     negative=run_jdk(home,'java',['-Xverify:all','-Xmx64m','-Djava.awt.headless=true','-Duser.home='+tmp,'-cp',tmp+':'+str(unsafe_jar),'com.apple.xsr.net.TransportObservation','verify-manager-unsafe-policy'],timeout=20)
                     if negative!='PASS verified unsafe manager fails containment fixture; guarded_operations=0\n':raise ValueError('Unsafe semantic negative control differs; raw output withheld')
@@ -251,7 +318,7 @@ def main():
         if not args.io_characterization:raise ValueError('Invalid-header qualification requires IO observations')
         for observation in observations:
             if observation['jar_sha256']!=sha(original):common_observations(observation['results'],True,True,True)
-    if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in sources} or tool_hash != sha(Path(__file__)):
+    if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in identity_sources} or tool_hash != sha(Path(__file__)):
         raise ValueError('Fixture source changed during observation')
     if helper_hashes != {str(p.relative_to(ROOT)): sha(p) for p in helpers}:
         raise ValueError('Harness source changed during observation')
@@ -261,15 +328,15 @@ def main():
         'tool_sha256':tool_hash, 'jdk_tree_sha256': lock['tree_sha256'],
         'runtime_trees':{arch:runtime_lock['architectures'][arch]['tree_sha256'] for arch in seen},
         'fixture_sources': source_hashes, 'harness_sources':helper_hashes, 'observations': observations,'parser_observations':parser_observations,'allocation_observations':allocation_observations,'header_observations':header_observations,
-        'terminal_io_observations':terminal_io_observations,'required_terminal_io_policy':args.terminal_io_policy,
-        'terminal_io_scope':'response_entries counts entry to the memory response seam after writing, not a completed response. Non-prefix IO loses automatic resend and stops the local session. Prefix -103, generic exception continuation and sync-post/exit liveness remain separate open gaps. Memory seams only; no TCP or controller.',
+        'worker_failure_observations':worker_failure_observations,'required_worker_failure_stop':args.worker_failure_stop,'operation_failure_observations':operation_failure_observations,'operation_failure_scope':'Original/candidate memory dispatch with scripted prefix/shim/runtime faults and queued synthetic restart. Response seams explicitly clear requestOutstanding to model a reusable connection, not every failure. A proxy getPath fault occurs before request creation, not at a real serialization throw site. Exception identity and callback ordering asserted; no controller/UI or real socket qualification.' if args.operation_failure_characterization else None,'terminal_io_observations':terminal_io_observations,'required_terminal_io_policy':args.terminal_io_policy,
+        'terminal_io_scope':'response_entries counts entry to the memory response seam after writing, not a completed response. Non-prefix IO loses automatic resend and stops the local session. '+('Worker-failure-stop also stops prefix/shim/generic worker faults; synchronous cancellation/exit liveness and logger failures remain open. ' if args.worker_failure_stop else 'Prefix/generic continuation and synchronous cancellation/exit liveness remain open. ')+'Memory seams only; no TCP or controller.',
         'required_length_policy':args.length_policy,
         'required_framing_policy':args.framing_policy,'required_invalid_header_policy':args.invalid_header_policy,'required_session_containment':args.session_containment,'required_null_io_policy':args.null_io_policy,'null_io_observations':null_io_observations,'null_io_limits':('Exact-marker session stop; already-queued synthetic mutation/restart blocked, later async post stranded without callback, stopped-before-post sync throws; post/exit race remains unqualified. ' if args.session_containment else '')+'Injected EOF/null/caused/changing-message IO at a memory seam; real socket origin and timing unqualified. One getMessage evaluation with logging disabled. Source outcome unconfirmed. Synchronous fixed exception and classpath VerifyError negative control measured. Non-prefix IO is terminal only with the explicit terminal-io-policy flag.' if args.null_io_policy else None,
         'io_observations':io_observations,
         'io_limits':('Session containment supersedes next-command success for exact security markers; nonnull IO replay is closed only with explicit terminal-io-policy qualification. ' if args.session_containment else '')+'Initial G10-a cases only, not classifier qualification; factory/RPC metadata and complete caller/UI/sequencing inventories remain open. Actual send/dispatch with bounded memory responses. Manager constructor is bypassed; a standalone fixture worker calls run, not the constructor-started CommMgr thread. Its custom uncaught handler captures only class/throw site; default thread-group stderr behavior is not measured. Null IOException is injected at the transport seam, not shown to originate from a real socket/parser. Original/audit.11 invalid-header retry is bounded only by the scripted valid second reply; with explicit invalid-header policy the candidate returns -102 after one send. Repeated bad peers and real reconnects are not qualified. Restart is synthetic serialization on memory output; shutdown_flag reports the request flag, not transport effect or a controller operation. Original null-message worker death leaves a later async post queued; with explicit null IO policy the candidate produces a fixed terminal failure. The session-containment flag changes follow-up behavior from fresh read success to blocked queued mutation/restart and permanent session stop. synchronous callers after that death and polling blockage remain unmeasured. Fixed malformed-header synchronous IOException is measured with explicit policy. Mutation -102 does not mean not applied; outcome is unconfirmed. CLI direct entry/exit remains unqualified. Header properties are changed synchronously after enqueue, not a parameter-structure or concurrency stress test. Reconnect uses invalid-address callback injection, not TCP/backoff.' if args.io_characterization else None,
         'length_recovery_scope':'Follow-on coverage is a reference to separately recorded architecture --recovery results, not a transport-tool claim.',
         'invalid_header_scope':'Fixed terminal colonless/leading-colon rejection only; unconfirmed controller outcome, ordinary nonnull IO is terminal only with terminal-io-policy; null-message handling follows null_io_limits.' if args.invalid_header_policy else None,
-        'intentional_differences': 'When ResponseFraming exists, five missing/duplicate/chunked direct cases reject and one lowercase direct/queue case parses its plist; complete exact-line coverage is required. When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. All remaining transport observations must match.',
+        'intentional_differences': 'When ResponseFraming exists, five missing/duplicate/chunked direct cases reject and one lowercase direct/queue case parses its plist; complete exact-line coverage is required. When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. Remaining base output lines match after explicit maps; with worker-failure-stop the prefix result code stays -103 while the session now stops. Operation-failure matrices qualify that intentional state change separately.',
         'limits': 'Original queue and ACP send with bounded synthetic memory HttpConnection replies; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Two-request ordering observed after one injected drop, not concurrency or indefinite retry qualification. ACP status decoding through BasicResponse, not authentication UI or real controller. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. Each reply uses a fresh stream; shared-socket residual bytes/desynchronization and real EOF/timeout timing are not qualified. Synthetic idle streams throw immediately after their scripted bytes. Per-process 20-second timeout is the outer bound. Candidate-only allocation probes use empty bodies with advertised 16777217 and 2147483647 bytes, 64 MiB heap, terminal -102 and zero reconnects; original JAR is never passed these oversized declarations. Boundary gate exercised without allocating ceiling-sized buffers. Candidate header-policy tests cover line 65537, field 129, aggregate 1048577, sticky rejection and terminal -102 without resend; follow-on security recovery is recorded separately by the architecture recovery fixture. No TCP, hardware, polling, or real reconnect/backoff qualification. x64 on this arm64 host is Rosetta, not physical Intel qualification.'}, indent=2))
 
 if __name__ == '__main__': main()

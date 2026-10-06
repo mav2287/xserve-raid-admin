@@ -14,7 +14,7 @@ from verify_builds import check_artifact, EXPECTED
 from inventory import disassemble_entries
 
 
-def assert_retry_unreachable(text):
+def assert_retry_unreachable(text, worker_failures=False):
     instructions={int(pc):op.strip() for pc,op in re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)}
     if instructions.get(349) is None or instructions[349].split()!=['ifeq','563']:raise ValueError('Ambiguous IO does not enter the fixed marker block')
     offsets=sorted(instructions);following=dict(zip(offsets,offsets[1:]))
@@ -34,14 +34,38 @@ def assert_retry_unreachable(text):
         elif opcode not in ('return','ireturn','lreturn','freturn','dreturn','areturn','athrow'):
             if pc not in following:raise ValueError('Run can fall through the code boundary')
             pending.append(following[pc])
-    dead={pc for pc in instructions if 380<=pc<459}
+    dead={pc for pc in instructions if 380<=pc<459 or worker_failures and (307<=pc<337 or 344<=pc<352)}
+    if worker_failures:
+        if instructions.get(573,'').split()!=['goto_w','578'] or instructions.get(583,'').split()!=['ifeq','563'] or instructions.get(590,'').split()!=['goto_w','352'] or (215,304,462) not in handlers:raise ValueError('Worker fault stop control flow differs')
     required={pc for pc in instructions if 352<=pc<380 or 534<=pc<548}|{6,28,60,231}
     if set(instructions)-reached!=dead or not required<=reached or any('java/util/LinkedList.add' in instructions[pc] for pc in reached):raise ValueError('Reachability differs outside the locked dead retry region')
     # The initial connection call and queue monitor remain valid; only retry-region calls are excluded.
     return {'reachable_instructions':len(reached),'retry_region_unreachable':True,'parser_prefix_path_reachable':True}
 
 
+def assert_worker_failure_stop(text):
+    def part(name):
+        match=re.search(r'^  (?:public|private) static void '+name+r'\(.*?(?=^  \S|^})',text,re.M|re.S)
+        if match is None:raise ValueError('Worker stop helper method missing')
+        return match[0]
+    def ops(body):return [(int(pc),' '.join(re.sub(r'#\d+','#',op).split())) for pc,op in re.findall(r'^\s+(\d+):\s+(.*)$',body,re.M)]
+    def expected(lines):return [(pc,' '.join(op.split())) for pc,op in lines]
+    field=re.search(r'^  public static final boolean STOPS_OPERATION_FAILURES = true;.*?(?=^  \S|^})',text,re.M|re.S)
+    if field is None or 'ConstantValue: int 1' not in field[0]:raise ValueError('Worker stop feature constant differs')
+    stop='invokestatic # // Method shutdownRequired:(Lcom/apple/xsr/net/CommunicationsManager;)V'
+    retire='invokestatic # // Method retireConnection:(Lcom/apple/xsr/net/CommunicationsManager;)V'
+    if re.findall(r'^\s+\d+\s+\d+\s+\d+\s+(?:Class \S+|any)\s*$',part('retire'),re.M):raise ValueError('Prefix required stop is covered by a handler')
+    if ops(part('retire'))!=expected([(0,'aload_0'),(1,stop),(4,'aload_0'),(5,retire),(8,'return')]):raise ValueError('Prefix stop does not precede retirement')
+    wanted=[(0,'aload_0'),(1,stop),(4,'aload_1'),(5,'invokestatic # // Method log:(Ljava/lang/Exception;)V'),(8,'goto 16'),(11,'astore_2'),(12,'goto 16'),(15,'astore_2'),(16,'aload_0'),(17,retire),(20,'return')]
+    report=part('report')
+    if ops(report)!=expected(wanted) or re.findall(r'^\s+(\d+)\s+(\d+)\s+(\d+)\s+Class (\S+)$',report,re.M)!=[('4','8','11','java/lang/Exception'),('4','8','15','java/lang/LinkageError')]:raise ValueError('Worker report stop/log/retirement ordering differs')
+    body=part('shutdownRequired')
+    wanted=[(0,'aload_0'),(1,'ifnull 13'),(4,'aload_0'),(5,'invokevirtual # // Method java/lang/Object.getClass:()Ljava/lang/Class;'),(8,'ldc # // class com/apple/xsr/net/CommunicationsManager'),(10,'if_acmpeq 23'),(13,'new # // class java/lang/IllegalStateException'),(16,'dup'),(17,'ldc # // String Response session stop failed'),(19,'invokespecial # // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V'),(22,'athrow'),(23,'aload_0'),(24,'invokevirtual # // Method com/apple/xsr/net/CommunicationsManager.shutdown:()V'),(27,'goto 52'),(30,'astore_1'),(31,'new # // class java/lang/IllegalStateException'),(34,'dup'),(35,'ldc # // String Response session stop failed'),(37,'invokespecial # // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V'),(40,'athrow'),(41,'astore_1'),(42,'new # // class java/lang/IllegalStateException'),(45,'dup'),(46,'ldc # // String Response session stop failed'),(48,'invokespecial # // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V'),(51,'athrow'),(52,'return')]
+    if ops(body)!=expected(wanted) or re.findall(r'^\s+(\d+)\s+(\d+)\s+(\d+)\s+Class (\S+)$',body,re.M)!=[('23','27','30','java/lang/Exception'),('23','27','41','java/lang/LinkageError')]:raise ValueError('Required shutdown can return without a stop or retain an unsafe cause')
+
+
 def assert_session_containment(text):
+    """Historical audit.14/15 prefix gate; current builds use assert_worker_failure_stop."""
     marker=re.search(r'^  public static final boolean STOPS_REJECTED_SESSIONS = true;.*?(?=^  \S|^})',text,re.M|re.S)
     report=re.search(r'^  public static void report\(com.apple.xsr.net.CommunicationsManager, java.lang.Exception\);.*?(?=^  \S|^})',text,re.M|re.S)
     if marker is None or 'ConstantValue: int 1' not in marker[0] or report is None:raise ValueError('Session containment marker missing')
@@ -115,7 +139,7 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
             instructions=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)
             if next(rest for offset,rest in instructions if offset=='339')!='goto_w        553':raise ValueError('Independent null-IO entry differs')
             added=[(int(offset),rest) for offset,rest in instructions if int(offset)>=553]
-            expected=[(553,'aload         5'),(555,'invokevirtual'),(558,'dup'),(559,'ifnonnull     573'),(562,'pop'),(563,'invokestatic'),(566,'astore        5'),(568,'goto_w        464'),(573,'goto_w        344')]
+            expected=[(553,'aload         5'),(555,'invokevirtual'),(558,'dup'),(559,'ifnonnull     573'),(562,'pop'),(563,'invokestatic'),(566,'astore        5'),(568,'goto_w        464'),(573,'goto_w        578'),(578,'ldc'),(580,'invokevirtual'),(583,'ifeq          563'),(586,'aload_0'),(587,'invokestatic'),(590,'goto_w        352')]
             if len(added)!=len(expected):raise ValueError('Independent null-IO block length differs')
             for (pc,actual),(wanted,operation) in zip(added,expected):
                 if pc!=wanted:raise ValueError('Independent null-IO offset differs')
@@ -123,10 +147,17 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
                     if not re.fullmatch(r'invokevirtual\s+#71\s+// Method java/io/IOException.getMessage:\(\)Ljava/lang/String;',actual):raise ValueError('Independent IO message delegation differs')
                 elif pc==563:
                     if not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.nullMessage:\(\)Ljava/lang/Exception;',actual):raise ValueError('Independent null IO helper differs')
+                elif pc==578:
+                    if actual!='ldc           #72                 // String PropertyListException':raise ValueError('Independent prefix literal differs')
+                elif pc==580:
+                    if not re.fullmatch(r'invokevirtual\s+#73\s+// Method java/lang/String.startsWith:\(Ljava/lang/String;\)Z',actual):raise ValueError('Independent prefix test differs')
+                elif pc==587:
+                    if not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.retire:\(Lcom/apple/xsr/net/CommunicationsManager;\)V',actual):raise ValueError('Independent prefix retirement differs')
                 elif actual!=operation:raise ValueError('Independent null IO stack/branch differs')
-            assert_retry_unreachable(b)
+            assert_retry_unreachable(b,True)
             if 'stack=6, locals=9, args_size=1' not in b:raise ValueError('Independent IO frame differs')
-            def mask(text):return re.sub(r'^\s+(?:339|34[0-3]|349|46[4-9]|47[0-3]|553|555|558|559|562|563|566|568|573):.*\n','',text,flags=re.M)
+            def mask(text):return re.sub(r'^\s+(?:339|34[0-3]|349|46[4-9]|47[0-3]|553|555|558|559|562|563|566|568|573|578|580|583|586|587|590):.*\n','',text,flags=re.M)
+            b=re.sub(r'^(\s+215\s+304\s+)462(\s+Class sun/io/MalformedInputException)$',r'\g<1>307\2',b,flags=re.M)
             if mask(a)!=mask(b):raise ValueError('Run differs outside report window')
         else:
             appended=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)[-3:]
@@ -239,7 +270,7 @@ def main():
     if '  major version: 52' not in header_helper or not all(re.search(pattern,header_helper) for pattern in (r'ldc\s+#\d+\s+// int 1048576',r'ldc\s+#\d+\s+// int 65536',r'sipush\s+129',r'// String Response headers exceed limit')):
         raise ValueError('Header helper version, budgets or fixed rejection differs')
     recovery_helper=disassemble_entries(args.jdk,args.jar,['compat/RejectionRecovery.class'],verbose=True)
-    assert_session_containment(recovery_helper)
+    assert_worker_failure_stop(recovery_helper)
     terminal=re.search(r'^  public static final boolean TERMINATES_AMBIGUOUS_IO = true;.*?(?=^  \S|^})',recovery_helper,re.M|re.S)
     if terminal is None or 'ConstantValue: int 1' not in terminal[0]:raise ValueError('Terminal IO feature constant differs')
     null_helper=re.search(r'^  public static java.lang.Exception nullMessage\(\);.*?(?=^  \S|^})',recovery_helper,re.M|re.S)
@@ -255,7 +286,7 @@ def main():
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
         if name in ('run','send'):
-            verified_methods[entry]=('Exact report/null-IO windows and two-byte non-prefix IO branch independently verified; legacy resend region unreachable, parser-prefix path and original handler metadata retained' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
+            verified_methods[entry]=('Exact report/null-IO/prefix-stop windows and typed handler reroute independently verified; retry and superseded handler/test regions unreachable; original handler ranges/types and prefix result/log retained' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
             continue
         if name == 'getBody':
             verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons'
@@ -283,6 +314,6 @@ def main():
         'request_inventory':request_inventory,'http_reference_inventory':http_reference_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
         'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py', ROOT/'tools/class_patch.py']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
-        'limits':'Manager.run null-message trampoline and non-prefix IO branch to the fixed marker block independently verified; original retry-region bytes retained but exactly that region is unreachable; prefix, initial connection/queue and exit-close paths remain reachable; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
+        'limits':'Manager.run null-message trampoline and non-prefix IO branch to the fixed marker block independently verified; original retry-region bytes retained but exactly that region is unreachable; prefix response, initial connection/queue and exit-close paths remain reachable; typed malformed-input handler and generic faults stop the worker session; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
 
 if __name__ == '__main__': main()

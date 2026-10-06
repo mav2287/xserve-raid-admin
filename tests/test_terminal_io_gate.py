@@ -31,3 +31,24 @@ class TerminalIoGateTests(unittest.TestCase):
         self.assertEqual(len(common_observations(lines,require_terminal_io_policy=True)),5)
         for bad in (lines[1:],lines+lines[:1],lines+['dispatch drops=1 malformed=false sends=2 terminal_callbacks=1']):
             with self.assertRaises(ValueError):common_observations(bad,require_terminal_io_policy=True)
+
+class OperationFailureGateTests(unittest.TestCase):
+    def test_characterization_requires_exact_failure_sequence(self):
+        from check_transport import completed_operation_failures
+        for stop in (False,True):
+            lines=['operation_failure '+label+' first='+str(-103 if label=='prefix' else -102)+' exception_identity=true stop_before_callback='+str(stop).lower()+' attempts='+str((0 if label=='before-request-creation' else 1)+(0 if stop else 1))+' response_entries='+str((0 if label=='before-request-creation' else 1)+(0 if stop else 1))+' queued_restart='+('blocked' if stop else 'sent') for label in ('prefix','shim','generic','before-request-creation')]+['PASS operation failure characterization; guarded_operations=0']
+            self.assertEqual(completed_operation_failures('\n'.join(lines),stop),lines)
+            for bad in (lines[1:],lines+lines[:1],lines[:-1],['DO_NOT_RENDER_PEER']+lines):
+                with self.assertRaises(ValueError) as caught:completed_operation_failures('\n'.join(bad),stop)
+                self.assertNotIn('DO_NOT_RENDER',str(caught.exception))
+            with self.assertRaises(ValueError):completed_operation_failures('\n'.join(lines),not stop)
+
+    def test_literal_original_characterization_golden(self):
+        from check_transport import completed_operation_failures
+        lines=[
+            'operation_failure prefix first=-103 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent',
+            'operation_failure shim first=-102 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent',
+            'operation_failure generic first=-102 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent',
+            'operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=false attempts=1 response_entries=1 queued_restart=sent',
+            'PASS operation failure characterization; guarded_operations=0']
+        self.assertEqual(completed_operation_failures('\n'.join(lines),False),lines)

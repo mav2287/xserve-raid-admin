@@ -1,0 +1,51 @@
+{
+  "scope": "Immutable original class hashes and constant-pool references; not call reachability or runtime behavior",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "class_hashes": {
+    "com/apple/xsr/net/AcpxConnection.class": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "com/apple/xsr/net/CommunicationsManager.class": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
+    "com/apple/xsr/som/RaidSystem.class": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+    "com/apple/xsr/som/RaidSystemAgent.class": "65a337c93f11ff48acf27b9c8e54a128a4bf97cb7538fbace05a42bea42732cb",
+    "com/apple/xsr/net/HttpConnection.class": "c8a632a9c5c76e94fe1c3a9e23b6e362d8e50fff75eeb26ee7379ab6c7159303"
+  },
+  "disassembly_sha256": "799ff096ba472318d3e893241ebecb12d8aefc9c30a636c81f0118816f2bb687",
+  "class_references_to_shim": [
+    "com/apple/xsr/net/CommunicationsManager.class"
+  ],
+  "selected_methodrefs": [
+    {
+      "class": "com/apple/xsr/net/CommunicationsManager.class",
+      "owner": "com/apple/xsr/net/CommunicationsManager",
+      "method": "shutdown",
+      "descriptor": "()V"
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem.class",
+      "owner": "com/apple/xsr/net/CommunicationsManager",
+      "method": "shutdown",
+      "descriptor": "()V"
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystem.class",
+      "owner": "com/apple/xsr/som/RaidSystemAgent",
+      "method": "updateImmediately",
+      "descriptor": "()V"
+    },
+    {
+      "class": "com/apple/xsr/som/RaidSystemAgent.class",
+      "owner": "com/apple/xsr/som/RaidSystem",
+      "method": "getCommunicationsManager",
+      "descriptor": "()Lcom/apple/xsr/net/CommunicationsManager;"
+    }
+  ],
+  "selected_disassembly_sha256": "14ed96fa82cdf2f47f5722b08d8fcd889d52cea519f628a41ffc7e790a313b27",
+  "scanned_class_count": 2844,
+  "shim_methodrefs": [],
+  "scan_scope": "All 2844 original class constant pools; selected class hashes bind six full disassemblies. Reflection/runtime libraries excluded.",
+  "raid_system_comms_fieldref_classes": [
+    "com/apple/xsr/som/RaidSystem.class"
+  ],
+  "communications_manager_direct_subclasses": [],
+  "subclass_scan_class_count": 2844
+}
