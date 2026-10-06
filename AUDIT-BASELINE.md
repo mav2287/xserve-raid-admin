@@ -1,11 +1,11 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Most recent clean qualified candidate: **audit.12**, application source `53e902e`,
-fixture/package anchor `e22e837`. See [malformed-header security scope](audit/MALFORMED-HEADER-GUARD.md)
-and [runtime identities](audit/invalid-header-bundle-results.json).
-Audit.13 null-message recovery is undergoing clean qualification. Earlier intake
-and candidate sections remain historical. Candidates are unsigned and operationally
-unqualified; broader IO replay, incorrect lengths, status, native UI and hardware
+Current clean qualified candidate: **audit.13**, application source `f2ec1cf`,
+fixture/package anchor `a3a1687`. See [terminal null-message recovery](audit/NULL-IO-RECOVERY.md),
+[build/runtime identities](audit/null-io-bundle-results.json), and
+[integrity record](audit/null-io-final-integrity.json). Earlier intake and candidate
+sections remain historical. This is unsigned and operationally unqualified;
+broader IO replay, incorrect lengths, HTTP status, native UI and hardware
 acceptance remain open.
 
 ## Result and scope

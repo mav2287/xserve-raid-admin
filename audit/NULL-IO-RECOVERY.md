@@ -93,3 +93,24 @@ no blocker: the exact two-event logger gate, source close counts, original twelv
 handlers, 141-line recovery and six fixed null variants are consistent. Optional
 exact marker-class checks are added. Logger capture is not combined with close
 failure or metadata-stop variants; their cleanup signal event counts are unqualified.
+
+## Clean artifact record
+
+Clean application source `f2ec1cf`, fixture/package anchor `a3a1687`. Two app
+builds produce JAR SHA-256
+`3f39352faf7b0fe0b117d04af0b2455efd81b4511fc522617743f7d169793175`
+and audit bundle digest
+`919d8ded52a986c7defc0d08257ca1318b1c4914bd471e022d5210d7559a4fe4`.
+Repeated arm64 bundle digest:
+`5a83905a232cee9b83504a637b9fce9aeac9be552542dec1c9092ab297a752ef`;
+x64: `55ec1febbc3fdd4a6e03c6af7baf74c1a277ea8da07095fa9d7bebefc588ee6d`.
+Vendor runtime signatures remain verified; exactly 25 JAR entries differ.
+
+Clean [security](null-io-clean-security.json), [transport](null-io-clean-transport.json),
+[runtime](null-io-clean-runtime.json), [XML resources](null-io-clean-resources.json),
+[shared-stream](null-io-clean-shared.json) and [packages](null-io-bundle-results.json)
+qualify this artifact locally. [Integrity](null-io-final-integrity.json) confirms
+committed tool/fixture hashes, 64 passing Python tests, immutable original and
+installed reference contents/modes unchanged. Local diagnostics inspect
+[arm64](null-io-diagnostic-arm64.json) and [x64](null-io-diagnostic-x64.json) packages
+without launching Java or reading preferences. Java 11 was not rerun.
