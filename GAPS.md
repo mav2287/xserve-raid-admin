@@ -75,9 +75,10 @@ plist also report zero. ACP plist authentication error codes are preserved.
 Truncated bodies enter the generic I/O retry path; malformed numeric lengths
 produce -102 in the queue. See [HTTP findings](audit/HTTP-RESPONSE-FINDINGS.md).
 Actual authentication UI and controller framing remain unqualified; these
-observations do not establish authentication bypass. Parser limits, large positive
-allocation, persistent-stream desynchronization and visible errors remain open.
-No response interpretation or retry behavior has been changed.
+observations do not establish authentication bypass. Explicit XML quotas and declared-body/header bounds now apply in audit.6–8;
+persistent-stream desynchronization, status/framing interpretation and visible
+errors remain open. Ordinary response interpretation and original retry timing
+remain unchanged; deliberate new security rejections are documented below.
 
 ## G13 — Legacy XML validation stack growth
 
@@ -104,3 +105,13 @@ only one request was sent, with zero reconnects. audit.7 oversized rejection tak
 this same terminal path. This protects against a resend loop but does not recover
 the connection. Header/frame rejection cleanup must be designed explicitly without
 silently replaying potentially mutating requests. See [allocation evidence](audit/HTTP-ALLOCATION-GUARD.md).
+
+
+## audit.8 response header refinement
+
+Line, count and aggregate header input are explicitly bounded through a three-byte
+constructor insertion and per-response wrapper; original readLine/parseHeaders
+remain unchanged. Exact limits and 174762 short-input/EOF cases pass on both pinned
+runtimes. Queue rejection is terminal -102 with no replay, but the next command
+still fails before sending: G14 recovery remains open. HTTP framing and actual
+controller response compatibility are unqualified. See [scope and clean evidence](audit/HTTP-HEADER-GUARD.md).

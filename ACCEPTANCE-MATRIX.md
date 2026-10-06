@@ -181,3 +181,13 @@ outputs match exactly. No controller operations or real credentials are involved
 | Requirement | Evidence | Status |
 |---|---|---|
 | Reject oversized declared body before allocation | Operand-only Code preservation and candidate-only guarded send/queue fixtures | Partial; framing/recovery and real response compatibility open — [scope](audit/HTTP-ALLOCATION-GUARD.md) |
+
+
+## audit.8 response header refinement
+
+Line, count and aggregate header input are explicitly bounded through a three-byte
+constructor insertion and per-response wrapper; original readLine/parseHeaders
+remain unchanged. Exact limits and 174762 short-input/EOF cases pass on both pinned
+runtimes. Queue rejection is terminal -102 with no replay, but the next command
+still fails before sending: G14 recovery remains open. HTTP framing and actual
+controller response compatibility are unqualified. See [scope and clean evidence](audit/HTTP-HEADER-GUARD.md).

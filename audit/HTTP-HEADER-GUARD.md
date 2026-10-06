@@ -65,4 +65,23 @@ Claude reviewed the design and implementation using the actual read-only CLI.
 The implementation review's line-count concern referred to an earlier snapshot;
 the tested fresh-response case supplies the seventh common output line. Its
 candidate-attribute checking concern was fixed in the independent verifier.
-Clean-build and final evidence links will be added after the clean run.
+
+## Clean evidence
+
+Application source `07d7551`, packager `efa03da`; each build/package starts clean.
+Two application builds match bytes, modes and inputs. Candidate JAR SHA-256:
+`8e48539c1b2b4414b0ea58cf4a9d39e83f9d3a1fa819a92d54d2f29525a210fa`.
+Audit bundle digest: `80bf2ccc688ed83446c579b46f71af814cf40d3ce63a46b3cafb7f3c7cd251a9`.
+Repeated runtime bundle digests:
+
+- arm64: `8c45aac36620f76cd695463bb82efcfdae2a4ab295389c0a59cc64bf24afb536`.
+- x64: `35546eef4c8a023a7fabab38cfeadae3b66724a262094cf7241d8390c034c546`.
+
+[Independent bytecode/security checks](header-clean-security.json),
+[queue and transport fixtures](header-clean-transport.json),
+[header corpus and runtime regressions](header-clean-runtime.json),
+[XML quota regressions](header-clean-resources.json),
+[clean source provenance](header-clean-provenance.json),
+[repeated package verification](header-bundle-results.json) and
+[installed/original integrity](header-final-integrity.json) record their scopes.
+40 Python tests pass. These results qualify bounded offline behavior only.

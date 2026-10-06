@@ -33,8 +33,13 @@ This project contains compatibility patches for the original application. Full f
 9. **Response allocation ceiling** — An operand-only change selects a bounded
    ByteArrayOutputStream subclass. Advertised response bodies above 16 MiB fail
    before allocation through the existing terminal malformed-input path.
-   Connection recovery and header/framing limits remain open; see
+   Connection recovery and framing remain open; see
    [audit.7 evidence](audit/HTTP-ALLOCATION-GUARD.md).
+
+10. **Bounded response headers** — A per-response stream wrapper caps line,
+    field-count and aggregate header input while preserving the original parser.
+    Unsafe input fails once without resend. Connection recovery remains open;
+    see [audit.8 evidence](audit/HTTP-HEADER-GUARD.md).
 
 ## Requirements
 

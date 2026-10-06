@@ -131,4 +131,14 @@ Safe work continues with HTTP allocation/framing, firmware preflight and isolate
 native UI qualification; successful parser fixtures do not close release acceptance.
 
 
-audit.7 changes only two allocation operands in HttpResponse.getBody to a ByteArrayOutputStream subclass with a 16 MiB ceiling. Original branching, handlers and other methods remain. Fixed unchecked rejection maps to terminal -102 with no resend; measured persistent state prevents a subsequent command until recovery, just as existing malformed numeric lengths do. See [scope](audit/HTTP-ALLOCATION-GUARD.md).
+audit.7 changes only two allocation operands in HttpResponse.getBody to a ByteArrayOutputStream subclass with a 16 MiB ceiling. Original branching, handlers and other methods remain. Fixed unchecked rejection maps to terminal -102 with no resend; measured persistent state prevents the observed next command before transmission, just as existing malformed numeric lengths do. See [scope](audit/HTTP-ALLOCATION-GUARD.md).
+
+
+## audit.8 response header refinement
+
+Line, count and aggregate header input are explicitly bounded through a three-byte
+constructor insertion and per-response wrapper; original readLine/parseHeaders
+remain unchanged. Exact limits and 174762 short-input/EOF cases pass on both pinned
+runtimes. Queue rejection is terminal -102 with no replay, but the next command
+still fails before sending: G14 recovery remains open. HTTP framing and actual
+controller response compatibility are unqualified. See [scope and clean evidence](audit/HTTP-HEADER-GUARD.md).

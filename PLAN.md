@@ -498,3 +498,13 @@ native UI qualification; successful parser fixtures do not close release accepta
 ## audit.7 response allocation
 
 Close the demonstrated Content-Length preallocation path with a narrowly bounded buffer subclass and two operand changes. Keep all existing valid-response and retry code. Oversized input is a deliberate terminal security rejection, with real response compatibility and framing/recovery unresolved. Follow with bounded header/framing investigation, isolated UI and firmware preflight work.
+
+
+## audit.8 response header refinement
+
+Line, count and aggregate header input are explicitly bounded through a three-byte
+constructor insertion and per-response wrapper; original readLine/parseHeaders
+remain unchanged. Exact limits and 174762 short-input/EOF cases pass on both pinned
+runtimes. Queue rejection is terminal -102 with no replay, but the next command
+still fails before sending: G14 recovery remains open. HTTP framing and actual
+controller response compatibility are unqualified. See [scope and clean evidence](audit/HTTP-HEADER-GUARD.md).
