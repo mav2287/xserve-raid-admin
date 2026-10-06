@@ -289,7 +289,7 @@ public final class TransportObservation {
         if(parserPolicy) {
             AcpxMessageFactory factory=new AcpxMessageFactory();
             StringBuilder xml=new StringBuilder("<!DOCTYPE plist SYSTEM \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\" [<!ENTITY e \"x\">]><plist><string>");
-            for(int i=0;i<65000;i++)xml.append("&e;");xml.append("</string></plist>");
+            for(int i=0;i<4100;i++)xml.append("&e;");xml.append("</string></plist>");
             byte[] body=xml.toString().getBytes("UTF-8");
             dispatch(factory.newGetStatusRequest(),0,false,boundedReply("HTTP/1.1 200 Fixture","Content-Length: "+body.length+"\r\n",body,524288),-103,0,"entity-quota");
             xml=new StringBuilder("<!DOCTYPE plist SYSTEM \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist>");

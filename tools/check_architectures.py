@@ -47,7 +47,9 @@ def main():
     if args.parser:
         sources += [ROOT/'tests/java/ParserParityProbe.java', ROOT/'tests/java/fixture/OfflineGuard.java']
     sources = list(dict.fromkeys(sources))
+    source_hashes = {str(p.relative_to(ROOT)): sha(p) for p in sources}
     observations = []
+    expected_parser = None
     with tempfile.TemporaryDirectory(prefix='raid-architecture-') as tmp:
         run_jdk(args.compiler, 'javac', ['-source', '8', '-target', '8', '-cp', str(args.jar.resolve()) + ':' + str(original),
                                        '-d', tmp] + [str(p) for p in sources])
@@ -107,9 +109,13 @@ def main():
                 parser_results = [run(jar,'ParserParityProbe').splitlines() for jar in (original,args.jar)]
                 if any(not lines or lines[-1] != 'PASS accepted parser parity; guarded_operations=0' for lines in parser_results) or parser_results[0] != parser_results[1]:
                     raise RuntimeError('Accepted parser differential failed')
+                if expected_parser is None: expected_parser = parser_results[1]
+                if parser_results[1] != expected_parser: raise RuntimeError('Accepted parser outputs differ across runtimes')
                 observations[-1]['parser_regression'] = parser_results[1]
             if digest(tree(runtime)) != runtime_identity:
                 raise RuntimeError('Runtime changed during observation')
+    if source_hashes != {str(p.relative_to(ROOT)): sha(p) for p in sources}:
+        raise RuntimeError('Fixture sources changed during observation')
     if sha(args.jar) != candidate_sha:
         raise RuntimeError('Candidate changed during observation')
     print(json.dumps({'compiler_tree_sha256': compiler['tree_sha256'],

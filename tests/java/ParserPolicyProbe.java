@@ -33,17 +33,34 @@ public final class ParserPolicyProbe {
         }
         for(Thread thread:threads) {thread.join(2000);check(!thread.isAlive());}
         check(!failed.get());
-        String allowed = PREFIX + " [<!ENTITY e \"x\">]><plist><string>" + repeated("&e;",63900) + "</string></plist>";
-        check(((String)new PropertyList(new StringReader(allowed)).getRootElement()).length()==63900);
-        check(((String)new PropertyList(new ByteArrayInputStream(allowed.getBytes("UTF-8"))).getRootElement()).length()==63900);
-        String xml = PREFIX + " [<!ENTITY e \"x\">]><plist><string>" + repeated("&e;",65000) + "</string></plist>";
+        String allowed = PREFIX + " [<!ENTITY e \"x\">]><plist><string>" + repeated("&e;",4000) + "</string></plist>";
+        check(((String)new PropertyList(new StringReader(allowed)).getRootElement()).length()==4000);
+        check(((String)new PropertyList(new ByteArrayInputStream(allowed.getBytes("UTF-8"))).getRootElement()).length()==4000);
+        String xml = PREFIX + " [<!ENTITY e \"x\">]><plist><string>" + repeated("&e;",4100) + "</string></plist>";
         check(xml.length()<524288);
-        rejected(xml,"64000");
+        rejected(xml,"JAXP00010001");
+        String entity = repeated("x",4096);
+        String sizeAllowed = PREFIX+" [<!ENTITY e \""+entity+"\">]><plist><string>"+repeated("&e;",254)+"</string></plist>";
+        check(((String)new PropertyList(new StringReader(sizeAllowed)).getRootElement()).length()==1040384);
+        check(((String)new PropertyList(new ByteArrayInputStream(sizeAllowed.getBytes("UTF-8"))).getRootElement()).length()==1040384);
+        String sizeRejected = PREFIX+" [<!ENTITY e \""+entity+"\">]><plist><string>"+repeated("&e;",257)+"</string></plist>";
+        rejected(sizeRejected,"JAXP00010004");
+        String generalAllowed=PREFIX+" [<!ENTITY e \""+repeated("x",262143)+"\">]><plist><string>&e;</string></plist>";
+        check(((String)new PropertyList(new StringReader(generalAllowed)).getRootElement()).length()==262143);
+        check(((String)new PropertyList(new ByteArrayInputStream(generalAllowed.getBytes("UTF-8"))).getRootElement()).length()==262143);
+        rejected(PREFIX+" [<!ENTITY e \""+repeated("x",262145)+"\">]><plist><string>&e;</string></plist>","JAXP00010003");
+        String parameterAllowed=PREFIX+" [<!ENTITY % p \""+repeated(" ",65535)+"\">%p;]><plist><string>fixture</string></plist>";
+        check("fixture".equals(new PropertyList(new StringReader(parameterAllowed)).getRootElement()));
+        check("fixture".equals(new PropertyList(new ByteArrayInputStream(parameterAllowed.getBytes("UTF-8"))).getRootElement()));
+        rejected(PREFIX+" [<!ENTITY % p \""+repeated(" ",65537)+"\">%p;]><plist><string>fixture</string></plist>","JAXP00010003");
+        String replacements=PREFIX+" [<!ENTITY e \""+repeated("<true/>",40)+"\">]><plist><array>";
+        check(((java.util.List)new PropertyList(new StringReader(replacements+repeated("&e;",1000)+"</array></plist>")).getRootElement()).size()==40000);
+        rejected(replacements+repeated("&e;",2600)+"</array></plist>","JAXP00010007");
         for (int depth : new int[]{30,31}) {
             String node = "<string>fixture</string>";
             for(int i=0;i<depth;i++) node="<dict><key>fixture</key>"+node+"</dict>";
             try {new PropertyList(new StringReader(PREFIX+"><plist>"+node+"</plist>")); check(depth==30);}
-            catch(PropertyListException expected) {check(depth==31); rejected(PREFIX+"><plist>"+node+"</plist>","maxElementDepth");}
+            catch(PropertyListException expected) {check(depth==31); rejected(PREFIX+"><plist>"+node+"</plist>","JAXP00010006");}
         }
     }
     private static void rejected(String xml, String reason) throws Exception {
@@ -68,9 +85,9 @@ public final class ParserPolicyProbe {
             check(parser!=second && parser.getXMLReader()!=second.getXMLReader());
             XMLReader reader=parser.getXMLReader();
             check(reader.getClass().getClassLoader()==null && reader.getFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING));
-            String[][] limits={{"entityExpansionLimit","64000"},{"totalEntitySizeLimit","50000000"},{"maxGeneralEntitySizeLimit","0"},
-                {"maxParameterEntitySizeLimit","1000000"},{"elementAttributeLimit","10000"},{"maxOccurLimit","5000"},
-                {"entityReplacementLimit","3000000"},{"maxXMLNameLimit","1000"},{"maxElementDepth","32"}};
+            String[][] limits={{"entityExpansionLimit","4096"},{"totalEntitySizeLimit","1048576"},{"maxGeneralEntitySizeLimit","262144"},
+                {"maxParameterEntitySizeLimit","65536"},{"elementAttributeLimit","10000"},{"maxOccurLimit","5000"},
+                {"entityReplacementLimit","100000"},{"maxXMLNameLimit","1000"},{"maxElementDepth","32"}};
             for(String[] limit:limits) check(limit[1].equals(String.valueOf(reader.getProperty("http://www.oracle.com/xml/jaxp/properties/"+limit[0]))));
             check("".equals(reader.getProperty(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD)) && "".equals(reader.getProperty(javax.xml.XMLConstants.ACCESS_EXTERNAL_SCHEMA)));
             check(reader.getFeature("http://xml.org/sax/features/validation") && !reader.getFeature("http://xml.org/sax/features/namespaces"));

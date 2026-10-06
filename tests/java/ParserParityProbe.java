@@ -12,10 +12,13 @@ public final class ParserParityProbe {
     private static String repeat(String value,int n) {StringBuilder b=new StringBuilder();for(int i=0;i<n;i++)b.append(value);return b.toString();}
     private static String canonical(Object value) throws Exception {StringWriter w=new StringWriter();PropertyListUtilities.writeXML(value,w);return w.toString();}
     private static void fixture(PrintStream out,String label,String node) throws Exception {
-        String xml=HEAD+node+"</plist>";check(xml.length()<262144);
+        fixture(out,label,node,HEAD,"UTF-8");
+    }
+    private static void fixture(PrintStream out,String label,String node,String header,String encoding) throws Exception {
+        String xml=header+node+"</plist>";check(xml.length()<262144);
         String value=canonical(new PropertyList(new StringReader(xml)).getRootElement());
         check(value.length()<262144);
-        check(value.equals(canonical(new PropertyList(new ByteArrayInputStream(xml.getBytes("UTF-8"))).getRootElement())));
+        check(value.equals(canonical(new PropertyList(new ByteArrayInputStream(xml.getBytes(encoding))).getRootElement())));
         check(value.equals(canonical(new PropertyList(new StringReader(value)).getRootElement())));
         StringBuilder hash=new StringBuilder();for(byte b:MessageDigest.getInstance("SHA-256").digest(value.getBytes("UTF-8")))hash.append(String.format("%02x",b&255));
         out.println("fixture "+label+" sha256="+hash);
@@ -35,6 +38,12 @@ public final class ParserParityProbe {
                 for(int depth=0;depth<30;depth++)node=kind.equals("mixed")&&depth%2==0?"<array>"+node+"</array>":"<dict><key>fixture</key>"+node+"</dict>";
                 fixture(out,"depth-30-"+kind,node);
             }
+            String publicHead="<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist>";
+            for(String encoding:new String[]{"UTF-8"})
+                fixture(out,"declaration-"+encoding,"<string>caf\u00e9 &amp; fixture</string>","<?xml version=\"1.0\" encoding=\""+encoding+"\"?>"+publicHead,encoding);
+            String siblings="<dict><key>a</key><array><string>one</string><string>two</string></array><key>b</key><dict><key>c</key><string>three</string></dict></dict>";
+            for(int i=0;i<28;i++)siblings="<array>"+siblings+"</array>";
+            fixture(out,"siblings-boundary",siblings);
             fixture(out,"data-plain","<data>"+repeat("eHh4",16384)+"</data>");
             fixture(out,"data-lines","<data>"+repeat(repeat("eHh4",19)+"\n",862)+"</data>");
             check(captured.size()==0&&errors.size()==0);

@@ -23,7 +23,7 @@
 
 The deterministic builder hashes its own script, source patches, template build script and JDK lock in provenance. It avoids dependency downloads. The launcher and icons are hashed individually. No native helper is added. The audit-only bundle omits a runtime; pinned runtime package hashes and full file inventories are recorded separately below.
 
-Do not replace bundled libraries wholesale without classloading, XML compatibility and wire regression tests. audit.4 blocks external XML resolution and redacts the two request diagnostic methods. Remaining gaps include XML resource limits, application-wide error reporting, old discovery APIs and unqualified native runtime behavior. No current vulnerability-database audit or legal redistribution determination was performed. Before distribution, resolve all NOASSERTION licenses, generate a standard release SBOM, and qualify a maintained runtime independently.
+Do not replace bundled libraries wholesale without classloading, XML compatibility and wire regression tests. audit.4 blocks external XML resolution and redacts the two request diagnostic methods. Remaining gaps include real-response XML compatibility and HTTP allocation, application-wide error reporting, old discovery APIs and unqualified native runtime behavior. No current vulnerability-database audit or legal redistribution determination was performed. Before distribution, resolve all NOASSERTION licenses, generate a standard release SBOM, and qualify a maintained runtime independently.
 
 The user accepts the GitHub repository JAR as the authoritative project baseline.
 Historical digest discrepancies and independent Apple acquisition evidence do

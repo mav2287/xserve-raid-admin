@@ -1,0 +1,29 @@
+Actual Claude CLI read-only review. General-entity bound was adjusted during review; this report reflects the earlier 64 KiB prototype. Final general bound is 256 KiB; total remains 1 MiB.
+
+I found no blocking security defects. The tightened limits are set explicitly in `SafePlistParser`, read back from the reader, and fail closed. They override ambient settings. The defects below are gaps in the tests and in the precision of the claims, not weaknesses in the policy. I only read the four files; I ran nothing.
+
+**What checks out**
+- **Expansion count (4096):** the probe accepts 4,000 references and rejects 4,100. That brackets the limit tightly, and the rejection comes from count alone, since total size (4,100), entity size (1) and replacements (4,100) are all well under their limits.
+- **Total size (1 MiB):** the rejected case is 400 references to a 4,096-character entity. The count, per-entity size and replacement count all stay under their limits, so only the total-size limit can fire. JAXP00010004 is the right code.
+- **Per-entity size (64 KiB):** a 65,537-character entity is about 6% of the total limit, so JAXP00010003 is reached first and independently.
+- **Codes:** JAXP00010001, 00010003 and 00010004 are the correct JDK codes for expansion count, general entity size and total entity size.
+
+**Concrete defects**
+
+1. **The total-size boundary isn't bracketed** (`ParserPolicyProbe.java:43-47`). The probe accepts 409,600 characters and rejects 1,638,400. Any enforced limit in that range would pass, so only the readback ties the behavior to 1,048,576. Using 255 and 257 references to the same 4,096-character entity (1,044,480 vs 1,052,672 characters) brackets the limit and sidesteps the question of whether the check is `>` or `>=`.
+
+2. **The per-entity limit is only tested from above** (`:48`). The largest accepted entity is 4,096 characters, so the probe would also pass if the effective limit were anywhere between 4,096 and 65,536. A single reference to a 65,535-character entity should be accepted.
+
+3. **Two of the tightened limits have no behavior test.** Nothing exercises `entityReplacementLimit` (100,000) or `maxParameterEntitySizeLimit` (65,536); only the readback covers them. The 70,000 predefined/numeric references stay under 100,000, so the probe can't tell whether `&amp;` and `&#…;` count toward the replacement limit. If they do, a plain string with more than 100,000 escaped characters gets rejected. That's a compatibility effect, but it isn't documented, and the doc currently implies predefined references are unconstrained.
+
+4. **The hostile ambient settings skip the newly tightened limits** (`check_xml_resources.py:73-76`). The hostile run sets the expansion count, total size, depth and name limits to 0 (unlimited). It doesn't do the same for `jdk.xml.maxGeneralEntitySizeLimit`, `jdk.xml.maxParameterEntitySizeLimit` or `jdk.xml.entityReplacementLimit`, and the lowered run doesn't cover the last two either. That leaves `XML-PARSER-COMPATIBILITY.md:42-43` ("hostile ambient settings produce the same policy result") untested for the three limits this change introduced.
+
+5. **The depth rejection isn't checked by exact code** (`ParserPolicyProbe.java:53`). It matches the substring `"maxElementDepth"` rather than `JAXP00010006`, which is inconsistent with the exact-code claim. More generally, `rejected()` uses `contains` anywhere in the message, not a check that the message starts with the code.
+
+**Minor**
+- `SafePlistParser.java:15-17` has a stray line break mid-sentence ("Depth 32 preserves / the original…").
+- `XML-PARSER-COMPATIBILITY.md:23` is one over-long merged line, unlike the wrapping around it.
+
+**Optional, given your security priority:** plist responses never legitimately need custom entities declared in the DOCTYPE, yet the policy allows up to 1 MiB of them. JAXP can't reject those declarations without also rejecting the plist DOCTYPE. A `DeclHandler` that rejects any `internalEntityDecl`/`externalEntityDecl` would remove the whole category of entity tricks instead of just bounding it. That's a policy choice, not a defect in the current bounds.
+
+Disposition: Tight total-size acceptance/rejection (254/257 references) and near-boundary general/parameter positive cases added. Parameter size and entity replacement now have independent behavior rejection probes. Hostile settings include all tightened keys. Depth rejection uses JAXP00010006. Original InputStream constructor explicitly decodes UTF-8 before SAX: UTF-16 byte parity is not supported by the original. UTF-8 XML declaration/PUBLIC and sibling boundaries pass. The 256 KiB general bound preserves the 70000 predefined-reference fixture; 1 MiB total custom expansion remains independently enforced.

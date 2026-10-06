@@ -12,13 +12,14 @@ public final class SafePlistParser {
     private SafePlistParser() { }
     private static final String FACTORY = "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl";
     private static final String READER = "com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser";
-    // Corretto 8.504 secure-processing defaults, except depth. Depth 32 preserves
+    // Explicit security policy: bounded custom entity work, regardless of ambient settings.
+    // Depth 32 preserves
     // the original validator's observed acceptance boundary without its array failure.
     private static final String[][] LIMITS = {
-        {"entityExpansionLimit", "64000"}, {"totalEntitySizeLimit", "50000000"},
-        {"maxGeneralEntitySizeLimit", "0"}, {"maxParameterEntitySizeLimit", "1000000"},
+        {"entityExpansionLimit", "4096"}, {"totalEntitySizeLimit", "1048576"},
+        {"maxGeneralEntitySizeLimit", "262144"}, {"maxParameterEntitySizeLimit", "65536"},
         {"elementAttributeLimit", "10000"}, {"maxOccurLimit", "5000"},
-        {"entityReplacementLimit", "3000000"}, {"maxXMLNameLimit", "1000"},
+        {"entityReplacementLimit", "100000"}, {"maxXMLNameLimit", "1000"},
         {"maxElementDepth", "32"}
     };
     private static void require(boolean ok) throws ParserConfigurationException {

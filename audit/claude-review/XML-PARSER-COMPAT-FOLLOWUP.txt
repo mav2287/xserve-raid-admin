@@ -1,0 +1,36 @@
+Actual Claude CLI read-only review; no execution.
+
+I read the seven files and ran nothing. None of your five prior findings shows a remaining defect in this code. The biggest leftover is a security gap that the current limits allow but no test covers.
+
+## Prior findings: closed
+
+| Finding | How it's closed now |
+|---|---|
+| Positive accepted-case hashes | `check_xml_resources.py:87-91` requires a 64-hex outcome for 12 labels, identical between the original and candidate jars. `check_architectures.py:106-110` adds 26 value differentials, and the probe fails if any parse is rejected. |
+| Under-limit entity acceptance | `ParserPolicyProbe.java:36-38` accepts 63,900 refs on both input paths, next to a 65,000 rejection. In lowered mode (ambient limit 32) this also shows the explicit setting wins. |
+| Exact quota cause | The rejection message must contain `"64000"`. Since the ambient value is 0 (hostile) or 32 (lowered), that number can only come from the explicit setting. The depth check needs `maxElementDepth`, and the lowered and hostile runs together pin the value at 32. |
+| Depth boundaries, original vs candidate | `PlistResourceProbe.java:124-131` and `check_xml_resources.py:95-97` cover dict, mixed, empty-array and empty-dict at depths 30 and 31. On the original, depth 31 must fail with the legacy array-bounds error. On the candidate it must fail on the depth limit. This also rules out the old array-bounds failure coming back through the unchanged Handler for these shapes. Both parsers count every element, so the boundaries match. |
+| Ambient flag recording | `policy_observations[].properties` records the flag set for each mode (`check_xml_resources.py:85`). The worker-thread failure is now caught explicitly (`ParserPolicyProbe.java:30`). |
+
+## Remaining issues
+
+**1. Entity expansion is still large (design gap; not demonstrated, nothing tests it).** `SafePlistParser.java:18` keeps the JDK defaults of `entityExpansionLimit=64000` and `totalEntitySizeLimit=50000000`. A document of roughly 2–3 KB can stay under both limits and still expand to about 50 million characters, around 100 MB of Java memory before buffer growth. It would use one 782-character entity, a second entity referencing it 250 times, and about 254 references to that second entity.
+- This is far tighter than the original's bundled Xerces, which has no limits at all.
+- Given your priority on security, the 64000 / 50M values are inherited defaults, not something compatibility needs. The original-vs-candidate cases need at most about 3.6k characters of entity output.
+- `totalEntitySizeLimit` is never tested, and the limits text admits the size controls don't separate total from per-entity size.
+- I'd recommend lowering `totalEntitySizeLimit` (and probably `entityExpansionLimit`) to a bound based on the largest realistic controller reply. The 63,900 and 70,000 cases in `ParserPolicyProbe` would need adjusting to match.
+
+**2. Realistic document headers are not tested (unqualified path).** Every original-vs-candidate fixture starts directly with `<!DOCTYPE plist SYSTEM …>`.
+- None has an `<?xml … encoding="…"?>` declaration, a BOM, a non-UTF-8 encoding, or the usual `PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"` form.
+- Swapping the provider changes encoding detection, and the resolver may match on the PUBLIC id.
+- Real plists usually have both, so this is the most realistic input shape the parser comparison misses. Other probes may cover it, but these files don't.
+
+**3. Depth is tested with single-chain nesting only (unqualified path).** There are no sibling containers or multi-key dicts near depth 30. If the Handler's stack index can drift from the actual element depth, the candidate would inherit the legacy array-bounds failure. That would still match the original's behaviour, so it's low risk.
+
+**4. Minor gaps in the evidence**
+- The `limits` text in `check_xml_resources.py:106` doesn't mention the dict/mixed/empty 30/31 comparison.
+- `check_architectures.py` hashes its fixture sources only at the end, without checking they were unchanged from the start. It also never compares parser output across runtimes.
+- The Java 11 run covers accepted-value parity only. The quota, depth and hostile-flag probes run only on the pinned 8.504 runtimes, so the claim "Java 11 exercised" should be narrowed to accepted values.
+- Matching on `"64000"` is a little loose. Matching the `JAXP00010001` message code would be exact.
+
+Disposition: The remaining entity-size concern is accepted. Limits tightened to explicit 1 MiB total custom entity size, 256 KiB per general entity / 64 KiB per parameter entity, 4096 expansions and 100000 replacements. Independent positive/rejection probes added for total size and general entity size, and entity-count diagnostics match JAXP00010001. These bounds intentionally restrict unsafe legacy input; real-controller compatibility is unresolved. Default measurements remain evidence only, not the application policy.

@@ -17,7 +17,7 @@
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "5fd94b46eba084693eca5274bb0dd00d7ea483714855c2e753303fea293e6657"
+      "Contents/Resources/RAID_Admin.jar": "2066d144ee1a86a1bd64afb26296536ae417c7e1099d08e516abbd31639a8b58"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
@@ -34,7 +34,7 @@
       "patches/com/apple/mrj/MRJApplicationUtils.java": "3affe88c3c87520a93c0fb878c910fad4b27ea6a0366bb4d2564c3c41a92d08b",
       "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
-      "patches/compat/SafePlistParser.java": "9152aadff9aef51e19f9a5ab0b5ae12718dfbcaa378e19b947350ebbfc376575",
+      "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
       "patches/compat/SafePlistResolver.java": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
@@ -49,9 +49,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "7f9a1d320f5aa4ab70ca8e6e9dd10b3bc545ba85f869f0fae20a69cc6c8db7b3",
-  "reason": "audit.6 clean source builds: explicit bootstrap XML parser with verified quotas and unchanged measured accepted-value/depth boundaries; independent bytecode checks and bounded offline tests pass.",
+  "previous_record_sha256": "d069198c15cbc37ce25a08ee9b82e21a4dac16e14f980e6fa0a7ec55f35c63b5",
+  "reason": "Development quota validation: 256 KiB general entity preserves bounded predefined-reference fixture; 1 MiB total and 4096 expansion limits remain.",
   "schema": 1,
-  "source_commit": "37e642b6e1fa91642d208fce6c2e5d522d0291aa",
-  "source_dirty": false
+  "source_commit": "86657bdbc00d2a47b002a100c9eda94caeb8ef12",
+  "source_dirty": true
 }
