@@ -53,9 +53,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "f7221f6911c7885690d6556862ed63fa19a59c708bffc80ef067268cb8666a2b",
-  "reason": "Development audit.10 malformed/negative response length terminal markers; original valid Integer.parseInt preserved, candidate fixtures in progress.",
+  "previous_record_sha256": "c3193f9a1e48c3cf51d9db85139e6eede2c78954b4ff563cac8a5b89b79a7e59",
+  "reason": "Clean audit.10 candidate: third parse operand preserves runtime Integer.parseInt for valid lengths; malformed/negative declarations use reviewed security retirement, 44 Python tests and bounded runtime gates pass; final implementation review/evidence pending.",
   "schema": 1,
-  "source_commit": "91221acec0d2efd58cd7f1597279ecdf01d63bd8",
-  "source_dirty": true
+  "source_commit": "cdcc98c9b5070c00fcab3cc4d9c284b6ecbf1718",
+  "source_dirty": false
 }
