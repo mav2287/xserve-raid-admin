@@ -37,6 +37,8 @@ def main():
     parser.add_argument('--framing-policy', action='store_true', help='Require response framing class and expanded recovery coverage')
     args = parser.parse_args()
     verify_python()
+    fixture_commit=subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip()
+    fixture_dirty=bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()))
     compiler = verify_jdk(args.compiler)
     original = ROOT / 'original/RAID_Admin_original.jar'
     verify_original(original)
@@ -180,7 +182,7 @@ def main():
         raise RuntimeError('Fixture sources changed during observation')
     if sha(args.jar) != candidate_sha:
         raise RuntimeError('Candidate changed during observation')
-    print(json.dumps({'tool_sha256':sha(Path(__file__)), 'compiler_tree_sha256': compiler['tree_sha256'],
+    print(json.dumps({'fixture_commit':fixture_commit,'fixture_dirty':fixture_dirty,'tool_sha256':sha(Path(__file__)), 'compiler_tree_sha256': compiler['tree_sha256'],
                       'required_framing_policy':args.framing_policy,'required_invalid_header_policy':args.invalid_header_policy,'required_null_io_policy':args.null_io_policy,'host_machine': platform.machine(), 'macos_version': platform.mac_ver()[0],
                       'original_sha256': sha(original), 'candidate_sha256': candidate_sha,
                       'fixture_sources': {str(p.relative_to(ROOT)): sha(p) for p in identity_sources},

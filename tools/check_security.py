@@ -4,9 +4,10 @@ import argparse
 import json
 from pathlib import Path
 import re
+import subprocess
 import tempfile
 import zipfile
-from audit_support import ROOT, verify_python, verify_jdk, run_jdk, sha
+from audit_support import ROOT, verify_python, verify_jdk, run_jdk, sha, isolated_env
 from baseline import verify_original
 from class_patch import TARGETS, ClassFile, u2
 from verify_builds import check_artifact, EXPECTED
@@ -276,10 +277,12 @@ def main():
             results.append(run_jdk(args.jdk,'java',['-Xverify:all','-Djava.awt.headless=true','-Duser.home='+tmp,
                 '-cp',tmp+':'+str(jar.resolve()),'SecurityProbe',fixed],timeout=30).splitlines())
     if results[0][:-1] != results[1][:-1]: raise ValueError('Allowed XML behavior differs')
-    print(json.dumps({'source_commit':provenance['source_commit'],'source_dirty':provenance['source_dirty'],
+    fixture_commit=subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip()
+    fixture_dirty=bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()))
+    print(json.dumps({'fixture_commit':fixture_commit,'fixture_dirty':fixture_dirty,'source_commit':provenance['source_commit'],'source_dirty':provenance['source_dirty'],
         'request_inventory':request_inventory,'http_reference_inventory':http_reference_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
         'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py', ROOT/'tools/class_patch.py']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
-        'limits':'Manager.run null-message-only entry/appended trampoline and fresh fixed nullMessage marker independently verified; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
+        'limits':'Manager.run null-message trampoline and non-prefix IO branch to the fixed marker block independently verified; original retry-region bytes retained but exactly that region is unreachable; prefix, initial connection/queue and exit-close paths remain reachable; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
 
 if __name__ == '__main__': main()
