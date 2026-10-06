@@ -1,0 +1,46 @@
+**Verdict: yes.** Commit the narrow interim no-automatic-resend claim, then clean-qualify it. I found no remaining code blocker, and the gates now do what the review disposition says. I read files only: no edits, no commands, and no dev records used as evidence.
+
+## Points from the implementation review, now confirmed
+
+**CFG gate (`tools/check_security.py:16-40`)**
+- Line 38 requires the unreachable set to be exactly the instructions in 380..458. That alone means every other instruction must be reached, so the extra `required` set (231, 6/28/60, 352..377, 534..545) is redundant but harmless.
+- The walk is wired to the real candidate disassembly (`:126`), not just the fixture.
+
+**Path-cutoff negatives (`tests/test_terminal_io_gate.py:24-28`)**
+- All three negatives make the walk fail, not the literal check: `226 → goto 234` cuts off 229..231, `538 → goto 548` cuts off 541..545, and the injected `351: goto 563` cuts off 352..377.
+- The six wrong-target tests and the prefix-loss test still fail on the literal check at `:18`. The doc doesn't overclaim this.
+
+**Transport gate (`tools/check_transport.py`)**
+- The feature flag and the actual bytes are tied together: the flag must match the feature constant (`:158-159`), and the bytes at 349 must be `9900d6` (`:162`).
+- The original/candidate drop differential is enforced. The four terminal lines must have exact counts and no legacy lines may remain (`:66`). Mapped candidate output must then equal the original (`:236`).
+- The `response_entries` scope wording is accurate (`:265`). In the Java fixture it is pinned by `sent.size()==sentCount` at `TransportObservation.java:418`.
+
+**Java fixture (`TransportObservation.java`)**
+- **Semantic negative:** passes only if `unsafeFailureObserved` was set in the first callback (non-marker exception, not stopped, or still connected), at `:349,418`. An unrelated `AssertionError` leaves the flag false and fails.
+- **Healthy results:** `!isStopped()` is checked before the fixture's own shutdown for http-*/acp-*, -103, and the non-terminal success cases (`:271`).
+- **Disconnect counts:** exact values are asserted. Response faults close once; write, body, prewrite, cleanup and codec faults close twice (`:441-446`). The idle case closes once (`:449`).
+- **Codec body-write:** asserts `bodyFaultReached` and `attempts==1`.
+- **Idle-after-success:** a three-entry sequence with an exact stop-timing check.
+- **Join:** 5 s in `fixedFailure` (`:424`), with a 30 s outer timeout (`check_transport.py:176`).
+
+**Architecture matrix (`tools/check_architectures.py:189`)**
+- The scope string explicitly says "retained 143-line audit.14 security-marker regression only".
+- `terminal-io-recovery-expected.json`, `terminal-io-source-identities.json` and `expected-build.json:20` all give `4fb45ef8…`.
+
+## Conditions the tools don't enforce
+The commands could exit with no error and still not be qualification, so check each of these in the records:
+
+1. **Only `check_request_factory` refuses a dirty tree** (`:68,112,129`). `check_transport`, `check_security` and `check_architectures` only *record* whether the tree is dirty. Every record must show `fixture_dirty`/`source_dirty` = false, the same commit, and both `aarch64` and `x64`.
+2. **`--terminal-io-policy` doesn't force the other policy runs.** `check_transport` doesn't require `--parser-policy`, `--allocation-policy`, `--header-policy` or `--default-logging` alongside it. Two of these now carry audit.15 evidence:
+   - The allocation run includes the terminal-affected `allocation-ceiling-truncated-terminal` dispatch (`:576`, relabelled at `:248`).
+   - The parser run carries the -103 not-stopped assertions (`:595-602`).
+
+   Confirm that `parser_observations`, `allocation_observations` and `header_observations` are non-empty for both architectures and both logging modes. Also confirm `terminal_io_observations` holds `-Xint` and `-Xcomp` for each architecture plus one semantic negative per architecture.
+3. **The Python unit tests aren't hashed into any record.** That covers `test_terminal_io_gate`, `test_class_patch` and the `.javap` fixture. Run them on the clean commit and note it.
+
+## Doc wording to fix before committing (not blockers)
+- **Missing spaces before numbers** throughout `AMBIGUOUS-IO-NO-REPLAY.md`, e.g. "remains578", "and12", "Corretto8.504.04.1", "after8", "targetingPC464", "exact143", "all116", "is5", "is30", "is1".
+- **Line 105, "worker join bound is 5 seconds":** the idle-after-success case calls `m.run()` on the main thread (`:449`), so only the 30 s process timeout bounds it. Say so.
+- **Line 121, "116 successful serialization rows":** the factory tool checks body-only serialization plus metadata, not wire headers (`check_request_factory.py:130` limits). Use that wording.
+
+The deferred items are stated explicitly and claimed nowhere: real-network and refused-connection cases, caller workflows, shared-socket idle close, sync-post stress, an original-JAR differential for the full fault matrix, the getter/shutdown worker-escape residual, and GUI/whole-security acceptance. None of them blocks this narrow claim.

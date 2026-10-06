@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "49c25ab0284fae77eea4deb608944b66906f11cdfcb46055a439d5122839a903",
+      "Contents/Info.plist": "c92fb99caa3f1c15b6252438656d19f85eef31a5af1df2fe3bd1243dfed477ee",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "fe14078408670f4fd28ca53b2dccc48366338e37fbd5bda4ab01d7eee3761b4c"
+      "Contents/Resources/RAID_Admin.jar": "4fb45ef850687309834fd9f082f47819ea7deadc5866108115f8a2ac5c1311bd"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "2d822d9cf8be30de960c5614ab0bf987a65057772e541ec9bda4d37ce7be2e88",
+      "audit/security-patches.json": "648e2e640114edfb44605834a897479a2b9fe5b3182479816b1a1b45aec0bd21",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -35,7 +35,7 @@
       "patches/com/apple/mrj/MRJFileUtils.java": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df",
       "patches/compat/BoundedHeaderStream.java": "d6481d31e34b4f84d927f764f954f63d55e87d58a9e60c70f04ee2ae24644b8e",
       "patches/compat/BoundedResponseBuffer.java": "abae0d2ffb85dd9314ed1774e5f81b15a4b81967ab2badbe902d3b6c0941b995",
-      "patches/compat/RejectionRecovery.java": "d5cad7a5c77997da3bad741d246c304300e96a3a779f20914292f7629bbb0a2c",
+      "patches/compat/RejectionRecovery.java": "356be6668c33bdfef3e18a805cbc7ece354bef0c78749f098b108cbd67cffde9",
       "patches/compat/ResponseFraming.java": "4b8bc91e7616c983e370a779654d15c35a5a721d6cac6eefc2d277a344a60b2e",
       "patches/compat/SafeLogAppender.java": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9",
       "patches/compat/SafePlistParser.java": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a",
@@ -43,8 +43,8 @@
       "patches/compat/UntrustedResponseException.java": "a7b97d2d51991c78b6e958d21e75df3bbf35914648cfc5f8e9b3dd409c0efa32",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
-      "tools/baseline.py": "56b6bf96bbb5dafe5a67572718c390f5ddf18f0b029615db251cab31fd5aaff0",
-      "tools/class_patch.py": "c79002eaffa4fbb8f2e269fc8768cf6cbea64125605adcf26a7d4eb530429f18"
+      "tools/baseline.py": "bc82dd7dab1873c2c83d03d6af270753d041e8b528b91faebb26bade97383887",
+      "tools/class_patch.py": "58cb6616531ffddc69345ba9a4c11ba1e1225ca711bea059e9a651cf08f9e687"
     },
     "jdk": {
       "architecture": "arm64",
@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "29bcaefc2d90bf8aa83a9bbb00d76187db09e44935184d09e52e44a3bd575bea",
-  "reason": "Reviewed audit.14 exact-security-marker local session containment; two clean builds from 028165a match and ordinary IO replay remains unqualified",
+  "previous_record_sha256": "8920d5d56c80933f46d1b636a0b42ac7d2e081cd731672dc7a20a17ccb071b3f",
+  "reason": "Audit.15 reviewed no-replay development identity; final source comment correction. Clean qualification pending.",
   "schema": 1,
-  "source_commit": "028165ae5553c333b29c724b17e03a28326a932d",
-  "source_dirty": false
+  "source_commit": "30ffbe067119c778611375acc228c9cc0a64ca4e",
+  "source_dirty": true
 }

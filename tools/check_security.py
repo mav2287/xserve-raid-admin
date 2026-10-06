@@ -13,6 +13,33 @@ from verify_builds import check_artifact, EXPECTED
 from inventory import disassemble_entries
 
 
+def assert_retry_unreachable(text):
+    instructions={int(pc):op.strip() for pc,op in re.findall(r'^\s+(\d+):\s+(.*)$',text,re.M)}
+    if instructions.get(349) is None or instructions[349].split()!=['ifeq','563']:raise ValueError('Ambiguous IO does not enter the fixed marker block')
+    offsets=sorted(instructions);following=dict(zip(offsets,offsets[1:]))
+    handlers=[tuple(map(int,row)) for row in re.findall(r'^\s+(\d+)\s+(\d+)\s+(\d+)\s+(?:Class \S+|any)\s*$',text,re.M)]
+    reached=set();pending=[0]
+    while pending:
+        pc=pending.pop()
+        if pc in reached:continue
+        if pc not in instructions:raise ValueError('Control-flow target is not an instruction boundary')
+        reached.add(pc);parts=instructions[pc].split();opcode=parts[0]
+        if opcode in ('tableswitch','lookupswitch','jsr','jsr_w','ret'):raise ValueError('Unexpected control-flow form in locked run method')
+        for start,end,target in handlers:
+            if start<=pc<end:pending.append(target)
+        if opcode in ('goto','goto_w'):pending.append(int(parts[1]))
+        elif opcode.startswith('if'):
+            pending.extend((int(parts[1]),following[pc]))
+        elif opcode not in ('return','ireturn','lreturn','freturn','dreturn','areturn','athrow'):
+            if pc not in following:raise ValueError('Run can fall through the code boundary')
+            pending.append(following[pc])
+    dead={pc for pc in instructions if 380<=pc<459}
+    required={pc for pc in instructions if 352<=pc<380 or 534<=pc<548}|{6,28,60,231}
+    if set(instructions)-reached!=dead or not required<=reached or any('java/util/LinkedList.add' in instructions[pc] for pc in reached):raise ValueError('Reachability differs outside the locked dead retry region')
+    # The initial connection call and queue monitor remain valid; only retry-region calls are excluded.
+    return {'reachable_instructions':len(reached),'retry_region_unreachable':True,'parser_prefix_path_reachable':True}
+
+
 def assert_session_containment(text):
     marker=re.search(r'^  public static final boolean STOPS_REJECTED_SESSIONS = true;.*?(?=^  \S|^})',text,re.M|re.S)
     report=re.search(r'^  public static void report\(com.apple.xsr.net.CommunicationsManager, java.lang.Exception\);.*?(?=^  \S|^})',text,re.M|re.S)
@@ -96,8 +123,9 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
                 elif pc==563:
                     if not re.fullmatch(r'invokestatic\s+#\d+\s+// Method compat/RejectionRecovery.nullMessage:\(\)Ljava/lang/Exception;',actual):raise ValueError('Independent null IO helper differs')
                 elif actual!=operation:raise ValueError('Independent null IO stack/branch differs')
+            assert_retry_unreachable(b)
             if 'stack=6, locals=9, args_size=1' not in b:raise ValueError('Independent IO frame differs')
-            def mask(text):return re.sub(r'^\s+(?:339|34[0-3]|46[4-9]|47[0-3]|553|555|558|559|562|563|566|568|573):.*\n','',text,flags=re.M)
+            def mask(text):return re.sub(r'^\s+(?:339|34[0-3]|349|46[4-9]|47[0-3]|553|555|558|559|562|563|566|568|573):.*\n','',text,flags=re.M)
             if mask(a)!=mask(b):raise ValueError('Run differs outside report window')
         else:
             appended=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)[-3:]
@@ -211,6 +239,8 @@ def main():
         raise ValueError('Header helper version, budgets or fixed rejection differs')
     recovery_helper=disassemble_entries(args.jdk,args.jar,['compat/RejectionRecovery.class'],verbose=True)
     assert_session_containment(recovery_helper)
+    terminal=re.search(r'^  public static final boolean TERMINATES_AMBIGUOUS_IO = true;.*?(?=^  \S|^})',recovery_helper,re.M|re.S)
+    if terminal is None or 'ConstantValue: int 1' not in terminal[0]:raise ValueError('Terminal IO feature constant differs')
     null_helper=re.search(r'^  public static java.lang.Exception nullMessage\(\);.*?(?=^  \S|^})',recovery_helper,re.M|re.S)
     if null_helper is None or re.findall(r'^\s+\d+:\s+(\S+)',null_helper[0],re.M)!=['new','dup','ldc','invokespecial','areturn'] or '// String Response transport failed; outcome is unconfirmed' not in null_helper[0] or '// Method compat/UntrustedResponseException."<init>":(Ljava/lang/String;)V' not in null_helper[0]:raise ValueError('Null IO fresh fixed marker differs')
     marker_helper=disassemble_entries(args.jdk,args.jar,['compat/UntrustedResponseException.class'],verbose=True)
@@ -224,7 +254,7 @@ def main():
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
         if name in ('run','send'):
-            verified_methods[entry]=('Exact report/null-IO windows and appended null trampoline independently verified; nonnull IO classification and original handler metadata unchanged' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
+            verified_methods[entry]=('Exact report/null-IO windows and two-byte non-prefix IO branch independently verified; legacy resend region unreachable, parser-prefix path and original handler metadata retained' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
             continue
         if name == 'getBody':
             verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons'

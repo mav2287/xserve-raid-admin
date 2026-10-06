@@ -211,3 +211,11 @@ logging/callbacks, so already-queued dependent writes cannot proceed after an
 unconfirmed outcome. No controller shutdown command is sent. Ordinary nonnull IO
 replay remains open. Earlier isolated next-read success is historical evidence;
 it is not the current containment behavior or whole-workflow qualification.
+
+## Audit.15 no-replay refinement
+
+[Ambiguous I/O containment](audit/AMBIGUOUS-IO-NO-REPLAY.md) removes the original
+non-prefix IOException resend path and stops the local session. It intentionally
+also restricts failed reads. Clean qualification is pending. Prefix -103 and
+generic exception paths can still permit dependent queued writes; synchronous
+post/exit cancellation and complete GUI recovery remain open.

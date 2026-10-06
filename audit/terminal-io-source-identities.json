@@ -1,0 +1,16 @@
+{
+  "scope": "Development source/artifact comparison, not clean qualification",
+  "candidate_jar_sha256": "4fb45ef850687309834fd9f082f47819ea7deadc5866108115f8a2ac5c1311bd",
+  "previous_jar_sha256": "fe14078408670f4fd28ca53b2dccc48366338e37fbd5bda4ab01d7eee3761b4c",
+  "changed_entries": [
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "compat/RejectionRecovery.class"
+  ],
+  "manager_changed_file_offsets": [
+    5950
+  ],
+  "manager_length": 7306,
+  "manager_sha256": "a1cc09d9f6664fd9685f6fb0ffcc37c9321114db32a5f22f6e7c745a7271bd40",
+  "both_pinned_filter_output_stream_disassemblies_equal": true,
+  "filter_output_stream_disassembly_sha256": "cadacc8d9aa545f9f65f459c004de6fc063d00bddcbc51e8326a17c7e6895ce9"
+}

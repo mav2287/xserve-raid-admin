@@ -39,6 +39,18 @@ public final class TransportObservation {
         int drops;
         int nullDrops;
         IOException injectedFailure;
+        int writeFault=-1;
+        boolean bodyWriteFault;
+        boolean bodyFaultReached;
+        int failureAfter=1;
+        int attempts;
+        int partialBytes;
+        int closeFailures;
+        int closes;
+        boolean unsafeFailureObserved;
+        boolean prewriteFailure;
+        boolean nonpersistent;
+        boolean legacyBodyCodec;
         boolean malformed;
         byte[] rawResponse;
         boolean idleOpen;
@@ -48,15 +60,23 @@ public final class TransportObservation {
         final State state;
         final int ordinal;
         MemoryConnection(State state) throws IOException { super("127.0.0.1"); setPersistent(true); this.state = state; ordinal = ++state.connectionCount; }
-        @Override OutputStream getOutputStream() {
-            pending = new ByteArrayOutputStream(); return pending;
+        @Override OutputStream getOutputStream() throws IOException {
+            check(++state.attempts<=16,"Fixture attempt bound exceeded");
+            if(state.prewriteFailure){state.prewriteFailure=false;throw new java.net.ConnectException("DO_NOT_RENDER_PREWRITE");}
+            pending = new ByteArrayOutputStream();
+            if(state.writeFault>=0||state.bodyWriteFault){final int count=state.writeFault;state.writeFault=-1;return new OutputStream(){
+                private int tail;
+                private boolean body;
+                public void write(int b)throws IOException{if(body&&state.bodyWriteFault){state.bodyFaultReached=true;throw new IOException("DO_NOT_RENDER_BODY_WRITE");}if(state.partialBytes==count)throw new IOException("DO_NOT_RENDER_WRITE");pending.write(b);state.partialBytes++;tail=(tail<<8)|(b&255);if(tail==0x0d0a0d0a)body=true;}
+            };}
+            return pending;
         }
         @Override InputStream getInputStream() throws IOException {
             if (pending == null) throw new AssertionError("Response before request");
             check(state.sent.size() < 16, "Fixture send bound exceeded");
             state.sent.add(pending.toByteArray()); pending = null;
             state.connections.add(ordinal);
-            if(state.injectedFailure!=null){IOException failed=state.injectedFailure;state.injectedFailure=null;throw failed;}
+            if(state.injectedFailure!=null&&state.attempts>=state.failureAfter){IOException failed=state.injectedFailure;state.injectedFailure=null;throw failed;}
             if(state.nullDrops>0){state.nullDrops--;throw new IOException();}
             if (state.drops-- > 0) throw new IOException("synthetic response loss");
             if (state.rawResponse != null) {
@@ -80,12 +100,12 @@ public final class TransportObservation {
             return new ByteArrayInputStream(response.toByteArray());
         }
         @Override public void connect() { throw new AssertionError("Real connect prohibited"); }
-        @Override public void disconnect() { }
+        @Override public void disconnect() throws IOException { state.closes++;if(state.closeFailures>0){state.closeFailures--;throw new IOException("DO_NOT_RENDER_CLEANUP");} }
         @Override public void setTimeout(int timeout) { }
     }
     private static AcpxConnection transport(MemoryConnection memory) throws Exception {
         AcpxConnection acp = (AcpxConnection) unsafe().allocateInstance(AcpxConnection.class);
-        acp.host = "127.0.0.1"; acp.persistent = true; acp.connection = memory;
+        acp.host = "127.0.0.1"; acp.persistent = !memory.state.nonpersistent; acp.encrypted=memory.state.legacyBodyCodec; acp.connection = memory;
         return acp;
     }
     private static void check(boolean condition, String label) { if (!condition) throw new AssertionError(label); }
@@ -174,7 +194,12 @@ public final class TransportObservation {
             responseCase("acp-status-" + code, reply("HTTP/1.1 200 Fixture", "Content-Length: " + body.length + "\r\n", body), "result=" + code);
         }
     }
+    private static boolean terminalIoPolicy() throws Exception {
+        try{return Class.forName("compat.RejectionRecovery").getField("TERMINATES_AMBIGUOUS_IO").getBoolean(null);}
+        catch(ClassNotFoundException absent){return false;}catch(NoSuchFieldException absent){return false;}
+    }
     private static void queueOrder() throws Exception {
+        final boolean terminal=terminalIoPolicy();
         final State state = new State(); state.drops = 1;
         final CommunicationsManager manager = (CommunicationsManager) unsafe().allocateInstance(CommunicationsManager.class);
         set(manager, "queue", new LinkedList<Object>());
@@ -191,7 +216,8 @@ public final class TransportObservation {
                         check(++count[0] == 1 && context == null && response.getResultCode() == -101, "Unexpected queue reconnect");
                         set(manager, "connection", transport(new MemoryConnection(state))); set(manager, "connected", true);
                     } else {
-                        check(count[1] < 2 && context == contexts[count[1]] && response.getResultCode() == 0, "Queue callback order differs");
+                        check(count[1] < 2 && context == contexts[count[1]] && response.getResultCode() == (terminal?-102:0), "Queue callback order differs");
+                        if(terminal)check(manager.isStopped(), "Queue session not stopped before callback");
                         if (++count[1] == 2) manager.shutdown();
                     }
                 } catch (Exception e) { throw new AssertionError("Queue fixture injection failed"); }
@@ -199,8 +225,12 @@ public final class TransportObservation {
         };
         AcpxMessageFactory factory = new AcpxMessageFactory();
         manager.postMessageAsync(handler, factory.newGetStatusRequest(), contexts[0]);
-        manager.postMessageAsync(handler, factory.newGetTimeRequest(), contexts[1]);
+        manager.postMessageAsync(handler, terminal?factory.newRestartSystemRequest():factory.newGetTimeRequest(), contexts[1]);
         manager.run();
+        if(terminal){
+            check(count[0]==0&&count[1]==2&&state.sent.size()==1&&state.connections.equals(Arrays.asList(1)), "Terminal queue counts differ");
+            emit("queue_order first-only; connections 1; callbacks first-second; blocked-followup=true; reconnects=0");return;
+        }
         check(count[0] == 1 && count[1] == 2 && state.sent.size() == 3, "Queue counts differ");
         check(Arrays.equals(state.sent.get(0), state.sent.get(1)) && !Arrays.equals(state.sent.get(1), state.sent.get(2)), "Queue wire order differs");
         check(state.connections.equals(Arrays.asList(1, 2, 2)), "Queue connection sequence differs");
@@ -210,6 +240,12 @@ public final class TransportObservation {
         dispatch(request, drops, malformed, null, malformed ? -103 : 0, drops, "legacy");
     }
     private static void dispatch(final RequestMessage request, int drops, boolean malformed, byte[] raw, final int result, int reconnects, String label) throws Exception {
+        final boolean terminal=terminalIoPolicy()&&result==0&&reconnects>0;
+        final boolean healthyReply=label.startsWith("acp-")||label.startsWith("http-");
+        final int expectedResult=terminal?-102:result;
+        final int expectedReconnects=terminal?0:reconnects;
+        if(terminal&&label.equals("truncated-retry-then-valid"))label="truncated-terminal";
+        if(terminal&&label.equals("allocation-ceiling-truncated-retry"))label="allocation-ceiling-truncated-terminal";
         final State state = new State(); state.drops = drops; state.malformed = malformed;
         state.rawResponse = raw;
         final CommunicationsManager manager = (CommunicationsManager) unsafe().allocateInstance(CommunicationsManager.class);
@@ -230,7 +266,9 @@ public final class TransportObservation {
                         set(manager, "connection", transport(new MemoryConnection(state))); set(manager, "connected", true);
                     } else {
                         check(received == context, "Callback context lost");
-                        check(response.getResultCode() == result, "Unexpected terminal result");
+                        check(response.getResultCode() == expectedResult, "Unexpected terminal result");
+                        if(terminal){Exception e=response.getException();check(manager.isStopped()&&!manager.isConnected()&&e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null,"Ambiguous IO not contained");}
+                        if(expectedResult==-103||healthyReply||(!terminal&&expectedResult!=-102))check(!manager.isStopped(),"Healthy/prefix policy changed");
                         callbacks[1]++; manager.shutdown();
                     }
                 } catch (Exception e) { throw new AssertionError("Fixture injection failed"); }
@@ -238,11 +276,11 @@ public final class TransportObservation {
         }, request, context);
         manager.run();
         check(callbacks[1] == 1, "Terminal callback not exactly once");
-        check(callbacks[0] == reconnects, "Unexpected retry count");
-        check(state.sent.size() == reconnects + 1, "Unexpected send count");
+        check(callbacks[0] == expectedReconnects, "Unexpected retry count");
+        check(state.sent.size() == expectedReconnects + 1, "Unexpected send count");
         for (byte[] sent : state.sent) check(Arrays.equals(sent, state.sent.get(0)), "Retry wire differs");
         if (raw == null) emit("dispatch drops=" + drops + " malformed=" + malformed + " sends=" + state.sent.size() + " terminal_callbacks=" + callbacks[1]);
-        else emit("queue_response " + label + " result=" + result + " sends=" + state.sent.size() + " terminal_callbacks=" + callbacks[1]);
+        else emit("queue_response " + label + " result=" + expectedResult + " sends=" + state.sent.size() + " terminal_callbacks=" + callbacks[1]);
     }
     private static void queueResponses() throws Exception {
         AcpxMessageFactory factory = new AcpxMessageFactory();
@@ -291,7 +329,7 @@ public final class TransportObservation {
     }
     public static void main(String[] args) throws Exception {
         OfflineGuard.install();
-        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization","null-io-policy","verify-manager-corrupt").contains(args[0])), "Unknown fixture arguments");
+        check(args.length == 0 || (args.length == 1 && Arrays.asList("default-logging","parser-policy","parser-policy-default-logging","allocation-policy","allocation-policy-default-logging","header-policy","header-policy-default-logging","io-characterization","null-io-policy","terminal-io-policy","verify-manager-unsafe-policy","verify-manager-corrupt").contains(args[0])), "Unknown fixture arguments");
         boolean defaultLogging = args.length == 1 && (args[0].equals("default-logging") || args[0].endsWith("-default-logging"));
         boolean parserPolicy = args.length == 1 && args[0].startsWith("parser-policy");
         PrintStream previous = System.err;
@@ -305,6 +343,14 @@ public final class TransportObservation {
                 try{Class.forName("com.apple.xsr.net.CommunicationsManager").getDeclaredMethods();throw new AssertionError("Corrupt manager verified");}
                 catch(VerifyError expected){emit("PASS corrupt manager rejected by verifier; guarded_operations=0");}
             }
+            else if(args.length==1 && args[0].equals("verify-manager-unsafe-policy")) {
+                Class.forName("com.apple.xsr.net.CommunicationsManager").getDeclaredMethods();
+                org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+                State unsafeState=new State();unsafeState.injectedFailure=new IOException("DO_NOT_RENDER_UNSAFE");
+                boolean rejected=false;try{fixedFailure(unsafeState,"unsafe-negative",false,1);}catch(AssertionError expected){rejected=unsafeState.unsafeFailureObserved;}
+                check(rejected,"Unsafe semantic policy not specifically observed");OfflineGuard.assertUntouched();emit("PASS verified unsafe manager fails containment fixture; guarded_operations=0");
+            }
+            else if(args.length==1 && args[0].equals("terminal-io-policy")) terminalIoFaults();
             else if(args.length==1 && args[0].equals("null-io-policy")) nullIoPolicy();
             else if(args.length==1 && args[0].equals("io-characterization")) ioCharacterization();
             else if(args.length==1 && args[0].startsWith("header-policy")) headerPolicy(defaultLogging);
@@ -361,19 +407,22 @@ public final class TransportObservation {
         catch(ClassNotFoundException absent){return false;}catch(NoSuchFieldException absent){return false;}
     }
     private static void fixedNull(IOException failure,String label,boolean print)throws Exception {
-        final boolean containment=sessionContainment();final State state=new State();state.injectedFailure=failure;final CommunicationsManager m=ioManager(state);
+        State state=new State();state.injectedFailure=failure;fixedFailure(state,label,print,1);
+    }
+    private static void fixedFailure(final State state,String label,boolean print,final int sentCount)throws Exception {
+        final boolean containment=sessionContainment();final CommunicationsManager m=ioManager(state);
         final Object[] contexts={new Object(),new Object()};final int[] callbacks={0},connects={0};final Throwable[] escaped={null};
         CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){
             try {
                 if(response.getType()==Response.TYPE_CONNECT){check(callbacks[0]==1&&connects[0]++==0&&response.getResultCode()==-101,"Unexpected fresh reconnect");set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);return;}
                 int i=callbacks[0]++;check(i<2&&seen==contexts[i]&&response.getResultCode()==(i==0||containment?-102:0),"Null IO callback differs");
-                if(i==0){Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null&&!m.isConnected()&&m.isStopped()==containment&&state.sent.size()==1,"Null IO terminal state differs");}
+                if(i==0){Exception e=response.getException();state.unsafeFailureObserved=e==null||!e.getClass().getName().equals("compat.UntrustedResponseException")||!m.isStopped()||m.isConnected();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null&&!m.isConnected()&&m.isStopped()==containment&&state.sent.size()==sentCount,"Null IO terminal state differs");}
                 else m.shutdown();
             }catch(Exception e){throw new AssertionError("Null IO injection failed");}
         }};
         AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,containment?f.newSetTimeRequest(new Date(0)):f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,containment?f.newRestartSystemRequest():f.newGetTimeRequest(),contexts[1]);
         Thread worker=new Thread(new Runnable(){public void run(){m.run();}},"fixture-null-fixed");worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
-        try{worker.start();worker.join(2000);check(!worker.isAlive()&&escaped[0]==null&&callbacks[0]==2&&connects[0]==(containment?0:1)&&state.sent.size()==(containment?1:2)&&(containment||!Arrays.equals(state.sent.get(0),state.sent.get(1))),"Null IO recovery differs");}
+        try{worker.start();worker.join(5000);check(!worker.isAlive()&&escaped[0]==null&&callbacks[0]==2&&connects[0]==(containment?0:1)&&state.sent.size()==(containment?sentCount:2)&&(containment||!Arrays.equals(state.sent.get(0),state.sent.get(1))),"Null IO recovery differs");}
         finally{m.shutdown();worker.interrupt();worker.join(2000);check(!worker.isAlive(),"Null IO cleanup differs");}
         if(containment){
             int sent=state.sent.size();m.postMessageAsync(handler,f.newRestartSystemRequest(),new Object());
@@ -385,16 +434,36 @@ public final class TransportObservation {
         }
         if(print)emit("null_io "+label+" terminal=-102; fixed-no-cause; failed_sends=1; "+(containment?"next_distinct=-102; session-stopped":"next_distinct=0; worker-survives"));
     }
+    private static void terminalIoFaults()throws Exception {
+        check(terminalIoPolicy()&&sessionContainment(),"Terminal IO policy missing");
+        org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
+        IOException[] faults={new IOException("DO_NOT_RENDER_RESPONSE"),new IOException(""),new java.net.SocketTimeoutException("DO_NOT_RENDER_TIMEOUT"),new EOFException("DO_NOT_RENDER_EOF")};
+        String[] labels={"response-loss","empty-message","timeout","eof"};
+        for(int i=0;i<faults.length;i++){State state=new State();state.injectedFailure=faults[i];fixedFailure(state,labels[i],false,1);check(state.attempts==1&&state.closes==1,"Response fault replayed or cleanup differs");emit("terminal_io "+labels[i]+" attempts=1 response_entries=1 stopped=true queued_restart_blocked=true");}
+        for(int count:new int[]{0,8}){State state=new State();state.writeFault=count;fixedFailure(state,"partial-write",false,0);check(state.attempts==1&&state.partialBytes==count&&state.closes==2,"Partial write replayed");emit("terminal_io write-after-"+count+" attempts=1 response_entries=0 stopped=true queued_restart_blocked=true");}
+        State body=new State();body.bodyWriteFault=true;fixedFailure(body,"body-write",false,0);check(body.attempts==1&&body.bodyFaultReached&&body.closes==2,"Body failure replayed or missed");emit("terminal_io write-body-before-first-byte attempts=1 response_entries=0 stopped=true queued_restart_blocked=true");
+        State prewrite=new State();prewrite.prewriteFailure=true;fixedFailure(prewrite,"prewrite-seam",false,0);check(prewrite.attempts==1&&prewrite.closes==2,"Prewrite failure replayed or cleanup differs");emit("terminal_io prewrite-seam attempts=1 response_entries=0 stopped=true queued_restart_blocked=true");
+        State cleanup=new State();cleanup.nonpersistent=true;cleanup.closeFailures=1;fixedFailure(cleanup,"cleanup-after-reply",false,1);check(cleanup.attempts==1&&cleanup.closeFailures==0&&cleanup.closes==2,"Cleanup failure replayed");emit("terminal_io cleanup-after-reply attempts=1 response_entries=1 stopped=true queued_restart_blocked=true");
+        State codecWrite=new State();codecWrite.legacyBodyCodec=true;codecWrite.bodyWriteFault=true;fixedFailure(codecWrite,"codec-body-write",false,0);check(codecWrite.attempts==1&&codecWrite.bodyFaultReached&&codecWrite.closes==2,"Codec close replayed body write");emit("terminal_io legacy-codec-body-write attempts=1 response_entries=0 stopped=true queued_restart_blocked=true");
+        final State idle=new State();idle.failureAfter=2;idle.injectedFailure=new EOFException("DO_NOT_RENDER_IDLE");final CommunicationsManager m=ioManager(idle);final int[] callbacks={0};final Object[] contexts={new Object(),new Object(),new Object()};
+        CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){int i=callbacks[0]++;check(i<3&&response.getType()!=Response.TYPE_CONNECT&&seen==contexts[i]&&response.getResultCode()==(i==0?0:-102),"Idle sequence differs");check(m.isStopped()==(i>0),"Idle stop timing differs");if(i==1){Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&e.getCause()==null&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage()),"Idle failure not sanitized");}if(i==2)m.shutdown();}};
+        AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,f.newSetTimeRequest(new Date(0)),contexts[1]);m.postMessageAsync(handler,f.newRestartSystemRequest(),contexts[2]);m.run();check(callbacks[0]==3&&idle.attempts==2&&idle.sent.size()==2&&idle.closes==1,"Idle sequence replayed");emit("terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true");
+        OfflineGuard.assertUntouched();emit("PASS terminal IO faults; guarded_operations=0");
+    }
     private static void nullIoPolicy()throws Exception {
         check(nullIoFixed(),"Null IO policy missing");org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);
         fixedNull(new EOFException(),"eof",true);
         IOException cause=new IOException();cause.initCause(new IOException("DO_NOT_RENDER_NULL_IO_CAUSE"));fixedNull(cause,"cause",true);
         ChangingMessage firstNull=new ChangingMessage(true);fixedNull(firstNull,"changing-first-null",true);check(firstNull.calls==1,"Null getMessage evaluated twice");
-        ChangingMessage firstText=new ChangingMessage(false);State state=new State();state.injectedFailure=firstText;
+        ChangingMessage firstText=new ChangingMessage(false);
+        if(terminalIoPolicy()){fixedNull(firstText,"changing-first-text",false);check(firstText.calls==1,"Nonnull getMessage evaluated twice");emit("null_io changing-first-text terminal=-102; fixed-no-cause; getMessage_calls=1; sends=1");}
+        else {
+        State state=new State();state.injectedFailure=firstText;
         final CommunicationsManager m=ioManager(state);final int[] commands={0},connects={0};
         m.postMessageAsync(new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object context){try{if(response.getType()==Response.TYPE_CONNECT){check(connects[0]++==0,"Unexpected repeated retry");set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);}else{check(response.getResultCode()==0,"Nonnull retry failed");commands[0]++;m.shutdown();}}catch(Exception e){throw new AssertionError("Retry injection failed");}}},new AcpxMessageFactory().newGetStatusRequest());
         m.run();check(firstText.calls==1&&commands[0]==1&&connects[0]==1&&state.sent.size()==2&&Arrays.equals(state.sent.get(0),state.sent.get(1)),"Nonnull IO delegation differs");
         emit("null_io changing-first-text ordinary-retry; getMessage_calls=1; sends=2");
+        }
         State sync=new State();sync.injectedFailure=new EOFException();final CommunicationsManager sm=ioManager(sync);final Throwable[] escaped={null};Thread worker=new Thread(new Runnable(){public void run(){sm.run();}},"null-sync-fixture");worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
         try{worker.start();try{sm.postMessage(new AcpxMessageFactory().newGetStatusRequest());throw new AssertionError("Null sync accepted");}catch(IOException e){check("Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null,"Null sync message differs");}check(sync.sent.size()==1&&!sm.isConnected(),"Null sync state differs");}
         finally{sm.shutdown();worker.interrupt();worker.join(2000);check(!worker.isAlive()&&escaped[0]==null,"Null sync cleanup differs");}
@@ -441,7 +510,7 @@ public final class TransportObservation {
         dispatch(factory.newSetTimeRequest(new Date(0)),0,false,invalid,fixed?-102:0,fixed?0:1,fixed?"invalid-header-mutation-terminal":"invalid-header-mutation-retry");
         RequestMessage restart=factory.newRestartSystemRequest();
         check(restart.getShutdownConnection() && restart.getRestartConnection()==-1,"Unexpected restart fixture flags");
-        dispatch(restart,1,false);emit("io synthetic-restart lost-response; same-command-replayed; shutdown_flag=true; memory-only");
+        dispatch(restart,1,false);emit("io synthetic-restart lost-response; "+(terminalIoPolicy()?"no-replay":"same-command-replayed")+"; shutdown_flag=true; memory-only");
         nullMessage();shallowProperty();if(fixed)synchronousInvalidHeader(invalid);OfflineGuard.assertUntouched();
         emit("PASS IO characterization; guarded_operations=0");
     }

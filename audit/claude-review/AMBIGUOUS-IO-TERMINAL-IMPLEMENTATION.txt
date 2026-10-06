@@ -1,0 +1,57 @@
+I found no code blocker in the audit.15 change. The two-byte branch does what you described, and the static gates pin it. It is **not** qualified yet: the evidence below is all still from a dirty working tree, and several gates are less specific than they claim. I didn't edit any files or run anything, and I didn't treat `build/terminal-io-dev-*.json` as evidence.
+
+## Bytecode checks (verified)
+- **Branch arithmetic is correct:**
+  - 339 `goto_w +0xd6` lands at 553.
+  - 349 `ifeq +0xd6` lands at 563.
+  - 559 `ifnonnull +14` lands at 573.
+  - 568 `goto_w -104` lands at 464.
+  - 573 `goto_w -229` lands at 344.
+- **The stack is consistent.** At 344 the stack holds the message string, so 349 sees a boolean. Both paths into 563 arrive with an empty stack, so the merge at 563 is valid. Max stack/locals stay 6/9, and the method has no StackMapTable.
+- **Non-prefix IO stops without a resend.** The marker goes to `report`, which stops dispatch and closes the connection, and the caller gets -102. Queued entries then take 273 → `CommShutdownException` -102 without being sent (`tests/fixtures/terminal-io-run.javap:162-175,267-275`).
+- **Prefix IO is unchanged.** A message starting with `PropertyListException` falls through to 352 (-103, log, `goto 459`). There is no stop and no resend.
+- **Only the retry block is dead.** 380..458 is byte-identical and unreachable, including `addFirst` (417), the retry `doConnect` (454) and the handlers at 396/426. The initial `doConnect` (231), the queue monitor (6/28/60) and the exit close (534..545) stay reachable.
+- **The prior refinement review was wrong here.** It said "no reachable doConnect or monitorenter" (`AMBIGUOUS-IO-TERMINAL-REFINEMENT.txt:26`). That would be wrong for 231/6, and the implementation correctly didn't adopt it.
+- **Negative controls hit the intended targets.** The `0073` mutant goes 349 → 464 and passes the verifier, but it reports the raw IOException without stopping. The `00000001` mutant at 340..343 makes 339 jump to 340, which is mid-instruction, so the verifier rejects it.
+- **Byte locks are complete.** `class_patch.py:122,132,362-369` and `check_security.py:113-127` lock 349..351 and 380..458, plus the masked whole-method comparison. `test_class_patch.py:148` covers all 8 mutation values from the refinement review.
+
+## Blockers to qualification (evidence, not code)
+1. **Dirty, untracked inputs.** `terminal-io-recovery-expected.json`, `test_terminal_io_gate.py` and the `.javap` fixture are untracked, and the core tools have uncommitted changes. Any dev record built from this tree carries `fixture_dirty`/`source_dirty`. Qualification needs:
+   - a commit
+   - a clean rebuild matching `4fb45ef8…` (`audit/expected-build.json:20`)
+   - reruns of check_transport, check_architectures and check_security on both architectures
+2. **check_transport is the only real terminal-IO evidence, and it needs the full flag set.** The run must include:
+   - `--terminal-io-policy --session-containment --null-io-policy --invalid-header-policy --io-characterization`
+   - `--parser-policy` as well, so that the parser -103 cases (`TransportObservation.java:590-597`) are also exercised. The default run's malformed -103 dispatch (`:619`) is covered without it.
+3. **The architecture matrix adds no terminal-IO evidence.** `terminal-io-recovery-expected.json` is the audit.14 matrix with the hash updated, and its 143 lines contain no terminal-IO case. `check_architectures` will pass it, but its `recovery_limits` and the `required_terminal_io_policy` flag (`check_architectures.py:189`) shouldn't be cited as architecture-level terminal-IO qualification.
+
+## Gate precision (should fix before calling this clean)
+- **`assert_retry_unreachable` has no positive reachability check** (`check_security.py:36`). Make it assert that the unreachable set is exactly the instructions in 380..458, and that 231, 6/28/60, 352..377 and 534..545 are reached. Today only byte equality protects these; the reachability walk run on the `.javap` fixture would accept a mutant that cut them off.
+- **The `ifeq` literal check at line 18 decides most "CFG" tests, not the walk.** All 6 wrong-target tests in `test_terminal_io_gate.py:14` fail on that literal check, so only the handler-retarget test and the `goto 459→380` test actually exercise the walk.
+- **The semantic negative accepts any `AssertionError`** (`TransportObservation.java:344`). A mutant that broke for an unrelated reason would still count as "fails containment". Match the specific failure: a non-marker exception, or stopped=false with a second send.
+- **Result codes are checked, but continued dispatch is not.** Only -103 asserts `!isStopped()` before the callback (`:267`). ACP -16/-27/-28 and `http-*` (`:285-288`) check only the result code. "Queued valid-controller result codes preserved" holds for the codes; that these results don't stop the session is asserted only for -103.
+- **The `complete_requests` label overstates what was measured.**
+  - It means the request was written and `getInputStream` was reached, not that a response completed.
+  - response-loss/empty/timeout/EOF are all thrown when `getInputStream` is entered (`:76`).
+  - Mid-header EOF/timeout and a real shared-stream idle close aren't modelled; idle-close is EOF injected on a fresh stream.
+- **Close-once isn't asserted for the terminal faults.** cleanup-after-reply checks only that `closeFailures==0`.
+- **`-Xint`/`-Xcomp` cover only the terminal fault matrix.** -103, dispatch/queue and both negatives run in default mode only. Under `-Xcomp`, the 2 s `join` (`:419`) may time out; that fails closed, but it could make qualification flaky.
+
+## Residual (low, mostly pre-existing)
+- **Two exceptions can escape `run()`, so exit cleanup (526..548) never runs.** The connection stays open with `connected=true`, though no resend happens.
+  - The first `manager.shutdown()` in `report` is unguarded (`RejectionRecovery.java:63`).
+  - The `getMessage()` call at 555 sits outside every handler range.
+- **Cleanup-after-reply turns a completed controller action into -102 plus a stop.** This is intended, but it should be stated explicitly as a result-code change.
+- **The prewrite seam is `getOutputStream`, not the reconnect inside `send`.** The real reconnect after a `shutdown=true` request goes through `createConnection` and the socket, which the fixture bypasses.
+
+## Still open (your stated scope, plus gaps from the design review)
+- **Your stated scope:**
+  - the prefix -103 path, including possible residue on a persistent connection
+  - the generic `Exception` (462) and `MalformedInputException` (307) paths, which return -102 without stopping
+  - sync post/exit liveness
+- **Still missing from the design review's list** (`AMBIGUOUS-IO-TERMINAL-DESIGN.txt:68-72`):
+  - an original-JAR differential for the nine fault types (only the dispatch-drop lines are mapped)
+  - the sequences: delete→unmap→restart, the Restarter chain, firmware cache-disable→flash, and the restart pair
+  - the concurrent sync-post stress test
+  - evidence that all 116 factory rows' successful bytes are unchanged
+- **Never covered by these fixtures:** real network, real hardware and real controller behaviour.

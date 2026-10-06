@@ -57,14 +57,14 @@
   },
   "com/apple/xsr/net/CommunicationsManager.class": {
     "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
-    "patched_sha256": "1248eef00599fbc1757f6d84a2d9ba055b45683a95b0800a87ce7602f96956c8",
+    "patched_sha256": "a1cc09d9f6664fd9685f6fb0ffcc37c9321114db32a5f22f6e7c745a7271bd40",
     "method": [
       "run",
       "()V"
     ],
     "original_major_version": 47,
     "patched_major_version": 47,
-    "scope": "Exact report window plus null-message-only IO trampoline; nonnull IO classification and original twelve-handler table unchanged"
+    "scope": "Exact report and null-message trampoline plus two-byte non-prefix IO branch at350..351 to marker563; Code578, twelve-handler table and dead legacy resend bytes unchanged"
   },
   "com/apple/xsr/net/AcpxConnection.class": {
     "original_sha256": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",

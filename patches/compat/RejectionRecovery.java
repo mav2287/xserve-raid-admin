@@ -7,9 +7,10 @@ import java.lang.reflect.Modifier;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-/** Retire a rejected response without replay; ordinary exception handling stays legacy. */
+/** Retire rejected responses without replay; generic exception handling stays legacy. */
 public final class RejectionRecovery {
     public static final boolean STOPS_REJECTED_SESSIONS = true;
+    public static final boolean TERMINATES_AMBIGUOUS_IO = true;
     /** The controller may have acted; never retain an untrusted cause chain. */
     public static Exception nullMessage() {
         return new UntrustedResponseException("Response transport failed; outcome is unconfirmed");

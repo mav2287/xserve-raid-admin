@@ -136,3 +136,12 @@ logging/callbacks, so already-queued dependent writes cannot proceed after an
 unconfirmed outcome. No controller shutdown command is sent. Ordinary nonnull IO
 replay remains open. Earlier isolated next-read success is historical evidence;
 it is not the current containment behavior or whole-workflow qualification.
+
+## Audit.15 no-replay refinement
+
+[Ambiguous I/O containment](audit/AMBIGUOUS-IO-NO-REPLAY.md) intentionally removes
+automatic resend for non-prefix I/O failures and stops the local session, including
+failed reads. This supersedes audit.14 statements that ordinary nonnull I/O still
+retries. Healthy replies and prefix -103 behavior remain original. Development
+checks pass; clean qualification is pending. Prefix/generic failure sequencing,
+synchronous cancellation/liveness, UI recovery and hardware acceptance remain open.

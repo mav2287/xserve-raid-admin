@@ -100,7 +100,7 @@ class ClassPatchTests(unittest.TestCase):
         entry='com/apple/xsr/net/CommunicationsManager.class'
         with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
         after=transform(entry,before);cls=ClassFile(after);m=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in m['attributes'] if a[0]=='Code')
-        for offset in list(range(339,349))+list(range(553,578)):
+        for offset in list(range(339,352))+list(range(553,578)):
             changed=bytearray(after);changed[begin+14+offset]^=1
             with self.subTest(offset=offset),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
     def test_null_io_code_lengths_and_handler_rows_are_locked(self):
@@ -140,3 +140,11 @@ class ClassPatchTests(unittest.TestCase):
         expected = json.loads((ROOT/'audit/security-patches.json').read_text())['compat/PropertyList.dtd']
         self.assertEqual(hashlib.sha256(dtd).hexdigest(),expected['sha256'])
         self.assertNotIn(b'SYSTEM',dtd); self.assertNotIn(b'PUBLIC',dtd)
+
+    def test_terminal_io_cannot_bypass_marker_or_restore_resend(self):
+        entry='com/apple/xsr/net/CommunicationsManager.class'
+        with zipfile.ZipFile(ROOT/'original/RAID_Admin_original.jar') as archive:before=archive.read(entry)
+        after=transform(entry,before);cls=ClassFile(after);method=next(m for m in cls.methods if m['name']=='run');_,begin,end=next(a for a in method['attributes'] if a[0]=='Code')
+        for value in ('001f','00e5','00d5','00d7','00e0','00cc','0073','006e'):
+            changed=bytearray(after);changed[begin+14+350:begin+14+352]=bytes.fromhex(value)
+            with self.subTest(value=value),self.assertRaises(ValueError):assert_recovery_edit(before,bytes(changed),'run')
