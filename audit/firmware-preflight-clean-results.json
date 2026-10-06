@@ -1,0 +1,57 @@
+{
+  "fixture_commit": "946dddf8a45ebd668c37804b9173e1d303200cb0",
+  "fixture_dirty": false,
+  "sources": {
+    "tools/firmware_preflight.py": "db1b6f7bbc0b3d704d8379fbddc88ef90b10ba0235a7e7f8517222d01305141f",
+    "tools/check_firmware_preflight.py": "53b21c04b5237a09d961dd07042a38db91321a0ca925b97889ccef5c51362a8c",
+    "tools/check_firmware_archives.py": "73587f2aa87b7f81307711e07a79e0b65fa16f08349bf9c746f0030e09b7661a",
+    "tools/audit_support.py": "146e01cee347e3042a527c452632c3b024ddcde4df83f4153f03c41de5b2fb6e",
+    "audit/official-firmware-fixtures.json": "51fb098fddf9aaa766ae17ff1f6d9d169cdeeee67aab3f24c30cdee976cc6f83",
+    "audit/apple-distribution-acquisition.json": "577b27f11e48db3f41445f723dae09956b447c62882297ee4230ad4e2e9959e5",
+    "tests/java/OfficialFirmwareProbe.java": "71328db70496ffd0318717d6b31753b311a516529e96e0168a24199921ceaa20",
+    "tests/test_firmware_preflight.py": "61dcc667a463dce97ae73d5547cba8d4b90d40ac3a695ab22f51e14284f0846f",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43"
+  },
+  "observations": {
+    "frozen_metadata_matches_reviewed_record": true,
+    "official_package": {
+      "result": "KNOWN_PACKAGE",
+      "snapshot_sha256": "32c077ea0ec50a944a996b72978f6d7b9585d17603da847fd4317ebc364dd9a7",
+      "snapshot_size": 929851,
+      "reference_acquisition": {
+        "container_sha256": "21cf7a8c4e82b925bf9df3d6ea982569bfd24148773ad8dad47f6ddc698ae2c7",
+        "container_size": 8052021,
+        "member": "RAID Admin 1.5.1/firmware-1.5.1-1.51.xfb",
+        "marker_sha256": "27b6679d1ada1d9cef3d242977524832fb9b4ede7d285c7e953cf0dc11ac2859"
+      },
+      "images": [
+        {
+          "role": "coprocessor",
+          "path": "coprocessor/updateROM.bin",
+          "size": 1572900,
+          "sha256": "f0c16dbd926a333d0c94fcb0c10c560e7e783c664c33bdc062536ef29fbadff6",
+          "version": "1.5.1",
+          "firmware_date": "12/08/2006"
+        },
+        {
+          "role": "raid-controller",
+          "path": "raid-controller/updateROM.bin",
+          "size": 910360,
+          "sha256": "1ad6561433cacad5ee1f30aed35b4300d102a883cec3da03047d75e5bccf8851",
+          "version": "1.51c",
+          "firmware_date": "12/08/2006"
+        }
+      ],
+      "optional_full_image": "absent",
+      "hardware_compatibility": "unconfirmed",
+      "signature_verification": "unconfirmed",
+      "transmission": "not performed",
+      "scope": "Byte-identical to the acquired Apple reference; provenance describes that reference, not the input source. Offline foundation only."
+    },
+    "mutation_gates": 8,
+    "mutation_scope": "Five arbitrary byte positions and prepend/append/truncate gates, not structural ZIP validation.",
+    "runtime_zip_inflate_socket_calls": 0,
+    "independent_snapshot_members_match_frozen_table": true
+  },
+  "limits": "Offline strict known-package foundation only. Unknown snapshots never parse/decompress. Member inspection is a separate fixture over the validated public snapshot, not generic ZIP validation. No updater, transmission, controller compatibility, signature, UI or send-time snapshot binding qualification. Socket mocks guard reviewed Python calls, not a hostile-code or filesystem sandbox."
+}

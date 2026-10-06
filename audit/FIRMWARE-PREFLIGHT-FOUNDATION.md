@@ -92,3 +92,15 @@ validation to those bytes, including JarURLConnection cache behavior and origina
 closed-stream retry semantics. It must retain immediate explicit confirmation
 before firmware transmission and associated cache/controller operations. No
 restricted action is authorized or performed by this foundation.
+
+
+## Clean validation
+
+Source `946dddf` was clean. The Python suite passed 56 tests. The
+[known-package record](firmware-preflight-clean-results.json) verifies the frozen
+table, completed acquisition chain, full output and eight hash-boundary mutations.
+The [no-cache record](firmware-preflight-clean-not-run.json) explicitly labels the
+package test not run. The [Java record](firmware-preflight-clean-java.json) confirms
+original/candidate wrapper parity and image digests on both pinned runtimes
+(x64 via Rosetta). [Validation](firmware-preflight-clean-validation.json) records
+that application bytes remain the audit.11 candidate unchanged.

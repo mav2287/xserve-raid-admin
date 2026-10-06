@@ -1,0 +1,8 @@
+{
+  "source_commit": "946dddf8a45ebd668c37804b9173e1d303200cb0",
+  "source_dirty": false,
+  "python_tests": 56,
+  "result": "pass",
+  "application_bytes_changed": false,
+  "candidate_jar_sha256": "ada1cc2b9be545bab67c74098bbb15f0e1e3cf77a881d062eb4ddd0200a3b341"
+}

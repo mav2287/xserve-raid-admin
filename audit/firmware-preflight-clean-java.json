@@ -1,0 +1,168 @@
+{
+  "fixture_commit": "946dddf8a45ebd668c37804b9173e1d303200cb0",
+  "fixture_dirty": false,
+  "host_machine": "arm64",
+  "source_commit": "f962570932fd8f10e394a5b834b4d5d0d11d1d9d",
+  "source_dirty": false,
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "ada1cc2b9be545bab67c74098bbb15f0e1e3cf77a881d062eb4ddd0200a3b341",
+  "wrapper_entries": [
+    "com/apple/xsr/update/FirmwareBundleConnection.class"
+  ],
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "fixture_sources": {
+    "tests/java/FirmwareArchiveProbe.java": "d538b5c52a5a55c237da9d06435e9f52b1fef1b3bb7f5e427e3b8725232e8f39",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/OfficialFirmwareProbe.java": "71328db70496ffd0318717d6b31753b311a516529e96e0168a24199921ceaa20"
+  },
+  "tool_sha256": "73587f2aa87b7f81307711e07a79e0b65fa16f08349bf9c746f0030e09b7661a",
+  "archives": {
+    "corrupt-local-header.xfb": "42be1679c41e317c3d3f3b1ac71210e09c0474bf25f66d9ea551160bd344879c",
+    "deflated.xfb": "4bb91bee4e7f2e5acc26dfa31c0dff2d2426f299c0d482b10ae1c39875ad1485",
+    "duplicate.xfb": "cbe3d9069454f11429770dcdd7b7a9bbb35241aaf4bfb9fe20e0a2408c9b568d",
+    "malformed.xfb": "8f52d2aaed91afa4cf12712db4fe6e42ab9191f7939ba6c8cd9e9419cccf060a",
+    "no-manifest.xfb": "19f1d9d1551b2279e5997703ef7186fe6c803ba8d5bc4d385b250dd0c6094966",
+    "stored.xfb": "4d2f97af8224df9f011afb00a5d5016338330c577b19e54e77f09675de145a45",
+    "truncated.xfb": "958a1f4777dd9fabacccf22cae1b7b60f7c9871d291d830a31861164577c8acb"
+  },
+  "zlib_version": "1.2.12",
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "runtime_tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "results": [
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ],
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ]
+      ],
+      "official_package_results": [
+        [
+          "image_0_size=1572900",
+          "image_0_sha256=f0c16dbd926a333d0c94fcb0c10c560e7e783c664c33bdc062536ef29fbadff6",
+          "image_1_size=910360",
+          "image_1_sha256=1ad6561433cacad5ee1f30aed35b4300d102a883cec3da03047d75e5bccf8851",
+          "PASS official_archive_metadata_and_hashes; optional_full_image_absent; guarded_operations=0"
+        ],
+        [
+          "image_0_size=1572900",
+          "image_0_sha256=f0c16dbd926a333d0c94fcb0c10c560e7e783c664c33bdc062536ef29fbadff6",
+          "image_1_size=910360",
+          "image_1_sha256=1ad6561433cacad5ee1f30aed35b4300d102a883cec3da03047d75e5bccf8851",
+          "PASS official_archive_metadata_and_hashes; optional_full_image_absent; guarded_operations=0"
+        ]
+      ]
+    },
+    {
+      "architecture": "x64",
+      "runtime_tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+      "results": [
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ],
+        [
+          "closed_stream_0=EOF",
+          "closed_stream_1=EOF",
+          "closed_stream_2=EOF",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "closed_stream_0=IO_ERROR",
+          "closed_stream_1=IO_ERROR",
+          "closed_stream_2=IO_ERROR",
+          "PASS manifest_entries_metadata_continuation_orphan",
+          "malformed.xfb=ZIP_ERROR",
+          "truncated.xfb=ZIP_ERROR",
+          "corrupt-local-header.xfb=ZIP_ERROR",
+          "duplicate_entry_selected=2",
+          "PASS wrapper_source_verified; local_archive_loading; guarded_operations=0"
+        ]
+      ],
+      "official_package_results": [
+        [
+          "image_0_size=1572900",
+          "image_0_sha256=f0c16dbd926a333d0c94fcb0c10c560e7e783c664c33bdc062536ef29fbadff6",
+          "image_1_size=910360",
+          "image_1_sha256=1ad6561433cacad5ee1f30aed35b4300d102a883cec3da03047d75e5bccf8851",
+          "PASS official_archive_metadata_and_hashes; optional_full_image_absent; guarded_operations=0"
+        ],
+        [
+          "image_0_size=1572900",
+          "image_0_sha256=f0c16dbd926a333d0c94fcb0c10c560e7e783c664c33bdc062536ef29fbadff6",
+          "image_1_size=910360",
+          "image_1_sha256=1ad6561433cacad5ee1f30aed35b4300d102a883cec3da03047d75e5bccf8851",
+          "PASS official_archive_metadata_and_hashes; optional_full_image_absent; guarded_operations=0"
+        ]
+      ]
+    }
+  ],
+  "official_package": {
+    "sha256": "32c077ea0ec50a944a996b72978f6d7b9585d17603da847fd4317ebc364dd9a7",
+    "container_sha256": "21cf7a8c4e82b925bf9df3d6ea982569bfd24148773ad8dad47f6ddc698ae2c7",
+    "acquisition_marker_sha256": "27b6679d1ada1d9cef3d242977524832fb9b4ede7d285c7e953cf0dc11ac2859",
+    "entries": {
+      "META-INF/MANIFEST.MF": {
+        "size": 362,
+        "sha256": "76486a0b542258a2ec7c7dd8f02de1ec30152dd211c8d39c7cce69ede1f7136c",
+        "compression": 8
+      },
+      "coprocessor/": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "compression": 8
+      },
+      "raid-controller/": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "compression": 8
+      },
+      "coprocessor/updateROM.bin": {
+        "size": 1572900,
+        "sha256": "f0c16dbd926a333d0c94fcb0c10c560e7e783c664c33bdc062536ef29fbadff6",
+        "compression": 8
+      },
+      "raid-controller/updateROM.bin": {
+        "size": 910360,
+        "sha256": "1ad6561433cacad5ee1f30aed35b4300d102a883cec3da03047d75e5bccf8851",
+        "compression": 8
+      }
+    }
+  },
+  "limits": "Local archive loading through byte-identical wrapper only. Original and candidate share each pinned runtime; this primarily characterizes JDK archive behavior. Optional Apple package test checks metadata/image hashes only, not hardware compatibility or internal firmware validity. No updater/preflight UI, cache changes, transmission, controller access or retry-queue qualification. On an arm64 host, successful x64 execution is inferred to use Rosetta; physical Intel qualification is not established."
+}
