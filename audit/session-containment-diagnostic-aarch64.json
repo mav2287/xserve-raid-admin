@@ -1,6 +1,7 @@
 {
   "apple_version": "1.5.1",
-  "compatibility_version": "unrecognized",
+  "compatibility_version": "1.5.1-modern.audit.14",
+  "compatibility_version_matches_reviewed_artifact": true,
   "source_commit": "028165ae5553c333b29c724b17e03a28326a932d",
   "architecture": "arm64",
   "macos": "26.6.2",

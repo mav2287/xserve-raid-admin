@@ -19,3 +19,8 @@ found no blockers. Both recommended optional cases were added: current-label
 artifact tampering and consistent false fallback. All 85 Python tests pass before
 commit. Clean packaged diagnostic observations follow this tooling commit;
 application JAR and package fingerprints remain unchanged.
+
+
+Tool commit `d5bf862`; both [aarch64](session-containment-diagnostic-aarch64.json)
+and [x64](session-containment-diagnostic-x64.json) packaged observations now report
+audit.14 with artifact/manifest/version agreement. No artifact bytes or modes changed.

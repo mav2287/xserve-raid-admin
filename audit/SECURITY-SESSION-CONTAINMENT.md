@@ -95,7 +95,8 @@ x64 tree 49e966a87bc553183877fd661dc229630c5f0e912271dd78dfb72c7af02bc1c8.
 [Package records](session-containment-bundle-results.json) retain vendor signature
 verification before/after byte-only copying. Application signing/notarization was
 not performed. Allowlisted diagnostics matched both manifests and reviewed output,
-but their version label remains an identified stale allowlist issue.
+and the [tooling-only version-label correction](DIAGNOSTIC-VERSION-LABELS.md)
+now reports audit.14 with explicit artifact-version agreement.
 [Integrity record](session-containment-final-integrity.json) verifies source hashes,
 81 Python tests, immutable original JAR and installed application bytes/modes.
 No controller contact, installed-app modification, firmware transmission or
