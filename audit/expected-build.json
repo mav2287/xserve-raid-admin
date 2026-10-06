@@ -54,9 +54,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "8920d5d56c80933f46d1b636a0b42ac7d2e081cd731672dc7a20a17ccb071b3f",
-  "reason": "Audit.15 reviewed no-replay development identity; final source comment correction. Clean qualification pending.",
+  "previous_record_sha256": "89b78dc17f31c72a68c90f9bb52bf288fb64940d5846f4060f99ddda1fdac830",
+  "reason": "Audit.15 clean source commit: approved fixed no-replay branch and feature marker; both deterministic baseline builds identical.",
   "schema": 1,
-  "source_commit": "30ffbe067119c778611375acc228c9cc0a64ca4e",
-  "source_dirty": true
+  "source_commit": "88cfb5c4449c511795d001e538f771206e26b73e",
+  "source_dirty": false
 }
