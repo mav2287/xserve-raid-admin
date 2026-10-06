@@ -48,9 +48,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "627581414ca4ee9c05591a0150edeb92b28dbc0af45d86f2bd6b84a4e22e13f1",
-  "reason": "audit.5 bounded severity-only diagnostics: reviewed logging branch inventory, fixed-code appender, original config preserved except root and safe appender declaration; implementation review in progress",
+  "previous_record_sha256": "288756a23ebef8c4dbcbeff0c2058a5e5a56a8f30888a13ead28a4ab4d21341b",
+  "reason": "audit.5 reviewed implementation 13ac370: clean identical rebuilds, independent security verification, hostile logging fixtures and synthetic archive characterization on both pinned runtimes",
   "schema": 1,
-  "source_commit": "928a9c674b96cfdc73f35441a4bc0e8702a70759",
-  "source_dirty": true
+  "source_commit": "13ac37083b01418afb5c5acac2bf69ce00ac3c4a",
+  "source_dirty": false
 }

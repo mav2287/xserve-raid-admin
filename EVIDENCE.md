@@ -246,3 +246,10 @@ except the root assignment and one appended declaration. Request formatting and
 XML hardening remain in place; controller commands, polling and retry code remain
 unchanged. Synthetic archive and logging runtime evidence is recorded separately
 from hardware acceptance, which remains unperformed.
+
+Clean source `13ac370` reproduces audit.5 exactly. The synthetic archive probe
+also ran from that clean fixture commit. The transport fixture additionally
+compares forced-OFF logging with the candidate's actual default logging: command
+bytes, retries and callbacks match, and captured stderr is exactly one fixed
+error code. No raw event is emitted. The three logging probe modes and transport
+comparison remain offline; they do not establish visible GUI error handling.
