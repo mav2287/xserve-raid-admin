@@ -1,0 +1,22 @@
+I found no blocker to committing the code and golden matrix and then running the clean qualification. I only read files; nothing was run or edited.
+
+**The three earlier blockers are fixed**
+- **Records:** in `runtime-3`/`-4` and `transport-2`, `required_session_containment` is `true` and the recovery limits say "blocked queued writes" instead of "distinct next-command". The `null_io` limits have the stop-variant text. `check_transport.py:41,49` expects `next_distinct=-102; session-stopped`. No `.md` file cites any `session-containment-dev-*` record, and `build/` is gitignored, so the empty and obsolete records can't be committed by accident.
+- **Docs:** `REQUEST-OPERATION-SEQUENCES.md:22-24,42` now separates the audit.13 behaviour from audit.14 and links the containment doc. `SECURITY-SESSION-CONTAINMENT.md` gives the scope and the open items accurately, including the unguarded `shutdown()`.
+
+**The hardening you added is sound**
+- **Exception-table check** (`check_security.py:20`): it rejects any handler row with `start<=19<end`. The existing logging try/catch rows start at 22 or later, so the real class still passes. The negative test adds a covering row and is rejected.
+- **Stop before logging, at runtime** (`RecoveryObservation.java:85,111`): if the check fails, it throws `AssertionError`. `report` only catches `Exception`/`LinkageError`, so the error escapes `m.run()` and the fixture fails, which is the safe outcome.
+- **Ordinary path doesn't stop** (`:95`): the callback checks `!m.isStopped()`.
+- **Matrix gate** (`check_architectures.py:16,77-79,167`): it checks exactly 143 lines in order and pins the candidate JAR hash. The `containment ` and no-`stop=false` checks are still there as well.
+
+**Check these before committing (I can't confirm them by reading)**
+1. **Input hashes in `expected-build.json`.** It pins `patches/compat/RejectionRecovery.java` (`d5cad7a5…`), `tools/baseline.py` and `tools/class_patch.py`. `RejectionRecovery.java` (comment at line 72) and `tools/baseline.py` are both modified, so check their current sha256 against the anchor before you commit. A comment-only edit leaves the bytecode alone unless it shifts line numbers. Even so, a stale input hash will fail the clean build check.
+2. **Which runtime record is newest.** `runtime-4` is the newest record, not `runtime-3`. Only `runtime-4` lists `audit/session-containment-recovery-expected.json` in its `fixture_sources`, so `runtime-3` predates the matrix gate. This doesn't affect the commit, since none of these records will be cited.
+
+**Clean qualification (as already planned)**
+- Two builds must give the same JAR hash, equal to `fe140784…`.
+- Replace the anchor's `source_dirty: true` and its "Development…" reason.
+- Re-run all three tools on both pinned runtimes with the containment flags.
+- Confirm `fixture_dirty` is false and `source_dirty` is false in the new records.
+- If the JAR hash changes for any reason, the matrix's `candidate_jar_sha256` will fail the gate. Re-pin it only after review; don't just regenerate it.

@@ -330,7 +330,7 @@ public final class TransportObservation {
     private static void nullMessage()throws Exception {
         if(nullIoFixed()){
             fixedNull(new IOException(),"base",false);
-            emit("io null-message terminal=-102; callbacks=1; failed_sends=1; next_distinct=0; worker-survives");return;
+            emit("io null-message terminal=-102; callbacks=1; failed_sends=1; "+(sessionContainment()?"next_distinct=-102; session-stopped":"next_distinct=0; worker-survives"));return;
         }
         final State state=new State();state.nullDrops=1;final CommunicationsManager m=ioManager(state);
         final int[] callbacks={0};final Throwable[] escaped={null};final Object context=new Object();
@@ -356,22 +356,34 @@ public final class TransportObservation {
         ChangingMessage(boolean value){firstNull=value;}
         @Override public String getMessage(){return calls++==0?(firstNull?null:"synthetic retry"):firstNull?"synthetic retry":null;}
     }
+    private static boolean sessionContainment()throws Exception {
+        try{return Class.forName("compat.RejectionRecovery").getField("STOPS_REJECTED_SESSIONS").getBoolean(null);}
+        catch(ClassNotFoundException absent){return false;}catch(NoSuchFieldException absent){return false;}
+    }
     private static void fixedNull(IOException failure,String label,boolean print)throws Exception {
-        final State state=new State();state.injectedFailure=failure;final CommunicationsManager m=ioManager(state);
+        final boolean containment=sessionContainment();final State state=new State();state.injectedFailure=failure;final CommunicationsManager m=ioManager(state);
         final Object[] contexts={new Object(),new Object()};final int[] callbacks={0},connects={0};final Throwable[] escaped={null};
         CommunicationHandler handler=new CommunicationHandler(){public void handleResponse(RaidSystem system,Response response,Object seen){
             try {
                 if(response.getType()==Response.TYPE_CONNECT){check(callbacks[0]==1&&connects[0]++==0&&response.getResultCode()==-101,"Unexpected fresh reconnect");set(m,"connection",transport(new MemoryConnection(state)));set(m,"connected",true);return;}
-                int i=callbacks[0]++;check(i<2&&seen==contexts[i]&&response.getResultCode()==(i==0?-102:0),"Null IO callback differs");
-                if(i==0){Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null&&!m.isConnected()&&!m.isStopped()&&state.sent.size()==1,"Null IO terminal state differs");}
+                int i=callbacks[0]++;check(i<2&&seen==contexts[i]&&response.getResultCode()==(i==0||containment?-102:0),"Null IO callback differs");
+                if(i==0){Exception e=response.getException();check(e!=null&&e.getClass().getName().equals("compat.UntrustedResponseException")&&"Response transport failed; outcome is unconfirmed".equals(e.getMessage())&&e.getCause()==null&&!m.isConnected()&&m.isStopped()==containment&&state.sent.size()==1,"Null IO terminal state differs");}
                 else m.shutdown();
             }catch(Exception e){throw new AssertionError("Null IO injection failed");}
         }};
-        AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,f.newGetTimeRequest(),contexts[1]);
+        AcpxMessageFactory f=new AcpxMessageFactory();m.postMessageAsync(handler,containment?f.newSetTimeRequest(new Date(0)):f.newGetStatusRequest(),contexts[0]);m.postMessageAsync(handler,containment?f.newRestartSystemRequest():f.newGetTimeRequest(),contexts[1]);
         Thread worker=new Thread(new Runnable(){public void run(){m.run();}},"fixture-null-fixed");worker.setDaemon(true);worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){public void uncaughtException(Thread t,Throwable e){escaped[0]=e;}});
-        try{worker.start();worker.join(2000);check(!worker.isAlive()&&escaped[0]==null&&callbacks[0]==2&&connects[0]==1&&state.sent.size()==2&&!Arrays.equals(state.sent.get(0),state.sent.get(1)),"Null IO recovery differs");}
+        try{worker.start();worker.join(2000);check(!worker.isAlive()&&escaped[0]==null&&callbacks[0]==2&&connects[0]==(containment?0:1)&&state.sent.size()==(containment?1:2)&&(containment||!Arrays.equals(state.sent.get(0),state.sent.get(1))),"Null IO recovery differs");}
         finally{m.shutdown();worker.interrupt();worker.join(2000);check(!worker.isAlive(),"Null IO cleanup differs");}
-        if(print)emit("null_io "+label+" terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=0; worker-survives");
+        if(containment){
+            int sent=state.sent.size();m.postMessageAsync(handler,f.newRestartSystemRequest(),new Object());
+            Field queue=CommunicationsManager.class.getDeclaredField("queue");queue.setAccessible(true);
+            check(((LinkedList)queue.get(m)).size()==1&&state.sent.size()==sent&&!worker.isAlive(),"Late async send escaped containment");
+            try{m.postMessage(f.newRestartSystemRequest());throw new AssertionError("Stopped sync accepted");}
+            catch(CommShutdownException expected){}
+            check(state.sent.size()==sent,"Stopped sync send escaped containment");
+        }
+        if(print)emit("null_io "+label+" terminal=-102; fixed-no-cause; failed_sends=1; "+(containment?"next_distinct=-102; session-stopped":"next_distinct=0; worker-survives"));
     }
     private static void nullIoPolicy()throws Exception {
         check(nullIoFixed(),"Null IO policy missing");org.apache.log4j.LogManager.getLoggerRepository().setThreshold(org.apache.log4j.Level.OFF);

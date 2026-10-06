@@ -1,0 +1,16 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_jar_sha256": "3f39352faf7b0fe0b117d04af0b2455efd81b4511fc522617743f7d169793175",
+  "bytecode_sha256": "58a47351c30cedfb56cddf5330d170eb331e2920912317134a81ebf318877150",
+  "unchanged_class_sha256": {
+    "com/apple/xsr/ManagementController.class": "c1e417a9e060b4cbd50841305a597b5141ebcbf95e2f2701b4aa48b9fe2d78ac",
+    "com/apple/xsr/ManagementController$RaidSetCreator.class": "bea58eedcc3c67f13bd9697f32d8bc82d01ef3e1f3598cce749f33fdd2aa040e",
+    "com/apple/xsr/ManagementController$Restarter.class": "f787286e9fe41f0fcb5cfadbac2c436bdfbda6ec2d5b5f9621c1b9f3d708a5ab",
+    "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class": "b236f7d954791f1c32339d9675972e33908c690a633a554672b2f8a7b230ec67",
+    "com/apple/xsr/som/RaidSystem.class": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "69c71a7d47c4c96c713741a86e2539ca6289c6e6b947aae0dec959d9edc161ab",
+    "com/apple/xsr/cli/CommandDispatcher$DefaultHandler.class": "1c37afac5f82b9214585d19a244405cace63f0f2b2f3216d447209ae8700f7ea",
+    "com/apple/xsr/cli/CommandDispatcher$15.class": "58d0afa65efb0bdd6d7ba2873b35d26e92c172377ad9e74cd0962b0ffb5a0722"
+  },
+  "scope": "Static bytecode only; no application invocation, controller or volume test"
+}

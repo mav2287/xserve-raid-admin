@@ -30,3 +30,15 @@ class TransportHarnessTests(unittest.TestCase):
                  self.assertRaises(ValueError):
                 check_transport.main()
             verify.assert_not_called()
+
+    def test_containment_requires_blocked_followup_vector(self):
+        old=['null_io '+label+' terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=0; worker-survives' for label in ('eof','cause','changing-first-null')]+['null_io changing-first-text ordinary-retry; getMessage_calls=1; sends=2','null_io sync fixed-IOException; no-peer-or-cause; sends=1','PASS null IO policy; guarded_operations=0']
+        new=[line.replace('next_distinct=0; worker-survives','next_distinct=-102; session-stopped') for line in old]
+        self.assertEqual(check_transport.completed_null_io('\n'.join(new),True),new)
+        with self.assertRaises(ValueError):check_transport.completed_null_io('\n'.join(old),True)
+        for mode in ('missing','ordinary-retry-changed','duplicate'):
+            changed=list(new)
+            if mode=='missing':changed.pop(0)
+            elif mode=='ordinary-retry-changed':changed[3]=changed[3].replace('sends=2','sends=1')
+            else:changed.insert(0,changed[0])
+            with self.subTest(mode=mode),self.assertRaises(ValueError):check_transport.completed_null_io('\n'.join(changed),True)

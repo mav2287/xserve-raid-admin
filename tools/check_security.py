@@ -13,6 +13,17 @@ from verify_builds import check_artifact, EXPECTED
 from inventory import disassemble_entries
 
 
+def assert_session_containment(text):
+    marker=re.search(r'^  public static final boolean STOPS_REJECTED_SESSIONS = true;.*?(?=^  \S|^})',text,re.M|re.S)
+    report=re.search(r'^  public static void report\(com.apple.xsr.net.CommunicationsManager, java.lang.Exception\);.*?(?=^  \S|^})',text,re.M|re.S)
+    if marker is None or 'ConstantValue: int 1' not in marker[0] or report is None:raise ValueError('Session containment marker missing')
+    if any(int(start)<=19<int(end) for start,end in re.findall(r'^\s+(\d+)\s+(\d+)\s+\d+\s+(?:Class \S+|any)\s*$',report[0],re.M)):raise ValueError('Session shutdown is covered by a handler')
+    operations=[(int(pc),re.sub(r'#\d+','#',op)) for pc,op in re.findall(r'^\s+(\d+):\s+(.*)$',report[0],re.M) if int(pc)<=23]
+    wanted=[(0,'aload_1'),(1,'ifnull        13'),(4,'aload_1'),(5,'invokevirtual #                 // Method java/lang/Object.getClass:()Ljava/lang/Class;'),(8,'ldc           #                  // class compat/UntrustedResponseException'),(10,'if_acmpeq     18'),(13,'aload_1'),(14,'invokestatic  #                 // Method log:(Ljava/lang/Exception;)V'),(17,'return'),(18,'aload_0'),(19,'invokevirtual #                 // Method com/apple/xsr/net/CommunicationsManager.shutdown:()V'),(22,'aload_1'),(23,'invokestatic  #                 // Method log:(Ljava/lang/Exception;)V')]
+    normalize=lambda pairs:[(pc,' '.join(op.split())) for pc,op in pairs]
+    if normalize(operations)!=normalize(wanted):raise ValueError('Session stop is not exact-marker-only before logging')
+
+
 def plain_constructor_code(text):
     """The original constructor has only a frame line and instructions."""
     code = re.search(r'^    Code:\n(.*?)(?=^    \S|\Z)', text, re.M | re.S)[1]
@@ -199,6 +210,7 @@ def main():
     if '  major version: 52' not in header_helper or not all(re.search(pattern,header_helper) for pattern in (r'ldc\s+#\d+\s+// int 1048576',r'ldc\s+#\d+\s+// int 65536',r'sipush\s+129',r'// String Response headers exceed limit')):
         raise ValueError('Header helper version, budgets or fixed rejection differs')
     recovery_helper=disassemble_entries(args.jdk,args.jar,['compat/RejectionRecovery.class'],verbose=True)
+    assert_session_containment(recovery_helper)
     null_helper=re.search(r'^  public static java.lang.Exception nullMessage\(\);.*?(?=^  \S|^})',recovery_helper,re.M|re.S)
     if null_helper is None or re.findall(r'^\s+\d+:\s+(\S+)',null_helper[0],re.M)!=['new','dup','ldc','invokespecial','areturn'] or '// String Response transport failed; outcome is unconfirmed' not in null_helper[0] or '// Method compat/UntrustedResponseException."<init>":(Ljava/lang/String;)V' not in null_helper[0]:raise ValueError('Null IO fresh fixed marker differs')
     marker_helper=disassemble_entries(args.jdk,args.jar,['compat/UntrustedResponseException.class'],verbose=True)

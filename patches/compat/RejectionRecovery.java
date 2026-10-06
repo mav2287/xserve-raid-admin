@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 /** Retire a rejected response without replay; ordinary exception handling stays legacy. */
 public final class RejectionRecovery {
+    public static final boolean STOPS_REJECTED_SESSIONS = true;
     /** The controller may have acted; never retain an untrusted cause chain. */
     public static Exception nullMessage() {
         return new UntrustedResponseException("Response transport failed; outcome is unconfirmed");
@@ -56,6 +57,9 @@ public final class RejectionRecovery {
         if(failure==null || failure.getClass()!=UntrustedResponseException.class) {
             log(failure); return;
         }
+        // Stop local dispatch before any logger or callback can run dependent writes.
+        // This does not transmit a controller shutdown command.
+        manager.shutdown();
         // The new security path contains logging failures so they cannot skip retirement.
         try { log(failure); } catch(Exception ignored) {} catch(LinkageError ignored) {}
         try {
@@ -65,7 +69,7 @@ public final class RejectionRecovery {
                 connection=(AcpxConnection)connectionField.get(manager);
                 connectedField.setBoolean(manager,false);
             }
-            // Retain the host-bearing reference for the original controller alternation.
+            // Retain the reference for original stopped-worker exit cleanup.
             // Closing outside the lock keeps isConnected/shutdown responsive.
             close(connection);
         } catch(Exception ignored) { stop(manager); } catch(LinkageError ignored) { stop(manager); }

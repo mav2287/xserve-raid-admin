@@ -1,0 +1,132 @@
+# Review: prerequisites for an ambiguous-IO retry policy (read-only)
+
+**Short answer:** yes, a terminal -102 on an ambiguous write lets later writes run that the original never sent after a failure. The original either retried the failed write at the head of the queue until it succeeded, or (null message) killed the worker so nothing after it was sent. No caller I traced checks the response before sending the next step, so failing terminally alone is not enough to fail closed.
+
+I read only static artifacts: the five requested files, plus `audit/communications-manager-bytecode.txt` and part of `build/firmware-updater-bytecode.txt` to check the transport and firmware helpers. Nothing was run, no controller was contacted, and the password-handling code was skipped. Offsets below are bytecode PCs; `seq:N` means `build/request-operation-sequences-bytecode.txt:N` and `cm:N` means `audit/communications-manager-bytecode.txt:N`.
+
+## 1. How the transport behaves today (source facts)
+
+- **Queueing:** `postMessageAsync` clones the request and adds it to the end of the queue (cm:84–88). `postMessage` clones it and waits through `SyncSender` (cm:120–122).
+- **Callbacks:** a callback fires only if the handler is non-null (`run` PC 489–509). Every async post traced below passes a **null handler**, so no caller ever sees a result code.
+- **Ordinary IOException** (handler 337): it calls `getMessage().startsWith("PropertyListException")`.
+  - If true, the result is a terminal -103.
+  - Otherwise it sets `connected=false`, puts the **same transaction back at the front of the queue** (`addFirst`, PC 417), reconnects, and drops the handler (PC 457). Requests queued behind it wait.
+- **One protected range covers both connect and send** (PC 215–304). `doConnect` (PC 229) only builds a new `AcpxConnection` (doConnect PC 415–424) with no socket IO, so the TCP connect happens inside `send`. The run handler therefore **cannot tell a failure before the write from one after it**.
+- **Reconnect can change address:** `doConnect` alternates between the primary and secondary management addresses by attempt parity (PC 139–154). A retry may go to the other address.
+- **-102 already means several things:** shutdown before sending (PC 289–302, definitely not sent), the generic `Exception` handler (PC 462–487, which includes the security rejections), and now the audit.13 null-IO marker (outcome unknown). The code alone cannot separate "not sent" from "may have been applied".
+- **Sync callers get an exception:** `CommunicationsManager.postMessage` rethrows `ConnectException` or `CommShutdownException`, and otherwise throws `new IOException(getMessage())` whenever the response carries an exception (cm:128–153).
+- **SyncSender:**
+  - Interrupting the waiting thread makes it invent a -102 with `InterruptedIOException("communications shutdown")` (seq:11227–11244). The transaction stays queued and may still be sent or retried. The caller is told it failed while the write may still go out.
+  - It throws `IllegalStateException` if called from the worker thread (seq:11218).
+- **RaidSystem posts:** `postMessage(req,int)` and `postMessageAsync(h,req,int,ctx)` set the target on the **caller's object** before cloning (seq:9640–9643, 9661–9664). The target becomes a per-clone snapshot; headers and RPC bodies stay shared.
+
+## 2. The caller sequences
+
+### `ManagementController.handleDeleteRaid` (seq:1793–1944)
+Everything is async with a null handler and no response check. Targets are all `controller.getId()`.
+
+| PC | Step |
+|---|---|
+| 157 | If the set is initializing (`getOperation()==1`): `recalculate-check-data "stop"` posted at 219 |
+| 233–241 | Records whether this is the last array (`getRaidSets().size()==1`, read before the delete) |
+| 247 / 267 | `delete-array` (acp-action) |
+| 270–285 | `LunMapper.unmapLuns(mapped LUN ids)` — **body not in the dump** |
+| 290 → 334 / 356 | If it was the last array: `restart-controller` |
+
+### `RaidSetCreator.createRaidSet` (seq:4873–5298)
+All posts are async with a null handler, target `controller.getId()`.
+
+| PC | Step |
+|---|---|
+| 351 | `setRaidSetCreationInProgress` |
+| 361 / 376 | RPC `/raid/array/create` |
+| 381 → 437 | First array only: `restart-controller`, sent unconditionally, then `waitForRaidControllerOnline` at 452; a timeout is caught at 486 and execution continues |
+| 535 | `waitForRaidSetOnline` — the only gate. It watches the polled model state, not the create response. A timeout goes to handler 969, which skips mapping, flush and the second restart, then clears at 1007 |
+| 783 | `newLUNAssignmentRequest` (`/raid/lun/assign`, shared RPC body), posted unless a LUN is already mapped (PC 601) |
+| 837 / 857 | `flush-nvram`, then `restart-controller` |
+| 874, 958 | Waits |
+
+`waitForRaidSetOnline` has a timing quirk: the 120 s budget is only recalculated when the set is absent (seq:10193–10209). If the set exists in a state other than 0 or 2, PC 128 jumps back to 54 without recalculating, so each loop waits up to another full 120 s.
+
+### `Restarter.restart` (seq:5465–5721)
+All async with a null handler and no checks.
+
+| PC | Step |
+|---|---|
+| 44 / 74 | `flush-nvram` → targets 1 and 2 |
+| 103 / 132 | `restart-controller` → targets 1 and 2 |
+| 203 / 273 | Coprocessor NVRAM flush via `acp-set` (`newSetPropertiesRequest`) → targets 2 and 1 |
+| 286 | If the primary system controller is id 1: `restart` (system, `shutdown=true`) → target 2 at 317, sleep 10 s at 350, then target 1 at 384 |
+| 390–484 | Otherwise: target 1 at 416, sleep, then target 2 at 484 |
+
+The flushes and controller restarts are queued back-to-back in one call. `run` pauses 60 s before resuming polling (PC 89).
+
+### `FirmwareUpdater$UpdateThread.run` (seq:5739–6589)
+
+**Cache disable (99–135, 440–476):** `disableDiskCaches` and `disableControllerCache` use sync `postMessage(req,int)` (firmware-updater-bytecode.txt:1084, 1241). Any `Exception` is **swallowed** (handlers at 118, 138, 459, 479), so flashing continues anyway.
+
+**Flash checks that do work:**
+- Top `access$1300` at 193: `ifeq 287` at 198.
+- Bottom at 534: `ifeq 628` at 539.
+- Coprocessors `access$2300` at 918 and 1107: `ifeq 1019` and `ifeq 1208`.
+- Non-zero results go to `jsr 1704` and return. The bodies of these helpers were not traced.
+
+**Restart pair — one request object reused with a changed target:**
+
+| PC | Step |
+|---|---|
+| 1218 | `newRestartSystemRequest` (`shutdown=true`) |
+| 1237 / 1251 | `setUser` / `setPassword` (shared header map) |
+| 1359 | `setTargetController(other)` |
+| 1373 | sync `postMessage` |
+| **1380–1385** | **`getResultCode` then `ifeq 1388`, where 1388 is the next instruction. This check does nothing.** |
+| 1419 | sleep 40 s |
+| 1532 | `setTargetController(primary)` |
+| 1546 | `postMessage` |
+| **1553–1558** | **Same pattern: `ifeq 1561`, a no-op.** |
+
+`postMessage` clones the request and blocks, so reusing the object does not leak the target between sends.
+
+**Handlers:** an `IOException` anywhere in 11–1616 goes to **1622**, which reports -102 failure. `PropertyListException` goes to 1650 (-103). The finally block at 1704 runs `clear()`, `authenticate` with the monitoring credentials, and `setPollingEnabled(true)`.
+
+## 3. Does a terminal -102 on an ambiguous write cause an unsafe follow-up?
+
+| Sequence | Original after an ambiguous IOException | With a terminal -102 |
+|---|---|---|
+| handleDeleteRaid | Delete retried at the front; unmap and restart wait behind it (or nothing more is sent if the worker died) | **unmapLuns and restart-controller still run** even if the delete didn't apply. Inference: host loses LUN access to a set that may still exist, plus an unnecessary controller restart. |
+| createRaidSet | Create retried before the first-array restart | **First-array restart (PC 437) still runs.** Mapping, flush and second restart stay gated by the PC 535 state check (fails closed). |
+| Restarter | Flush retried before the restarts | **Restarts run after a flush whose outcome is unknown.** Inference: NVRAM may not be synced before the restart. |
+| Firmware restart pair | Restart retried (the fixture measured an identical-bytes replay of a restart), which could restart a coprocessor twice | Exception goes to 1622, **the second restart is skipped**. This fails closed and is safer. It may misreport failure if a successful restart normally ends in an IO error. |
+| Firmware cache disable | Retried until it succeeded, blocking the flash | **Exception swallowed and the flash proceeds** with cache state unknown |
+
+**This is not hypothetical for audit.13.** For null-message IO, the original's worker death left later posts stranded and never sent (IO-FAILURE-CHARACTERIZATION). audit.13 now lets those queued follow-ups run. Whether that harms data or availability depends on controller behaviour, which nobody has qualified.
+
+For context, the original also continues after any error code the controller reports, because the handlers are null. Terminal handling turns IO ambiguity into that same "ignored failure" class. The change from the original is that follow-ups are no longer blocked.
+
+## 4. Recommended direction (a design constraint, not an implementation)
+
+**Recommendation: make every ambiguous IO failure terminal, and allow retry only for an explicit allowlist of qualified reads.** Classifying writes is not workable, because nothing in this code marks idempotency.
+
+1. **What the allowlist key must be.** Key it on the exact (concrete class, path, command, body shape) tuple from `request-factory-expected.json`. `getCommand` alone is not enough:
+   - acp-get, acp-set and noop all have a null command.
+   - `/cgi-bin/rsp-action` carries reads (`get-page`, `get-rtc`, `boot-check-results-get`) and writes (`restart-controller`, `set-rtc`, `write-signature`).
+2. **Which reads to start with.** Only shapes with copied bodies: command-dict reads, property-array `acp-get`, and noop. Leave out RPC reads (`/system/get-system-status`, `/system/get-event-log`) until classification is captured at enqueue or the body is deep-copied, because RPC bodies are shared with the caller.
+3. **Bound the retries.** The original retry has no count limit.
+4. **Terminal alone does not fail closed** (section 3). The obvious next step is: when a non-allowlisted request fails ambiguously, fail the already-queued writes on that manager without sending them, using a fixed "not sent: prior outcome unconfirmed" marker. That covers the delete and Restarter chains and the first-array create restart, which are all queued in one call. It does **not** cover posts made after sleeps or waits (createRaidSet from PC 783 on, the second restart in Restarter and the firmware thread). A sticky write latch would cover those but would interfere with restart flows. It shouldn't be chosen until the restart and `shutdown` behaviour is understood.
+
+None of this is ready to implement until the gaps below are closed.
+
+## 5. Gaps to close first
+
+- **`shutdown=true` behaviour:** what `AcpxConnection.send` does for `restart` (system). If a successful restart normally ends in an IOException, terminal handling misreports it and a queue-drain could cancel legitimate later steps.
+- **Untraced methods:**
+  - `LunMapper.unmapLuns`: which requests it sends and whether it runs synchronously.
+  - The flash helpers `access$1300` and `access$2300`, including whether the firmware upload stream goes through the queue and gets replayed.
+  - The cache helpers' result-code branches.
+  - How `RaidSystemAgent` polling reacts to terminal read failures (this is the compatibility cost of not allowlisting a read).
+- **Read safety:** whether each allowlisted read really has no side effects (`read-signature`, `get-device-properties`, `get-temperature`).
+- **Fields that might be shared:** whether path or other classification fields live in the shared header map.
+- **SyncSender interrupt:** a caller told "failed" while the write can still be sent.
+- **Other paths:** the two direct `AcpxConnection.send` CLI callers (`DefaultHandler.handle` at seq:11353 has no retry; the second caller was not traced) and the remaining UI callers (`handleCreateJbod`, `handleDeleteJbod`, setup handlers, `setDriveCacheForController`, first aid, slicing, expansion, masking).
+- **Conditional schemas:** the factory sweep covered one argument set per overload, so conditional and default request bodies are untested.
+- **Controller behaviour:** replay idempotency, duplicate restarts and real socket timing are all unmeasured. This applies to physical Intel too, since x64 testing was under Rosetta.

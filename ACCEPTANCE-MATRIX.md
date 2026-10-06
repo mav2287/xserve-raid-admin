@@ -291,3 +291,25 @@ cloning; command/property bodies are copied, including supported Date/byte[] lea
 Command alone cannot classify property/no-op requests. Broader ambiguous-IO retry
 classification still requires caller/control-flow and multi-step operation evidence.
 Clean qualification is linked from the characterization record when complete.
+
+
+### Security qualification limitation: queued follow-up operations
+
+[Operation-sequence source audit](audit/REQUEST-OPERATION-SEQUENCES.md) and
+[actual Claude review](audit/claude-review/AMBIGUOUS-IO-CALLER-SEQUENCES.txt)
+confirm that several UI workflows enqueue writes with null handlers and do not
+wait for prerequisite results. Audit.13's successful next-read recovery does not
+qualify safe next-write behavior. Terminal rejection of one uncertain command
+must also contain queued/delayed dependent writes. Production/controller and
+release acceptance remain open; no hardware action was performed. Prior fixture
+results remain valid within their stated isolated scope, not whole-workflow proof.
+
+
+### audit.14 security-session containment
+
+[audit.14 containment](audit/SECURITY-SESSION-CONTAINMENT.md) supersedes audit.12/13
+next-request recovery for exact security markers. Local dispatch stops before
+logging/callbacks, so already-queued dependent writes cannot proceed after an
+unconfirmed outcome. No controller shutdown command is sent. Ordinary nonnull IO
+replay remains open. Earlier isolated next-read success is historical evidence;
+it is not the current containment behavior or whole-workflow qualification.

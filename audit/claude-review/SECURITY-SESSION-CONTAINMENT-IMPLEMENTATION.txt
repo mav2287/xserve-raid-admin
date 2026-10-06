@@ -1,0 +1,33 @@
+I found no blocker in the containment code. There are three blockers in the records and docs, and they need fixing before you commit and run the clean two-build qualification. I only read files; nothing was run or edited.
+
+## Code: correct as reviewed
+
+- **Shutdown only on the exact marker, before logging** (`patches/compat/RejectionRecovery.java:57-64`). Any exception that isn't exactly `UntrustedResponseException` goes to `log` and returns. The marker class is final, so the `getClass()` comparison matches `instanceof`. `shutdown()` runs before the guarded `log`. The javap gate (`tools/check_security.py:16-23`) pins PCs 0–23 to this order.
+- **Queued writes are not sent.** `pair()` uses a set-time request followed by a restart. It requires `sends=1`, `results=-102,-102` and `reconnect_seams=0` for all 15 markers, and `check_architectures.py:158` fails any `stop=false` line. The changed close counts (1 when close succeeds, 2 when it throws) match the corrected behaviour of `AcpxConnection.close`.
+- **Late async post is stranded with no callback; sync post after stop throws** (`TransportObservation.java:378-385`). This runs only after the worker has exited with no escaped exception, and `isStopped()` was already true at the first callback (`:370`). So the stop came from containment, not from the fixture's own `finally` shutdown.
+- **Two throwing callbacks** (`RecoveryObservation.java:158-166`): `sends=1`, stopped, one transaction left queued, `closes==1`. The claim is limited to "no later sends", which is correct.
+- No new IO retry classifier. Only the window at 464–473 and the null-IO trampoline are allowed to differ in `run`; everything else is masked and compared.
+
+## Blockers before commit
+
+1. **The dev records claim next-command success.** `build/session-containment-dev-runtime-2.json:358` says "distinct next-command send on fresh connection". It also has no `required_session_containment` key and no containment prefix in `null_io_recovery_limits`. `build/session-containment-dev-transport.json` likewise lacks `required_session_containment` and the "Session containment supersedes…" prefix. These were made by older tool versions (runtime-2 `tool_sha256` 5c45…) and don't match the current `check_*.py`. Don't commit or cite them. The clean qualification must regenerate all of them.
+2. **`build/session-containment-dev-security.json` is empty.** Only `-security-2.json` has content (dirty, `8b03ead`). Make sure nothing cites the empty file.
+3. **Docs still make the obsolete claims, and nothing links the new doc:**
+   - `audit/REQUEST-OPERATION-SEQUENCES.md:22-24` says the security-marker path "currently retires the transport and allows the next queued transaction". Line 42 says containment is "being reviewed". Both are false for audit.14.
+   - "A distinct next request succeeds" appears under the audit.13 heading in `PLAN.md:588`, `PROTOCOL-INVENTORY.md:98`, `GAPS.md:199`, `AUDIT-BASELINE.md:273`, `ARCHITECTURE.md:215`, `DEPENDENCIES.md:144` and `ACCEPTANCE-MATRIX.md:275`. The same claim is in `audit/NULL-IO-RECOVERY.md:36` and `audit/MALFORMED-HEADER-GUARD.md:33`. It is true for audit.13, but each needs a note that audit.14 supersedes it.
+   - `SECURITY-SESSION-CONTAINMENT.md` is linked from no top-level doc. GAPS, README, ARCHITECTURE and DEPENDENCIES aren't in the modified set at all.
+
+## Non-blocking hardening (recommended)
+
+- **The javap gate doesn't check the exception table.** `assert_session_containment` checks opcodes only. A later try/catch around PC 19 would still pass, so also reject any exception-table row covering PC 19.
+- **No runtime test that shutdown precedes logging.** The `Recorder` could check `isStopped()` when it receives the marker event. `ordinaryLogging()` could also check `!m.isStopped()` in its callback, so the non-stopping ordinary path is confirmed at runtime and not only by javap.
+- **`report` line 62 calls `manager.shutdown()` without a guard.** If it throws, logging and retirement are skipped and the worker dies. That still fails closed and the design review accepted it, but the doc could say so.
+- **Stale comment.** `RejectionRecovery.java:72` refers to "original controller alternation", which can't happen once the session is stopped.
+- **Test coverage.** `test_transport_harness.py` covers `completed_null_io` with containment but not the `completed_io(..., session_containment=True)` vector, and nothing unit-tests the 143-line and `containment ` vectors in `check_architectures`.
+
+## Clean two-build qualification checklist
+
+- Commit the source, then build twice and get the same JAR hash both times. That hash must equal `expected-build.json` `fe140784…`, and `source_dirty` must be false.
+- Replace the dev anchor's `source_dirty: true` and its "Development…" reason.
+- Re-run check_security, check_transport (`--session-containment --null-io-policy --io-characterization --invalid-header-policy`) and check_architectures (`--session-containment --null-io-policy --recovery …`) on both pinned runtimes. Confirm the new records contain the containment limit strings and no "distinct next-command" or "fresh read success" text.
+- Confirm `fixture_dirty` is false in the transport record.

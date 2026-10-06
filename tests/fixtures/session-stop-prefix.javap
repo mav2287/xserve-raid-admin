@@ -1,0 +1,24 @@
+  public static final boolean STOPS_REJECTED_SESSIONS = true;
+    descriptor: Z
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+
+  public static void report(com.apple.xsr.net.CommunicationsManager, java.lang.Exception);
+    descriptor: (Lcom/apple/xsr/net/CommunicationsManager;Ljava/lang/Exception;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=3, locals=5, args_size=2
+         0: aload_1
+         1: ifnull        13
+         4: aload_1
+         5: invokevirtual #17                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         8: ldc           #2                  // class compat/UntrustedResponseException
+        10: if_acmpeq     18
+        13: aload_1
+        14: invokestatic  #32                 // Method log:(Ljava/lang/Exception;)V
+        17: return
+        18: aload_0
+        19: invokevirtual #31                 // Method com/apple/xsr/net/CommunicationsManager.shutdown:()V
+        22: aload_1
+        23: invokestatic  #32                 // Method log:(Ljava/lang/Exception;)V
+}

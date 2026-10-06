@@ -114,3 +114,8 @@ committed tool/fixture hashes, 64 passing Python tests, immutable original and
 installed reference contents/modes unchanged. Local diagnostics inspect
 [arm64](null-io-diagnostic-arm64.json) and [x64](null-io-diagnostic-x64.json) packages
 without launching Java or reading preferences. Java 11 was not rerun.
+
+
+Superseded behavior: [audit.14 session containment](SECURITY-SESSION-CONTAINMENT.md)
+stops local dispatch before callbacks on exact security markers; next-read success
+above describes the earlier audit build only. Dependent queued writes are blocked.

@@ -101,3 +101,8 @@ Clean [security](invalid-header-clean-security.json),
 [Integrity](invalid-header-final-integrity.json) confirms fixture/tool hashes,
 60 passing Python tests, immutable original digest and installed reference
 contents/modes unchanged. Java 11 was not rerun for this milestone.
+
+
+Superseded behavior: [audit.14 session containment](SECURITY-SESSION-CONTAINMENT.md)
+stops local dispatch before callbacks on exact security markers; next-read success
+above describes the earlier audit build only. Dependent queued writes are blocked.

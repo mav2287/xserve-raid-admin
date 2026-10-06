@@ -217,3 +217,13 @@ Nonnull IO classification and retries remain original; broader ambiguous mutatio
 replay, GUI sequencing and real sockets remain open. Reflection-metadata failure
 shuts dispatch down; original exit closes the source after terminal callbacks.
 No production hardware, mounted volumes or installed application are exercised.
+
+
+### audit.14 security-session containment
+
+[audit.14 containment](audit/SECURITY-SESSION-CONTAINMENT.md) supersedes audit.12/13
+next-request recovery for exact security markers. Local dispatch stops before
+logging/callbacks, so already-queued dependent writes cannot proceed after an
+unconfirmed outcome. No controller shutdown command is sent. Ordinary nonnull IO
+replay remains open. Earlier isolated next-read success is historical evidence;
+it is not the current containment behavior or whole-workflow qualification.

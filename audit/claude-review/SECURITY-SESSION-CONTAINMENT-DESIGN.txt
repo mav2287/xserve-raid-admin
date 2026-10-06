@@ -1,0 +1,24 @@
+**Verdict:** The containment is safe and narrow enough to implement now. I found no source blocker. It largely restores the original's behaviour for null-message IO, where the worker died and nothing behind the failed command was sent, and it fails more cleanly. A few of your qualification claims need narrower wording (below).
+
+**How the stop path actually behaves** (patched `run`: the null-IO trampoline jumps to PC 464, then `report`, then the -102 response at 474, the callback at 489, and back to the loop at 514)
+- **Nothing is sent after the stop.** Only the worker sends, and it checks `isStopped()` right before every send (cm:234–238). Once `stopped=true` there is no path back to `doConnect` (PC 222) or `send`. This holds even if the worker later dies.
+- **Queued transactions are drained, not sent.** The worker exits only when the queue is empty and `stopped` is set (PC 34–53). Until then, each remaining transaction goes to PC 273.
+- **`connectionFailureSent` is not a blocker.** It is reset to false after every transaction (PC 514) and is set to true only inside `doConnect` (PC 594), which is skipped once stopped. So every drained transaction gets -102 with `CommShutdownException`, and sync callers get that exception rethrown (cm:73–86).
+- **Existing evidence:** the metadata-failure fallback fixture already shows a stop draining the queue: `results=-102,-102 sends=1` (`RecoveryObservation.java:174-175`, `:180`).
+- **No new deadlock risk.** `shutdown` takes the manager lock and then the queue lock. `run` takes them in the opposite order, but only on the worker thread, and the worker holds neither lock at PC 464.
+- **The connection is closed twice.** `report` closes the retained connection, then the exit path closes the same field again (PC 534–548, which catches `Exception` only). Expect the fixture's close counts to change, and qualify a second close that fails.
+
+**Residual cases to name rather than claim as fixed**
+1. **Async posts after the worker exits.** `postMessageAsync` never checks `stopped` (cm:71–101), so these sit in the queue forever with no callback. That matches the original's worker death. The agent's polling queue also grows without limit until the `RaidSystem` is discarded.
+2. **"Sync callers unblocked" is not absolute.**
+   - There is a small race in `postMessage`: if `isStopped()` returns false (cm:0–4) and the worker then exits before `SyncSender` enqueues, the caller waits forever (seq:11224, no timeout).
+   - Callers that see `stopped` first throw immediately, and anything queued before the exit gets drained.
+   - So the accurate claim is: queued and stopped-before-post callers are unblocked; a concurrent post can still hang, as it could in the original.
+3. **Callback exceptions.** `handleResponse` at PC 509 is not covered by any handler except `InterruptedException`. If it throws (on the marker transaction or during the drain), the worker dies: the rest of the queue is stranded, waiting sync callers hang, and the exit-path close is skipped. Because `report` has already set `stopped`, closed the transport and set `connected=false` before the callback, nothing is sent either way. Please add a throwing-callback case to the fixture and qualify only "no sends" for it.
+4. **Manual reconnect can't revive this `RaidSystem`.** `comms` is assigned only in the constructor (seq:7019–7023) and nothing clears `stopped`. `RaidSystem.connect` goes through `agent.connect` to the same stopped manager. "Manual reconnect" therefore means a new `RaidSystem`, through remove/re-add or an app restart. Which UI path does that is not traced, so trace it before documenting the recovery procedure.
+
+**Ordering is correct as proposed:** stop first, then contained logging, then retiring the connection, then the -102 response, then the callback. If `shutdown` itself throws an `Error` that isn't caught, it escapes `run` and the worker dies, which still fails closed.
+
+**It stays narrow:** the stop applies only to the exact `UntrustedResponseException` class (both framing markers and `nullMessage()`). Ordinary exception reporting, the non-null IOException retry at PC 380–457, the direct CLI `sendFailure` path and the operation/poll constants are untouched. The broader replay gap stays open, as you intended.
+
+I only read static artifacts; nothing was run or edited.

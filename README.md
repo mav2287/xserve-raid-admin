@@ -125,3 +125,13 @@ uses only that runtime and a committed icon, with no temporary icon or PATH fall
 The pinned vendor Java binaries require macOS 11.0 or later; this binary floor is
 not a claim that every OS version is qualified. These remain unsigned local
 candidates, not release artifacts.
+
+
+### audit.14 security-session containment
+
+[audit.14 containment](audit/SECURITY-SESSION-CONTAINMENT.md) supersedes audit.12/13
+next-request recovery for exact security markers. Local dispatch stops before
+logging/callbacks, so already-queued dependent writes cannot proceed after an
+unconfirmed outcome. No controller shutdown command is sent. Ordinary nonnull IO
+replay remains open. Earlier isolated next-read success is historical evidence;
+it is not the current containment behavior or whole-workflow qualification.
