@@ -463,3 +463,12 @@ contacting controllers; stored/deflated closed streams explain the two observed
 retry outcomes. Next safe scope remains firmware preflight validation and broader
 response/queue fixtures, followed by isolated native UI qualification. Full hardware
 and release acceptance remains outstanding.
+
+## Official-source refinement
+
+Apple’s still-served 1.5.1 archive contains a JAR identical to the immutable
+GitHub reference. Keep the existing reference; no replacement is necessary.
+The accompanying firmware archive is pinned and inspected offline. Its optional
+full-image key is absent. Release notes state that LUN Masking was removed from
+the Advanced panel, despite remaining bytecode. Preserve intended visible 1.5.1
+behavior rather than exposing every catalogued legacy class.

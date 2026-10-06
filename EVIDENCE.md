@@ -253,3 +253,23 @@ compares forced-OFF logging with the candidate's actual default logging: command
 bytes, retries and callbacks match, and captured stderr is exactly one fixed
 error code. No raw event is emitted. The three logging probe modes and transport
 comparison remain offline; they do not establish visible GUI error handling.
+
+## Apple-served distribution and real archive observation
+
+Bounded read-only acquisition from Apple’s HTTPS server returned the 8,052,021-byte
+1.5.1 tarball, SHA-256
+`21cf7a8c4e82b925bf9df3d6ea982569bfd24148773ad8dad47f6ddc698ae2c7`.
+Its JAR exactly matches the existing immutable GitHub reference; the reference
+was not replaced. `audit/apple-distribution-acquisition.json` records provenance.
+This establishes bytes served by Apple now, without claiming a historical signature.
+
+The included firmware container SHA-256 is
+`32c077ea0ec50a944a996b72978f6d7b9585d17603da847fd4317ebc364dd9a7`.
+Its manifest identifies coprocessor 1.5.1 and RAID-controller 1.51c, dated
+12/08/2006. The full-image key is absent. Original and candidate wrapper reads
+match independent Python image hashes on both pinned runtimes; the updater,
+controller model and command classes are not constructed by this probe.
+
+Release notes confirm LUN Masking was removed from the Advanced panel and that
+firmware updates alter caches and restart the RAID. These refine preservation
+requirements and restricted-operation scope; no such operation was performed.

@@ -4,7 +4,7 @@
 
 | File | Ownership / role | Observed limits |
 |---|---|---|
-| `original/RAID_Admin_original.jar` | Apple-origin candidate plus vendored Java dependencies; immutable hash-guarded input | Official acquisition and redistribution provenance unresolved |
+| `original/RAID_Admin_original.jar` | Apple-origin candidate plus vendored Java dependencies; immutable hash-guarded input | Matches Apple-served 1.5.1 distribution; redistribution rights remain unresolved |
 | `original/RAIDAdmin.icns`, `RAIDAdminFirmware.icns` | Candidate original icons; match installed icons | Provenance inherited from repository |
 | `patches/Launcher.java` | Modernization: Aqua/Swing color defaults, then calls original `com.apple.xsr.Main` | Catches and suppresses LAF exceptions |
 | `patches/com/apple/eio/FileManager.java` | Modernization: folder mapping, Desktop/open URL bridge, file metadata no-ops | Ignores folder domain, missing original overloads, silent mkdir failure, metadata is not preserved |
@@ -106,3 +106,13 @@ configuration is preserved except its root assignment and an appended appender
 declaration; `audit/logging-patches.json` pins both versions. No other log4j
 class or resource changes. Reflection/external reconfiguration remain outside
 this static result. All controller command, polling and retry code is unchanged.
+
+## Official distribution refinements
+
+Apple’s 1.5.1 release notes explicitly remove LUN Masking from the Advanced panel.
+The static catalog still contains related classes and request methods; their
+presence is not evidence of intended visible UI. Preserve that distinction.
+The official `.xfb` has update-image entries for the coprocessor and RAID
+controller, with no coprocessor full-image key. The updater treats these manifest
+keys conditionally and transmits from hardcoded updateROM.bin paths; the package
+paths match those literals. No transmission was invoked.

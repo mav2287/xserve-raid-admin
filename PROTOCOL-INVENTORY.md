@@ -2,7 +2,7 @@
 
 ## Evidence and boundaries
 
-Facts below derive from the hash-verified candidate JAR, its `javap -c -p -constants` disassembly and network-denied fixtures. [CONTROLLER-OPERATIONS.md](audit/CONTROLLER-OPERATIONS.md) lists all **59 factory overloads**, with command, endpoint and parameter/default literals. [static-inventory.json](audit/static-inventory.json) records methods and call sites. No method was invoked against a controller; firmware request construction/transfer was not exercised.
+Facts below derive from the hash-verified candidate JAR, its `javap -c -p -constants` disassembly and network-denied fixtures. [CONTROLLER-OPERATIONS.md](audit/CONTROLLER-OPERATIONS.md) lists all **59 factory overloads**, with command, endpoint and parameter/default literals. [static-inventory.json](audit/static-inventory.json) records methods and call sites. No method was invoked against a controller. Synthetic request serialization and retry tests use memory only; no firmware transmission occurred.
 
 ## Transport
 
@@ -37,7 +37,7 @@ Polling/retry facts: `RaidSystemAgent.DEFAULT_POLLING_DELAY=15000`; `Communicati
 
 ## Firmware
 
-`FirmwareBundleConnection`, `FirmwareUpdater`, `FirmwareUpdatePane` and `UpdateFirmwareRequest` implement loading, chooser, selection, progress and transfer. Manifest keys include `firmware-version`, `firmware-date`, `xserveraid-raid-controller-update-image`, `xserveraid-coprocessor-full-image`, and `xserveraid-coprocessor-update-image`; expected paths include `raid-controller/updateROM.bin` and `coprocessor/updateROM.bin`. A RAID firmware version header is conditionally added. No authoritative good `.xfb` was supplied; no preflight or transfer success is claimed. Host signature verification and controller-side validation remain distinct unresolved questions.
+`FirmwareBundleConnection`, `FirmwareUpdater`, `FirmwareUpdatePane` and `UpdateFirmwareRequest` implement loading, chooser, selection, progress and transfer. Manifest keys include `firmware-version`, `firmware-date`, `xserveraid-raid-controller-update-image`, `xserveraid-coprocessor-full-image`, and `xserveraid-coprocessor-update-image`; expected paths include `raid-controller/updateROM.bin` and `coprocessor/updateROM.bin`. A RAID firmware version header is conditionally added. An Apple-served `firmware-1.5.1-1.51.xfb` is now acquired and hash-pinned. Guarded wrapper tests check its metadata and image hashes on both pinned runtimes; preflight UI and transfer remain unqualified. The full-image key is absent in this package and must not be made mandatory. Host signature verification and controller-side validation remain distinct unresolved questions.
 
 ## Discovery, OS and other network surfaces
 
@@ -48,3 +48,8 @@ Polling/retry facts: `RaidSystemAgent.DEFAULT_POLLING_DELAY=15000`; `Communicati
 [Parity results](audit/parity-results.txt) cover ten credential-free read factories serialized through the original `HttpRequest` plus synthetic in-memory HTTP response replay. The entire process denies network connections. Original/installed/audit outputs match under the locked JDK. ACP header injection, actual sockets, persistence, timeouts, UI, polling and hardware are outside this test. No genuine controller fixture has been obtained.
 
 [CAPTURE-PROCEDURE.md](CAPTURE-PROCEDURE.md) defines a narrow metadata-only capture without raw credential-bearing pcap files. Full wire equivalence remains **not run**. A future comparison must retain verb/path, nonsensitive headers, order, sanitized bodies, timings, reuse and terminal UI result while omitting credentials before any persistence. Do not turn legacy debug logging on or store raw HTTP captures.
+
+The 1.5.1 release notes say LUN Masking was removed from the Advanced panel.
+Legacy protocol/class presence does not authorize restoring that UI. The same
+notes confirm controller/disk cache changes and an automatic RAID restart during
+firmware updates. All remain restricted hardware operations.

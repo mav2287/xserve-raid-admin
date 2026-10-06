@@ -145,7 +145,7 @@ def main():
             components.append({'name':name,'version':version,'license_evidence':license_name,'files':files,'component_tree_sha256':tree_hash(files)})
         known={n for c in components for n in c['files']}
         components.append({'name':'Other resources and notices','version':None,'license_evidence':'NOASSERTION','files':{n:h for n,h in hashes.items() if n not in known}})
-        sbom={'format':'project inventory schema 1 (not asserted SPDX/CycloneDX conformant)','scope':'vendored JAR entries; build JDK separately in jdk-lock.json; no bundled runtime','hash_definition':'component hash = SHA256 canonical JSON relative entry to SHA256; not upstream distribution checksum','jar_sha256':result['jar_sha256'],'components':components}
+        sbom={'format':'project inventory schema 1 (not asserted SPDX/CycloneDX conformant)','scope':'immutable JAR entries; compiler and packaged runtimes separately inventoried in jdk-lock.json and runtime-lock.json','hash_definition':'component hash = SHA256 canonical JSON relative entry to SHA256; not upstream distribution checksum','jar_sha256':result['jar_sha256'],'components':components,'acquisition_evidence':'apple-distribution-acquisition.json'}
         (out / 'sbom.json').write_text(json.dumps(sbom,indent=2)+'\n')
         print(json.dumps({'classes':len(classes),'methods':len(methods),'factory_overloads':len(factory),'ui_resource_keys':len(keys),'jar_entries':len(hashes),'request_call_sites':len(sites),'platform_name_collisions':len(collisions)}))
 

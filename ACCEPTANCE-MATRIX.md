@@ -51,7 +51,7 @@ observable expected result, not the absence of an error dialog.
 | Power | Reconnect after controller restart |  |  |  |  | Not run |
 | Firmware | Reject wrong extension/type visibly |  |  | N/A | Emulator | Not run |
 | Firmware | Reject malformed archive visibly |  |  | N/A | Emulator | Not run |
-| Firmware | Parse known-good `.xfb` and show metadata |  |  | N/A | Offline | Not run |
+| Firmware | Parse known-good `.xfb` and show metadata | Apple-served 1.5.1 archive pinned | Wrapper metadata/image hashes pass; display untested | N/A | Offline only | Partial; preflight UI open |
 | Firmware | Confirm exact images before transfer |  |  | N/A | Offline | Not run |
 | Firmware | Transfer progress is visible |  |  |  |  | Not run |
 | Firmware | Controller acknowledgement is verified |  |  |  |  | Not run |

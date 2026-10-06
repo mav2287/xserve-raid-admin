@@ -1,6 +1,6 @@
 {
   "format": "project inventory schema 1 (not asserted SPDX/CycloneDX conformant)",
-  "scope": "vendored JAR entries; build JDK separately in jdk-lock.json; no bundled runtime",
+  "scope": "immutable JAR entries; compiler and packaged runtimes separately inventoried in jdk-lock.json and runtime-lock.json",
   "hash_definition": "component hash = SHA256 canonical JSON relative entry to SHA256; not upstream distribution checksum",
   "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
   "components": [
@@ -3150,5 +3150,6 @@
         "runtime.README.txt": "df6cfcab0381a41dae93664a9669a337ae51a479fd6ce134f1ef2f4c33130697"
       }
     }
-  ]
+  ],
+  "acquisition_evidence": "apple-distribution-acquisition.json"
 }

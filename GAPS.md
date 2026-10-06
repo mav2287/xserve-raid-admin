@@ -4,7 +4,7 @@ Local issue IDs are stable evidence references; no remote issues were filed.
 
 ## G01 — Original provenance and installed/source divergence
 
-Repository original is hash-verified but not authenticated to an Apple download. Installed patches differ from source, including extra MRJ helpers and a different FileManager replacement. The starting EVIDENCE.md JAR digest is only 62 hex characters and cannot authenticate a historical artifact; the launcher hash does match. A transcription error is inferred, not proven. The user has accepted the GitHub JAR as the project baseline: historical digest investigation is closed for this work. Installed/source behavioral divergence remains relevant. See AUDIT-BASELINE.md and entry-diff JSON.
+The repository original now matches the JAR served in Apple’s 1.5.1 download byte-for-byte; see `audit/apple-distribution-acquisition.json`. This is current HTTPS acquisition evidence, not an independently verified historical signature. Installed patches differ from source, including extra MRJ helpers and a different FileManager replacement. The starting EVIDENCE.md JAR digest is only 62 hex characters and cannot authenticate a historical artifact; the launcher hash does match. A transcription error is inferred, not proven. The user has accepted the GitHub JAR as the project baseline: historical digest investigation is closed for this work. Installed/source behavioral divergence remains relevant. See AUDIT-BASELINE.md and entry-diff JSON.
 
 ## G02 — Runtime and classloading
 
@@ -30,7 +30,7 @@ Discovery, roles/authentication, polling, timing, persistence, reconnect, sleep/
 
 ## G07 — Firmware and mutation safety
 
-No known-good firmware package or hardware maintenance context supplied. Preflight, visible errors, confirmation, transfer, acknowledgement, restart and final-version validation remain unqualified. Original updater bytecode also disables/restores disk and controller caches; firmware approval must explicitly cover these ancillary restricted actions. Array/cache/network/power/diagnostic mutations are not authorized for execution without immediate confirmation.
+The Apple-served 1.5.1 package is now acquired and pinned for offline inspection. No hardware maintenance context is available. Guarded wrapper tests read its metadata and both image hashes identically on both pinned runtimes. Preflight UI, visible errors, confirmation, transfer, acknowledgement, restart and final-version validation remain unqualified. Original updater bytecode also disables/restores disk and controller caches; firmware approval must explicitly cover these ancillary restricted actions. Array/cache/network/power/diagnostic mutations are not authorized for execution without immediate confirmation.
 
 ## G08 — Release engineering
 

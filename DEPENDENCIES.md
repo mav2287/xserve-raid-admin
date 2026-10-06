@@ -4,7 +4,7 @@
 
 | Component | Observed version | Evidence / license status |
 |---|---|---|
-| Apple application/support | 1.5.1, development 1.5.1GMc5 | Versions.properties; Apple license images present; official provenance/redistribution unresolved |
+| Apple application/support | 1.5.1, development 1.5.1GMc5 | Versions.properties; Apple license images present; matches JAR in Apple-served 1.5.1 archive; redistribution rights unresolved |
 | JmDNS | 0.2 | JmDNS static VERSION initializer; license not established from this intake |
 | Xerces | 2.0.0 | `org.apache.xerces.impl.Version` literal; exact distribution/license provenance unresolved |
 | Xalan | 2.3.0 | XSLProcessorVersion initializer; XML/XPath helpers bundled; exact distribution/license provenance unresolved |
@@ -40,3 +40,13 @@ The full vendor JDK bundle and its LICENSE, ASSEMBLY_EXCEPTION and
 THIRD_PARTY_README files are preserved. Public redistribution/source-availability
 requirements and the application's legacy dependencies still require resolution
 before publication. The runtime is local to the build; no system JDK was replaced.
+
+## Apple-served acquisition evidence
+
+`audit/apple-distribution-acquisition.json` records the bounded HTTPS acquisition
+of the [1.5.1 distribution](https://download.info.apple.com/Mac_OS_X/061-2942.20070123.xRaTg/RAIDAdmin1.5.1.tar.gz),
+archive/member hashes, response metadata and exact inspection tool identity.
+Its JAR matches the immutable repository reference. Firmware binaries remain
+in ignored local cache; only metadata and hashes enter Git. This narrows original
+acquisition uncertainty without asserting redistribution rights or a historical
+package signature.
