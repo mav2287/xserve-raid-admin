@@ -19,6 +19,7 @@ TARGETS = {
         ('8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37', 'toString', '()Ljava/lang/String;'),
 }
 SECONDARY = {'com/apple/xsr/net/CommunicationsManager.class': ('doConnect','(Lcom/apple/xsr/net/CommunicationHandler;)V',0x0002)}
+AUDIT18_MANAGER_SHA256='a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893'
 AUDIT17_MANAGER_SHA256='7c07f4c31a6104f52ee151e07141296d5b59ef33fa5105b895c6504c58ac2a1c'
 EXPECTED_ACCESS = {entry: (0x000c if name == 'getParser' else 0x0001)
                    for entry, (_, name, _) in TARGETS.items()}
@@ -52,7 +53,9 @@ class ClassFile:
         at += 6
         at += 2 + 2 * u2(data, at)
         field_count = u2(data, at); at += 2
-        for _ in range(field_count): _, at = self.member(at)
+        self.fields=[]
+        for _ in range(field_count):
+            member,at=self.member(at);self.fields.append(member)
         method_count = u2(data, at); at += 2
         self.methods = []
         for _ in range(method_count):
@@ -185,6 +188,13 @@ def transform(entry, data):
             tail.extend(data[cursor:eb]);tail.extend(value);cursor=ee
         tail.extend(data[cursor:])
         result=data[:8]+word(next_index)+data[10:cls.pool_end]+bytes(extra)+bytes(tail)
+        if name=='run':
+            current=ClassFile(result);stopped=next(f for f in current.fields if f['name']=='stopped');worker=next(m for m in current.methods if m['name']=='run');_,rb,re=next(a for a in worker['attributes'] if a[0]=='Code')
+            changed=bytearray(result)
+            if stopped['access']!=2 or any(result[rb+14+pc:rb+14+pc+3]!=bytes.fromhex('b6001b') for pc in (18,45)):raise ValueError('Original stop lock windows differ')
+            changed[stopped['start']:stopped['start']+2]=word(0x42)
+            for pc in (18,45):changed[rb+14+pc:rb+14+pc+3]=bytes.fromhex('b4000b')
+            result=bytes(changed)
         assert_preserved(data,result,name,descriptor);assert_recovery_edit(data,result,name)
         return result
     if name == 'getBody':
@@ -286,6 +296,7 @@ def transform(entry, data):
 
 
 def assert_preserved(before, after, name, descriptor):
+    if name=='run':after=assert_stop_lock_order(before,after)
     old, new = ClassFile(before), ClassFile(after)
     if before[:8] != after[:8] or after[10:old.pool_end] != before[10:old.pool_end]:
         raise ValueError('Original class version or constant pool changed')
@@ -386,6 +397,7 @@ def assert_header_insertion(before,after):
 
 
 def assert_recovery_edit(before,after,name):
+    if name=='run' and stop_is_volatile(after):after=assert_stop_lock_order(before,after)
     old,new=ClassFile(before),ClassFile(after)
     def attribute(cls,data):
         m=next(m for m in cls.methods if m['name']==name)
@@ -448,6 +460,7 @@ def assert_sync_preenqueue(before,after):
 
 
 def assert_connect_failure_stop(before,after):
+    if stop_is_volatile(after):after=assert_stop_lock_order(before,after)
     old,new=ClassFile(before),ClassFile(after)
     def locate(cls,name):
         ms=[m for m in cls.methods if m['name']==name]
@@ -470,3 +483,28 @@ def assert_connect_failure_stop(before,after):
     for index,owner,name,descriptor in ((13,'com/apple/xsr/net/CommunicationsManager','connectionFailureSent','Z'),(14,'com/apple/xsr/net/CommunicationsManager','system','Lcom/apple/xsr/som/RaidSystem;'),(38,'com/apple/xsr/net/CommunicationsManager','logger','Lorg/apache/log4j/Logger;')):
         tag,v=new.pool[index];ot,ov=new.pool[u2(v,0)];nt,nv=new.pool[u2(v,2)]
         if tag!=9 or ot!=7 or new.text(u2(ov,0))!=owner or nt!=12 or new.text(u2(nv,0))!=name or new.text(u2(nv,2))!=descriptor:raise ValueError('Connect original field target differs')
+
+
+def stop_is_volatile(data):
+    fields=[f for f in ClassFile(data).fields if f['name']=='stopped' and f['descriptor']=='Z']
+    if len(fields)!=1:raise ValueError('Stopped field identity differs')
+    return bool(fields[0]['access']&0x40)
+
+
+def assert_stop_lock_order(before,after):
+    """Restore two reads and one field flag to reconstruct the entire audit.18 class."""
+    if hashlib.sha256(before).hexdigest()!=TARGETS['com/apple/xsr/net/CommunicationsManager.class'][0]:raise ValueError('Original Manager reference differs')
+    new=ClassFile(after)
+    fields=[f for f in new.fields if f['name']=='stopped' and f['descriptor']=='Z']
+    if len(fields)!=1 or fields[0]['access']!=0x42:raise ValueError('Stopped field must be private volatile only')
+    field=fields[0];run=next(m for m in new.methods if m['name']=='run');_,b,e=next(a for a in run['attributes'] if a[0]=='Code')
+    if u4(after,b+10)!=595 or after[b+6:b+10]!=bytes.fromhex('00060009'):raise ValueError('Stop lock worker frame differs')
+    for pc in (18,45):
+        if after[b+14+pc:b+14+pc+3]!=bytes.fromhex('b4000b'):raise ValueError('Queue stop read must use direct field')
+    tag,v=new.pool[11];ot,ov=new.pool[u2(v,0)];nt,nv=new.pool[u2(v,2)]
+    if tag!=9 or ot!=7 or new.text(u2(ov,0))!='com/apple/xsr/net/CommunicationsManager' or nt!=12 or new.text(u2(nv,0))!='stopped' or new.text(u2(nv,2))!='Z':raise ValueError('Direct stop field target differs')
+    restored=bytearray(after);restored[field['start']:field['start']+2]=word(2)
+    for pc in (18,45):restored[b+14+pc:b+14+pc+3]=bytes.fromhex('b6001b')
+    restored=bytes(restored)
+    if hashlib.sha256(restored).hexdigest()!=AUDIT18_MANAGER_SHA256:raise ValueError('Class differs from audit.18 outside stop lock edits')
+    return restored

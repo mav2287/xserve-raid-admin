@@ -13,6 +13,7 @@ public final class RejectionRecovery {
     public static final boolean TERMINATES_AMBIGUOUS_IO = true;
     public static final boolean STOPS_OPERATION_FAILURES = true;
     public static final boolean STOPS_REPORTED_CONNECT_FAILURES = true;
+    public static final boolean AVOIDS_STOP_LOCK_INVERSION = true;
     /** The controller may have acted; never retain an untrusted cause chain. */
     public static Exception nullMessage() {
         return new UntrustedResponseException("Response transport failed; outcome is unconfirmed");

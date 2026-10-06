@@ -1,0 +1,47 @@
+**Short answer:** yes. Phase B on its own removes the lock inversion and keeps the queue exit logic as it is. I found no hard blockers. The test plan needs one correction: in the fully restored class, your PC45 control actually blocks at PC18, so it can't tell you anything about PC45 (details below).
+
+I checked this against `tests/fixtures/connect-stop-candidate.javap`, `patches/compat/RejectionRecovery.java` and the existing `ConnectFailureObservation` harness. I ran nothing.
+
+## Is standalone B safe?
+- **The inversion is gone.** The only places that take the manager lock while holding the queue lock are run PC18 and PC45 (`2a b6 00 1b` at offsets 17 and 44). Constant pool entry `#11` (`stopped:Z`) already exists, so the pool stays byte-identical. The swap from `b6 00 1b` to `b4 00 0b` keeps the same length and the same stack effect, and the exception table doesn't change.
+- **No lost wakeup.** The PC18 read and the `wait()` both happen inside one queue critical section. `shutdown()` does its write at PC2 and only then its `notifyAll` under the queue lock (PC11–16). With `stopped` volatile, the worker either sees `true` at PC18 or is already waiting when the notify arrives.
+- **Exit logic is unchanged.** PC38 checks `size==0` and PC45 checks stopped, both under the queue lock. Any post that finished before then is seen at PC38.
+- **Dropping the manager lock on the exit path is harmless.** After exit, the code at PC534–545 reads `connection` without a lock. The only code that writes it is `doConnect` PC424, which runs on the worker thread itself. `retireConnection` only reads `connection` and writes `connected` under the manager lock, and the exit path never reads `connected`.
+- **Volatile is still required.** The design's JMM argument holds. Shutdown's bytecode doesn't change. `isStopped` at PC223/235, `postMessage` PC1 and doConnect stay as they are.
+
+## Test design correction (PC45 attribution)
+PC45 can only be reached after PC18 returns true within the same queue critical section. A non-empty queue at PC14 skips PC45, because PC38 also sees it non-empty. So in the fully restored class, your "stopped true" control blocks at **PC18**. Use two mutants that each restore one window:
+
+| Variant | PC18 control (stopped false) | PC45 control (stopped true) |
+|---|---|---|
+| Candidate | worker WAITING on queue → completes | worker TERMINATED while holder still holds manager |
+| Original (both restored) | BLOCKED on manager → deadlock pair | BLOCKED (at PC18) → deadlock pair |
+| Only PC18 restored | deadlock pair | deadlock pair |
+| Only PC45 restored | **WAITING → completes** (the expected result for this mutant) | deadlock pair |
+
+The only-PC45 row shows the windows are attributed to the right sites, with no stack traces.
+
+**Harness details:**
+- Allocate the manager with `Unsafe.allocateInstance`, then set the `queue` field to an empty `LinkedList`. This follows the pattern at `tests/java/com/apple/xsr/net/ConnectFailureObservation.java:47` and skips the constructor's self-starting thread. Leave `connection` null so the exit tail never calls `close`. Set the log4j threshold to OFF before loading the class, as at line 38.
+- The worker is a daemon `new Thread(manager)`. The holder is a daemon that runs `synchronized(manager){ latch.await(); manager.shutdown(); }`. Use a latch or park, never `manager.wait()`, which would release the lock.
+- In the PC45 control, the holder calls `shutdown()` before the worker starts. The call is re-entrant and the queue is free at that point.
+- Read thread state with `getThreadInfo(id, 0)`, which returns lock info but no stack frames. Check:
+  - `LockInfo.getIdentityHashCode()` equals `identityHashCode(manager)` or `identityHashCode(queue)`;
+  - `getLockOwnerId()` is the holder (BLOCKED case) or −1 (WAITING case).
+- Positive deadlock evidence requires `findDeadlockedThreads` to return exactly `{worker, holder}`. Polling until a parent-watchdog deadline that expires is a **failure**.
+- Deadlocked monitors can't be interrupted, so the negative processes rely on every leftover thread being a daemon, then exit normally. Print fixed labels only.
+
+## Static gates
+- javap shows `stopped` with exactly `ACC_PRIVATE, ACC_VOLATILE` (`0x0042`).
+- `run` differs from the original only at bytes 18..20 and 45..47.
+- Every other method and the constant pool are byte-identical.
+- Restoring the field flag to `0x0002` and both windows to `b6 00 1b` gives the audit.18 Manager `a928b493…`. That then reconstructs audit.17 `7c07f4c3…` (`tools/class_patch.py:22`).
+- A JAR-wide inventory finds no class whose superclass is `CommunicationsManager`. This matters because PC18/45 would bypass any `isStopped` override. `RejectionRecovery.shutdownRequired` already rejects subclasses at line 60, but the stop path at line 55 doesn't. Repeat the inventory across the whole GUI classpath, not just this JAR.
+
+## Residuals to disclose
+- **Posts that strand after a normal worker exit:** unchanged, because Phase A is deferred.
+- **Abnormal worker death:** a callback throwing at PC509, an Error, or an interrupt still strands posts.
+- **Callback timing and refusal:** unchanged, because B adds no refusal.
+- **`isStopped` override bypass:** covered only by the inventory above.
+- **Message `clone()` / Transaction code inside the queue lock:** the claim that PC18/45 are the only reverse-lock sites covers Manager bytecode only.
+- **Phase A prerequisites:** GUI re-post and lock-holding caller source are still unreviewed.

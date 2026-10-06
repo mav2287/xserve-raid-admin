@@ -1,0 +1,106 @@
+# Design review: refusing late async posts and the stopped-check/enqueue/exit race
+
+**Verdict:** Your hypothesis is mostly sound, but it needs four corrections:
+
+1. It is really two fixes. Each can be reviewed and given negative controls on its own:
+   - **Phase A:** refuse the enqueue inside the queue monitor.
+   - **Phase B:** remove the queue→manager lock inversion.
+2. Making `stopped` volatile is required for Phase B only. Phase A is correct without it.
+3. The worker thread needs an exemption from refusal.
+4. The caller-thread timing change cannot be limited to formerly stranded posts unless you add new state.
+
+Everything below comes from the javap fixtures, `class_patch.py` and `RejectionRecovery.java`. I ran nothing.
+
+## Facts (offsets from the connect-stop candidate, which match the original in these methods)
+
+- **`postMessageAsync(H,M,Object)`** (56 bytes, stack 6, locals 6): runs `monitorenter queue` at PC7. Inside the monitor it does `clone()` at PC18, builds the Transaction at PC27, then `add` and `pop` at PC30–33 (`b6 00 19 57`) and `notifyAll` at PC38. The handler rows are `8–44→47` and `47–52→47`. It never checks `stopped`.
+- **`postMessage`**: calls the synchronized `isStopped()` at PC1, with no queue lock held, and throws a new `CommShutdownException` if stopped. It clones at PC21 before building the SyncSender.
+- **`shutdown()`**: is synchronized on the manager. It does `putfield stopped` at PC2, then `monitorenter queue` at PC11, then `notifyAll`. So the lock order is **manager→queue**. `exit()` and `RejectionRecovery.shutdownRequired/stop` take the same order.
+- **`run()` with the queue monitor held** (PC6–68): it calls `isStopped()` (needs the manager lock) at **PC18** (bytes 17..20 = `2a b6 00 1b`) and at **PC45** (bytes 44..47). The order here is **queue→manager**. These are the only two reverse-lock sites. I checked the others:
+  - run PC384 (manager) and PC411 (queue, `addFirst` only) do not nest.
+  - doConnect PC447/504 take the manager lock only.
+  - `retireConnection` takes `synchronized(manager)` with no queue lock held.
+  - `isStopped` at run PC223/235 is called with no lock held.
+- **Normal worker exit** happens only at PC44–53, when `size==0` and stopped are both seen under the queue monitor.
+- **Draining after stop:** `isStopped` at PC235 is true, so PC273–302 builds `BasicResponse(2,null,-102,new CommShutdownException)`, and PC489–509 calls back only if the handler and the response are both non-null.
+- **Abnormal worker exits that leave `stopped==false`:**
+  - The callback at PC509 is covered only by the `0–522 InterruptedException` row, so a callback that throws a RuntimeException or Error kills the worker.
+  - An interrupt exits through PC525.
+- **SyncSender candidate:** it calls `postMessageAsync` at PC132, outside its own monitor, and then checks `handled` at PC24. A response delivered on the caller thread before PC23 is therefore consumed with no wait. The worker-thread ISE check at PC109–128 comes before enqueue.
+
+## Corrections to the hypothesis
+
+**1. Phase A does not need volatile.** Consider a poster that reads `stopped` with a plain `getfield` under the queue monitor, while the worker keeps `isStopped()`:
+- If the worker exited at PC45, it read `true` under the manager lock, which orders it after the shutdown write. It then released the queue at PC52, so any later poster that acquires the queue must see `true`.
+- If the poster enqueued first, the worker's later check sees `size>0`.
+- `stopped` is monotonic: its only writes are the constructor at PC17 and shutdown at PC2.
+
+**2. Phase B requires volatile.** If PC18/45 become plain `getfield`, the worker can read `true` from a racing write that has no happens-before edge. Under the Java memory model, a later poster can then still legally read the constructor's `false`, enqueue after the worker has exited, and strand. With `ACC_VOLATILE` on `stopped`, the worker's read synchronizes with the write, and the queue monitor carries that ordering to the poster. Shutdown's bytecode stays unchanged; its `putfield` simply becomes a volatile write.
+
+**3. Exempt the worker thread.** Without it, an async post made from a callback after stop would run `handleResponse` re-entrantly inside the outer callback. A handler that re-posts would turn the original livelock into a StackOverflowError. The worker is alive by definition here and drains after the callback returns, so the original enqueue is safe for it.
+
+**4. Callback timing.** "Refuse if stopped" also refuses posts that a still-draining worker would have answered. Limiting the timing change to only formerly stranded posts would need a new field set under the queue monitor at run PC51. That is a broader change and still would not cover abnormal worker death. My recommendation is to accept the change and document it as: *any non-worker async post that sees stopped under the queue monitor gets its −102 callback on the caller thread before `postMessageAsync` returns.* Its −102 may arrive before −102s for earlier queued items.
+
+## Recommended patch
+
+**Phase A: `postMessageAsync`**
+- At PC30..33, replace `b6 00 19 57` with `a7 00 1a 00` (goto 56, then nop).
+- Append the following, giving a code length of 126 with stack and locals unchanged at 6/6:
+
+```
+56  2a b4 00 0b        getfield stopped         (never isStopped(): that would add a third inversion)
+60  99 00 3b           ifeq 119
+63  b8 NN NN           invokestatic Thread.currentThread   (new pool entries appended after the existing ones)
+66  2a b4 00 01        getfield thread
+70  a5 00 31           if_acmpeq 119
+73  58                 pop2                     (discard the queue and the already-built Transaction)
+74  19 04 c3           aload 4; monitorexit
+77  2b c6 00 28        aload_1; ifnull 118      (null handler: no callback, matching run PC490)
+81  bb001c 59 b7001d 3a05             new CommShutdownException → local 5
+90  bb0042 59 05 01 109a 1905 b70044 3a05   BasicResponse(2,null,-102,e)  (same bytes as run PC280–302, but local 5)
+105 2b 2a b4000e 1905 2d b9004e0400  handleResponse(system, r, context)
+118 b1                 return
+119 b6 00 19 57 a7 ff a7   add; pop; goto 34    (original notifyAll / monitorexit path)
+```
+
+- Append two exception rows to handler 47 (any): `[56,77)` and `[119,126)`. The refusal callback stays uncovered, so it runs with no monitor held.
+- Clone before the check (original order). This keeps NPE/clone exceptions for every input, at the cost of one discarded clone on refusal.
+- If the callback throws, let it propagate to the caller. That replaces the original outcome, where the worker died or the post stranded.
+
+**Phase B: `run` and the field flag**
+- At `run` bytes PC18..20 and PC45..47, change `b6 00 1b` to `b4 00 0b` (same length, same stack effect, exception table unchanged).
+- Change the `stopped` field's access flags from `0x0002` to `0x0042`.
+- Keep `isStopped` at `run` PC223/235, `postMessage` PC1, doConnect, and everything in shutdown.
+
+**Gate impact in `class_patch.py`:**
+- `assert_preserved` (line 294) currently requires the field region to be byte-identical, and non-target methods to be identical.
+- The audit.17 baseline at line 468 replaces doConnect only.
+- Both checks need a chained reconstruction: restore the field flag, the two 3-byte windows and the `postMessageAsync` Code, and drop the appended pool entries. The result should equal the audit.18 Manager `a928b493…`, which then reconstructs audit.17 `7c07f4c3…` as before.
+
+## Negative controls (each mutant must pass the verifier)
+
+| Mutant | Deterministic scenario | Unsafe evidence |
+|---|---|---|
+| A0: original | Shutdown, `join` the worker, then post async | Worker TERMINATED, queue size 1, zero callbacks |
+| A1: `ifeq`→goto (never refuse) | Same | Same as A0 |
+| A2: check before `monitorenter` | A clone shadow blocks; shutdown and worker exit happen meanwhile | Stranded item |
+| A3: `monitorexit` after the callback | Handler records `Thread.holdsLock(queue)` | true (candidate: false) |
+| A4: no thread exemption | A worker callback posts async after stop | Nested callback depth 2 (candidate: 1, delivered after return) |
+| Sync race, original | The `postMessage` PC21 clone blocks after the PC1 check passes; shutdown; join the worker; release | Waiter WAITING on SyncSender, worker TERMINATED, queue size 1, then interrupt to clean up. This is a positively observed state, not a timeout. |
+| B1/B2: revert PC18 or PC45 only | Thread T holds `synchronized(mgr)`. For PC18 it simulates a spurious wakeup with a queue `notifyAll`; for PC45 it calls `shutdown()`. Then it calls `shutdown()` or `exit()` | `ThreadMXBean.findDeadlockedThreads` reports worker and T. The candidate completes. |
+
+Candidate assertions:
+- Exactly one callback, with identical system and context, type 2, code −102, exception class exactly `CommShutdownException`.
+- Synchronous late posts throw `CommShutdownException`.
+- The pre-stop PC1 path is unchanged.
+- The clone count is recorded.
+
+Volatile cannot be shown by a test; check it statically. Errors and timeouts still never count as a pass.
+
+## Residuals to disclose (not fixed)
+
+- **Abnormal worker death:** if a callback throws at run PC509, an Error occurs, or the worker is interrupted, `stopped` stays false and posts still strand. Fixing that needs an exit-path edit that sets stopped and drains, which is broader.
+- **Re-posting handlers:** a non-worker handler that re-posts on −102 now recurses on the caller thread. Check this against the GUI handler source before qualifying.
+- **Callers holding the manager lock:** a caller that posts while holding the manager's monitor would run the callback under that lock. This can't be checked from these files.
+- **`isStopped` overrides:** a subclass override would be bypassed at PC18/45. Have the gate confirm that no subclass exists in the JAR.
+- **Unchanged:** interrupted synchronous waits and `connectionFailureSent` skipping the callback are as before.

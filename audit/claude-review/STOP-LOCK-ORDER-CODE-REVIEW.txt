@@ -1,0 +1,44 @@
+I found no blockers in the Phase B scope. I only read files: no commands, edits, hardware or credentials.
+
+## Checked and holding
+
+**`assert_stop_lock_order` (`tools/class_patch.py:494`)**
+- The original is pinned by hash.
+- `stopped` must be exactly `0x0042`, and PC18 and PC45 must both be exactly `b4000b`.
+- Pool `#11` is checked as `CommunicationsManager.stopped:Z`.
+- After restoring the field flag and the two windows, the whole class must hash to `a928…`.
+- None of the edited bytes change the class layout, so they sit at the same offsets in the candidate and in audit.18. That leaves exactly one candidate that can pass.
+- `assert_preserved` (`:299`) always normalizes `run`. `assert_connect_failure_stop` and `assert_recovery_edit` normalize only when the field is volatile. Either path ends in a full reconstruction, so neither can be used to skip the check. The audit.17 `7c07…` reconstruction of `doConnect` still runs on the restored class.
+
+**javap gate (`tools/check_security.py:128-173`)**
+- It checks that the volatile field line appears exactly once, with flags `ACC_PRIVATE, ACC_VOLATILE` and nothing else on that line.
+- Each `getfield #11` read at 18 and 45 must appear exactly once in the `run` section only.
+- If the `volatile` declaration is missing, the field section or the masked `run` comparison fails.
+- The test mutations in `tests/test_stop_lock.py:45` cover each of these cases.
+
+**Scope**
+- `RejectionRecovery` only gains the `AVOIDS_STOP_LOCK_INVERSION` constant. Callbacks, admission, `shutdown`, `isStopped` and `postMessage` are unchanged.
+
+**Harness (`tests/java/com/apple/xsr/net/StopLockObservation.java`)**
+- The CodeSource and class-hash pin runs before `allocateInstance`, which is the first point where the Manager's static initializer runs. The class literal and resource read don't initialize it.
+- Log4j and OfflineGuard initialize earlier, but they come from the pinned JAR or the allowlisted fixture classes. The no-shadowing check is at `tools/check_stop_lock.py:64`.
+- `shutdown` is `synchronized`, so the holder's call to it is re-entrant.
+- In the deadlock case, the holder is blocked at `monitorenter queue` (shutdown PC11) while the worker is BLOCKED on the manager, owned by the holder.
+- The safe PC18 case requires WAITING with owner −1 on the queue's identity.
+- Deadlock evidence requires `findDeadlockedThreads` to return exactly that pair. A timeout or error never counts as a pass.
+- The pc45-restored mutant running the pc18 scenario completes. Since PC223/235 can't be reached with an empty queue, the pc45 deadlock must happen at PC45.
+
+**Development evidence (`build/stop-lock-development.json`)**
+- It contains 20 observations, matching your split: 8 candidate runs (Xint/Xcomp × 2 architectures × 2 scenarios), 10 deadlock pairs and 2 pc45-restored/pc18 completions.
+- The candidate class hash is the same in every run and each mutant hash is different.
+- Both runtime trees are recorded, and the subclass inventory is empty for the original, the candidate and every vendor extension JAR.
+
+## Non-blocking points
+1. **The extension-JAR inventory proves nothing.** The bootstrap and extension loaders can't link to a superclass that lives on the app classpath. The app's real classpath is `-jar RAID_Admin.jar` only (`packaging/RAIDAdmin:35`), with a manifest that has no `Class-Path` (`tools/baseline.py:101`). That makes the candidate-JAR inventory sufficient. The limits text should give this reason rather than leaning on the extension-JAR inventory.
+2. **The "both-getter-restored" control isn't the audit.18 class.** It keeps the volatile flag. The table calls this row "Original", so either use the actual restored `a928…` class as the control (the bytes come straight from `assert_stop_lock_order`) or rename the row.
+3. **Holder state isn't checked directly in the deadlock case.** It is implied by the exact pair. Asserting the holder is BLOCKED on the queue's identity with the worker as owner would be cheap.
+4. **The `TERMINATED` check (`:38`) isn't a formal happens-before point.** This is harmless because the safe branch re-checks `escaped` after `join` (`:47`).
+5. **This JSON is not qualification evidence.** It records `qualification:false` and `source_dirty`/`fixture_dirty: true`. A clean, committed run is still needed.
+6. **Outside Phase B scope:** `check_architectures.py:60` detects the feature by substring and doesn't check that `ConstantValue` is 1. The class hash pin covers the bytecode edit anyway.
+
+The residuals already disclosed (Phase A posts stranded after exit, abnormal worker exit, callbacks, the `isStopped`-override bypass beyond the inventory, and x64 running under Rosetta) are stated accurately in `limits`.

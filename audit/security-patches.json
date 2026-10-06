@@ -57,14 +57,14 @@
   },
   "com/apple/xsr/net/CommunicationsManager.class": {
     "original_sha256": "c4bd4c0742a5b6d1b746992e0db1b984fd770a9d6b3babbe33e8f78366312dd1",
-    "patched_sha256": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893",
+    "patched_sha256": "cfefcc5b8cb0b0c15b5f63788503c8e41414b01abe2dbcedcc95cdebca8ecc24",
     "method": [
       "run",
       "()V"
     ],
     "original_major_version": 47,
     "patched_major_version": 47,
-    "scope": "Run unchanged from audit.17 (595); doConnect 718->754, stop before published -101, exact windows/handlers/frame and audit.17 class reconstruction pinned"
+    "scope": "Audit.19: private stopped becomes volatile; run PC18/45 use direct stopped field reads under queue. All other class bytes reconstruct exact audit.18, then audit.17 via original doConnect Code restoration."
   },
   "com/apple/xsr/net/AcpxConnection.class": {
     "original_sha256": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",

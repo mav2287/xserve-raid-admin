@@ -125,6 +125,11 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         identity = re.findall(r'^  (?:minor version|major version|flags|this_class|super_class|interfaces):.*$',header,re.M)
         identity += re.findall(r'^(?:\w+ )*(?:class|interface) .+$',header,re.M)
         return identity,pool.splitlines(),kept,selected[0]
+    lock_order=target=='run' and 'private volatile boolean stopped;' in after
+    if lock_order:
+        pattern=r'^  private volatile boolean stopped;\n    descriptor: Z\n    flags: ACC_PRIVATE, ACC_VOLATILE$'
+        if len(re.findall(pattern,after,re.M))!=1:raise ValueError('Independent volatile field flags differ')
+        after=re.sub(pattern,'  private boolean stopped;\n    descriptor: Z\n    flags: ACC_PRIVATE',after,flags=re.M)
     old,new = sections(before),sections(after)
     if old[0] != new[0] or '  major version: 47' not in old[0]:
         raise ValueError('Independent class identity/version check failed')
@@ -161,6 +166,11 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
     if target in ('run','send'):
         a,b=old[3],new[3]
         if target=='run':
+            if lock_order:
+                for pc in (18,45):
+                    field_read=str(pc)+': getfield      #11                 // Field stopped:Z'
+                    if len(re.findall(r'^\s+'+re.escape(field_read)+r'$',b,re.M))!=1:raise ValueError('Independent queue stop field window differs')
+                    b=re.sub(r'^(\s+'+str(pc)+r': )getfield      #11                 // Field stopped:Z$',r'\g<1>invokevirtual #27                 // Method isStopped:()Z',b,flags=re.M)
             window=re.findall(r'^\s+(\d+):\s+(.*)$',b,re.M)
             window=[(int(offset),rest) for offset,rest in window if 464<=int(offset)<474]
             expected=[(464,'aload_0'),(465,'aload         5')]

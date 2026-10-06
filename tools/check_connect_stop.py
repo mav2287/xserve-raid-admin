@@ -41,14 +41,14 @@ def main():
     original=ROOT/'original/RAID_Admin_original.jar';verify_original(original)
     if a.candidate.is_symlink() or not a.candidate.is_file() or a.candidate.resolve()==original.resolve() or sha(a.candidate)!=a.candidate_sha256:raise ValueError('Candidate identity differs')
     identity,manifest=check_artifact(a.candidate.resolve().parents[3])
-    if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=json.loads((ROOT/'audit/connect-stop-recovery-expected.json').read_text())['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed complete artifact')
+    if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or a.candidate_sha256!=json.loads((ROOT/'audit/stop-lock-recovery-expected.json').read_text())['candidate_jar_sha256']:raise ValueError('Candidate differs from reviewed complete artifact')
     if not a.development and manifest['source_dirty']:raise ValueError('Clean application source required')
     with zipfile.ZipFile(original) as z:before=z.read(CM)
     with zipfile.ZipFile(a.candidate) as z:entries={n:z.read(n) for n in z.namelist() if not n.endswith('/')}
     assert_connect_failure_stop(before,entries[CM])
     derivation=json.loads((ROOT/'audit/connect-stop-reference-derivation.json').read_text())
     if derivation['manager_class_sha256']!=AUDIT17_MANAGER_SHA256 or derivation['jar_sha256']!=json.loads((ROOT/'audit/sync-preenqueue-final-integrity.json').read_text())['candidate_jar_sha256']:raise ValueError('Audit.17 class derivation differs from reviewed ledger')
-    inputs=[ROOT/n for n in ('tests/java/connectfixture/AcpxConnection.java','tests/java/com/apple/xsr/net/ConnectFailureObservation.java','tests/java/fixture/OfflineGuard.java','patches/sun/io/MalformedInputException.java','tools/check_connect_stop.py','tools/audit_support.py','tools/baseline.py','tools/runtime.py','tools/verify_builds.py','tools/class_patch.py','audit/runtime-lock.json','audit/expected-build.json','audit/connect-stop-recovery-expected.json','audit/connect-stop-reference-derivation.json','audit/sync-preenqueue-final-integrity.json')]
+    inputs=[ROOT/n for n in ('tests/java/connectfixture/AcpxConnection.java','tests/java/com/apple/xsr/net/ConnectFailureObservation.java','tests/java/fixture/OfflineGuard.java','patches/sun/io/MalformedInputException.java','tools/check_connect_stop.py','tools/audit_support.py','tools/baseline.py','tools/runtime.py','tools/verify_builds.py','tools/class_patch.py','audit/runtime-lock.json','audit/expected-build.json','audit/stop-lock-recovery-expected.json','audit/connect-stop-reference-derivation.json','audit/sync-preenqueue-final-integrity.json')]
     hashes={str(x.relative_to(ROOT)):sha(x) for x in inputs}
     runtime_lock=runtime_manifest();runtimes=[];seen=set()
     for root in a.runtime:
