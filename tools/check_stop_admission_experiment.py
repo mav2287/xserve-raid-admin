@@ -31,7 +31,9 @@ def main():
  from socket_configuration_patch import ENTRY as HTTP,normalize as normalize_socket
  from connection_publication_patch import ENTRY as ACPX,normalize as normalize_publication
  helper='compat/SocketConfiguration.class'
- if set(new)-set(old)!={helper} or set(old)-set(new) or {n for n in old if old[n]!=new[n]}!={entry,HTTP,ACPX}:raise ValueError('Candidate differs beyond stop guard and socket setup')
+ from help_patch import strip_entries
+ core=strip_entries(new)
+ if set(core)-set(old)!={helper} or set(old)-set(core) or {n for n in old if old[n]!=core[n]}!={entry,HTTP,ACPX}:raise ValueError('Candidate differs beyond stop guard and socket setup')
  if normalize_publication(new[ACPX])!=old[ACPX]:raise ValueError('Acpx publication predecessor differs')
  if normalize_socket(new[HTTP])!=old[HTTP]:raise ValueError('Socket setup predecessor differs')
  with tempfile.TemporaryDirectory(prefix='raid-stop-helper-check-') as checkdir:

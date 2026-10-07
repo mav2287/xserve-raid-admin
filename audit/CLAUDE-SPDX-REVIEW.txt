@@ -1,0 +1,114 @@
+I've read all six files plus the helpers they call. Here is the review; I ran no commands and made no changes.
+
+# SPDX review: blockers and required negative tests
+
+**Overall:** The structure is sound. The schema is pinned and offline, IDs are content-derived, every non-directory JAR member is listed, and licenses are honestly NOASSERTION. But a few gaps should block generating the real architecture-bundle documents. In priority order:
+
+## A. Provenance blockers
+
+1. **`audit/sbom.json` isn't bound to anything.** `tools/spdx.py:78` loads it without a hash check, and `generate` uses only the member names, not the stored hashes. If that file is edited, members get silently reclassified under another component's name and version.
+   - **Fix:** pin its SHA-256 (for example in the audit24 expected-build or the validator lock).
+   - Also require `inventory['jar_sha256'] == manifest['original_jar_sha256']`. Both are currently `5505d8d9…`, but nothing checks it.
+
+2. **Modified original members aren't identified.** At `tools/spdx.py:46` every component gets the same generic comment ("May include narrow compatibility overrides"), plus the upstream `versionInfo` (e.g. "1.5.1 / 1.5.1GMc5"). This happens even when a member's current bytes differ from the original. For example, Manager, HttpConnection and AcpxConnection are labelled as unmodified Apple 1.5.1.
+   - **Fix:** compare each member's current SHA-256 with the original SBOM hash.
+   - Mark each modified file explicitly, with a per-file comment or a SPDX `FILE_MODIFIED` relationship to a record of the original member.
+   - Assert that the set of modified members exactly matches the reviewed patch set for this release (audit24: the changed classes only).
+   - Packages containing modified members should not show the bare upstream version.
+
+3. **The virtual JAR package isn't linked to the physical JAR file.** `SPDXRef-jar` has no `packageFileName`, no `checksums`, and no relationship to the physical `RAID_Admin.jar` file element. The link exists only through the `!/` naming convention.
+   - **Fix:** set `packageFileName: "./RAID Admin.app/Contents/Resources/RAID_Admin.jar"` and add the JAR's SHA-256/SHA-1 to `checksums` (SPDX allows this when `filesAnalyzed` is true).
+
+4. **The document doesn't record its own inputs.** Nothing in it identifies the `provenance.json` hash, the source/QA commit, the hash of `spdx.py` itself, or the hashes of `sbom.json`, the schema and the validator lock.
+   - **Fix:** add these to `creationInfo.comment` or the document comment. They are then covered by the content-addressed namespace.
+   - Without them, `Tool: RAID-Admin-spdx-1` doesn't identify the generator version.
+
+5. **Runtime origin is discarded (recommended, not strictly blocking).** `SPDXRef-runtime` uses `downloadLocation: NOASSERTION` even though `runtime-lock.json` records the exact versioned archive URL and hash.
+   - **Fix:** use that URL, and/or an `externalRefs` entry with the archive hash. Don't add a supplier or license claim.
+
+## B. Correctness and TOCTOU blockers
+
+6. **The JAR is read twice.** `generate` hashes `RAID_Admin.jar` through `read_bytes()` (`tools/spdx.py:28`), then reopens it from the path for `zipfile.ZipFile(jar)` (`:33`). The final tree check catches a lasting change but not one that is swapped and then restored.
+   - **Fix:** parse `zipfile.ZipFile(io.BytesIO(data))` from the same bytes that were hashed.
+
+7. **The manifest that was checked may not be the one used.** `check_bundle` reads `provenance.json` itself; `main` reads it again afterwards (`:78`). The final byte comparison only shows that the second read didn't change, not that `check_bundle` validated those same bytes.
+   - **Fix:** have `check_bundle` return the manifest bytes or their hash, and compare.
+
+8. **Unsafe JAR member names aren't rejected.** `generate` doesn't reject members that are absolute, contain `..`, empty or `.` segments, backslashes, NUL or control characters, or an embedded `!/`. It also doesn't reject Unicode normalisation or case collisions, or directory entries that have data.
+   - Such names produce ambiguous virtual paths that can look like real bundle paths (e.g. `…RAID_Admin.jar!/../../Info.plist`).
+   - The JAR is hash-pinned, so this isn't exploitable today. But the code should fail closed before it is reused for other bundles.
+
+9. **Packages can be empty.** A component with no files, or an empty compatibility-additions set, produces a `filesAnalyzed: true` package whose verification code is the SHA-1 of an empty string.
+   - **Fix:** reject empty packages, or emit `filesAnalyzed: false` with no verification code. For audit24, assert that the compatibility-additions set is non-empty and equals the expected added entries.
+
+10. **`validate` checks consistency, not bytes.** It recomputes verification codes from the SHA-1 values already in the document. It never compares file checksums against real bytes, but the PASS line says "exact bundle/JAR-entry hashes". Its other gaps:
+    - It doesn't check that each file has exactly one SHA1 (40 lowercase hex) and one SHA256 (64 lowercase hex). The schema only enforces `^[0-9a-fA-F]+$`.
+    - It doesn't check that every file belongs to at least one package.
+    - It doesn't check that every JAR member belongs to exactly one component or compatibility package.
+    - It doesn't check for exactly one DESCRIBES, or for duplicate relationships or file names.
+    - It doesn't check that `documentNamespace` equals the recomputed content digest.
+    - A file without SHA-1 raises a raw `StopIteration` (`:69`), not `ValueError`.
+    - **Fix:** add these checks, and either re-read the bytes or narrow the PASS wording.
+
+11. **Python's `re` treats `$` as matching before a trailing `\n`.** The schema's `SPDXID` and date patterns therefore accept a trailing newline. `strptime` happens to protect `created`, but `validate` should do its own full-match checks on IDs and dates instead of relying on the schema.
+
+## C. Validator isolation blockers
+
+12. **Ambient packages can be imported.** `jsonschema/_format.py` tries optional imports when it loads (`rfc3987`, `fqdn`, `idna`, `webcolors`, `uri_template`, `isoduration`, etc.). The cache is put at the front of `sys.path`, but the normal site-packages stay on it, so any of those installed on the host get imported and run. The origin check (`:58`) only covers the five top-level modules.
+    - **Fix:** require running with `python3 -I -S` (or check `sys.flags.isolated`/`no_site`).
+    - After importing, check that every newly loaded `sys.modules` entry comes from the stdlib or the cache.
+
+13. **Global side effects.** `sys.path.insert(0, cache)` and `sys.dont_write_bytecode = True` are never undone. That doesn't matter for the CLI, but it leaks into unit tests that import `spdx`.
+    - Also call `Draft201909Validator.check_schema(schema)` once. This is cheap, even though the schema is hash-pinned.
+
+14. **Fetch hardening (`tools/spdx_validator.py`):**
+    - `response.read()` and `z.read(item)` have no size limit. Add per-wheel and per-member size caps to the lock.
+    - The lock's `platform` field (`CPython3.14 macOS arm64`) isn't enforced. Only the Python version is checked; check `platform.machine()` and the implementation too.
+    - Wheel `.data/` paths are extracted with no special handling. None of the pinned wheels have any, so state that as an invariant and reject them.
+    - Gap between checking the cache and importing it: acceptable for a local cache, but say so in the docs.
+
+15. **Output write isn't atomic.** `open('x')` with a partial write leaves a truncated SBOM that later blocks a rerun. Also, the output path is only checked for overlap with the bundle and source, not with the validator cache.
+    - **Fix:** write to a temp file in the same directory, `fsync`, then hard-link/rename into place without overwriting.
+
+## D. Semantics to state explicitly (not blockers)
+
+- Runtime files are CONTAINed by both `SPDXRef-application` and `SPDXRef-runtime`. JAR members are CONTAINed by both `SPDXRef-jar` and their component package. This is allowed, but consumers that walk relationships transitively will see each file twice. Say so in the document comment.
+- `fileName` is relative to the bundle output directory, not to each package's root.
+- `created` is a fixed, caller-supplied value. Document that it's the first-creation time of the content-addressed document, not the time a given run happened.
+- Component SPDXIDs depend on their position in `sbom.json`. Reordering that file changes the IDs.
+
+## Required negative tests
+
+`tests/test_spdx.py` currently has two tests (determinism and a single verification code; overlap and bad date). It doesn't exercise `validate`, `main` or the validator at all. Each test below should expect `ValueError`:
+
+**Generator**
+1. A physical file's bytes changed after the manifest was made.
+2. The JAR is swapped between hashing and parsing. Use a mock, or prove that a single buffer is used.
+3. A duplicate JAR member name (zipfile allows writing these, with a warning).
+4. Unsafe member names: `../x`, `/abs`, `a\b`, `a!/b`, NUL, an empty segment, NFC/NFD and case collisions.
+5. A component lists a member missing from the JAR (currently covered only implicitly).
+6. An empty component, and an empty compatibility-additions set.
+7. A `sbom.json` hash mismatch, and `jar_sha256` ≠ `original_jar_sha256`.
+8. Modified-member detection: a fixture whose original member's bytes changed must be flagged. A modified set that differs from the expected patch set must be refused.
+9. `created` values: leap second `23:59:60` (decide the policy), single-digit fields, a trailing newline, a non-UTC offset.
+
+**Validator**
+10. Each of these must fail: a duplicate SPDXID; a dangling relationship; a tampered verification code; a tampered file SHA-1; a missing SHA-1 (must be `ValueError`, not `StopIteration`); wrong checksum length or uppercase; a file in no package; a JAR member in two components; zero or two DESCRIBES; a namespace that doesn't match the content digest; an SPDXID with a trailing `\n`.
+11. Schema failure, e.g. a misspelled extra property, which `additionalProperties: false` must catch.
+12. A schema with an injected external `$ref` must reach `deny` and never touch the network.
+13. A module-origin mismatch: an `attrs` (and an optional `rfc3987`) imported earlier from outside the cache must be refused, along with the ambient-site case from item 12 of section C.
+14. Cache tampering must be refused: an extra file, a changed byte, a `__pycache__` appearing, a symlink, and a schema hash mismatch.
+
+**Fetch (offline, with a mocked `urlopen`)**
+15. Must be refused: a non-PyPI URL, a redirect off `files.pythonhosted.org`, a hash mismatch, wheels containing `..`, absolute paths, backslashes, symlinks or `.data/` entries, and an oversized response.
+
+**CLI**
+16. Output already exists, is a symlink, sits inside the bundle, source or cache, or the write is interrupted (no truncated file may be left behind).
+17. The bundle or `provenance.json` changes during generation, including a change made and then reverted.
+
+**Positive structural test**
+18. Using the fixture: the application contains every physical file, the runtime package contains only `Runtime.jdk/` files, and the JAR members are split exactly once across components and compatibility additions. Also: `packageFileName` and checksums link the JAR package to the physical JAR, and the document is identical when the JAR members are written in a different order.
+
+## Unaffected and still unqualified
+
+This review doesn't change the open status of real-hardware acceptance, signing/notarization, legal and redistribution rights, or license conclusions. NOASSERTION correctly makes no claim about any of them. `DEPENDENCIES.md` currently states that the inventories are not SPDX. Once a qualified SPDX document is generated, it will need an audit25 section describing the document's scope, and stating that the QA validator wheels are not application dependencies.

@@ -94,7 +94,7 @@ def main():
     paths=[ROOT/n for n in ('tools/release_archive.py','tools/audit_support.py','tools/runtime.py','tools/verify_bundles.py','tools/verify_builds.py','tools/baseline.py','tools/help_patch.py','tools/class_patch.py','tools/sync_ownership_patch.py','audit/runtime-lock.json','audit/python-lock.json','audit/expected-build.json','audit/help-patches.json')]
     sources={str(path.relative_to(ROOT)):sha(path) for path in paths}
     manifests={path:path.read_bytes() for path in (bundle/'provenance.json',source/'provenance.json')}
-    if any(json.loads(data).get('source_dirty',True) for data in manifests.values()):raise ValueError('Clean source artifacts required')
+    if any(json.loads(data).get('source_dirty') is not False for data in manifests.values()) or json.loads(manifests[bundle/'provenance.json']).get('packager_dirty') is not False:raise ValueError('Clean source artifacts required')
     measured=check_bundle(bundle,source);app=bundle/'RAID Admin.app'
     provenance=json.loads(manifests[bundle/'provenance.json']);arch=provenance['bundled_runtime']['architecture']
     with tempfile.TemporaryDirectory(prefix='.raid-release-',dir=output.parent) as t, tempfile.TemporaryDirectory(prefix='.raid-record-',dir=record.parent) as rt:

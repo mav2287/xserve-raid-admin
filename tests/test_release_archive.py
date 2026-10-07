@@ -66,7 +66,7 @@ class ReleaseArchiveTests(unittest.TestCase):
         from release_archive import main
         with tempfile.TemporaryDirectory() as t:
             p=Path(t);source=p/'source';bundle=p/'bundle';source.mkdir();bundle.mkdir();app=bundle/'RAID Admin.app';app.mkdir();(app/'fixture').write_bytes(b'fixture')
-            for directory in (source,bundle):(directory/'provenance.json').write_text(json.dumps({'bundled_runtime':{'architecture':'aarch64'},'source_dirty':False}))
+            for directory in (source,bundle):(directory/'provenance.json').write_text(json.dumps({'bundled_runtime':{'architecture':'aarch64'},'source_dirty':False,'packager_dirty':False}))
             common=['release_archive','--source',str(source),'--bundle',str(bundle)]
             for output,record in [(p/'same',p/'same'),(bundle/'out',p/'record'),(p/'out',source/'record')]:
                 with mock.patch.object(sys,'argv',common+['--output',str(output),'--record',str(record)]),self.assertRaisesRegex(ValueError,'overlap'):main()
@@ -76,7 +76,7 @@ class ReleaseArchiveTests(unittest.TestCase):
         from release_archive import main
         with tempfile.TemporaryDirectory() as t:
             p=Path(t);source=p/'source';bundle=p/'bundle';source.mkdir();bundle.mkdir();app=bundle/'RAID Admin.app';app.mkdir();(app/'fixture').write_bytes(b'fixture')
-            for directory in (source,bundle):(directory/'provenance.json').write_text(json.dumps({'bundled_runtime':{'architecture':'aarch64'},'source_dirty':False}))
+            for directory in (source,bundle):(directory/'provenance.json').write_text(json.dumps({'bundled_runtime':{'architecture':'aarch64'},'source_dirty':False,'packager_dirty':False}))
             argv=['release_archive','--source',str(source),'--bundle',str(bundle),'--output',str(p/'out.zip'),'--record',str(p/'record.json')]
             original=os.link
             def link(a,b):

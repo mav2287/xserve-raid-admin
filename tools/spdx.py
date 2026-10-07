@@ -4,10 +4,16 @@ import argparse,hashlib,json,re,sys,zipfile,io,os,tempfile,copy,sysconfig,unicod
 from datetime import datetime
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from audit_support import ROOT,sha,tree,verify_python,digest
+from audit_support import ROOT,sha,tree,verify_python,digest,isolated_env
+import subprocess
 from runtime import directory_modes
 from verify_bundles import check_bundle
 from spdx_validator import verify as verify_validator
+
+def clean_state():
+    value={'commit':subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip(),'dirty':bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()))}
+    if value['dirty']:raise ValueError('Clean SBOM source required')
+    return value
 
 def generate(app,manifest,created,components,expected_modified=None,expected_added=None,provenance=None):
     if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z",created):raise ValueError("Invalid SPDX creation date")
@@ -123,9 +129,11 @@ def validate(document,cache):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',type=Path,required=True);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--validator',type=Path,required=True);p.add_argument('--created',required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--self-test',action='store_true');a=p.parse_args();verify_python()
     if a.output.exists() or a.output.is_symlink() or a.output.resolve().is_relative_to(a.bundle.resolve()) or a.output.resolve().is_relative_to(a.source.resolve()) or a.output.resolve().is_relative_to(a.validator.resolve()):raise ValueError('SBOM output exists or overlaps inputs')
-    input_paths=[ROOT/n for n in ('tools/spdx.py','tools/spdx_validator.py','tools/audit_support.py','tools/runtime.py','tools/verify_bundles.py','tools/verify_builds.py','tools/baseline.py','tools/help_patch.py','tools/class_patch.py','tools/sync_ownership_patch.py','audit/sbom.json','audit/spdx-2.3.1-schema.json','audit/spdx-validator-lock.json','audit/runtime-lock.json','audit/expected-build.json')]
+    initial=clean_state()
+    input_paths=[ROOT/n for n in ('tools/spdx.py','tools/spdx_validator.py','tools/audit_support.py','tools/runtime.py','tools/verify_bundles.py','tools/verify_builds.py','tools/baseline.py','tools/help_patch.py','tools/class_patch.py','tools/sync_ownership_patch.py','audit/sbom.json','audit/spdx-2.3.1-schema.json','audit/spdx-validator-lock.json','audit/runtime-lock.json','audit/expected-build.json','audit/python-lock.json')]
     inputs={str(path.relative_to(ROOT)):sha(path) for path in input_paths}
     manifest_bytes=(a.bundle/'provenance.json').read_bytes();source_bytes=(a.source/'provenance.json').read_bytes();manifest=json.loads(manifest_bytes)
+    if manifest.get('source_dirty') is not False or manifest.get('packager_dirty') is not False:raise ValueError('Clean packaged artifact required')
     measured=check_bundle(a.bundle,a.source)
     lock=verify_validator(a.validator)
     if sha(ROOT/'audit/sbom.json')!=lock['original_sbom_sha256']:raise ValueError('Original SBOM classification differs')
@@ -133,7 +141,7 @@ def main():
     if inventory['jar_sha256']!=manifest['original_jar_sha256']:raise ValueError('Original SBOM/JAR provenance differs')
     from baseline import ALLOWED_JAR_CHANGES
     original_names={name for component in inventory['components'] for name in component['files']}
-    provenance={'source_commit':manifest['source_commit'],'packager_commit':manifest['packager_commit'],'source_hashes':inputs,'bundle_tree_sha256':manifest['bundle_tree_sha256'],'validator_tree_sha256':lock['tree_sha256']}
+    provenance={'execution_state':initial,'source_dirty':False,'packager_dirty':False,'negative_controls':12 if a.self_test else 0,'source_commit':manifest['source_commit'],'packager_commit':manifest['packager_commit'],'source_hashes':inputs,'bundle_tree_sha256':manifest['bundle_tree_sha256'],'validator_tree_sha256':lock['tree_sha256']}
     document=generate(a.bundle/'RAID Admin.app',manifest,a.created,inventory['components'],(ALLOWED_JAR_CHANGES|{'META-INF/MANIFEST.MF'})&original_names,(ALLOWED_JAR_CHANGES|{'META-INF/MANIFEST.MF'})-original_names,provenance);validate(document,a.validator)
     if a.self_test:
         mutations=[]
@@ -156,7 +164,7 @@ def main():
             else:raise ValueError('SPDX negative control accepted')
         if len(mutations)!=12:raise ValueError('SPDX controls incomplete')
     app=a.bundle/'RAID Admin.app'
-    if measured!={'files':tree(app),'file_modes':{n:(app/n).stat().st_mode&0o7777 for n in manifest['files']},'directory_modes':directory_modes(app)} or (a.bundle/'provenance.json').read_bytes()!=manifest_bytes or (a.source/'provenance.json').read_bytes()!=source_bytes or inputs!={str(path.relative_to(ROOT)):sha(path) for path in input_paths}:raise ValueError('SBOM inputs changed')
+    if measured!={'files':tree(app),'file_modes':{n:(app/n).stat().st_mode&0o7777 for n in manifest['files']},'directory_modes':directory_modes(app)} or (a.bundle/'provenance.json').read_bytes()!=manifest_bytes or (a.source/'provenance.json').read_bytes()!=source_bytes or inputs!={str(path.relative_to(ROOT)):sha(path) for path in input_paths} or clean_state()!=initial:raise ValueError('SBOM inputs changed')
     with tempfile.TemporaryDirectory(prefix='.raid-spdx-',dir=a.output.parent) as t:
         staged=Path(t)/'document.json'
         with staged.open('x') as out:out.write(json.dumps(document,sort_keys=True,indent=2)+'\n');out.flush();os.fsync(out.fileno())

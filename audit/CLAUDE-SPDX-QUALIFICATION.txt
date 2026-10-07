@@ -1,0 +1,45 @@
+I read all nine files, plus `verify_bundles.py`, `verify_builds.py`, `class_patch.py`, `help_patch.py`, `audit_support.py`, `expected-build.json` and the validator lock to check how they connect. I ran nothing, so none of this proves anything executes. Four concrete blockers remain before freezing clean source.
+
+## Blockers
+
+**1. `tools/spdx.py` has no clean-state check and doesn't record dirtiness.**
+- `release_archive.py` has `clean_state()` and refuses dirty `provenance.json`. `spdx.py:123-163` has neither.
+- `provenance` (`spdx.py:136`) records `source_commit` and `packager_commit` from the manifest. It drops `source_dirty` and `packager_dirty`, and never records the commit or dirty state at the time the SBOM was generated.
+- You can see this in `build/releases/audit25-dev/aarch64.spdx.json:5`. It names `d4900b4` as both source and packager commit and doesn't say the packaging was dirty. The SBOM can't be told apart from a clean one.
+- Fix: before generating and again before publishing, require a clean tree with HEAD unchanged. Refuse any manifest where `source_dirty` or `packager_dirty` isn't `False`. Record `execution_state`.
+- Also add `audit/python-lock.json` to `input_paths`. `verify_python()` reads it, and `release_archive.py:94` already binds it.
+
+**2. The evidence assembler can't see SPDX provenance, and nothing links archives, SBOMs and bundles.**
+- `spdx.py:72` stores provenance as a JSON string inside `creationInfo.comment`. `walk()` in `audit/help-evidence-assembler.py:25-37` only looks inside dicts. So the SBOM's `source_hashes` are never checked against the commit, and the dirty flags from blocker 1 would never be seen.
+- Fix: decode `creationInfo.comment` and walk it. Require it to contain `source_hashes` and the clean flags.
+- Line 22-23 only compares each artifact with its own repeat (zip with repeat zip, SBOM with repeat SBOM). Nothing checks that, for each architecture:
+  - `*.archive.json` `archive_sha256` equals `sha(*.zip)`;
+  - the archive record's `bundle_tree_sha256`, the SBOM provenance's `bundle_tree_sha256` and `help-bundled-<arch>-N/provenance.json` `bundle_tree_sha256` all match. All three are `digest({files,file_modes,directory_modes})`, so they can be compared directly;
+  - the archive record's `bundle_provenance_sha256` equals the hash of that bundle's `provenance.json`;
+  - the primary and repeat outputs came from bundles `-1` and `-2` respectively. Otherwise the equal-hash check could just be one bundle processed twice.
+- Without these checks, the "paired archives/SBOMs" claim isn't backed by anything.
+
+**3. The assembler's walk skips things silently instead of failing.**
+- `help-evidence-assembler.py:31` skips any entry whose path is not a file, whose path is absolute, or whose hash isn't a 64-character string. A recorded source that's missing at the commit goes unchecked instead of failing.
+- A gate record with no `sources`/`source_hashes`/`input_hashes` dict produces zero proofs and still passes.
+- `qualification is True` is only checked when the key exists (line 42).
+- Fix: fail on every one of those cases. Require at least one proof from each gate record. Require `qualification: true` on every `help-clean-<gate>.json` gate record. Reject `..` in names.
+- Also add `verify_python()`. The assembler is the only entry point here without it.
+
+**4. `tools/release_archive.py:97` checks only `source_dirty`.**
+- The bundle manifest also has `packager_dirty`, which the assembler checks. A bundle packaged from a dirty tree with a clean source build would still pass the archive step.
+- Fix: require both flags to be `False`, and add `packager_dirty: False` to the fixtures in `tests/test_release_archive.py:69,79`.
+
+## Not blockers, but should be fixed
+- **Negative controls aren't recorded.** `--self-test` is optional, and the SBOM doesn't say whether the 12 negative controls ran. Either require the flag or record the result, so the assembler can confirm it.
+- **`validate()` has no unit test.** It requires `-I -S`, and the unit runner uses `-E -s`, so the schema path and module-origin check only run in the CLI.
+- **`tests/test_spdx.py` is missing cases** for the case-fold/NFD JAR collision, a directory entry with nonzero size, control characters in names, and a mismatched added-member set (`spdx.py:53`).
+- **Commit fields aren't compared.** The assembler binds by file content but never checks `execution_commit` or `source_commit` against `--commit`. Comparing them would be a cheap extra check.
+
+## Checked and found fine
+- **Test count:** a static count finds exactly 165 `def test_` methods across 31 files, matching the runner's regex. `test_help_patch.py` has 5, matching `check_help.py`.
+- **Imports:** `release_archive`, `spdx` and the verification code they call don't import anything beyond what they hash. `class_patch`'s lazily imported patch modules are only loaded by the build step (`baseline.py:94`), which archive/SPDX never call.
+- **Ignored output:** `build/` is in `.gitignore`, so the runner and assembler writing there doesn't make the tree dirty.
+- **`expected-build.json`:** it records `d4900b4` with `source_dirty: false`.
+
+Native GUI, real browser, physical Intel, signing/legal/hardware and RaidSystem diagnostics are still separate and unqualified, as you said.
