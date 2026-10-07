@@ -1,0 +1,47 @@
+I found one real gap left in the code, plus a few things the ledger and handoff need to cover. Option 2 (refusing historical Help/model) and the B2 bindings are implemented correctly.
+
+## Should fix before the evidence counts: the `--reference` JAR is never checked or recorded
+
+`tools/check_secure_release.py:11,31` accepts any path for `--reference` and passes it to the fixtures as `-Dfixture.reference`. That JAR is the "original" side of the comparisons. For example, `SecurePathObservation.java:47-64` uses it for `original-outcome`, `bytes` and `path-max-parity`, which back the `original_cases=22` claim. But the tool:
+- never hashes it,
+- never compares it to `source['audit27_jar_sha256']` (or whichever JAR the e005 clean fixture used),
+- and doesn't record its path or hash in `observations.json` (the `rows` don't include argv either).
+
+So the evidence can't show which original the packaged results were compared against. A wrong JAR would usually fail the checks rather than pass them, but the record still can't prove which one was used. `check_secure_native.py:19` already does this properly: it takes `a.build/'audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar'`, which `check_historical_artifact` covers. The simplest fix is to:
+- derive the reference the same way, or require `sha(a.reference)==source['audit27_jar_sha256']`,
+- check it again in `verify()`,
+- and record `reference_sha256` in the output.
+
+Because of the `packager_commit==HEAD` rule, any tool change means packaging and the fixture run must be redone at the new commit. The alternative is to leave the code as it is and state in the ledger that the reference input of the packaged fixtures was not bound. That is weaker, but it would be accurate.
+
+## Not blockers, but needed for an accurate handoff
+1. **Missing limits in the records.** The `release-observations.json` limits (`secure_release.py:88`) leave out other macOS versions, other filesystems and future OS versions. Separately, `LSMinimumSystemVersion=11.0` and the SPDX comment "macOS binary floor 11.0" could be read as a claim that the app supports 11.0. The ledger should say that 11.0 is only the minimum version the binary declares, not a tested one, and list the missing limits.
+2. **What to ship.** The package directory also contains `repeated.zip` and `extracted/`. Hand off only the named `RAID-Admin-1.5.1-modern.audit.28-<arch>-unsigned.zip`, `SBOM.spdx.json`, `provenance.json` and `release-observations.json`.
+3. **Linking the records.** `release-observations.json` doesn't include the hash of the package's `provenance.json`, while the fixture record includes only that hash. Archive each architecture's package `provenance.json` under `audit/secure-release/`. That ties `package_manifest_sha256` to `bundle_tree_sha256` and `archive_sha256`.
+4. **Where evidence goes.** The bridge (`historical_secure.py:24`) accepts only new `.json`/`.txt` files under `audit/secure-release/`, plus the listed review files and tools. A final ledger as `.md` or anywhere else, or an edit to any file that existed at e005, makes later bridge checks fail. They fail safely, but the evidence can no longer be re-verified at the final commit.
+
+## Verified as correct
+- **Bridge:**
+  - It allows only additions and checks each added file against HEAD.
+  - It checks every product input against e005 in both Git and the working tree.
+  - It runs the unmodified `check_secure_artifact` and re-checks the manifest and repo state afterwards.
+  - It replaces no hashes.
+- **Gate:**
+  - It refuses historical `help`/`model`. Line 22 comes after the bridge call, so it does no harm.
+  - Only the runtime read is adapted, and the patches are undone in `finally`.
+  - The inputs and product are re-checked after execution.
+- **Packager:**
+  - The delta is limited to exactly the launcher, plist, icon, native helper and runtime files.
+  - The plist may differ only in its minimum OS version.
+  - The JAR and native helper are bound to the source.
+  - The archive is built twice and must match, and the extracted copy must equal the bundle.
+  - SPDX checksums are checked against the actual bytes, including SHA-1 and SHA-256 negative tests.
+  - The final re-check includes the bridge.
+- **Packaged fixture:**
+  - The JAR, native helper and launcher are bound to the anchored source, and the input set must equal the current tree.
+  - The bundle and runtime are checked before and after the runs.
+  - The launcher only runs inside a dummy bundle whose `java` is a stub, and `Main` is never run.
+
+As far as I can tell from the source, nothing else stands in the way of unsigned offline archives. Fix the reference binding before the fixture evidence is final, or record it in the ledger as unbound.
+
+IMPLEMENTER RESOLUTION (not Claude text): both original/reference JARs are now hash-bound before and after packaged fixtures and recorded; the missing fixture.apple.original property is supplied. Release tool rejects nonisolated Python before any build output; successful invocation uses -I -S. Package manifest SHA and binary-minimum/other OS/filesystem limits are recorded. All old original tools/qualified product bytes remain unchanged; fresh packages and fixtures will use this new clean release-tools commit.
