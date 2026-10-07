@@ -1,0 +1,121 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "-E",
+    "-s",
+    "tools/check_shared_stream.py",
+    "--jdk",
+    "/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home",
+    "--runtime",
+    "build/logging-bundled-arm64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--runtime",
+    "build/logging-bundled-x64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--candidate-sha256",
+    "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+    "--framing-policy",
+    "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar"
+  ],
+  "candidate_jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "gate": "shared",
+  "result": {
+    "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+    "fixture_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "fixture_dirty": false,
+    "host_machine": "arm64",
+    "limits": "One synthetic persistent InputStream per two actual ACP sends; replies appended only after request serialization. Chunked case has a third blocked send attempt with no output acquisition. Exhaustion throws immediate synthetic timeout, close is terminal: these are fixture controls, not measured legacy timeout handling. Peer EOF is not modeled. Baseline mode does not model Connection: close; framing-policy mode tests one valid-length close reply and performs no follow-on socket operation. Uppercase Content-Length under Turkish locale is a case-folding control; uppercase Transfer-Encoding contains I and exercises the Turkish locale hazard. At most 8192 bytes per reply, 16384 read calls per source, 64 MiB heap and 20 second subprocess bound. No TCP, timing, controller, UI, authentication, polling or queue-retry qualification. No raw requests, peer content, credentials or exception messages printed. x64 here uses Rosetta, not physical Intel. Without policy mode original/candidate baseline gaps match. Policy mode verifies explicit unambiguous length, locale independence and retirement, and retains declared-zero extra-body association as a known gap. Stricter framing cannot encrypt or authenticate legacy HTTP.",
+    "observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "mode": "baseline",
+        "results": [
+          "shared source-controls idle-timeout; terminal-close PASS",
+          "shared canonical first=first second=second pending_before_second=0 pending_after_second=0 reads=225 sends=2 closes=0",
+          "shared missing-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=141 sends=2 closes=0",
+          "shared lowercase-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=162 sends=2 closes=0",
+          "shared duplicate-last-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=181 sends=2 closes=0",
+          "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+          "shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked",
+          "PASS shared-stream association; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "mode": "baseline",
+        "results": [
+          "shared source-controls idle-timeout; terminal-close PASS",
+          "shared canonical first=first second=second pending_before_second=0 pending_after_second=0 reads=225 sends=2 closes=0",
+          "shared missing-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=141 sends=2 closes=0",
+          "shared lowercase-length first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=162 sends=2 closes=0",
+          "shared duplicate-last-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=181 sends=2 closes=0",
+          "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+          "shared chunked first=empty second=protocol-error pending_before_second=13 pending_after_second=118 reads=60 sends=2 closes=0 follow_on=blocked",
+          "PASS shared-stream association; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "framing-policy",
+        "results": [
+          "shared source-controls idle-timeout; terminal-close PASS",
+          "framing canonical first=first second=second; sends=2; pending=0; closes=0",
+          "framing lowercase first=first second=second; sends=2; pending=0; closes=0",
+          "framing zero first=empty second=second; sends=2; pending=0; closes=0",
+          "framing missing fixed-marker; retired; sends=1; no-cause",
+          "framing duplicate-identical fixed-marker; retired; sends=1; no-cause",
+          "framing duplicate-mixed-case fixed-marker; retired; sends=1; no-cause",
+          "framing duplicate-last-zero fixed-marker; retired; sends=1; no-cause",
+          "framing transfer-encoding fixed-marker; retired; sends=1; no-cause",
+          "framing uppercase-turkish first=first second=second; sends=2; pending=0; closes=0",
+          "framing transfer-encoding-turkish fixed-marker; retired; sends=1; no-cause",
+          "framing connection-close original-source-close; sends=1; pending=0; closes=1",
+          "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+          "PASS framing policy; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "framing-policy",
+        "results": [
+          "shared source-controls idle-timeout; terminal-close PASS",
+          "framing canonical first=first second=second; sends=2; pending=0; closes=0",
+          "framing lowercase first=first second=second; sends=2; pending=0; closes=0",
+          "framing zero first=empty second=second; sends=2; pending=0; closes=0",
+          "framing missing fixed-marker; retired; sends=1; no-cause",
+          "framing duplicate-identical fixed-marker; retired; sends=1; no-cause",
+          "framing duplicate-mixed-case fixed-marker; retired; sends=1; no-cause",
+          "framing duplicate-last-zero fixed-marker; retired; sends=1; no-cause",
+          "framing transfer-encoding fixed-marker; retired; sends=1; no-cause",
+          "framing uppercase-turkish first=first second=second; sends=2; pending=0; closes=0",
+          "framing transfer-encoding-turkish fixed-marker; retired; sends=1; no-cause",
+          "framing connection-close original-source-close; sends=1; pending=0; closes=1",
+          "shared declared-zero first=empty second=prior-body pending_before_second=117 pending_after_second=113 reads=160 sends=2 closes=0",
+          "PASS framing policy; guarded_operations=0"
+        ]
+      }
+    ],
+    "required_framing_policy": true,
+    "runtime_trees": {
+      "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    },
+    "sources": {
+      "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+      "tests/java/com/apple/xsr/net/SharedResponseObservation.java": "8b6d9028cd32ffd0585fcf495e78336c85b0bb03e1a64f226807e2545b6932b8",
+      "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+      "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+      "tools/baseline.py": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93",
+      "tools/check_shared_stream.py": "f53457e0fd14c302d797bb7c225b70b41ad4c1b2690f5b9497d8deaeb1285b29",
+      "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+      "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+      "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+      "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3"
+    }
+  },
+  "scope": "Frozen fixture on freshly rebuilt audit27; no hardware/GUI qualification",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

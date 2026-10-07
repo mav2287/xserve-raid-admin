@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "-E",
+    "-s",
+    "tools/check_preference_io.py",
+    "--jdk",
+    "/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home",
+    "--build",
+    "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference",
+    "--output",
+    "build/secure-gates-clean-1/audit27-preference-boundary"
+  ],
+  "candidate_jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "gate": "preference",
+  "result": {
+    "boundary_record_sha256": "a8382391d373e785c56f51a5ef08ed6c9249b21b2d505128bd379ae3ff6d6104",
+    "stdout": "PASS preference IO gate; runs=8; cases=18; original_controls=8; negative_controls=16; units=5"
+  },
+  "scope": "Frozen fixture on freshly rebuilt audit27; no hardware/GUI qualification",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

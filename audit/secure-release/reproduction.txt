@@ -1,0 +1,21 @@
+Safe offline reproduction (never installs or launches application Main)
+
+1. Reproduce product at e005b9a2877133d98af4cf86fd5b625532b06fcb:
+./build-secure.sh --jdk /path/to/locked-corretto-8.362/Contents/Home --output build/new-common --require-clean
+An additions-only release-tools checkout retains identical product-producing source. A future rebuild must record its expanded input list rather than falsely claim e005 provenance; its new product needs its own fixture/gate records before acceptance.
+
+2. For these qualified frozen e005 products, use the new corrected release tools. Older secure_package.py and check_secure_packaged.py are historical incomplete orchestration; they did not produce qualified archives. They are preserved byte-identically so old source proofs remain reproducible.
+/opt/homebrew/bin/python3 -I -S tools/secure_release.py --build build/secure-clean-1 --architecture aarch64 --runtime 'build/logging-bundled-arm64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk' --validator build/spdx-validator --created 2026-10-07T00:00:00Z --output build/new-arm-package
+/opt/homebrew/bin/python3 -I -S tools/secure_release.py --build build/secure-clean-1 --architecture x64 --runtime 'build/logging-bundled-x64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk' --validator build/spdx-validator --created 2026-10-07T00:00:00Z --output build/new-intel-package
+
+3. Actual packaged fixtures (never Main; offline filesystem guards and synthetic paths):
+/opt/homebrew/bin/python3 -I -S tools/check_secure_release.py --build build/secure-clean-1 --package build/new-arm-package --fixtures build/secure-fixtures-clean-1 --reference 'build/preference-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar' --output build/new-arm-packaged-tests
+Use the corresponding x64 package and a fresh output for Intel/Rosetta variants.
+
+4. New committed runtime-gate metadata adapter:
+/opt/homebrew/bin/python3 -E -s tools/secure_release_gate.py --historical-product --build build/secure-clean-1 --gate runtime --output build/new-runtime-gate.json
+This changes exactly one static metadata read to use the explicit identity adapter, while retaining the frozen Java fixture body and actual secure JAR argv. The resulting record identifies product versus execution commits and hashes of original/adapted drivers. Other secure gate records remain attributed to their original e005 executions.
+
+5. Rebuilds use pinned Python, compiler and locked SDK/native headers/tools/runtime trees. Both product builds and each per-architecture archive are repeated and compared. ZIP extraction files/modes, vendor runtime signatures, schema-valid SPDX and every SPDX physical/virtual SHA1/SHA256 are independently checked. Wrong checksum negative controls must fail. No system Java fallback.
+
+6. Do not replace /Applications/RAID Admin.app, launch Main with real saved profiles, or contact the production RAID as part of reproduction. Application signing/notarization and hardware/native full-GUI qualification are separate unperformed work. The macOS 11 floor is a binary minimum, not a blanket OS support guarantee. HTTP is plaintext.

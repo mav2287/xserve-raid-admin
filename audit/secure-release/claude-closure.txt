@@ -1,0 +1,36 @@
+I can't fully back the refinement as worded. The narrow part holds: nothing in the app calls `PasswordManager`. But the original already has its own save-password and Forget Password feature that doesn't use `PasswordManager`. So the ledger can't describe remember/forget as something that would only be added if a caller turned up.
+
+I only read files. `../PLAN.md` is outside the directories I'm allowed to read, so for the Keychain section I used `PLAN.md:194-199` and `audit/requirements/PLAN.md:186-190`.
+
+## Packaging/fixture closure: resolved
+- `tools/check_secure_release.py:5` puts the tools directory first on Python's import path. `:13` refuses to run without `-I -S`, and that check comes before the output directory is created (`:33`). `:58` records both flags.
+- The launcher test stub runs with `-I` too (`:49`).
+- The implementer note at the end of `claude-isolation-review.txt` correctly marks the old 6c5b3a5 `-E -s` runs as history only.
+- Minor, not blocking: the imports on `:6-9` run before the flag check on `:13`. A run without isolation could execute code from the environment before it gets rejected. The recorded flags are only meaningful because a correct run uses `-I -S`. `secure_release.py:4-15/35` has the same ordering.
+
+## Keychain scope: the narrow finding is supported
+- In `audit/static-inventory.json:5535-5607`, the only calls involving `PasswordManager` are inside that class and its nested exception. Its static setup calls `System.loadLibrary`, and the native `get/setPasswordInternal` methods are only called from within the class.
+- The raw class-constant check across all 656 classes is stronger evidence than the call inventory. It would also catch a `Class.forName` that uses a constant class name. It would not catch names assembled at runtime, and the record says so.
+- So "unavailable JNI replacement is not automatically required to preserve behaviour" is a fair conclusion from static evidence. Keep it labelled as inference.
+
+## Material issue: the original has its own remember/forget path
+From the static inventory:
+- **Save:** `ManagementAuthenticationListener.handleResponse` (`:26465-26475`) reads `getSavePassword()`, then calls `Utilities.crypt(password)`, `RaidSystem.setManagementPassword` and `setManagementPasswordSaved`. There's a save-password checkbox (`getSavePasswordCheckbox`, `:26611`).
+- **Forget:** `ForgetPasswordAction.actionPerformed` (`:26391-26396`) calls `setManagementPasswordSaved(false)`.
+- **Encoding:** `Utilities.crypt` (`:28941-28946`) is `SimpleCryptCoder.crypt` followed by Base64. That's reversible obfuscation, not encryption.
+- **Other uses:** the saved flag is also read for the table popup menu (`:28296`), the message renderer (`:28555`) and the code near `getAdminPassword` (`:13825`).
+
+What this means for the refinement and the ledger:
+1. **Change the wording.** Say: "the original has remember/forget via `RaidSystem` and reversible `SimpleCryptCoder` encoding, not `PasswordManager`; it is preserved unchanged and no Keychain UI is added." Don't say remember/forget will only be added if an original caller is verified.
+2. **Persistence is unknown.** The call inventory doesn't record field reads or writes, so these files don't show whether the saved value reaches disk. `getManagementPassword` is only read for re-authentication (`:26648`). If it does persist, it would go into the preference files the release now rewrites atomically. The ledger should say that persistence and confidentiality of saved management passwords are unverified, with no protection claimed. `PLAN.md:924` already says "no stored credential encryption claim", which is consistent with this.
+3. **Fix stale docs.** `EVIDENCE.md:141-143` (and its copy in `audit/requirements/`) says the application "catches the resulting native-link failure and marks the feature unavailable". That is now contradicted, because there's no app caller to catch anything. The triage note at `audit/CLAUDE-NO-HARDWARE-COMPLETION-TRIAGE.txt:49` assumed the remember/forget path went through `PasswordManager`, and that also turns out to be wrong. Correct or supersede both before handoff.
+
+## Material offline release blockers
+1. **Wording (above).** If the ledger implies there's no stored-credential feature, or that credentials are protected, it would be untrue. This is a documentation blocker, not a code blocker.
+2. **Keychain scope record.**
+   - `build/secure-keychain-scope.json` lives in `build/`, and no committed tool generates it. `tools/` has no keychain or scope generator.
+   - If the ledger cites it, archive it under `audit/secure-release/` as `.json` or `.txt`, as the earlier review requires. Record the exact search string (`PasswordManager` matches both the dotted and slashed name forms) and describe it as a hash-checkable one-off record.
+
+Apart from these two points, the plan for the final ledger (execution commits, host/translation, the ZIP → extract → bundle → fixture chain, and leaving out the non-isolated fixture runs) covers what the earlier review asked for. I don't see any other offline release blocker in these files. I haven't read any real credential or profile stores.
+
+IMPLEMENTER RESOLUTION (not Claude text): retain original Save/Forget Password via RaidSystem and reversible obfuscation; do not claim the controls are absent or unavailable. No new credential controls or silent migration. The final hash-checkable one-off record distinguishes raw scan of all 2,844 original class entries from selected 656 application-class method inventory, records exact search bytes, selected method/class hashes and archived driver, and leaves reflection/persistence/confidentiality unresolved. Parent PLAN/EVIDENCE/acceptance/GAPS explicitly supersede the earlier inference that unavailable JNI disables the original save-password feature. Existing old audit files remain historical. Final isolated package tests pass both architectures; previous nonisolated/failed fixtures excluded.

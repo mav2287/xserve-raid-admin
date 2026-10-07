@@ -1,0 +1,24 @@
+{
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "e3701f62b03824b3b206c46c759b43fe3edd291f24ce4d1c40436e5f239611a7",
+      "first_manifest_sha256": "6a4c095ecb82d8a8cccf57c5594c48f35fe35cad92089f1a623b8f21203c2314",
+      "identical_independent_package_bytes_modes_archives": true,
+      "packager_commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "product_source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "second_manifest_sha256": "194b8427c2637d8f211bff89c409e1c35a7aef63891b4c82828fb8d117d3ca44"
+    },
+    {
+      "architecture": "x64",
+      "archive_sha256": "743f6a724ce743b2fc71ab3594085af0d7d9d49b73edfe9573dc54a995a80e02",
+      "first_manifest_sha256": "420730b109f7c2015728e9c543fc2102db4a9918b985c774dce44d99dd76594b",
+      "identical_independent_package_bytes_modes_archives": true,
+      "packager_commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "product_source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "second_manifest_sha256": "e47acde728dbf1bbfc7236582c4f1cf14f89bf0a654e4405dbdfeb32035673ae"
+    }
+  ],
+  "qualification": false,
+  "scope": "Independent isolated clean-source packages over two separately reproduced common builds; identical per-architecture archives/files/modes; SPDX manifests legitimately cite different common build provenance"
+}

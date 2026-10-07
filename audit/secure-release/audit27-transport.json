@@ -1,0 +1,892 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "-E",
+    "-s",
+    "tools/check_transport.py",
+    "--jdk",
+    "/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home",
+    "--runtime",
+    "build/logging-bundled-arm64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--runtime",
+    "build/logging-bundled-x64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--default-logging",
+    "--parser-policy",
+    "--allocation-policy",
+    "--length-policy",
+    "--framing-policy",
+    "--operation-failure-characterization",
+    "--worker-failure-stop",
+    "--terminal-io-policy",
+    "--session-containment",
+    "--null-io-policy",
+    "--invalid-header-policy",
+    "--io-characterization",
+    "--header-policy",
+    "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar"
+  ],
+  "candidate_jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "gate": "transport",
+  "result": {
+    "allocation_observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "allocation-policy",
+        "results": [
+          "response allocation-16777217 rejected-before-body",
+          "queue_response allocation-16777217 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-2147483647 rejected-before-body",
+          "queue_response allocation-2147483647 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-ceiling-truncated io-error",
+          "queue_response allocation-ceiling-truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "allocation follow-on recovery qualified separately",
+          "PASS response allocation observations; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "allocation-policy-default-logging",
+        "results": [
+          "response allocation-16777217 rejected-before-body",
+          "queue_response allocation-16777217 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-2147483647 rejected-before-body",
+          "queue_response allocation-2147483647 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-ceiling-truncated io-error",
+          "queue_response allocation-ceiling-truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "allocation follow-on recovery qualified separately",
+          "PASS response allocation observations; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "allocation-policy",
+        "results": [
+          "response allocation-16777217 rejected-before-body",
+          "queue_response allocation-16777217 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-2147483647 rejected-before-body",
+          "queue_response allocation-2147483647 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-ceiling-truncated io-error",
+          "queue_response allocation-ceiling-truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "allocation follow-on recovery qualified separately",
+          "PASS response allocation observations; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "allocation-policy-default-logging",
+        "results": [
+          "response allocation-16777217 rejected-before-body",
+          "queue_response allocation-16777217 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-2147483647 rejected-before-body",
+          "queue_response allocation-2147483647 result=-102 sends=1 terminal_callbacks=1",
+          "response allocation-ceiling-truncated io-error",
+          "queue_response allocation-ceiling-truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "allocation follow-on recovery qualified separately",
+          "PASS response allocation observations; guarded_operations=0"
+        ]
+      }
+    ],
+    "fixture_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "fixture_dirty": false,
+    "fixture_sources": {
+      "patches/compat/RejectionRecovery.java": "ff62133d216904a47d74692c2a5b66e4f8e607e4f7914bae91636321febadb70",
+      "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+      "tests/java/com/apple/xsr/net/HeaderObservation.java": "b36a32a1b43679e23618b2ff6dc1d886375fa429d6af19086176395fd8abf029",
+      "tests/java/com/apple/xsr/net/TransportObservation.java": "850a2d7bbfbb06c0da81de8d7ce4bf92aac8434ae0920f0070f7d2847f34b822",
+      "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec"
+    },
+    "harness_sources": {
+      "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+      "tools/baseline.py": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93",
+      "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+      "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+      "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+      "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+      "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+      "tools/stop_admission_structure.py": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486",
+      "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+      "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6"
+    },
+    "header_observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "header-policy",
+        "results": [
+          "queue_response header-line result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-count result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-aggregate result=-102 sends=1 terminal_callbacks=1",
+          "header follow-on recovery qualified separately",
+          "PASS header quota observations; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "header-policy-default-logging",
+        "results": [
+          "queue_response header-line result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-count result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-aggregate result=-102 sends=1 terminal_callbacks=1",
+          "header follow-on recovery qualified separately",
+          "PASS header quota observations; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "header-policy",
+        "results": [
+          "queue_response header-line result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-count result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-aggregate result=-102 sends=1 terminal_callbacks=1",
+          "header follow-on recovery qualified separately",
+          "PASS header quota observations; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "header-policy-default-logging",
+        "results": [
+          "queue_response header-line result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-count result=-102 sends=1 terminal_callbacks=1",
+          "queue_response header-aggregate result=-102 sends=1 terminal_callbacks=1",
+          "header follow-on recovery qualified separately",
+          "PASS header quota observations; guarded_operations=0"
+        ]
+      }
+    ],
+    "host_machine": "arm64",
+    "intentional_differences": "When ResponseFraming exists, five missing/duplicate/chunked direct cases reject and one lowercase direct/queue case parses its plist; complete exact-line coverage is required. When parseLength exists, malformed/overflow/negative response declarations use fixed terminal markers and retire the connection; original stale follow-on is retained in original results, candidate follow-on measured separately. Remaining base output lines match after explicit maps; with worker-failure-stop the prefix result code stays -103 while the session now stops. Operation-failure matrices qualify that intentional state change separately.",
+    "invalid_header_scope": "Fixed terminal colonless/leading-colon rejection only; unconfirmed controller outcome, ordinary nonnull IO is terminal only with terminal-io-policy; null-message handling follows null_io_limits.",
+    "io_limits": "Session containment supersedes next-command success for exact security markers; nonnull IO replay is closed only with explicit terminal-io-policy qualification. Initial G10-a cases only, not classifier qualification; factory/RPC metadata and complete caller/UI/sequencing inventories remain open. Actual send/dispatch with bounded memory responses. Manager constructor is bypassed; a standalone fixture worker calls run, not the constructor-started CommMgr thread. Its custom uncaught handler captures only class/throw site; default thread-group stderr behavior is not measured. Null IOException is injected at the transport seam, not shown to originate from a real socket/parser. Original/audit.11 invalid-header retry is bounded only by the scripted valid second reply; with explicit invalid-header policy the candidate returns -102 after one send. Repeated bad peers and real reconnects are not qualified. Restart is synthetic serialization on memory output; shutdown_flag reports the request flag, not transport effect or a controller operation. Original null-message worker death leaves a later async post queued; with explicit null IO policy the candidate produces a fixed terminal failure. The session-containment flag changes follow-up behavior from fresh read success to blocked queued mutation/restart and permanent session stop. synchronous callers after that death and polling blockage remain unmeasured. Fixed malformed-header synchronous IOException is measured with explicit policy. Mutation -102 does not mean not applied; outcome is unconfirmed. CLI direct entry/exit remains unqualified. Header properties are changed synchronously after enqueue, not a parameter-structure or concurrency stress test. Reconnect uses invalid-address callback injection, not TCP/backoff.",
+    "io_observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "results": [
+          "io invalid-header message_has_peer_line=true; direct_sends=1",
+          "queue_response invalid-header-read-retry result=0 sends=2 terminal_callbacks=1",
+          "queue_response invalid-header-mutation-retry result=0 sends=2 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+          "io synthetic-restart lost-response; same-command-replayed; shutdown_flag=true; memory-only",
+          "io null-message worker-escaped=NPE; callbacks=0; sends=1; stopped=false; connected=true; later_queue=1",
+          "io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1",
+          "PASS IO characterization; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "results": [
+          "io invalid-header message_has_peer_line=true; direct_sends=1",
+          "queue_response invalid-header-read-retry result=0 sends=2 terminal_callbacks=1",
+          "queue_response invalid-header-mutation-retry result=0 sends=2 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+          "io synthetic-restart lost-response; same-command-replayed; shutdown_flag=true; memory-only",
+          "io null-message worker-escaped=NPE; callbacks=0; sends=1; stopped=false; connected=true; later_queue=1",
+          "io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1",
+          "PASS IO characterization; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "io invalid-header message_has_peer_line=false; direct_sends=1",
+          "queue_response invalid-header-read-terminal result=-102 sends=1 terminal_callbacks=1",
+          "queue_response invalid-header-mutation-terminal result=-102 sends=1 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "io synthetic-restart lost-response; no-replay; shutdown_flag=true; memory-only",
+          "io null-message terminal=-102; callbacks=1; failed_sends=1; next_distinct=-102; session-stopped",
+          "io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1",
+          "io sync invalid-header fixed-IOException; no-peer-or-cause; sends=1",
+          "PASS IO characterization; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "io invalid-header message_has_peer_line=false; direct_sends=1",
+          "queue_response invalid-header-read-terminal result=-102 sends=1 terminal_callbacks=1",
+          "queue_response invalid-header-mutation-terminal result=-102 sends=1 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "io synthetic-restart lost-response; no-replay; shutdown_flag=true; memory-only",
+          "io null-message terminal=-102; callbacks=1; failed_sends=1; next_distinct=-102; session-stopped",
+          "io shallow-clone property-changed-after-post; wire=after; sends=1; callbacks=1",
+          "io sync invalid-header fixed-IOException; no-peer-or-cause; sends=1",
+          "PASS IO characterization; guarded_operations=0"
+        ]
+      }
+    ],
+    "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+    "length_recovery_scope": "Follow-on coverage is a reference to separately recorded architecture --recovery results, not a transport-tool claim.",
+    "limits": "Original queue and ACP send with bounded synthetic memory HttpConnection replies; Unsafe bypasses transport/model constructors. Reconnection injected through invalid-address callback. Two-request ordering observed after one injected drop, not concurrency or indefinite retry qualification. ACP status decoding through BasicResponse, not authentication UI or real controller. Exception shim supplied to original and candidate; candidate bytes verified identical. Firmware stream test invokes send twice directly, not via queue. Each reply uses a fresh stream; shared-socket residual bytes/desynchronization and real EOF/timeout timing are not qualified. Synthetic idle streams throw immediately after their scripted bytes. Per-process 20-second timeout is the outer bound. Candidate-only allocation probes use empty bodies with advertised 16777217 and 2147483647 bytes, 64 MiB heap, terminal -102 and zero reconnects; original JAR is never passed these oversized declarations. Boundary gate exercised without allocating ceiling-sized buffers. Candidate header-policy tests cover line 65537, field 129, aggregate 1048577, sticky rejection and terminal -102 without resend; follow-on security recovery is recorded separately by the architecture recovery fixture. No TCP, hardware, polling, or real reconnect/backoff qualification. x64 on this arm64 host is Rosetta, not physical Intel qualification.",
+    "null_io_limits": "Exact-marker session stop; already-queued synthetic mutation/restart blocked, later async post stranded without callback, stopped-before-post sync throws; post/exit race remains unqualified. Injected EOF/null/caused/changing-message IO at a memory seam; real socket origin and timing unqualified. One getMessage evaluation with logging disabled. Source outcome unconfirmed. Synchronous fixed exception and classpath VerifyError negative control measured. Non-prefix IO is terminal only with the explicit terminal-io-policy flag.",
+    "null_io_observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "null_io eof terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=-102; session-stopped",
+          "null_io cause terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=-102; session-stopped",
+          "null_io changing-first-null terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=-102; session-stopped",
+          "null_io changing-first-text terminal=-102; fixed-no-cause; getMessage_calls=1; sends=1",
+          "null_io sync fixed-IOException; no-peer-or-cause; sends=1",
+          "PASS null IO policy; guarded_operations=0"
+        ],
+        "verifier_negative_control": "PASS corrupt manager rejected by verifier; guarded_operations=0"
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "null_io eof terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=-102; session-stopped",
+          "null_io cause terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=-102; session-stopped",
+          "null_io changing-first-null terminal=-102; fixed-no-cause; failed_sends=1; next_distinct=-102; session-stopped",
+          "null_io changing-first-text terminal=-102; fixed-no-cause; getMessage_calls=1; sends=1",
+          "null_io sync fixed-IOException; no-peer-or-cause; sends=1",
+          "PASS null IO policy; guarded_operations=0"
+        ],
+        "verifier_negative_control": "PASS corrupt manager rejected by verifier; guarded_operations=0"
+      }
+    ],
+    "observations": [
+      {
+        "application_logging": "forced-off",
+        "architecture": "aarch64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "results": [
+          "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+          "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+          "dispatch drops=4 malformed=false sends=5 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "response http-200 result=0",
+          "response http-401 result=0",
+          "response http-403 result=0",
+          "response http-500 result=0",
+          "response invalid-start result=0",
+          "response empty-body empty",
+          "response missing-length empty",
+          "response lowercase-length empty",
+          "response duplicate-last-valid result=0",
+          "response duplicate-last-zero empty",
+          "response invalid-length invalid-length",
+          "response negative-length negative-length",
+          "response overflow-length invalid-length",
+          "response truncated-body io-error",
+          "response invalid-header protocol-error",
+          "response chunked empty",
+          "response missing-length-idle empty",
+          "response truncated-body-idle synthetic-idle-timeout",
+          "response acp-status--16 result=-16",
+          "response acp-status--27 result=-27",
+          "response acp-status--28 result=-28",
+          "queue_response http-401 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-403 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-500 result=0 sends=1 terminal_callbacks=1",
+          "queue_response acp--16 result=-16 sends=1 terminal_callbacks=1",
+          "queue_response acp--27 result=-27 sends=1 terminal_callbacks=1",
+          "queue_response acp--28 result=-28 sends=1 terminal_callbacks=1",
+          "queue_response lowercase-length-empty-success result=0 sends=1 terminal_callbacks=1",
+          "queue_response invalid-length result=-102 sends=1 terminal_callbacks=1",
+          "queue_response truncated-retry-then-valid result=0 sends=2 terminal_callbacks=1",
+          "queue_order first-first-second; connections 1-2-2; callbacks first-second; reconnects=1",
+          "follow_on invalid-length results=-102,-102; sends=1; outstanding=true; reconnects=0",
+          "synthetic firmware stream throws_after_close=false memory_sends=2",
+          "synthetic firmware stream throws_after_close=true memory_sends=1",
+          "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+        ]
+      },
+      {
+        "application_logging": "forced-off",
+        "architecture": "x64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "results": [
+          "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+          "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=2 terminal_callbacks=1",
+          "dispatch drops=4 malformed=false sends=5 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "response http-200 result=0",
+          "response http-401 result=0",
+          "response http-403 result=0",
+          "response http-500 result=0",
+          "response invalid-start result=0",
+          "response empty-body empty",
+          "response missing-length empty",
+          "response lowercase-length empty",
+          "response duplicate-last-valid result=0",
+          "response duplicate-last-zero empty",
+          "response invalid-length invalid-length",
+          "response negative-length negative-length",
+          "response overflow-length invalid-length",
+          "response truncated-body io-error",
+          "response invalid-header protocol-error",
+          "response chunked empty",
+          "response missing-length-idle empty",
+          "response truncated-body-idle synthetic-idle-timeout",
+          "response acp-status--16 result=-16",
+          "response acp-status--27 result=-27",
+          "response acp-status--28 result=-28",
+          "queue_response http-401 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-403 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-500 result=0 sends=1 terminal_callbacks=1",
+          "queue_response acp--16 result=-16 sends=1 terminal_callbacks=1",
+          "queue_response acp--27 result=-27 sends=1 terminal_callbacks=1",
+          "queue_response acp--28 result=-28 sends=1 terminal_callbacks=1",
+          "queue_response lowercase-length-empty-success result=0 sends=1 terminal_callbacks=1",
+          "queue_response invalid-length result=-102 sends=1 terminal_callbacks=1",
+          "queue_response truncated-retry-then-valid result=0 sends=2 terminal_callbacks=1",
+          "queue_order first-first-second; connections 1-2-2; callbacks first-second; reconnects=1",
+          "follow_on invalid-length results=-102,-102; sends=1; outstanding=true; reconnects=0",
+          "synthetic firmware stream throws_after_close=false memory_sends=2",
+          "synthetic firmware stream throws_after_close=true memory_sends=1",
+          "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+        ]
+      },
+      {
+        "application_logging": "forced-off",
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=4 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "response http-200 result=0",
+          "response http-401 result=0",
+          "response http-403 result=0",
+          "response http-500 result=0",
+          "response invalid-start result=0",
+          "response empty-body empty",
+          "response missing-length framing-rejected",
+          "response lowercase-length result=0",
+          "response duplicate-last-valid framing-rejected",
+          "response duplicate-last-zero framing-rejected",
+          "security_length invalid-length fixed-marker; closed; no-input-or-cause",
+          "response invalid-length invalid-length",
+          "security_length negative-length fixed-marker; closed; no-input-or-cause",
+          "response negative-length negative-length",
+          "security_length overflow-length fixed-marker; closed; no-input-or-cause",
+          "response overflow-length invalid-length",
+          "response truncated-body io-error",
+          "response invalid-header framing-rejected",
+          "response chunked framing-rejected",
+          "response missing-length-idle framing-rejected",
+          "response truncated-body-idle synthetic-idle-timeout",
+          "response acp-status--16 result=-16",
+          "response acp-status--27 result=-27",
+          "response acp-status--28 result=-28",
+          "queue_response http-401 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-403 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-500 result=0 sends=1 terminal_callbacks=1",
+          "queue_response acp--16 result=-16 sends=1 terminal_callbacks=1",
+          "queue_response acp--27 result=-27 sends=1 terminal_callbacks=1",
+          "queue_response acp--28 result=-28 sends=1 terminal_callbacks=1",
+          "queue_response lowercase-length-parsed-success result=0 sends=1 terminal_callbacks=1",
+          "queue_response invalid-length result=-102 sends=1 terminal_callbacks=1",
+          "queue_response truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "queue_order first-only; connections 1; callbacks first-second; blocked-followup=true; reconnects=0",
+          "security_length follow-on qualified by recovery fixture",
+          "synthetic firmware stream throws_after_close=false memory_sends=2",
+          "synthetic firmware stream throws_after_close=true memory_sends=1",
+          "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+        ]
+      },
+      {
+        "application_logging": "candidate-configured; fixed stderr code verified",
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=4 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "response http-200 result=0",
+          "response http-401 result=0",
+          "response http-403 result=0",
+          "response http-500 result=0",
+          "response invalid-start result=0",
+          "response empty-body empty",
+          "response missing-length framing-rejected",
+          "response lowercase-length result=0",
+          "response duplicate-last-valid framing-rejected",
+          "response duplicate-last-zero framing-rejected",
+          "security_length invalid-length fixed-marker; closed; no-input-or-cause",
+          "response invalid-length invalid-length",
+          "security_length negative-length fixed-marker; closed; no-input-or-cause",
+          "response negative-length negative-length",
+          "security_length overflow-length fixed-marker; closed; no-input-or-cause",
+          "response overflow-length invalid-length",
+          "response truncated-body io-error",
+          "response invalid-header framing-rejected",
+          "response chunked framing-rejected",
+          "response missing-length-idle framing-rejected",
+          "response truncated-body-idle synthetic-idle-timeout",
+          "response acp-status--16 result=-16",
+          "response acp-status--27 result=-27",
+          "response acp-status--28 result=-28",
+          "queue_response http-401 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-403 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-500 result=0 sends=1 terminal_callbacks=1",
+          "queue_response acp--16 result=-16 sends=1 terminal_callbacks=1",
+          "queue_response acp--27 result=-27 sends=1 terminal_callbacks=1",
+          "queue_response acp--28 result=-28 sends=1 terminal_callbacks=1",
+          "queue_response lowercase-length-parsed-success result=0 sends=1 terminal_callbacks=1",
+          "queue_response invalid-length result=-102 sends=1 terminal_callbacks=1",
+          "queue_response truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "queue_order first-only; connections 1; callbacks first-second; blocked-followup=true; reconnects=0",
+          "security_length follow-on qualified by recovery fixture",
+          "synthetic firmware stream throws_after_close=false memory_sends=2",
+          "synthetic firmware stream throws_after_close=true memory_sends=1",
+          "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+        ]
+      },
+      {
+        "application_logging": "forced-off",
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=4 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "response http-200 result=0",
+          "response http-401 result=0",
+          "response http-403 result=0",
+          "response http-500 result=0",
+          "response invalid-start result=0",
+          "response empty-body empty",
+          "response missing-length framing-rejected",
+          "response lowercase-length result=0",
+          "response duplicate-last-valid framing-rejected",
+          "response duplicate-last-zero framing-rejected",
+          "security_length invalid-length fixed-marker; closed; no-input-or-cause",
+          "response invalid-length invalid-length",
+          "security_length negative-length fixed-marker; closed; no-input-or-cause",
+          "response negative-length negative-length",
+          "security_length overflow-length fixed-marker; closed; no-input-or-cause",
+          "response overflow-length invalid-length",
+          "response truncated-body io-error",
+          "response invalid-header framing-rejected",
+          "response chunked framing-rejected",
+          "response missing-length-idle framing-rejected",
+          "response truncated-body-idle synthetic-idle-timeout",
+          "response acp-status--16 result=-16",
+          "response acp-status--27 result=-27",
+          "response acp-status--28 result=-28",
+          "queue_response http-401 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-403 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-500 result=0 sends=1 terminal_callbacks=1",
+          "queue_response acp--16 result=-16 sends=1 terminal_callbacks=1",
+          "queue_response acp--27 result=-27 sends=1 terminal_callbacks=1",
+          "queue_response acp--28 result=-28 sends=1 terminal_callbacks=1",
+          "queue_response lowercase-length-parsed-success result=0 sends=1 terminal_callbacks=1",
+          "queue_response invalid-length result=-102 sends=1 terminal_callbacks=1",
+          "queue_response truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "queue_order first-only; connections 1; callbacks first-second; blocked-followup=true; reconnects=0",
+          "security_length follow-on qualified by recovery fixture",
+          "synthetic firmware stream throws_after_close=false memory_sends=2",
+          "synthetic firmware stream throws_after_close=true memory_sends=1",
+          "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+        ]
+      },
+      {
+        "application_logging": "candidate-configured; fixed stderr code verified",
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "ACP synthetic authentication/target/user-agent and plist parsing PASS; fixture prints no header values",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=1 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=4 malformed=false sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "response http-200 result=0",
+          "response http-401 result=0",
+          "response http-403 result=0",
+          "response http-500 result=0",
+          "response invalid-start result=0",
+          "response empty-body empty",
+          "response missing-length framing-rejected",
+          "response lowercase-length result=0",
+          "response duplicate-last-valid framing-rejected",
+          "response duplicate-last-zero framing-rejected",
+          "security_length invalid-length fixed-marker; closed; no-input-or-cause",
+          "response invalid-length invalid-length",
+          "security_length negative-length fixed-marker; closed; no-input-or-cause",
+          "response negative-length negative-length",
+          "security_length overflow-length fixed-marker; closed; no-input-or-cause",
+          "response overflow-length invalid-length",
+          "response truncated-body io-error",
+          "response invalid-header framing-rejected",
+          "response chunked framing-rejected",
+          "response missing-length-idle framing-rejected",
+          "response truncated-body-idle synthetic-idle-timeout",
+          "response acp-status--16 result=-16",
+          "response acp-status--27 result=-27",
+          "response acp-status--28 result=-28",
+          "queue_response http-401 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-403 result=0 sends=1 terminal_callbacks=1",
+          "queue_response http-500 result=0 sends=1 terminal_callbacks=1",
+          "queue_response acp--16 result=-16 sends=1 terminal_callbacks=1",
+          "queue_response acp--27 result=-27 sends=1 terminal_callbacks=1",
+          "queue_response acp--28 result=-28 sends=1 terminal_callbacks=1",
+          "queue_response lowercase-length-parsed-success result=0 sends=1 terminal_callbacks=1",
+          "queue_response invalid-length result=-102 sends=1 terminal_callbacks=1",
+          "queue_response truncated-terminal result=-102 sends=1 terminal_callbacks=1",
+          "queue_order first-only; connections 1; callbacks first-second; blocked-followup=true; reconnects=0",
+          "security_length follow-on qualified by recovery fixture",
+          "synthetic firmware stream throws_after_close=false memory_sends=2",
+          "synthetic firmware stream throws_after_close=true memory_sends=1",
+          "PASS memory-only transport and queue observations; real reconnection/backoff excluded"
+        ]
+      }
+    ],
+    "operation_failure_observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=false attempts=1 response_entries=1 queued_restart=sent",
+          "PASS operation failure characterization; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=false attempts=2 response_entries=2 queued_restart=sent",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=false attempts=1 response_entries=1 queued_restart=sent",
+          "PASS operation failure characterization; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked",
+          "PASS operation failure characterization; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked",
+          "PASS operation failure characterization; guarded_operations=0"
+        ]
+      }
+    ],
+    "operation_failure_scope": "Original/candidate memory dispatch with scripted prefix/shim/runtime faults and queued synthetic restart. Response seams explicitly clear requestOutstanding to model a reusable connection, not every failure. A proxy getPath fault occurs before request creation, not at a real serialization throw site. Exception identity and callback ordering asserted; no controller/UI or real socket qualification.",
+    "parser_observations": [
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "parser-policy",
+        "results": [
+          "queue_response entity-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response depth-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response blocked-entity result=-103 sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "PASS parser failures: -103 terminal, one send each, no requeue; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "parser-policy-default-logging",
+        "results": [
+          "queue_response entity-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response depth-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response blocked-entity result=-103 sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "PASS parser failures: -103 terminal, one send each, no requeue; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "parser-policy",
+        "results": [
+          "queue_response entity-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response depth-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response blocked-entity result=-103 sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "PASS parser failures: -103 terminal, one send each, no requeue; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mode": "parser-policy-default-logging",
+        "results": [
+          "queue_response entity-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response depth-quota result=-103 sends=1 terminal_callbacks=1",
+          "queue_response blocked-entity result=-103 sends=1 terminal_callbacks=1",
+          "dispatch drops=0 malformed=true sends=1 terminal_callbacks=1",
+          "PASS parser failures: -103 terminal, one send each, no requeue; guarded_operations=0"
+        ]
+      }
+    ],
+    "required_framing_policy": true,
+    "required_invalid_header_policy": true,
+    "required_length_policy": true,
+    "required_null_io_policy": true,
+    "required_session_containment": true,
+    "required_terminal_io_policy": true,
+    "required_worker_failure_stop": true,
+    "runtime_trees": {
+      "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    },
+    "terminal_io_observations": [
+      {
+        "architecture": "aarch64",
+        "execution": "-Xint",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "terminal_io response-loss attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io empty-message attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io timeout attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io eof attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-0 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-8 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-body-before-first-byte attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io prewrite-seam attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io cleanup-after-reply attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io legacy-codec-body-write attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true",
+          "PASS terminal IO faults; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "execution": "-Xcomp",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "terminal_io response-loss attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io empty-message attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io timeout attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io eof attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-0 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-8 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-body-before-first-byte attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io prewrite-seam attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io cleanup-after-reply attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io legacy-codec-body-write attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true",
+          "PASS terminal IO faults; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "semantic_negative_control": "PASS verified unsafe manager fails containment fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "x64",
+        "execution": "-Xint",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "terminal_io response-loss attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io empty-message attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io timeout attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io eof attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-0 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-8 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-body-before-first-byte attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io prewrite-seam attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io cleanup-after-reply attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io legacy-codec-body-write attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true",
+          "PASS terminal IO faults; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "execution": "-Xcomp",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "terminal_io response-loss attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io empty-message attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io timeout attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io eof attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-0 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-after-8 attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io write-body-before-first-byte attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io prewrite-seam attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io cleanup-after-reply attempts=1 response_entries=1 stopped=true queued_restart_blocked=true",
+          "terminal_io legacy-codec-body-write attempts=1 response_entries=0 stopped=true queued_restart_blocked=true",
+          "terminal_io idle-close-after-success attempts=2 response_entries=2 stopped=true queued_restart_blocked=true",
+          "PASS terminal IO faults; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "semantic_negative_control": "PASS verified unsafe manager fails containment fixture; guarded_operations=0"
+      }
+    ],
+    "terminal_io_scope": "response_entries counts entry to the memory response seam after writing, not a completed response. Non-prefix IO loses automatic resend and stops the local session. Worker-failure-stop also stops prefix/shim/generic worker faults; synchronous cancellation/exit liveness and logger failures remain open. Memory seams only; no TCP or controller.",
+    "tool_sha256": "4297163f195319b08220de26ea4a90aced04a4831998f12c13d30f6de8d85b03",
+    "worker_failure_observations": [
+      {
+        "architecture": "aarch64",
+        "execution": "-Xint",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked",
+          "PASS operation failure characterization; guarded_operations=0",
+          "worker_failure null-connection attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure throwing-connect-callback attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true",
+          "worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true",
+          "worker_failure sync same_call=plain-IOException next_call=CommShutdownException no-enqueue=true attempts=1",
+          "PASS worker failure policy; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "execution": "-Xcomp",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked",
+          "PASS operation failure characterization; guarded_operations=0",
+          "worker_failure null-connection attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure throwing-connect-callback attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true",
+          "worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true",
+          "worker_failure sync same_call=plain-IOException next_call=CommShutdownException no-enqueue=true attempts=1",
+          "PASS worker failure policy; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "aarch64",
+        "generated_helper_sha256": "14df7c6c992a9e61cf20696e167bd9b1eaba7e3aa97037fd41cb88d1e3680e79",
+        "generated_source_sha256": "2cfa520fadda6c59752b79e2b0a7dc5c47b14028b5cb68015fce3ef738077e7c",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "prefix",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "aarch64",
+        "generated_helper_sha256": "23ca7c10238ebfdeb12ec090f32f823e4590e616345ab35f0d3763affc14d87a",
+        "generated_source_sha256": "3008b79af0a7e8f7453764e752b875087f1312b8ab868655bf220462eb116cbb",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "report",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "aarch64",
+        "generated_jar_sha256": "2fbdbcae20eafd1df0e7db75fe19f8fedb92091947e79aeb446573c77b294f0a",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "shim",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "aarch64",
+        "generated_jar_sha256": "2e48f91861b78fd3450c584d9b4522e4301df9e668a7e00ca9bb6dba2460d95b",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "tail",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "x64",
+        "execution": "-Xint",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked",
+          "PASS operation failure characterization; guarded_operations=0",
+          "worker_failure null-connection attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure throwing-connect-callback attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true",
+          "worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true",
+          "worker_failure sync same_call=plain-IOException next_call=CommShutdownException no-enqueue=true attempts=1",
+          "PASS worker failure policy; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "execution": "-Xcomp",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "results": [
+          "operation_failure prefix first=-103 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure shim first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure generic first=-102 exception_identity=true stop_before_callback=true attempts=1 response_entries=1 queued_restart=blocked",
+          "operation_failure before-request-creation first=-102 exception_identity=true stop_before_callback=true attempts=0 response_entries=0 queued_restart=blocked",
+          "PASS operation failure characterization; guarded_operations=0",
+          "worker_failure null-connection attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure throwing-connect-callback attempts=0 stopped=true queued_restart_blocked=true",
+          "worker_failure null-handler-restart attempts=1 callbacks=1 stopped=true queued_restart_blocked=true",
+          "worker_failure healthy-negative-reply callbacks=2 attempts=2 continued=true",
+          "worker_failure sync same_call=plain-IOException next_call=CommShutdownException no-enqueue=true attempts=1",
+          "PASS worker failure policy; guarded_operations=0"
+        ]
+      },
+      {
+        "architecture": "x64",
+        "generated_helper_sha256": "14df7c6c992a9e61cf20696e167bd9b1eaba7e3aa97037fd41cb88d1e3680e79",
+        "generated_source_sha256": "2cfa520fadda6c59752b79e2b0a7dc5c47b14028b5cb68015fce3ef738077e7c",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "prefix",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "x64",
+        "generated_helper_sha256": "23ca7c10238ebfdeb12ec090f32f823e4590e616345ab35f0d3763affc14d87a",
+        "generated_source_sha256": "3008b79af0a7e8f7453764e752b875087f1312b8ab868655bf220462eb116cbb",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "report",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "x64",
+        "generated_jar_sha256": "b78461ec6372b63f622a0a0c0a8c508238795f6fdea9869ff2b1537fd009074d",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "shim",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      },
+      {
+        "architecture": "x64",
+        "generated_jar_sha256": "dbce80d91165c8563ad206c5f4d23fb6d74228c1848659f803b935ef2f7498f5",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "mutant": "tail",
+        "semantic_negative_control": "PASS verified worker-stop bypass fails sequencing fixture; guarded_operations=0"
+      }
+    ]
+  },
+  "scope": "Frozen fixture on freshly rebuilt audit27; no hardware/GUI qualification",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

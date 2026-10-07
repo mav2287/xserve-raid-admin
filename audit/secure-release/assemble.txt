@@ -1,0 +1,52 @@
+"""Archive existing bounded evidence and bind it to Git/artifacts; not application execution."""
+from pathlib import Path
+import json,hashlib,shutil,subprocess,stat
+ROOT=Path.cwd();stage=ROOT/'build/secure-audit-stage';out=ROOT/'audit/secure-release'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+PRODUCT='e005b9a2877133d98af4cf86fd5b625532b06fcb';PACKAGER='fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8'
+for p in sorted(stage.iterdir()):
+ assert p.suffix in {'.json','.txt'}
+ target=out/p.name;assert not target.exists();shutil.copyfile(p,target)
+assert len(list(stage.glob('audit27-*.json')))==20 # 17 gates plus 3 boundary records
+secure={n:out/('secure-'+n+'.json') for n in ['admission','connect','factory','help','lock','model','posting','publication','resources','runtime','security','shared','socket','stop','transport','worker']}
+assert len(secure)==16 and all(p.is_file() for p in secure.values())
+for n,p in secure.items():
+ r=json.loads(p.read_bytes());assert r['gate']==n and r['product_source_commit']==PRODUCT and not r['source_dirty'] and r['product_jar_sha256']=='bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e'
+records={str(p.relative_to(ROOT)):sha(p) for p in sorted(out.iterdir()) if p.is_file()}
+proofs={}
+def proof(commit,path,digest):
+ if path.startswith('/') or '..' in Path(path).parts:raise ValueError('Unsafe repository source proof')
+ key=(commit,path);value=proofs.get(key)
+ if value is not None:
+  assert value==digest;return
+ data=subprocess.check_output(['/usr/bin/git','show',commit+':'+path],cwd=ROOT,env={'PATH':'/usr/bin:/bin','HOME':'/var/empty','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null'})
+ assert hashlib.sha256(data).hexdigest()==digest,(commit,path)
+ proofs[key]=digest
+
+def walk(value,context=PRODUCT):
+ if isinstance(value,dict):
+  context=value.get('packager_commit',value.get('execution_commit',value.get('fixture_commit',value.get('source_commit',context))))
+  for key,child in value.items():
+   if key in {'inputs','input_hashes','source_hashes','historical_input_proofs'} and isinstance(child,dict):
+    owner=value.get('product_source_commit',PRODUCT) if key=='historical_input_proofs' else context
+    for name,h in child.items():
+     if isinstance(name,str) and isinstance(h,str) and len(h)==64 and not Path(name).is_absolute():proof(owner,name,h)
+   else:walk(child,context)
+ elif isinstance(value,list):
+  for child in value:walk(child,context)
+for p in sorted(out.glob('*.json')):walk(json.loads(p.read_bytes()))
+proof(PRODUCT,'audit/static-inventory.json',json.loads((out/'keychain-scope.json').read_bytes())['static_inventory_sha256'])
+archives=[]
+for arch in ['aarch64','x64']:
+ p=ROOT/'build/releases/audit28'/('RAID-Admin-1.5.1-modern.audit.28-'+arch+'-unsigned.zip');manifest=out/(arch+'-package-6-provenance.json');m=json.loads(manifest.read_bytes());observations=json.loads((out/(arch+'-package-6-release-observations.json')).read_bytes());fixtures=json.loads((out/(arch+'-packaged-fixtures.json')).read_bytes())
+ assert observations['archive_sha256']==sha(p) and observations['package_manifest_sha256']==sha(manifest)==fixtures['package_manifest_sha256']
+ assert m['source_commit']==PRODUCT and m['packager_commit']==PACKAGER==fixtures['packager_commit'] and fixtures['interpreter_isolated'] and fixtures['interpreter_no_site'] and len(fixtures['observations'])==10 and len(fixtures['launcher_observations'])==5
+ assert observations['repeated_archive_equal'] and observations['extracted_bundle_equal'] and observations['vendor_runtime_signature_verified']
+ archives.append({'architecture':arch,'path':str(p.relative_to(ROOT)),'sha256':sha(p),'package_manifest':str(manifest.relative_to(ROOT)),'fixture_record':str((out/(arch+'-packaged-fixtures.json')).relative_to(ROOT)),'fixture_to_archive_chain':'Actual packaged fixture -> manifest SHA + measured file/mode snapshot -> release record manifest/tree/archive SHA -> repeated ZIP extraction identical to measured bundle -> final copied ZIP SHA'})
+previous=ROOT/'audit/preference-final-integrity.json';assert sha(previous)=='f3547d5a17d0fe882417f9bf49d066302d54a9d7e18d854b09331c546aa63bce'
+original=ROOT/'original/RAID_Admin_original.jar';installed=Path('/Applications/RAID Admin.app/Contents/Resources/RAID_Admin.jar')
+assert sha(original)=='5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449' and stat.S_IMODE(original.stat().st_mode)==0o444
+assert sha(installed)=='aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236'
+ledger={'schema':1,'qualification':False,'scope':'Completed bounded offline product/release implementation and local unsigned archive acceptance; not full operational, hardware, GUI or confidentiality qualification','product_source_commit':PRODUCT,'packager_and_packaged_fixture_commit':PACKAGER,'product_jar_sha256':'bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e','native_abi':'0x58415204','native_sha256':{'aarch64':'2a402a2e2cd98e22fc31c9c4499c75b720d06cbf2826e2bb9aa0c9d77a872284','x64':'2485d8f66b2c480a94d309ba1f16028f1fa1e0edb957f85063eb28a107834f42'},'host':{'architecture':'arm64','macos':'26.6.2','aarch64_execution':'native','x64_execution':'Rosetta translation; physical Intel unverified'},'counts':{'rebuilt_audit27_gates':17,'secure_gates':16,'current_unit_tests':185,'current_unit_skips':0,'preference_fixture_runs':40,'native_functional_matrices':16,'native_cases_per_matrix':37,'native_fault_variants':76,'native_negatives':26,'raw_names_hardlinks':8,'wrong_destination_negatives':2,'packaged_runs_per_architecture':10,'launcher_stubs_per_architecture':5,'release_negative_controls':7},'secure_gate_execution_commits':{n:json.loads(p.read_bytes())['execution_commit'] for n,p in secure.items()},'records':records,'source_proofs':[{'commit':c,'path':p,'sha256':h} for (c,p),h in sorted(proofs.items())],'archives':archives,'preserved_previous_ledger_sha256':sha(previous),'original_jar_sha256':sha(original),'installed_jar_sha256':sha(installed),'assembly_orchestrator_sha256':sha(Path(__file__)),'assembly_orchestrator_tracked_at_execution':False,'excluded_attempts':['Failed old secure gate orchestration is not an all-gates success record; individual passing gate records are enumerated','Two early lock stdout mismatches have unresolved cause; no canonical oracle/output filtering or internal retry was added; separate exact canonical lock run passed','Ignored runtime metadata prototype is not committed-driver execution; final runtime record uses committed corrected release driver at 0020923','Old packaging precedence failures and incorrect nonisolated packager invocations left partial directories, not qualified archives','Older 0020923/6c5b3a5 packaged fixtures are development history; final packaged fixtures require isolated/no-site fd94ee9','NIO alias setup and metadata-name helper development records are not final product evidence'], 'limits':['No Main/full GUI/profile/Keychain/controller/production-volume execution or installed application modification','Actual save/forget controls retained, reversible obfuscation is not encryption; saved-password persistence/confidentiality and dynamic JNI/reflection reachability remain unverified','Native menus/dialog/browser and full workflows unverified; actual GUI save feedback not proved by headless reporters','x64 is Rosetta; physical Intel unverified','Other macOS/filesystem combinations and future macOS unqualified; 11.0 binary floor is not a tested support guarantee','Unsigned/unnotarized; no Developer ID, Gatekeeper/quarantine or independent-host qualification; Apple redistribution rights unresolved','HTTP remains plaintext; no credential confidentiality claim','Restricted operations require immediate confirmation, real hardware deferred until actual operational need','Frozen execution evidence can be verified by archived hashes/Git/ZIP at final evidence commit; rerun qualification at recorded execution commit or create new package evidence at current clean commit']}
+(out/'final-integrity.json').write_text(json.dumps(ledger,sort_keys=True,indent=2)+'\n')
+print('PASS archive assembly; records='+str(len(records))+'; historical Git source proofs='+str(len(proofs))+'; 17+16 gates; two final archives')

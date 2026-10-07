@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Read-only frozen audit28 record/Git/ZIP/reference verification; never starts Java."""
+import hashlib,json,subprocess,zipfile,stat,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def member(name):
+ p=Path(name)
+ if p.is_absolute() or '..' in p.parts:raise ValueError('Unsafe audit path')
+ return ROOT/p
+ledger=json.loads((ROOT/'audit/secure-release/final-integrity.json').read_bytes())
+for name,digest in ledger['records'].items():
+ if sha(member(name))!=digest:raise ValueError('Archived record changed: '+name)
+for name,digest in ledger['handoff_files'].items():
+ if sha(member(name))!=digest:raise ValueError('Handoff file changed: '+name)
+for proof in ledger['source_proofs']:
+ data=subprocess.check_output(['/usr/bin/git','show',proof['commit']+':'+proof['path']],cwd=ROOT,env={'PATH':'/usr/bin:/bin','HOME':'/var/empty','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null'})
+ if hashlib.sha256(data).hexdigest()!=proof['sha256']:raise ValueError('Historical Git source changed')
+for item in ledger['archives']:
+ archive=member(item['path']);manifest=json.loads(member(item['package_manifest']).read_bytes())
+ if sha(archive)!=item['sha256']:raise ValueError('Final archive changed')
+ with zipfile.ZipFile(archive) as z:
+  if len(z.namelist())!=len(set(z.namelist())):raise ValueError('Duplicate archive members')
+  files={};permissions={};directories={}
+  for entry in z.infolist():
+   if not entry.filename.startswith('RAID Admin.app/'):raise ValueError('Unexpected archive root')
+   name=entry.filename[len('RAID Admin.app/'):].rstrip('/');mode=(entry.external_attr>>16)&0xffff
+   if entry.is_dir():directories[name or '.']=stat.S_IMODE(mode)
+   else:
+    if not stat.S_ISREG(mode):raise ValueError('Nonregular archive entry')
+    files[name]=hashlib.sha256(z.read(entry)).hexdigest();permissions[name]=stat.S_IMODE(mode)
+  if files!=manifest['files'] or permissions!=manifest['file_modes'] or directories!=manifest['directory_modes']:raise ValueError('ZIP no longer equals measured package')
+  if files['Contents/Resources/RAID_Admin.jar']!=ledger['product_jar_sha256']:raise ValueError('Archive product changed')
+previous=ROOT/'audit/preference-final-integrity.json'
+if sha(previous)!=ledger['preserved_previous_ledger_sha256']:raise ValueError('Previous immutable ledger changed')
+old=json.loads(previous.read_bytes())
+for field in ['records','reference_artifacts']:
+ for name,digest in old[field].items():
+  if sha(member(name))!=digest:raise ValueError('Historical artifact changed')
+for proof in old['source_proofs']:
+ data=subprocess.check_output(['/usr/bin/git','show',proof['verified_commit']+':'+proof['source']],cwd=ROOT,env={'PATH':'/usr/bin:/bin','HOME':'/var/empty','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null'})
+ if hashlib.sha256(data).hexdigest()!=proof['sha256']:raise ValueError('Previous source proof changed')
+original=ROOT/'original/RAID_Admin_original.jar'
+if sha(original)!=ledger['original_jar_sha256'] or stat.S_IMODE(original.stat().st_mode)!=0o444:raise ValueError('Immutable original changed')
+installed=Path('/Applications/RAID Admin.app/Contents/Resources/RAID_Admin.jar')
+if installed.exists() and sha(installed)!=ledger['installed_jar_sha256']:raise ValueError('Installed reference changed')
+print('PASS frozen audit28 records, Git proofs, exact ZIP files/modes, audit27 preservation and immutable references; no application/controller execution')

@@ -1,0 +1,85 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "-E",
+    "-s",
+    "tools/check_request_factory.py",
+    "--jdk",
+    "/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home",
+    "--runtime",
+    "build/logging-bundled-arm64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--runtime",
+    "build/logging-bundled-x64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--candidate-sha256",
+    "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+    "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar"
+  ],
+  "candidate_jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "gate": "factory",
+  "result": {
+    "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+    "fixture_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "fixture_dirty": false,
+    "host_machine": "arm64",
+    "limits": "Synthetic arguments and body-only serialization into capped memory; no controller, wire-header serialization, header/body values emitted, full GUI/CLI, profile or actual firmware. 59=58 invoked+one filename-firmware exclusion. Two factory timeout states; clone identities, body digests matched to reviewed table and unmutated body equality. Six bounded enqueue-sharing cases, including Date/byte-array isolation and caller-list aliasing. No retry classifier, concurrency, mutation-between-retries or sequence qualification. One synthetic argument set per overload, not every conditional/default schema. Copied maps become HashMap, so ordered-map serialization may change. Source isValidElement accepts Float/general List types unsupported by deepCopy/writeXMLLevel; no GUI failure inferred. HashMap serialization order is pinned-runtime evidence, not portability proof. x64 uses Rosetta here.",
+    "macos_version": "26.6.2",
+    "observations": [
+      {
+        "architecture": "aarch64",
+        "excluded_per_sweep": 1,
+        "guarded_operations": 0,
+        "invoked_per_sweep": 58,
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "rows": 116
+      },
+      {
+        "architecture": "x64",
+        "excluded_per_sweep": 1,
+        "guarded_operations": 0,
+        "invoked_per_sweep": 58,
+        "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+        "rows": 116
+      },
+      {
+        "architecture": "aarch64",
+        "excluded_per_sweep": 1,
+        "guarded_operations": 0,
+        "invoked_per_sweep": 58,
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "rows": 116
+      },
+      {
+        "architecture": "x64",
+        "excluded_per_sweep": 1,
+        "guarded_operations": 0,
+        "invoked_per_sweep": 58,
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "rows": 116
+      }
+    ],
+    "purpose": "clean-reviewed-qualification",
+    "qualification": true,
+    "runtime_trees": {
+      "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    },
+    "source_hashes": {
+      "audit/expected-build.json": "b4384e326eff1e3b77f642ac64e8def3372914f2516aec31eb8059b61db75cf0",
+      "audit/request-factory-expected.json": "741e2b830a8bd7d8cd1b866acd0580e929b922d7626f5973780064ae03d7032a",
+      "audit/request-factory-signatures.json": "54f2c882894546a486c737c43c31d7e54abfb288f7edb5dd15cf62b6ea38437a",
+      "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+      "tests/java/com/apple/xsr/net/RequestFactoryObservation.java": "a18b1f8bf06b1665c4c8e3ae4c18c1aac6237f1f01115ec3d0fda6cc6de4bf98",
+      "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+      "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+      "tools/baseline.py": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93",
+      "tools/check_request_factory.py": "0f5bea956ad7b06223c8e92d0ddedfc7cbcb0a787ee16861c452e1c1e63ade2c",
+      "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+      "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+      "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+      "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3"
+    }
+  },
+  "scope": "Frozen fixture on freshly rebuilt audit27; no hardware/GUI qualification",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

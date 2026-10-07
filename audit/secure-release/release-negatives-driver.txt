@@ -1,0 +1,33 @@
+import sys,json,hashlib,subprocess,tempfile,shutil
+from pathlib import Path
+sys.path.insert(0,str(Path('tools').resolve()))
+from audit_support import ROOT,sha,isolated_env
+from secure_build import state
+initial=state();assert not initial['dirty'];rows=[]
+package=ROOT/'build/secure-release-aarch64-6';product=ROOT/'build/secure-clean-1';fixtures=ROOT/'build/secure-fixtures-clean-1';reference=ROOT/'build/preference-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar'
+manifest=json.loads((package/'provenance.json').read_text())
+with tempfile.TemporaryDirectory(prefix='secure-release-negative-',dir=ROOT/'build') as directory:
+ root=Path(directory)
+ for scenario in ['forged-jar-manifest','forged-native-manifest','forged-launcher-manifest','wrong-input-manifest','wrong-reference','forged-fixture-manifest']:
+  d=root/scenario;d.mkdir();fake=d/'package';fake.mkdir();record=json.loads(json.dumps(manifest));app=fake/'RAID Admin.app'
+  for name in ['Contents/Resources/RAID_Admin.jar','Contents/Frameworks/libPrivatePreference.dylib','Contents/MacOS/RAIDAdmin']:
+   f=app/name;f.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(package/'RAID Admin.app'/name,f)
+  expected='Actual packaged product/JNI/launcher differs from verified source';ref=reference;probes=fixtures
+  if scenario.startswith('forged-') and scenario!='forged-fixture-manifest':
+   name={'forged-jar-manifest':'Contents/Resources/RAID_Admin.jar','forged-native-manifest':'Contents/Frameworks/libPrivatePreference.dylib','forged-launcher-manifest':'Contents/MacOS/RAIDAdmin'}[scenario]
+   f=app/name;data=bytearray(f.read_bytes());data[0]^=1;f.write_bytes(data);record['files'][name]=sha(f)
+  elif scenario=='wrong-input-manifest':record['input_hashes']['tools/secure_release.py']='0'*64;expected='Packaged release input closure differs'
+  elif scenario=='wrong-reference':ref=d/'wrong.jar';ref.write_bytes(b'not the reference');expected='Packaged fixture reference JAR identity differs'
+  else:
+   probes=d/'fixtures';probes.mkdir();f=json.loads((fixtures/'observations.json').read_text());f['scope']='forged';(probes/'observations.json').write_text(json.dumps(f));expected='Unrecognized historical clean fixture manifest'
+  (fake/'provenance.json').write_text(json.dumps(record))
+  args=[sys.executable,'-I','-S',ROOT/'tools/check_secure_release.py','--build',product,'--package',fake,'--fixtures',probes,'--reference',ref,'--output',d/'observations']
+  result=subprocess.run(list(map(str,args)),cwd=ROOT,env=isolated_env(),capture_output=True,timeout=90)
+  if result.returncode!=1 or expected.encode() not in result.stderr or result.stdout or (d/'observations').exists():raise AssertionError('Release negative failed: '+scenario)
+  rows.append({'scenario':scenario,'rejected_before_java':True,'returncode':result.returncode,'controlled_reason':expected,'stderr_sha256':hashlib.sha256(result.stderr).hexdigest()})
+ out=root/'nonisolated-output';result=subprocess.run([sys.executable,'-E','-s',str(ROOT/'tools/secure_release.py'),'--build',str(product),'--architecture','aarch64','--runtime',str(package/'RAID Admin.app/Contents/PlugIns/Runtime.jdk'),'--validator','build/spdx-validator','--created','2026-10-07T00:00:00Z','--output',str(out)],cwd=ROOT,env=isolated_env(),capture_output=True,timeout=30)
+ assert result.returncode==1 and b'Use Python -I -S for secure release/SPDX qualification' in result.stderr and not out.exists()
+ rows.append({'scenario':'nonisolated-release-python','rejected_before_output':True,'returncode':1})
+assert state()==initial
+record={'qualification':False,'scope':'Actual committed CLI negative controls; no Java/Main/controller execution','execution_commit':initial['commit'],'source_dirty':False,'driver_sha256':sha(Path(__file__)),'inputs':{'tools/check_secure_release.py':sha(ROOT/'tools/check_secure_release.py'),'tools/secure_release.py':sha(ROOT/'tools/secure_release.py'),'tools/historical_secure.py':sha(ROOT/'tools/historical_secure.py')},'package_manifest_sha256':sha(package/'provenance.json'),'observations':rows}
+(ROOT/'build/secure-release-negatives.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n');print('PASS seven release provenance/identity/invocation negative controls')

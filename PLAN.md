@@ -1,5 +1,8 @@
 # Detailed implementation and audit plan
 
+> Current audit28 status and credential-path corrections: [SECURE-PREFERENCES.md](audit/SECURE-PREFERENCES.md#credential-path-evidence-correction). This historical document is retained; its earlier inference that the unavailable JNI disables Save/Forget Password is superseded. Those original controls remain in code; persistence and behavior through the new writer remain unverified.
+
+
 ## 1. Mission and non-negotiable principles
 
 Make Apple RAID Admin 1.5.1 fully usable on supported modern macOS systems while

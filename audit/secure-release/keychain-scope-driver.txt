@@ -1,0 +1,18 @@
+"""One-off read-only original bytecode inventory selection; no profiles/Keychain."""
+import hashlib,json,zipfile
+from pathlib import Path
+root=Path.cwd();jar=root/'original/RAID_Admin_original.jar';inventory=root/'audit/static-inventory.json'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+r=json.loads(inventory.read_bytes());assert sha(jar)==r['jar_sha256']=='5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449'
+matching={};entries={}
+with zipfile.ZipFile(jar) as z:
+ for name in z.namelist():
+  if name.endswith('.class'):
+   data=z.read(name);entries[name]=hashlib.sha256(data).hexdigest()
+   if b'PasswordManager' in data:matching[name]=entries[name]
+assert len(r['classes'])==r['class_count'] and all(c.replace('.','/')+'.class' in entries for c in r['classes'])
+callers=[m for m in r['methods'] if any('PasswordManager' in v for v in m.get('calls',[]))]
+selected=[m for m in r['methods'] if ('ManagementAuthenticationListener' in m['class'] and 'handleResponse(' in m['signature']) or ('ForgetPasswordAction' in m['class'] and 'actionPerformed(' in m['signature']) or (m['class']=='com.apple.xsr.Utilities' and ' crypt(' in m['signature']) or (m['class']=='com.apple.xsr.som.RaidSystem' and any(v in m['signature'] for v in ['setManagementPassword(','getManagementPassword(','setManagementPasswordSaved(','getManagementPasswordSaved(']))]
+record={'qualification':False,'scope':'One-off hash-checkable immutable original class byte substring and selected application-class static method-call inventory selection; not runtime/reflection, credential/profile or Keychain access','search_bytes_ascii':'PasswordManager','original_jar_sha256':sha(jar),'static_inventory_sha256':sha(inventory),'driver_sha256':sha(Path(__file__)),'driver_git_tracked_at_execution':False,'inventory_selected_class_count':r['class_count'],'raw_scanned_class_count':len(entries),'matching_class_entries':matching,'matching_method_callers':callers,'existing_save_forget_method_selection':selected,'selected_original_class_hashes':{m['class']:entries[m['class'].replace('.','/')+'.class'] for m in selected},'facts':['Only PasswordManager and its nested access exception contain that raw name; the recorded selected application-class method inventory has no statically identifiable app caller','Original management authentication has a save-password control and sets RaidSystem management password/saved flag; ForgetPasswordAction clears the saved flag','Utilities.crypt calls SimpleCryptCoder.crypt and Base64.encode; this is reversible obfuscation, not stored-credential encryption'],'inference':'Replacing unused JNI is not automatically needed for preservation; original Save/Forget code remains unchanged; behavior through the new preference writer and any persistence remain unverified, with no duplicate Keychain UI','unresolved':['Dynamically assembled reflection/native lookups and actual saved credential workflow are unverified','This method-call selection does not prove disk persistence, access control or confidentiality of saved management passwords; no stored-credential protection claim']}
+(root/'build/secure-keychain-scope.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+print('PASS bounded original credential-path static selection; no credential access')

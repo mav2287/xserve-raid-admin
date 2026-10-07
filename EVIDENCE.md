@@ -1,5 +1,8 @@
 # Verified starting evidence
 
+> Current audit28 status and credential-path corrections: [SECURE-PREFERENCES.md](audit/SECURE-PREFERENCES.md#credential-path-evidence-correction). This historical document is retained; its earlier inference that the unavailable JNI disables Save/Forget Password is superseded. Those original controls remain in code; persistence and behavior through the new writer remain unverified.
+
+
 This document records facts established from the installed application. Treat
 these as starting evidence, not as a substitute for auditing the source tree.
 

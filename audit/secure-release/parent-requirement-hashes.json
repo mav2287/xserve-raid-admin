@@ -1,0 +1,15 @@
+{
+  "files": {
+    "ACCEPTANCE-MATRIX.md": "f90dade12f4b1bbc06b54933d793b040862e5056430ebb1d70b584d937cec64f",
+    "ARCHITECTURE.md": "c7712d26a3c8d5e1af2c4112e3c8120c81b245beeda75b18898f2ad3ea71061e",
+    "AUDIT-BASELINE.md": "4f9bec7a920e1ac35fde05d8a5671e7d6c810c78f65631f098bc561252e41f0c",
+    "DEPENDENCIES.md": "1940fab051af35663be98bbc050955779631b860eaadfb29c0dcabe5d91922e0",
+    "EVIDENCE.md": "ecfdd07c101570ce3d6c0f2277503d5130036276956347440d727c25a8d189b2",
+    "GAPS.md": "0f6d5a4921d7a8b698bcde0c9ed3d328f2d6cf18a827a9a129f727063b76c2e1",
+    "PLAN.md": "7d3d4030fd655fc726671639a67ba81a47fa7b226d5b5952338852006960d8ea",
+    "PROTOCOL-INVENTORY.md": "18cea717e1f19f092043fcf3ec0e4966e907e6a8b2b3ff73b74580bdefc0b6ba",
+    "README.md": "948f896cf455709b8220d7d1dbdfc0b89bae0850f702c387264efb98a52545a0",
+    "RELEASE-CHECKLIST.md": "f97c84acdd1c91bb3d2afd2470d44b772b6b7b96f43ba4eb8cdbbbc6b4b88882"
+  },
+  "scope": "Read-only hashes of updated parent project requirements/audit status; parent folder is not a Git repository. Historical in-repository requirements snapshots are unchanged. No credentials/profile data read."
+}

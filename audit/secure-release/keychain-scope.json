@@ -1,0 +1,111 @@
+{
+  "driver_git_tracked_at_execution": false,
+  "driver_sha256": "54e9515578011f0cec236cfe612628355c8a5dba89bef93a8fbafcafa6325896",
+  "existing_save_forget_method_selection": [
+    {
+      "calls": [
+        "Method com/apple/xsr/SystemMonitorWindow.getSelectedSystems:()[Lcom/apple/xsr/som/RaidSystem;",
+        "Method com/apple/xsr/som/RaidSystem.setManagementPasswordSaved:(Z)V"
+      ],
+      "class": "com.apple.xsr.SystemMonitorController$ForgetPasswordAction",
+      "signature": "public void actionPerformed(java.awt.event.ActionEvent);"
+    },
+    {
+      "calls": [
+        "Method com/apple/xsr/SystemMonitorController$ManagementAuthenticationSheet.getProgressClock:()Lcom/apple/xsr/AquaProgressClock;",
+        "Method com/apple/xsr/AquaProgressClock.setVisible:(Z)V",
+        "Method com/apple/xsr/AquaProgressClock.stopAnimation:()V",
+        "InterfaceMethod com/apple/xsr/net/Response.getResultCode:()I",
+        "Method com/apple/xsr/SystemMonitorController$ManagementAuthenticationSheet.getSavePassword:()Z",
+        "Method com/apple/xsr/SystemMonitorController$ManagementAuthenticationSheet.getPassword:()Ljava/lang/String;",
+        "Method com/apple/xsr/Utilities.crypt:(Ljava/lang/String;)Ljava/lang/String;",
+        "Method com/apple/xsr/som/RaidSystem.setManagementPassword:(Ljava/lang/String;)V",
+        "Method com/apple/xsr/som/RaidSystem.setManagementPasswordSaved:(Z)V",
+        "Method com/apple/xsr/SystemMonitorController.access$000:()Lorg/apache/log4j/Logger;",
+        "Method org/apache/log4j/Logger.error:(Ljava/lang/Object;)V",
+        "Method com/apple/xsr/AquaAlert.dismissSheetOrDialog:(I)V",
+        "Method com/apple/xsr/SystemMonitorController$21.\"<init>\":(Lcom/apple/xsr/SystemMonitorController$ManagementAuthenticationListener;)V",
+        "Method javax/swing/SwingUtilities.invokeLater:(Ljava/lang/Runnable;)V",
+        "Method com/apple/xsr/SystemMonitorController.access$1400:(Lcom/apple/xsr/SystemMonitorController;)V",
+        "Method com/apple/xsr/AquaAlert.dismissSheetOrDialog:(I)V",
+        "Method com/apple/xsr/SystemMonitorController.access$1500:(Lcom/apple/xsr/SystemMonitorController;)V",
+        "Method com/apple/xsr/SystemMonitorController.access$1600:(Lcom/apple/xsr/SystemMonitorController;)V",
+        "Method com/apple/xsr/AquaAlert.dismissSheetOrDialog:(I)V"
+      ],
+      "class": "com.apple.xsr.SystemMonitorController$ManagementAuthenticationListener",
+      "signature": "public void handleResponse(com.apple.xsr.som.RaidSystem, com.apple.xsr.net.Response, java.lang.Object);"
+    },
+    {
+      "calls": [
+        "Method java/lang/NullPointerException.\"<init>\":(Ljava/lang/String;)V",
+        "Method java/lang/String.getBytes:(Ljava/lang/String;)[B",
+        "Method com/apple/net/acp/SimpleCryptCoder.crypt:([B)[B",
+        "Method com/apple/util/Base64Utilities.encode:([B)Ljava/lang/String;"
+      ],
+      "class": "com.apple.xsr.Utilities",
+      "signature": "public static java.lang.String crypt(java.lang.String) throws java.io.UnsupportedEncodingException;"
+    },
+    {
+      "calls": [],
+      "class": "com.apple.xsr.som.RaidSystem",
+      "signature": "public void setManagementPassword(java.lang.String);"
+    },
+    {
+      "calls": [],
+      "class": "com.apple.xsr.som.RaidSystem",
+      "signature": "public java.lang.String getManagementPassword();"
+    },
+    {
+      "calls": [
+        "Method setChanged:()V"
+      ],
+      "class": "com.apple.xsr.som.RaidSystem",
+      "signature": "public void setManagementPasswordSaved(boolean);"
+    },
+    {
+      "calls": [],
+      "class": "com.apple.xsr.som.RaidSystem",
+      "signature": "public boolean getManagementPasswordSaved();"
+    }
+  ],
+  "facts": [
+    "Only PasswordManager and its nested access exception contain that raw name; the recorded selected application-class method inventory has no statically identifiable app caller",
+    "Original management authentication has a save-password control and sets RaidSystem management password/saved flag; ForgetPasswordAction clears the saved flag",
+    "Utilities.crypt calls SimpleCryptCoder.crypt and Base64.encode; this is reversible obfuscation, not stored-credential encryption"
+  ],
+  "inference": "Replacing unused JNI is not automatically needed for preservation; original Save/Forget code remains unchanged; behavior through the new preference writer and any persistence remain unverified, with no duplicate Keychain UI",
+  "inventory_selected_class_count": 656,
+  "matching_class_entries": {
+    "com/apple/util/jni/PasswordManager$PasswordManagerAccessException.class": "0cc5290980b98f7df389734a9b364d0ffa97f008f53de12ba359575ad50e0ddb",
+    "com/apple/util/jni/PasswordManager.class": "cb235aeb175f420c52b326dd5ea5360140bf25dc0ad1cfd624251983db425257"
+  },
+  "matching_method_callers": [
+    {
+      "calls": [
+        "Method com/apple/util/jni/PasswordManager$PasswordManagerAccessException.\"<init>\":(Lcom/apple/util/jni/PasswordManager;Ljava/lang/String;)V",
+        "Method getPasswordInternal:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+        "Method com/apple/util/jni/PasswordManager$PasswordManagerAccessException.\"<init>\":(Lcom/apple/util/jni/PasswordManager;Ljava/lang/String;)V",
+        "Method java/lang/String.length:()I",
+        "Method com/apple/util/jni/PasswordManager$PasswordManagerAccessException.\"<init>\":(Lcom/apple/util/jni/PasswordManager;Ljava/lang/String;)V"
+      ],
+      "class": "com.apple.util.jni.PasswordManager",
+      "signature": "public java.lang.String getPassword(java.lang.String, java.lang.String) throws com.apple.util.jni.PasswordManager$PasswordManagerAccessException;"
+    }
+  ],
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "qualification": false,
+  "raw_scanned_class_count": 2844,
+  "scope": "One-off hash-checkable immutable original class byte substring and selected application-class static method-call inventory selection; not runtime/reflection, credential/profile or Keychain access",
+  "search_bytes_ascii": "PasswordManager",
+  "selected_original_class_hashes": {
+    "com.apple.xsr.SystemMonitorController$ForgetPasswordAction": "a357ecbe915c6de1d1e25b55577353a58053b083ae241a588842e875f630ab30",
+    "com.apple.xsr.SystemMonitorController$ManagementAuthenticationListener": "f3b83ccb224c73963cdf9197c09cbdee052eadda1e31878bc58d2ab0994c416c",
+    "com.apple.xsr.Utilities": "adc2effb94ebb38bc7b3543e1f1b452fb2cb0c2cfbf977df01c68ffbb8470ee5",
+    "com.apple.xsr.som.RaidSystem": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632"
+  },
+  "static_inventory_sha256": "28c6b43f0bf85a8f31891d28307669f48dde2335fdbb7024d0e53ba7a24de57a",
+  "unresolved": [
+    "Dynamically assembled reflection/native lookups and actual saved credential workflow are unverified",
+    "This method-call selection does not prove disk persistence, access control or confidentiality of saved management passwords; no stored-credential protection claim"
+  ]
+}

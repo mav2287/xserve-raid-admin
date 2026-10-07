@@ -1,0 +1,12 @@
+{
+  "installed_app_modified": false,
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "original_mode": 292,
+  "previous_ledger_sha256": "f3547d5a17d0fe882417f9bf49d066302d54a9d7e18d854b09331c546aa63bce",
+  "previous_records_verified": 39,
+  "previous_source_proofs_verified": 883,
+  "qualification": false,
+  "reference_artifacts_verified": 8,
+  "scope": "Read-only reference and previous ledger verification"
+}

@@ -1,0 +1,349 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "-E",
+    "-s",
+    "tools/check_connection_publication.py",
+    "--jdk",
+    "/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home",
+    "--runtime",
+    "build/logging-bundled-arm64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--runtime",
+    "build/logging-bundled-x64-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk",
+    "--candidate",
+    "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+    "--candidate-sha256",
+    "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+    "--reference",
+    "build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar"
+  ],
+  "candidate_jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "gate": "publication",
+  "result": {
+    "candidate_acpx_sha256": "26dc0d7ae466eb5a708dbedeaf7706f222df595d116e115af7ee38b0e98fc9d9",
+    "candidate_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+    "candidate_source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "candidate_source_dirty": false,
+    "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+    "limits": "Trusted memory SocketImpl fixtures; no native sockets/output, profiles, credentials, app Main, commands transmitted or controller. x64 is Rosetta; Xcomp is requested, not a whole-VM compilation claim. Write marker tests preserve original outstanding-request bookkeeping, not successful response recovery. Local publication fix is not concurrency cancellation or controller acceptance.",
+    "negative_controls": [
+      {
+        "architecture": "aarch64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.unpublished(ConnectionPublicationObservation.java:34)",
+          "ConnectionPublicationObservation$MemoryImpl.connect(ConnectionPublicationObservation.java:47)"
+        ],
+        "identity_manifest_sha256": "18fa480fc40d0c81620b35ad815b11cf4d55d00f66de251a882755f34e37de34",
+        "jar_sha256": "2d143b2ddf74669d28958718f01868326da7d2ed571897b8254e3a9e522206f7",
+        "mutation": "early-publication",
+        "stderr_sha256": "62064f56dc340f317299d748cc19e6a2c1aa73fc2e1ff83c6777f8700c0dd1cb",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "x64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.unpublished(ConnectionPublicationObservation.java:34)",
+          "ConnectionPublicationObservation$MemoryImpl.connect(ConnectionPublicationObservation.java:47)"
+        ],
+        "identity_manifest_sha256": "18fa480fc40d0c81620b35ad815b11cf4d55d00f66de251a882755f34e37de34",
+        "jar_sha256": "2d143b2ddf74669d28958718f01868326da7d2ed571897b8254e3a9e522206f7",
+        "mutation": "early-publication",
+        "stderr_sha256": "62064f56dc340f317299d748cc19e6a2c1aa73fc2e1ff83c6777f8700c0dd1cb",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "aarch64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:151)"
+        ],
+        "identity_manifest_sha256": "794fde868becd990c637390f35c08b014043fbff0a5c111823e892582a282863",
+        "jar_sha256": "98236db353ac9708055e3300ece9b2edd83d9fc62b13150d96e51d519859689b",
+        "mutation": "missing-publication",
+        "stderr_sha256": "c83578239ce59c009f52962d502bbf6f2fc4a93be0c791c412aaf74977807def",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "x64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:151)"
+        ],
+        "identity_manifest_sha256": "794fde868becd990c637390f35c08b014043fbff0a5c111823e892582a282863",
+        "jar_sha256": "98236db353ac9708055e3300ece9b2edd83d9fc62b13150d96e51d519859689b",
+        "mutation": "missing-publication",
+        "stderr_sha256": "c83578239ce59c009f52962d502bbf6f2fc4a93be0c791c412aaf74977807def",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "aarch64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:151)"
+        ],
+        "identity_manifest_sha256": "7d19cac0cdf8450b937b380b7a250ab7c29ccb8416aa5a01a604886ae53e65de",
+        "jar_sha256": "0593a41ee302a4302dbe057343e911cc01f4521ac8b793e5e068e8d279b39584",
+        "mutation": "missing-open",
+        "stderr_sha256": "c83578239ce59c009f52962d502bbf6f2fc4a93be0c791c412aaf74977807def",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "x64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:151)"
+        ],
+        "identity_manifest_sha256": "7d19cac0cdf8450b937b380b7a250ab7c29ccb8416aa5a01a604886ae53e65de",
+        "jar_sha256": "0593a41ee302a4302dbe057343e911cc01f4521ac8b793e5e068e8d279b39584",
+        "mutation": "missing-open",
+        "stderr_sha256": "c83578239ce59c009f52962d502bbf6f2fc4a93be0c791c412aaf74977807def",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "aarch64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.lambda$request$0(ConnectionPublicationObservation.java:101)",
+          "ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:163)"
+        ],
+        "identity_manifest_sha256": "da60b712fd98fb6d828890839932cda0c9a9fd62dc303cba41ae82be4193b92e",
+        "jar_sha256": "6e72ab941344fb15b80934b0db653a345bd92ac75fce991c4b71f7fa6ffbc6c4",
+        "mutation": "missing-persistent",
+        "stderr_sha256": "5fde93eb69273f334b997a3499896b68c8cf26eb4ef2a29a77d16993b349b03a",
+        "verifier_or_timeout_failure": false
+      },
+      {
+        "architecture": "x64",
+        "assertion": "Publication assertion",
+        "execution_mode": "-Xint",
+        "expected_fixture_frames": [
+          "ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)",
+          "ConnectionPublicationObservation.lambda$request$0(ConnectionPublicationObservation.java:101)",
+          "ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:163)"
+        ],
+        "identity_manifest_sha256": "da60b712fd98fb6d828890839932cda0c9a9fd62dc303cba41ae82be4193b92e",
+        "jar_sha256": "6e72ab941344fb15b80934b0db653a345bd92ac75fce991c4b71f7fa6ffbc6c4",
+        "mutation": "missing-persistent",
+        "stderr_sha256": "5fde93eb69273f334b997a3499896b68c8cf26eb4ef2a29a77d16993b349b03a",
+        "verifier_or_timeout_failure": false
+      }
+    ],
+    "observations": [
+      {
+        "architecture": "aarch64",
+        "execution_flags": [
+          "-Xint",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/aarch64-XintConnectionPublicationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/aarch64-XintConnectionPublicationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "ConnectionPublicationObservation"
+        ],
+        "execution_mode": "-Xint",
+        "fixture": "ConnectionPublicationObservation",
+        "identity_manifest_sha256": "9275898f438ef322d8330e48b7dbdbbf5497e44a99c6a7a322938425ec395f35",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "result": "PASS connection publication; cases=26; explicit_failure_attempts=34; native_socket_creation_forbidden=true; native_output_attempts=0"
+      },
+      {
+        "architecture": "aarch64",
+        "execution_flags": [
+          "-Xint",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/aarch64-XintCachedConfigurationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/aarch64-XintCachedConfigurationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "CachedConfigurationObservation"
+        ],
+        "execution_mode": "-Xint",
+        "fixture": "CachedConfigurationObservation",
+        "identity_manifest_sha256": "5428e1ce92afa406866dd3f7c7b4850a1bfec0454121dd8ae8ae0dde77119a20",
+        "jar_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+        "result": "PASS cached connection gap characterized; calls=3; native_sockets=0; output_acquisitions=0; custom_timeout_null_socket=true"
+      },
+      {
+        "architecture": "aarch64",
+        "execution_flags": [
+          "-Xcomp",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/aarch64-XcompConnectionPublicationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/aarch64-XcompConnectionPublicationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "ConnectionPublicationObservation"
+        ],
+        "execution_mode": "-Xcomp",
+        "fixture": "ConnectionPublicationObservation",
+        "identity_manifest_sha256": "9275898f438ef322d8330e48b7dbdbbf5497e44a99c6a7a322938425ec395f35",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "result": "PASS connection publication; cases=26; explicit_failure_attempts=34; native_socket_creation_forbidden=true; native_output_attempts=0"
+      },
+      {
+        "architecture": "aarch64",
+        "execution_flags": [
+          "-Xcomp",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/aarch64-XcompCachedConfigurationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/aarch64-XcompCachedConfigurationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "CachedConfigurationObservation"
+        ],
+        "execution_mode": "-Xcomp",
+        "fixture": "CachedConfigurationObservation",
+        "identity_manifest_sha256": "5428e1ce92afa406866dd3f7c7b4850a1bfec0454121dd8ae8ae0dde77119a20",
+        "jar_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+        "result": "PASS cached connection gap characterized; calls=3; native_sockets=0; output_acquisitions=0; custom_timeout_null_socket=true"
+      },
+      {
+        "architecture": "x64",
+        "execution_flags": [
+          "-Xint",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/x64-XintConnectionPublicationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/x64-XintConnectionPublicationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "ConnectionPublicationObservation"
+        ],
+        "execution_mode": "-Xint",
+        "fixture": "ConnectionPublicationObservation",
+        "identity_manifest_sha256": "9275898f438ef322d8330e48b7dbdbbf5497e44a99c6a7a322938425ec395f35",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "result": "PASS connection publication; cases=26; explicit_failure_attempts=34; native_socket_creation_forbidden=true; native_output_attempts=0"
+      },
+      {
+        "architecture": "x64",
+        "execution_flags": [
+          "-Xint",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/x64-XintCachedConfigurationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/x64-XintCachedConfigurationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "CachedConfigurationObservation"
+        ],
+        "execution_mode": "-Xint",
+        "fixture": "CachedConfigurationObservation",
+        "identity_manifest_sha256": "5428e1ce92afa406866dd3f7c7b4850a1bfec0454121dd8ae8ae0dde77119a20",
+        "jar_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+        "result": "PASS cached connection gap characterized; calls=3; native_sockets=0; output_acquisitions=0; custom_timeout_null_socket=true"
+      },
+      {
+        "architecture": "x64",
+        "execution_flags": [
+          "-Xcomp",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/x64-XcompConnectionPublicationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/x64-XcompConnectionPublicationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "ConnectionPublicationObservation"
+        ],
+        "execution_mode": "-Xcomp",
+        "fixture": "ConnectionPublicationObservation",
+        "identity_manifest_sha256": "9275898f438ef322d8330e48b7dbdbbf5497e44a99c6a7a322938425ec395f35",
+        "jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+        "result": "PASS connection publication; cases=26; explicit_failure_attempts=34; native_socket_creation_forbidden=true; native_output_attempts=0"
+      },
+      {
+        "architecture": "x64",
+        "execution_flags": [
+          "-Xcomp",
+          "-Xverify:all",
+          "-Djava.awt.headless=true",
+          "-Duser.home=/tmp/raid-connection-publication-y0jth5pg/x64-XcompCachedConfigurationObservation",
+          "-Dfixture.identitymanifest=/tmp/raid-connection-publication-y0jth5pg/x64-XcompCachedConfigurationObservation/identity.tsv",
+          "-cp",
+          "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/tmp/raid-connection-publication-y0jth5pg/classes",
+          "CachedConfigurationObservation"
+        ],
+        "execution_mode": "-Xcomp",
+        "fixture": "CachedConfigurationObservation",
+        "identity_manifest_sha256": "5428e1ce92afa406866dd3f7c7b4850a1bfec0454121dd8ae8ae0dde77119a20",
+        "jar_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+        "result": "PASS cached connection gap characterized; calls=3; native_sockets=0; output_acquisitions=0; custom_timeout_null_socket=true"
+      }
+    ],
+    "probe_hashes": {
+      "CachedConfigurationObservation$MemoryGuard.class": "f4b6aadeb3c9a87c52236d3b75263f17df087f0567e5f36445fd37ec1b5fb659",
+      "CachedConfigurationObservation$MemoryImpl.class": "537713d3ce6ea244cf1e9bb45533e1fe6a90b0a47aba58a92eed34b09a50375e",
+      "CachedConfigurationObservation.class": "7188724eb2665c58139d1b7051476249c603ada468fe9f9ad47a53c89d692036",
+      "ConnectionPublicationObservation$CountAppender.class": "fb1087a8ba1b4ff67fd9e959ce41ced85bf4b115c04a172c91954d3d572d2a3a",
+      "ConnectionPublicationObservation$MemoryGuard.class": "65fe25dc12414fef5203a591706d0ed4f774fcfe2c6f3ed07387c31f70fed39d",
+      "ConnectionPublicationObservation$MemoryImpl.class": "cbfb4e7aa1007f6aabb663f305144d76a4bf637a73862046a6531c75c59bfe19",
+      "ConnectionPublicationObservation.class": "f654ec6822f16247c7636c1e8893b2d946a72f85831159c3343654a4a7d5e1e3",
+      "fixture/FixtureIdentity.class": "f77279e6a7b3cc365f0a6639e89055472dae5d196a7ca1882443a5db3f914f38",
+      "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be"
+    },
+    "qualification": true,
+    "reference_acpx_sha256": "5506cd12209500212af4af4810a5a7ac0245939f89b4b0df1bc5950778f12a0e",
+    "reference_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+    "runtime_trees": {
+      "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    },
+    "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "source_dirty": false,
+    "sources": {
+      "audit/expected-build.json": "b4384e326eff1e3b77f642ac64e8def3372914f2516aec31eb8059b61db75cf0",
+      "audit/help-patches.json": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752",
+      "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+      "audit/model-diagnostic-patches.json": "517e77418d56bcb7561ca8a33d24d077286cd91e0ab64bf1bfacb9838a2369a8",
+      "audit/preference-io-patches.json": "d0b9ff38f9cea4b60201b963686bd8cdf634fde43e8bc2bfbc8f526d740373e3",
+      "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+      "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+      "audit/security-patches.json": "0259a81d4160216481b3c6a045c9945a3de8207e9c3f9f73e65c0fc44f46a2a6",
+      "tests/fixtures/connection-publication-candidate-acpx.javap": "129b213b442a594795aee9f66c529c87bbebb73e86f858613d7f4b3830343b05",
+      "tests/java/connectionfixture/CachedConfigurationObservation.java": "b84946a75e075f9761bfbcdd64d85a8dccda28bfe17653de2f0d410a3268e3b8",
+      "tests/java/connectionfixture/ConnectionPublicationObservation.java": "71c4af6ae661d1ad1ad91b1a4fa3ccb872984a083ddf178f4b08750d69ee1af9",
+      "tests/java/fixture/FixtureIdentity.java": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a",
+      "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+      "tests/test_connection_publication.py": "a9a5354cf780e8b6ef18385c29112c90aaa810ad4333533d8a7484a21ed1ff28",
+      "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+      "tools/baseline.py": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93",
+      "tools/check_connection_publication.py": "30ac95bb981ef94e2baf0d21e568c20a967a08c101e02411e52c0bf9a9c7321f",
+      "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+      "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+      "tools/connection_publication_structure.py": "42aa9f581770e159b3ec2b8232fb918eb6cd66618b6c327d18831af09c313ca0",
+      "tools/help_patch.py": "59113d1dea6a00ede5a9853907390b5c2379c7cded57a9a6d53568f8b1bdc44a",
+      "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+      "tools/model_diagnostic_patch.py": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7",
+      "tools/preference_io_patch.py": "2e10155e843710aa24c77c5d9bf396d1e43f013b81fcdb55e70bd235c82d3792",
+      "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+      "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+      "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+      "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+      "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+      "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6"
+    }
+  },
+  "scope": "Frozen fixture on freshly rebuilt audit27; no hardware/GUI qualification",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

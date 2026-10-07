@@ -1,0 +1,37 @@
+I found one material gap to fix before you commit: some docs in this repo still say the save-password feature depends on the native Keychain library, which your closure review showed is wrong. I found no material overclaims in the numbers, commit attributions or limits. I only read files; nothing was run, edited, or opened from credential, profile or Keychain stores.
+
+## Fix before committing
+
+**1. Old docs in this repo still contradict the credential correction.** The closure review asked for these to be "Correct[ed] or supersede[d] ... before handoff" (`audit/secure-release/claude-closure.txt:26`). In the copies inside this repo, that hasn't been done:
+- `EVIDENCE.md:141-144` still says the app "catches the resulting native-link failure and marks the feature unavailable", with no correction note nearby. `audit/SECURE-PREFERENCES.md:128` only marks "audit/requirements and triage" as superseded, not this top-level copy.
+- `PLAN.md:194-196` and `:343` still plan to "Replace the unavailable JNI password manager with Keychain Services". `GAPS.md:41` still lists "no modern Keychain helper" as a gap. `audit/requirements/ACCEPTANCE-MATRIX.md:58` still treats remember/forget as a Keychain feature.
+- The implementer note (`claude-closure.txt:36`) says the "Parent PLAN/EVIDENCE/acceptance/GAPS" files were corrected. Those parent files are outside the directory I'm allowed to read, so I couldn't check them. Either way, the in-repo copies above are uncorrected.
+
+A one-line note pointing to `audit/SECURE-PREFERENCES.md#credential-path-evidence-correction` in each file would be enough. You don't need to rewrite the old records.
+
+**2. "Save/forget behavior is preserved" goes further than the evidence.** The save/forget classes are unchanged, because only `PreferenceIO.class` is replaced. But if saved passwords are stored at all, they go through that replaced preference writer. Nothing tested a saved password being written and read back through the new writer. "Those controls remain" (`SECURE-PREFERENCES.md:125-126`) is accurate. The inference in `keychain-scope.json:76`, "existing save/forget behavior is preserved", is stronger. Suggested wording: "code retained unchanged; behavior through the new preference writer and any persistence unverified." The record is frozen, so make this correction in the markdown.
+
+## Minor (not blocking)
+- **The verification script covers less than its PASS message implies.** `verify.txt:43-44` silently skips the installed-app check when the app is missing, but still prints "PASS ... immutable references". It also doesn't re-check that each fixture record points at its package manifest, or the package-7 reproductions, `SHA256SUMS`, or `SECURE-PREFERENCES.md`. Those are only covered by the frozen hashes. I checked the fixture link by reading the files, and it holds: both fixture files' `package_manifest_sha256` values match the ledger hashes of the package-6 provenance files. Consider rewording the PASS message rather than editing a hashed record.
+- **The counts don't explain the extra "boundary" records.** There are 20 audit27 files for 17 gates and 18 secure files for 16 gates. The extra files are boundary records, which aren't counted as gates, and the ledger doesn't say so.
+- **The archived Claude review contains a small error.** `claude-closure.txt:13` says the raw scan covered 656 classes. The implementer resolution correctly says 2,844. This is fine as an archived review, but don't quote that line on its own.
+- **The ledger was assembled by an untracked script.** `assemble.txt` wasn't in Git when it ran. The ledger records this, but the narrative doesn't mention it.
+
+## What checks out
+- Commit attributions match: every audit27 and secure record is at e005, except runtime at `0020923`. The packaged fixtures, 7 negative controls and 185-test run are at `fd94ee9`, run in isolation (`-I -S`), with 185 OK and 0 skipped.
+- Product and native hashes, gate counts, host details (Rosetta, not a physical Intel Mac), `qualification: false` and the limits list all agree between the doc and the ledger.
+- The credential scan correctly separates the raw scan of all 2,844 classes from the 656-class call inventory. Its driver is archived, and its hash matches the ledger.
+
+## Where you stand
+The bounded offline work is done: the product is built and preserved, gates and units pass, and four unsigned packages have passed the isolated packaged tests. Still unverified:
+- the real GUI, menus and dialogs
+- a physical Intel Mac
+- real controllers, firmware and production volumes
+- signing, notarization and Gatekeeper
+- Apple redistribution rights
+- other macOS versions and filesystems
+- whether saved passwords persist, and how well they're protected (it's reversible obfuscation, not encryption; HTTP is still plaintext)
+
+Once item 1 is fixed and the item 2 wording is softened, I see nothing else blocking the evidence-only commit.
+
+IMPLEMENTER RESOLUTION (not Claude text): top-level PLAN/EVIDENCE/GAPS/acceptance now carry explicit supersession notes; immutable audit/requirements snapshots have a new CURRENT-NOTE sidecar, not rewritten originals. The one-off static scope was regenerated with unchanged selection but corrected inference: original Save/Forget code retained, behavior through new writer/persistence unverified. Current doc says the same. Final record counts distinguish boundary supplements from gates. Current unit flags are -E -s, package/final packaged QA -I -S; no claim unit run was isolated. Handoff metadata and current documentation are now independently hash-bound in the verifier. Documentary corrections make the final tree differ from e005 in nonproducer Markdown; the frozen additions-only bridge rejects that final historical release invocation by design, while standalone frozen verification and execution-commit/new-build reproduction remain available. No qualified product/tool code changed.

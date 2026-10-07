@@ -1,0 +1,2314 @@
+{
+  "archives": [
+    {
+      "architecture": "aarch64",
+      "fixture_record": "audit/secure-release/aarch64-packaged-fixtures.json",
+      "fixture_to_archive_chain": "Actual packaged fixture -> manifest SHA + measured file/mode snapshot -> release record manifest/tree/archive SHA -> repeated ZIP extraction identical to measured bundle -> final copied ZIP SHA",
+      "package_manifest": "audit/secure-release/aarch64-package-6-provenance.json",
+      "path": "build/releases/audit28/RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip",
+      "sha256": "e3701f62b03824b3b206c46c759b43fe3edd291f24ce4d1c40436e5f239611a7"
+    },
+    {
+      "architecture": "x64",
+      "fixture_record": "audit/secure-release/x64-packaged-fixtures.json",
+      "fixture_to_archive_chain": "Actual packaged fixture -> manifest SHA + measured file/mode snapshot -> release record manifest/tree/archive SHA -> repeated ZIP extraction identical to measured bundle -> final copied ZIP SHA",
+      "package_manifest": "audit/secure-release/x64-package-6-provenance.json",
+      "path": "build/releases/audit28/RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip",
+      "sha256": "743f6a724ce743b2fc71ab3594085af0d7d9d49b73edfe9573dc54a995a80e02"
+    }
+  ],
+  "assembly_orchestrator_sha256": "8b5fe59997a109cbcb504d3c868503a3fedcc5f287a8f6589642f038e5df213f",
+  "assembly_orchestrator_tracked_at_execution": false,
+  "counts": {
+    "archived_records": 83,
+    "current_unit_skips": 0,
+    "current_unit_tests": 185,
+    "launcher_stubs_per_architecture": 5,
+    "native_cases_per_matrix": 37,
+    "native_fault_variants": 76,
+    "native_functional_matrices": 16,
+    "native_negatives": 26,
+    "packaged_runs_per_architecture": 10,
+    "preference_fixture_runs": 40,
+    "raw_names_hardlinks": 8,
+    "rebuilt_audit27_gates": 17,
+    "release_negative_controls": 7,
+    "secure_gates": 16,
+    "wrong_destination_negatives": 2
+  },
+  "excluded_attempts": [
+    "Failed old secure gate orchestration is not an all-gates success record; individual passing gate records are enumerated",
+    "Two early lock stdout mismatches have unresolved cause; no canonical oracle/output filtering or internal retry was added; separate exact canonical lock run passed",
+    "Ignored runtime metadata prototype is not committed-driver execution; final runtime record uses committed corrected release driver at 0020923",
+    "Old packaging precedence failures and incorrect nonisolated packager invocations left partial directories, not qualified archives",
+    "Older 0020923/6c5b3a5 packaged fixtures are development history; final packaged fixtures require isolated/no-site fd94ee9",
+    "NIO alias setup and metadata-name helper development records are not final product evidence"
+  ],
+  "final_documentary_changes": {
+    "modified_nonproducer_top_level": [
+      "PLAN.md",
+      "EVIDENCE.md",
+      "GAPS.md",
+      "ACCEPTANCE-MATRIX.md"
+    ],
+    "qualification_attribution": "No product or qualified execution tool code changed; old additions-only bridge intentionally refuses final documentary tree; verify frozen records standalone or reproduce at execution commit/new fresh build",
+    "snapshots_unchanged": true
+  },
+  "handoff_files": {
+    "build/releases/audit28/RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip": "e3701f62b03824b3b206c46c759b43fe3edd291f24ce4d1c40436e5f239611a7",
+    "build/releases/audit28/RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip": "743f6a724ce743b2fc71ab3594085af0d7d9d49b73edfe9573dc54a995a80e02",
+    "build/releases/audit28/SHA256SUMS": "2e22741e9d77ba1973ec1076723a49d8a3ef6661cfbfefefb62b7a407eb83b66",
+    "build/releases/audit28/aarch64/SBOM.spdx.json": "d8162716702bca2c7e82616d705954e2f9cf9367f2dc78512c2ead5a6750c35a",
+    "build/releases/audit28/aarch64/provenance.json": "6a4c095ecb82d8a8cccf57c5594c48f35fe35cad92089f1a623b8f21203c2314",
+    "build/releases/audit28/aarch64/release-observations.json": "b7ceb967737563ac304d0747522b8cba2090acd795b5631e3c6492c498ef3a0d",
+    "build/releases/audit28/x64/SBOM.spdx.json": "1255f174cb4369635e26839f8bd6ceca7e110385e2657ef5fcfd44e6fd442dca",
+    "build/releases/audit28/x64/provenance.json": "420730b109f7c2015728e9c543fc2102db4a9918b985c774dce44d99dd76594b",
+    "build/releases/audit28/x64/release-observations.json": "faf0f6f9173ebeebcb542055fe9257e4dbda6c08098b302b6c767c03df0133e1"
+  },
+  "host": {
+    "aarch64_execution": "native",
+    "architecture": "arm64",
+    "macos": "26.6.2",
+    "x64_execution": "Rosetta translation; physical Intel unverified"
+  },
+  "installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "limits": [
+    "No Main/full GUI/profile/Keychain/controller/production-volume execution or installed application modification",
+    "Actual save/forget controls retained, reversible obfuscation is not encryption; saved-password persistence/confidentiality and dynamic JNI/reflection reachability remain unverified",
+    "Native menus/dialog/browser and full workflows unverified; actual GUI save feedback not proved by headless reporters",
+    "x64 is Rosetta; physical Intel unverified",
+    "Other macOS/filesystem combinations and future macOS unqualified; 11.0 binary floor is not a tested support guarantee",
+    "Unsigned/unnotarized; no Developer ID, Gatekeeper/quarantine or independent-host qualification; Apple redistribution rights unresolved",
+    "HTTP remains plaintext; no credential confidentiality claim",
+    "Restricted operations require immediate confirmation, real hardware deferred until actual operational need",
+    "Frozen execution evidence can be verified by archived hashes/Git/ZIP at final evidence commit; rerun qualification at recorded execution commit or create new package evidence at current clean commit"
+  ],
+  "native_abi": "0x58415204",
+  "native_sha256": {
+    "aarch64": "2a402a2e2cd98e22fc31c9c4499c75b720d06cbf2826e2bb9aa0c9d77a872284",
+    "x64": "2485d8f66b2c480a94d309ba1f16028f1fa1e0edb957f85063eb28a107834f42"
+  },
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "packager_and_packaged_fixture_commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+  "preserved_previous_ledger_sha256": "f3547d5a17d0fe882417f9bf49d066302d54a9d7e18d854b09331c546aa63bce",
+  "product_jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+  "product_source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "qualification": false,
+  "records": {
+    "ACCEPTANCE-MATRIX.md": "9d33487eb9eb13e6a88bbcc4d11f1708c7a9c6e566141c41cd309952a5407fc6",
+    "EVIDENCE.md": "9dbba5c2481182b74f02126904a096ee0bb7d7f867fb3bd9bf22c05b42370d37",
+    "GAPS.md": "e37819e7a1fd3c996c43b4622e7bd686ba9d53613b73a9944d541088ffee2067",
+    "PLAN.md": "ccc066cb36cc0a28346f4d5cf22f5910b6606f5a14ddc99c0b0ef48ddc538678",
+    "audit/SECURE-PREFERENCES.md": "175e8d65333d428503c9c59a79772b184041e138d1da339594f328e1ed0d8011",
+    "audit/requirements/CURRENT-NOTE.txt": "2a17edf7a1aa7bdc45fbad2624e11128b8ad183bbc7b4188828241ddead2c145",
+    "audit/secure-release/aarch64-package-6-SBOM.spdx.json": "d8162716702bca2c7e82616d705954e2f9cf9367f2dc78512c2ead5a6750c35a",
+    "audit/secure-release/aarch64-package-6-provenance.json": "6a4c095ecb82d8a8cccf57c5594c48f35fe35cad92089f1a623b8f21203c2314",
+    "audit/secure-release/aarch64-package-6-release-observations.json": "b7ceb967737563ac304d0747522b8cba2090acd795b5631e3c6492c498ef3a0d",
+    "audit/secure-release/aarch64-package-7-SBOM.spdx.json": "3655b8a662581e436bf8b51aa35cf878f39342f7438f33cbcb54a6dbe122dff0",
+    "audit/secure-release/aarch64-package-7-provenance.json": "194b8427c2637d8f211bff89c409e1c35a7aef63891b4c82828fb8d117d3ca44",
+    "audit/secure-release/aarch64-package-7-release-observations.json": "650d21155b974f0ed0a575be036eea9d0a6cd67f4fc834a0a05a745cadf25261",
+    "audit/secure-release/aarch64-packaged-fixtures.json": "ce252c67826b54218e5a98b1eb5df01e7f29d6e5257521e94ad9b8843fd41e7f",
+    "audit/secure-release/assemble.txt": "8b5fe59997a109cbcb504d3c868503a3fedcc5f287a8f6589642f038e5df213f",
+    "audit/secure-release/audit27-admission.json": "1ef877f5d751b297700bc16a78474a496dffc0e8cb1508e2c94529beb5b24106",
+    "audit/secure-release/audit27-connect.json": "74073bb73d88c039ecbb81746ea0b767eb0986880ddab2b88f98034d0b452282",
+    "audit/secure-release/audit27-factory.json": "fb7891ae5485d0301160af6fc2fcd087aa0fc69d9b6255dd34779d2c6dc18289",
+    "audit/secure-release/audit27-help-boundary.json": "47bf310309f6fd783ca59bb15d3f6f662460b96c6e5d2a4e9182fb7ce6638ada",
+    "audit/secure-release/audit27-help.json": "f0c811450613ef63e80443fb25e4f185292f57e48cd064c18aa7207b00a69259",
+    "audit/secure-release/audit27-lock.json": "7dc38a7c009afe53170841724d4d2c0c8ea7ea1fd8415ba4685880833118d9e2",
+    "audit/secure-release/audit27-model-boundary.json": "c4ede5c8c43d966b1a587072c7102758371c412828e5d03ef01d1e01b44159dc",
+    "audit/secure-release/audit27-model.json": "02097643528cbcb1557168a0aed32f869ef0e5e49d7c52e15c6761333aa1ee19",
+    "audit/secure-release/audit27-posting.json": "f46fa500996c8026a8c0d1dd9aade5c60757971b002cc849848adfe120ad50b8",
+    "audit/secure-release/audit27-preference-boundary.json": "a8382391d373e785c56f51a5ef08ed6c9249b21b2d505128bd379ae3ff6d6104",
+    "audit/secure-release/audit27-preference.json": "75629a346667f8fbf04d085882fc33e736e87dd9aa4363f4d9f9dd2a18446966",
+    "audit/secure-release/audit27-publication.json": "6ff499d0af2a70c7aee678b9fb71c6bbc4d5a78f056db3b831616d9bb793b252",
+    "audit/secure-release/audit27-resources.json": "63d9a48299c1458c70f4473375a3fbb8d47764086116b52ab652785095ecad6c",
+    "audit/secure-release/audit27-runtime.json": "689965a1c1fe481533afbb6bc700d9df80aa950e1c3b47e6657392991e22eb39",
+    "audit/secure-release/audit27-security.json": "e50d48e779d5ea31b2bf10f26d62f52bcfa74d4f7076e6538db773c04ce6883c",
+    "audit/secure-release/audit27-shared.json": "90de2fbf3e4c0dedb3bf4ce80c6f96cc12443b549a27c0f493823c52740b14ff",
+    "audit/secure-release/audit27-socket.json": "60f7a85d0a751695ea81798a35204e2d65dcea5e89a3c9bbc93cbdaef69fac1c",
+    "audit/secure-release/audit27-stop.json": "f50b4a479749e8300f52f95d5f9198c2932ff94e42b0e7e9c67fd504bf511def",
+    "audit/secure-release/audit27-transport.json": "bf4b52fc25757892184b0c261cd24f18f2007e709eb656bdac9747d582837b64",
+    "audit/secure-release/audit27-worker.json": "defc5eeeee87fa8a1cfcb8419eee520c8b48a0817e6e46854e0d80acce561d9b",
+    "audit/secure-release/claude-closure.txt": "82aae8ed72d30c4b6a796d3807b1cbbe639051c603426eea103ffd18e8a1e064",
+    "audit/secure-release/claude-current-review.txt": "bcee3bd4a2492235eb9c94cc0e608168902fcd1f1b0d9edc98fe715b974b6e44",
+    "audit/secure-release/claude-handoff.txt": "0ef8129b8b422221ced6b176d8193f90e6e8400339e6ad13053fe65fb6b767c3",
+    "audit/secure-release/claude-isolation-review.txt": "e24f78c08ed352e98c53f36d7107d8cdbd784e876797ad667651fe188ab23dd9",
+    "audit/secure-release/jni-driver.txt": "b14324cd6f9d08b2c82ecff026d4218388c0f98d0aa8bf0c4197e2333ed0fc8f",
+    "audit/secure-release/jni.json": "92a9ea679573bd2268d4a0c232a53f4def5a082a4aa20d291b8a2f1452bba4df",
+    "audit/secure-release/keychain-scope-driver.txt": "54e9515578011f0cec236cfe612628355c8a5dba89bef93a8fbafcafa6325896",
+    "audit/secure-release/keychain-scope.json": "754e1c2f57170e8427b50d72137cb89699159ebec7212c04e2969d5301bbdc5d",
+    "audit/secure-release/names.json": "db88bd73a7960eb7ef765ae3a4e0cc54c42761867d8a1bcc2e7a0d13388c86ea",
+    "audit/secure-release/native-faults.json": "e6859976c197031f8d38c53a757bcd99ce58027f0571e30a2c0fbc02a77f9cc6",
+    "audit/secure-release/package-reproduction.json": "df98421fff4f79903f6e841b0445d95ef9c6362e89bab81328f56dd29d04a433",
+    "audit/secure-release/parent-requirement-hashes.json": "7d56ed297963e48dfcf5126ab5764406c35d635c8e0e027a1f7b1de2a7041342",
+    "audit/secure-release/preferences.json": "0a5df9c77bcd1a307fc135a8521f7f9ce26eafe7180fca2379a169102c27570d",
+    "audit/secure-release/preservation.json": "bc530864b2d96b8e2cfb9c4c541f2a16b4c2ed81882064fa3f9ee2a2209a1537",
+    "audit/secure-release/product-1.json": "0f697d42502c2493d460faf87a2c727903853f288005522e0c66b5150426b35e",
+    "audit/secure-release/product-2.json": "fbbd90ceda92a0d4429411437886ee7c29330d74c3fdf5cc69bc6c32f03e2819",
+    "audit/secure-release/release-negatives-driver.txt": "a3e1d5915c5be0ecf141848d6fee9e385eae5454945712ae73aa49686f0f36e2",
+    "audit/secure-release/release-negatives.json": "27a758ed6a3e0a527dff22dbc7a20d1af4b74f646fb1123f10807a169c01c886",
+    "audit/secure-release/release-units.json": "1ea7ffdd60b57210c29191473d3714f9d4ee92b50111b7c633b483f90ec1cb8a",
+    "audit/secure-release/release-units.txt": "46d7f035f6c4a7d066ecf0b8b3694e737c59b0b81e07fb3ecbcc6d91a204d28c",
+    "audit/secure-release/reproduction.json": "581d439bc287b6e6b77a345f820a332b358de8f7fbb3e2f6de2dd6e41652b41e",
+    "audit/secure-release/reproduction.txt": "62d3c2171a7a4bec287156d11556090a9a3a8de83b98e1b759a361395ffc8c23",
+    "audit/secure-release/secure-admission.json": "6821dc0b632e904fb4639d95ccbce5bc21ed4156964dfe6696d162486f889977",
+    "audit/secure-release/secure-connect.json": "fdbced66ecf0e178dea5bdc7dbb820c16194085f9cfe41c0a2c4fc0a6bff7d96",
+    "audit/secure-release/secure-factory.json": "06c8533ea9d44152e6cb10691c39276ec742fbe1c11a3a9b6a3d9baa1d2403c2",
+    "audit/secure-release/secure-help-boundary.json": "1fb92e6523fd1be0c611bce163e9b54ecabdd3e352effa1735ee16b04d4cb3b6",
+    "audit/secure-release/secure-help.json": "93da3a3e9915092ffbf85f14158200428193fe90d6880ec37d252ae37cd0525d",
+    "audit/secure-release/secure-lock.json": "405d10e0843e942f69908e44936b812f3372aae5e0cbca5a61cab69f6e453910",
+    "audit/secure-release/secure-model-boundary.json": "e7efee82d8aabbb50cdf395778c99d3c5fc03ecaa40f5ea9088c5bd82c35ed39",
+    "audit/secure-release/secure-model.json": "5c45c6ba3435b055fe28544b3fe7b37232602168afe67e9a7f816160decd8ee5",
+    "audit/secure-release/secure-posting.json": "49de8010902bc224b31c8663c7d3a760342c3a2408be3d19f22c300da42bb39a",
+    "audit/secure-release/secure-publication.json": "2c2e83a8bae03f934a3250e74d0695842131261439b25ad976bbaa387ce5d737",
+    "audit/secure-release/secure-resources.json": "85d6a36902bb1e60c49df0dc8e5ea9af3e886393e1dec0d53b47a38b64cd5a71",
+    "audit/secure-release/secure-runtime.json": "d22e6b1c4922f813be31632d36f8294d4dd361695245a3d135a2352f232d3b4c",
+    "audit/secure-release/secure-security.json": "70330de2b219a3ad1b13d7f980e683449d58a1f23a08f18380feeeba01211ff0",
+    "audit/secure-release/secure-shared.json": "c3344e17acd2a1967ad38f75efeea1f0114d366c24bd7466ddacd0863b1a2bd9",
+    "audit/secure-release/secure-socket.json": "3762ee0084349d4bf2ae6c4a6d04865dfa271f5677c10e4ef3396ed6542311a8",
+    "audit/secure-release/secure-stop.json": "f93af24a4525d74c83b1ec18e07fa80d456d8b3aadc30b65f95c212eb2eafe1d",
+    "audit/secure-release/secure-transport.json": "a6146447021dd7803ad5a8568a44873acb056f34243bdd01b64cca585cb8425d",
+    "audit/secure-release/secure-worker.json": "1e0198da761fb276df8bae0bd0d0c8b096a6452c2782efc8b8e9db8b64621a90",
+    "audit/secure-release/units.txt": "8d57c6eca805d16587217aa46291512312f144195dbf58dae82274f3288a4384",
+    "audit/secure-release/verify.txt": "53aa1211c946a438281891b527dfbff663bca797f994de80cd9d7780246e449b",
+    "audit/secure-release/x64-package-6-SBOM.spdx.json": "1255f174cb4369635e26839f8bd6ceca7e110385e2657ef5fcfd44e6fd442dca",
+    "audit/secure-release/x64-package-6-provenance.json": "420730b109f7c2015728e9c543fc2102db4a9918b985c774dce44d99dd76594b",
+    "audit/secure-release/x64-package-6-release-observations.json": "faf0f6f9173ebeebcb542055fe9257e4dbda6c08098b302b6c767c03df0133e1",
+    "audit/secure-release/x64-package-7-SBOM.spdx.json": "b5d1eac93dccf16f91673b5811f20ad8ed06a3c5561d9164561a67f2b189aa2e",
+    "audit/secure-release/x64-package-7-provenance.json": "e47acde728dbf1bbfc7236582c4f1cf14f89bf0a654e4405dbdfeb32035673ae",
+    "audit/secure-release/x64-package-7-release-observations.json": "0c3bc1513a196a38cfd23793e41076e4f5b4db8e8ed437db4e3af581b2c82885",
+    "audit/secure-release/x64-packaged-fixtures.json": "caa0295dbb61951ecdb0317e2f21991226f12476fa3b1e83db2ed0ee7dbb27ca"
+  },
+  "schema": 1,
+  "scope": "Completed bounded offline product/release implementation and local unsigned archive acceptance; not full operational, hardware, GUI or confidentiality qualification",
+  "secure_gate_execution_commits": {
+    "admission": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "connect": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "factory": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "help": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "lock": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "model": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "posting": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "publication": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "resources": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "runtime": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+    "security": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "shared": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "socket": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "stop": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "transport": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+    "worker": "e005b9a2877133d98af4cf86fd5b625532b06fcb"
+  },
+  "source_proofs": [
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "audit/expected-build.json",
+      "sha256": "b4384e326eff1e3b77f642ac64e8def3372914f2516aec31eb8059b61db75cf0"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "audit/preference-gate-commands.json",
+      "sha256": "1e9164ef01187d1339fee6b71f13d98d9e73629ad7df42f1f7d97a106f7fe475"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "audit/stopped-post-recovery-expected.json",
+      "sha256": "fddc51adb392d757174abbc18b650dca0e8e2357f6b65d924ada216b9549d048"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/ApiProbe.java",
+      "sha256": "6a9dd0e78b28080170d943b78bed7619f452aeacfe5210b7b07b5f7c6fd04425"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/ClassOriginProbe.java",
+      "sha256": "f4fc1080ae77e01bd0eca3599dcf877b4dbcf088d79f8b8cabd5ba2f4dc3778f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/FirmwareArchiveProbe.java",
+      "sha256": "d538b5c52a5a55c237da9d06435e9f52b1fef1b3bb7f5e427e3b8725232e8f39"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/FolderProbe.java",
+      "sha256": "2141de90b22ef3194a0ebd8098faa887a58caf8f2bb936269d14f6c04e71c182"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/LoggingProbe.java",
+      "sha256": "26fc7aa6b3cd8b7de66c3d42670468e6a5ab372e08ced139627ed18ce316e989"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/OfficialFirmwareProbe.java",
+      "sha256": "71328db70496ffd0318717d6b31753b311a516529e96e0168a24199921ceaa20"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/ParserDefaultsProbe.java",
+      "sha256": "3ec599423cf42067d9f543938444f5c638298bb429d27958cb03264ad4eecb9f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/ParserParityProbe.java",
+      "sha256": "1b14bddc15ea047b3d3e3a58af0c70164e0899353279f46249d969b94887c3aa"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/ParserPolicyProbe.java",
+      "sha256": "a6051c0bea24263c78abe38bc777fb748e963227f3a7e909d5e8bfb90b50ee1d"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/PlistResourceProbe.java",
+      "sha256": "23550b144c49cf0f5e521c5390ed8f4b0a5c2e75ffb84cef4cd145d927d24f0f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/RuntimeProbe.java",
+      "sha256": "15cac2bffa81939b4ef49d075c965cc7627cc74b2b44c33b5fb4a2f4bf8e574b"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/SecurityProbe.java",
+      "sha256": "52ed9a9bc12fc3c60d600574ede4c5a0ec5af86ba66c59ae2e17e3a00a214241"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/XmlObservation.java",
+      "sha256": "a56d53868aeaf97de3a87b68f17229677b4808a2c4863e2422582d0fea17f551"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/mrj/MenuProbe.java",
+      "sha256": "fddc09bfdf4c7d2d453685dc1cf2d6b901e45d04491aec3bfc0e69acff9eecff"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/ConnectFailureObservation.java",
+      "sha256": "bff3f7fa01417b3bdc2037dd9ce710e310d3970aaf93b076ac26f1646dfbb992"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/GuardedWorkerExitObservation.java",
+      "sha256": "b24723819c906d2f6fa357d1368783ab02f61f0bae3eccda761b55726397ea7b"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/HeaderObservation.java",
+      "sha256": "b36a32a1b43679e23618b2ff6dc1d886375fa429d6af19086176395fd8abf029"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/OfflineParity.java",
+      "sha256": "53f6d2eedf3ed449378f9055ed9b025b6392b039c9141170b07fb44622785eee"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/RecoveryObservation.java",
+      "sha256": "64fbac4fec00f286eb29d7a9e4d516ccbbdc1102abb25615928e2a5ff127c602"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/RequestFactoryObservation.java",
+      "sha256": "a18b1f8bf06b1665c4c8e3ae4c18c1aac6237f1f01115ec3d0fda6cc6de4bf98"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/SharedResponseObservation.java",
+      "sha256": "8b6d9028cd32ffd0585fcf495e78336c85b0bb03e1a64f226807e2545b6932b8"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/StopActiveObservation.java",
+      "sha256": "826c65c093b9ba082213797286d19d2850c6d12375326c2fcfeff50759b5cc52"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/StopAdmissionObservation.java",
+      "sha256": "801c0ccc77fc079a1b0c4c7381a6e3a0efae2caf2312e5c5c9bbde66546b736e"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/StopExposureObservation.java",
+      "sha256": "064142d03e1ab197d59359941e9f51030a5d005e89436cb7fed683d2e4939ef1"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/StopLockObservation.java",
+      "sha256": "fd9af7d0961c18962f2fc6657d780e90cb9ae98571d24c51b1be28adc24c6a72"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/StoppedPostObservation.java",
+      "sha256": "1a92267e57599bc70327fc7e49bd5d42718faf0b33f44c997c49dc638f836dc2"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/SyncOwnershipObservation.java",
+      "sha256": "e9099c0024f625a53920240bb5e4d614ffa638d756fe72c824b83a68857bba1a"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/TransportObservation.java",
+      "sha256": "850a2d7bbfbb06c0da81de8d7ce4bf92aac8434ae0920f0070f7d2847f34b822"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/WorkerCompletionBatchObservation.java",
+      "sha256": "395ea0f5094754c8f52ea8e4208260147c2dfc1275287630646d387cf6901ace"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/WorkerConnectCallbackObservation.java",
+      "sha256": "c5a3786567eb06c3cfe1d3d6a24061580b21caf0645b1ef0b5799cef521fee34"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/WorkerConstructorObservation.java",
+      "sha256": "253fbb3b357b8138385002171d66b7c0f56e87a2fcde8e919d30f3f11ab0feaa"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/WorkerExitObservation.java",
+      "sha256": "6377ce58cc9a2cb4c77b9ca536f09d69b5efb1fc8a57410b9e1b715f5c463cb3"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/com/apple/xsr/net/WorkerOwnershipObservation.java",
+      "sha256": "9ab868dee63bbdb29d9606f6f7ea613df7d1657587b87911631a94511ef63c41"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/connectfixture/AcpxConnection.java",
+      "sha256": "9cf1eac695ba14892c63240032eadb8d188d3a36f291332d58ffad17869533bb"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/connectionfixture/CachedConfigurationObservation.java",
+      "sha256": "b84946a75e075f9761bfbcdd64d85a8dccda28bfe17653de2f0d410a3268e3b8"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/connectionfixture/ConnectionPublicationObservation.java",
+      "sha256": "71c4af6ae661d1ad1ad91b1a4fa3ccb872984a083ddf178f4b08750d69ee1af9"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/fixture/FixtureIdentity.java",
+      "sha256": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/fixture/OfflineGuard.java",
+      "sha256": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/helpfixture/HelpObservation.java",
+      "sha256": "2f07c5ac6e934d723ab919bb08bbef21754f0239ad7031c33c093e83bb3de11a"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/modelfixture/ModelDiagnosticObservation.java",
+      "sha256": "938e59482a30f3dc8e8fde590d92ea5cf58842db84d19a2dbdcd94114d8f7f07"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/ownershipfixture/AcpxConnection.java",
+      "sha256": "a5cacb494ccebef36356dfd3e6ad34a287dcff345b5727b48ca1d35cc647b25d"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/preferencefixture/PreferenceLifetimeObservation.java",
+      "sha256": "32215f87ae50e11a6a49fbe3154848f7ebe4780a4670a41c0858200173829b93"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/preferencefixture/PreferenceWriteObservation.java",
+      "sha256": "0fe0bfdeff8811893d3bc17bf9d312db81844894c56dfaabc3c07e5c0a5a3610"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/socketfixture/ConfigurationObservation.java",
+      "sha256": "78b9ad77785c8fc8088ee69a24fafadddd513701b9ccbaa8589ef267803ceae2"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/socketfixture/ConfigurationPublicationObservation.java",
+      "sha256": "f5f6961b480dd9948bc61189ff5577a5d442bd6e1eb81457354c269df03e95ee"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/socketfixture/ConfigurationRunner.java",
+      "sha256": "de45872f819d29eedd76932ca1fb5724919e504fd2bcbb342cc28bba2dc99660"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tests/java/stopfixture/AcpxConnection.java",
+      "sha256": "d0e51cc1b69f9fe7f9bd7d29876dade3b30e63aaf7ddaf1183cf04c3ece54f04"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/audit_support.py",
+      "sha256": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/baseline.py",
+      "sha256": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/bundle.py",
+      "sha256": "c2f39322fe5c1bd62bc0e36becb6b3e58c56764f97c81ca0c90d9c140e643adb"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_architectures.py",
+      "sha256": "b7754672549b024b013d60aa77bb1977828ebede40089f562b941f9af1c6c979"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_connect_characterization.py",
+      "sha256": "a8e0d61f162ded93144539c84346e9d214223ce35e8ade4ebb88eb2b1c888507"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_connect_stop.py",
+      "sha256": "506ac0fc6787e3cdb0bfb84f8924e725b0b5be743fda17637a3f62f6f5f1f712"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_connection_publication.py",
+      "sha256": "30ac95bb981ef94e2baf0d21e568c20a967a08c101e02411e52c0bf9a9c7321f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_firmware_archives.py",
+      "sha256": "73587f2aa87b7f81307711e07a79e0b65fa16f08349bf9c746f0030e09b7661a"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_firmware_preflight.py",
+      "sha256": "53b21c04b5237a09d961dd07042a38db91321a0ca925b97889ccef5c51362a8c"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_folders.py",
+      "sha256": "34dace289776e9ba286a8850d364983074602ec5d65ebbd08e7e7874fef674c3"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_guarded_worker.py",
+      "sha256": "bfa764cf811f0cc9a917a4d4753094e8be137bb52adb85e73dcc23b97b5e74ac"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_help.py",
+      "sha256": "1e1e588ae2cf4bea453a24e0739b774969fe6e6905a646fee14dd2b5245e6b50"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_logging_inventory.py",
+      "sha256": "7157a2ecb44e0e381037f0779fd7727c73ef17620c1cc91d6297804868ca3d29"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_model_diagnostic.py",
+      "sha256": "2d7bcace6be881c3765ad1855970c3fe4a44dd9d01412c90a81812067a2f91bf"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_parity.py",
+      "sha256": "e9567fd1319cfdd51a5b394e99286e0a8d0621aebf77bfd3226420c573c798d8"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_preference_io.py",
+      "sha256": "5163f1936ea071f2f3c4d639ffbcb7de16fc8ff38a118a7633733a0f0582aa68"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_request_factory.py",
+      "sha256": "0f5bea956ad7b06223c8e92d0ddedfc7cbcb0a787ee16861c452e1c1e63ade2c"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_secure_names.py",
+      "sha256": "7b8828c031eb8cd595d3b08f0198c8bb4629819114774736a081e3143e0fecf0"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_secure_native.py",
+      "sha256": "72430876bf9f9fce9393250c7810beff72f4164df98abc2cfa0ac4b173f49f35"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_secure_packaged.py",
+      "sha256": "8bdc08eff90577788caf99facc0343a087cf30e0c9eb0db059bc7dbdea30d742"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_secure_preferences.py",
+      "sha256": "6d03e1b1fb3e9eef34ade6b912385856bde1b8563a76c5f6317dc4fa1aeecc51"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_secure_release.py",
+      "sha256": "c98dc5cd7fdeb6d896eb3772a38cdf8b9d3040018892458f0b5369dd1e5580a3"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_security.py",
+      "sha256": "2767dd7b6908d15d173eb4bfa76eaf33d3325b11eda03bcd7d068af6ce219292"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_shared_stream.py",
+      "sha256": "f53457e0fd14c302d797bb7c225b70b41ad4c1b2690f5b9497d8deaeb1285b29"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_socket_configuration.py",
+      "sha256": "f1c7215911ad2fbd337a7526448011c6a3d1fd4be76a8e6e236f7ae269215adc"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_stop_admission_experiment.py",
+      "sha256": "001bf461464ba5e03209f9844cc7b199976a5a9bf792422efb0849a3ac4f2d2c"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_stop_lock.py",
+      "sha256": "35bcc5cb4a2a3859aee4d111ea4131327fcab6cd67093a60bd4caec5132e24c2"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_stopped_post.py",
+      "sha256": "955be4fdddef6be6f0960422c16e162138fa7b06f897d5a946c8b82b17392613"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_sync_ownership.py",
+      "sha256": "d864f7c0637e0cd333a500a5b76da98b7fec525624fc08c7f83325e67b883cef"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_sync_posting.py",
+      "sha256": "74603e1da450bbd135532419ffbdbb6209e1939f3d13ca313b273b26986e249c"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_transport.py",
+      "sha256": "4297163f195319b08220de26ea4a90aced04a4831998f12c13d30f6de8d85b03"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_worker_exit.py",
+      "sha256": "e174d9926e27d0199882b0db7c544f96eaa08c2bc6046f08f217fe916f9f5b33"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/check_xml_resources.py",
+      "sha256": "e08a9fad3dd393dfbb359302652de982fde1f8753b77ef27b5384cc023f4082a"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/class_patch.py",
+      "sha256": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/connection_publication_patch.py",
+      "sha256": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/connection_publication_structure.py",
+      "sha256": "42aa9f581770e159b3ec2b8232fb918eb6cd66618b6c327d18831af09c313ca0"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/diagnose.py",
+      "sha256": "80a6fba2b71b08c617d6abc38297d5661fac8a558eff2e1351ba3ef147df3959"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/firmware_preflight.py",
+      "sha256": "db1b6f7bbc0b3d704d8379fbddc88ef90b10ba0235a7e7f8517222d01305141f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/help_patch.py",
+      "sha256": "59113d1dea6a00ede5a9853907390b5c2379c7cded57a9a6d53568f8b1bdc44a"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/help_structure.py",
+      "sha256": "fb89440025cdccdf07c671cbe730cc4a66bf7e86b9ccdb2c14250a4e3eab8946"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/historical_secure.py",
+      "sha256": "c1971b77ba480512e1f95b7a8f1fd0a68e49b3e86282869296cf3fd347782b62"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/inspect_apple_archive.py",
+      "sha256": "9993ac6123a2c5bb2b19f48ef5079ced8616827a1f7325b5bc72b6d313c7c050"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/inventory.py",
+      "sha256": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/inventory_exceptions.py",
+      "sha256": "201e6e7b633720d30d5abb0f2e38aed6d6b144f78a372a372d7bdca63070f0fc"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/model_diagnostic_patch.py",
+      "sha256": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/model_diagnostic_structure.py",
+      "sha256": "f264c583e883dc42926b868efa267e46c8ae4ebcc73af1c184399dbfd1444f68"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/preference_io_patch.py",
+      "sha256": "2e10155e843710aa24c77c5d9bf396d1e43f013b81fcdb55e70bd235c82d3792"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/preference_io_structure.py",
+      "sha256": "556726eee94ece1971ee5b1bfd8262f85342713223ddaedecdae159358684b2f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/release_archive.py",
+      "sha256": "a7ca4370af9cdb5c44d84954da6231bebd8b0dbf499d2758d7985f3b7db50c96"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/run_probes.py",
+      "sha256": "17eca0df43bb66ab110a97649395c6c91a4ea3916a517e6baafced0bd1c02a7f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/runtime.py",
+      "sha256": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/secure_build.py",
+      "sha256": "cac4adfecc98545b29072f7b08c9d3b759689903e54f8e4a9193a175dfeb91ef"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/secure_gate_driver.py",
+      "sha256": "09fa81fbf1ccd0988c7566823eb0606d9c52898a1833bcab255567661820c93e"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/secure_package.py",
+      "sha256": "4406aa63248691fdaf065cb545eeab6dfeee7cca2e475122f7e7d6637896dda9"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/secure_qualification.py",
+      "sha256": "b9bc221a8291bef795db28846fdfe7dbcbe4503c836eca5d78640cdc3379b629"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/secure_release.py",
+      "sha256": "4007a839b13f052032fdc71cb50ca3a2d616c9ba615fa634f428c60abed21824"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/secure_release_gate.py",
+      "sha256": "9317c575bf556b999604d7c83d9fc87b21de192c670282d053807066d8d9304e"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/socket_configuration_consumers.py",
+      "sha256": "25aaa111709ca74155dcab2660105e001f5444e040b6e7603f7f0a9ec00668e5"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/socket_configuration_mutants.py",
+      "sha256": "bbef26a498cbdc7ca66e4cdae9b60916ec1d01fb38477da4a32c1cad94af47c2"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/socket_configuration_patch.py",
+      "sha256": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/socket_configuration_structure.py",
+      "sha256": "efb2bfa6d6046824ab2b9d7037f18daa1d3114f581e23eaa73e4e6253d3c64be"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/spdx.py",
+      "sha256": "deb32827b151a81eb18ac7019724a4e07256b758895b9f1f4159dd4ce5da17cc"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/spdx_validator.py",
+      "sha256": "eb8a9ececc88979f623be000bd6327049c41722a09926446779f76a7fa6d4f54"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/stop_admission_fixtures.py",
+      "sha256": "cc01407dc6de6ccaf38821a2ae3d0a80bd890c28407acca7a1d1886be51d1d6f"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/stop_admission_patch.py",
+      "sha256": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/stop_admission_structure.py",
+      "sha256": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/stop_exposure_fixtures.py",
+      "sha256": "c784534e31d98646de1b796520e9b146bc29824455183f418072ea1cf1c1bdc2"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/stopped_post_structure.py",
+      "sha256": "f1b6cf23da3043f2ddd45a198c6145a75d5337a254ca36945a7774c5bd20b96c"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/sync_ownership_patch.py",
+      "sha256": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/sync_ownership_structure.py",
+      "sha256": "ab27e5ff1076414415066e0e817c55b082db292c7929755c62b28ec0367864af"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/verify_builds.py",
+      "sha256": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/verify_bundles.py",
+      "sha256": "4fd91b343f568d927fb5c0dc2d5ac9c4712aafd4c7f428f215e38d7ed4c81544"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/worker_exit_patch.py",
+      "sha256": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6"
+    },
+    {
+      "commit": "00209235ab05b6398ecd5fba4403d8d29fe3532e",
+      "path": "tools/worker_exit_structure.py",
+      "sha256": "f00c3df31919ff67be7b4dba1bb57a28099333e9b522e3c44987d6b68a864a93"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/connect-stop-final-integrity.json",
+      "sha256": "3e59d807f3ac22fef16eeba047b7414b125fd247c00a584604b70262d9532b67"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/connect-stop-reference-derivation.json",
+      "sha256": "6064508362b19ffef7acbc6f1d4692628ed9666ca2ab0c9648eeabdc116e3f60"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/expected-build.json",
+      "sha256": "b4384e326eff1e3b77f642ac64e8def3372914f2516aec31eb8059b61db75cf0"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/help-patches.json",
+      "sha256": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/jdk-lock.json",
+      "sha256": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/logging-patches.json",
+      "sha256": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/model-diagnostic-patches.json",
+      "sha256": "517e77418d56bcb7561ca8a33d24d077286cd91e0ab64bf1bfacb9838a2369a8"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/preference-gate-commands.json",
+      "sha256": "1e9164ef01187d1339fee6b71f13d98d9e73629ad7df42f1f7d97a106f7fe475"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/preference-io-patches.json",
+      "sha256": "d0b9ff38f9cea4b60201b963686bd8cdf634fde43e8bc2bfbc8f526d740373e3"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/python-lock.json",
+      "sha256": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/request-factory-expected.json",
+      "sha256": "741e2b830a8bd7d8cd1b866acd0580e929b922d7626f5973780064ae03d7032a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/request-factory-signatures.json",
+      "sha256": "54f2c882894546a486c737c43c31d7e54abfb288f7edb5dd15cf62b6ea38437a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/runtime-lock.json",
+      "sha256": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/security-patches.json",
+      "sha256": "0259a81d4160216481b3c6a045c9945a3de8207e9c3f9f73e65c0fc44f46a2a6"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/static-inventory.json",
+      "sha256": "28c6b43f0bf85a8f31891d28307669f48dde2335fdbb7024d0e53ba7a24de57a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/stop-admission-clean-stop.json",
+      "sha256": "fd79989a94444adc7c1bf124e31e5dfbe3eaa58cfc0856501c3bc71c5c7318af"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/stop-lock-final-integrity.json",
+      "sha256": "51927a3efc10d0e4fabfd1d6a3fcf71545cb79d4b84ca55ac221076d278e0ce6"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/stopped-post-recovery-expected.json",
+      "sha256": "fddc51adb392d757174abbc18b650dca0e8e2357f6b65d924ada216b9549d048"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "audit/sync-preenqueue-final-integrity.json",
+      "sha256": "22034b0f12291e3a43832b4f60067bfaf8fe4c304293473874bc3c120d10da5b"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "build-secure.sh",
+      "sha256": "afb77886e3395eb5a03a13aeacce995c43c423b6d5b0c6955581f274597f0d4d"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "build.sh",
+      "sha256": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "experiments/atomic-preferences/atomic_file.c",
+      "sha256": "dd89bf0531843ecf41c2cb103a74ead4ca2b375ef3fcac380cea233505dcaa1a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "experiments/atomic-preferences/check.py",
+      "sha256": "41b8bdb80baac390b3cf188e9d0e0b7ae3a723c6b915a6d8f0eed0a4a1e99986"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/RAIDAdmin",
+      "sha256": "802acd7814ac6eb873d821072785215a351da9c7c61e4776a20dee637f9033c7"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/README.md",
+      "sha256": "9e1d17812e10d636d6c1f30635deb3e4e1880e2de57f2d748eb25213035f1e7a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/compat/PreferenceIO.java",
+      "sha256": "b2352810f80387f69f52f665a42338cf0ddbbc984298bb8c9f2a5f6dfc91f282"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/compat/PreferenceSaveFailure.java",
+      "sha256": "7c79822e35f7ed46fd19f7f085ecb92e56173f5edff44469141617c35ea8753d"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/compat/PrivatePreferenceFile.java",
+      "sha256": "18e90046c8e7cc594ce23166ea347f84ae7a73ca957f48a744bae812a21eba73"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/native/private_file.c",
+      "sha256": "df1c15cffd3835e52003eb221a473a9290739793515789f914d9bd9ce6e70297"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/AtomicCallerObservation.java",
+      "sha256": "efc75cbc7476352b2bb47dea6d0daa07384f4ad69732b875225381e58f9cf321"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/AtomicFaultObservation.java",
+      "sha256": "8f3a2d4596a4dc5c2e07df4bba921c2b615cfbfd4466283a32b2aed70f2b53b3"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/AtomicPreferenceObservation.java",
+      "sha256": "8ec17688d43a6cb01105889142380947e88b6e985db013cd8482746901db9ffe"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/BindingObservation.java",
+      "sha256": "a2418db336293c6990086748fd942694318f230874737221649787c9e3f7ab95"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/NameGuardObservation.java",
+      "sha256": "cbc41f9606391632b3da516adc0bf9660c3b184adbfb3f5f4ba9c43349616d89"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/SecurePathObservation.java",
+      "sha256": "7f58cfdd1009a42f65e2931deef93515605a42967343b1a8023605d02b78c2bc"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/SessionObservation.java",
+      "sha256": "50b0bb000c144ff462af2ac0cf9d66195b03fa3fb1ca973b26892cf5a78d9b42"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "modernization/private-preferences/tests/TransactionProbe.java",
+      "sha256": "dacea6379bd1b9f36a581610d444fdc685ecec33474d5094be59478c45465cd2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "original/RAIDAdmin.icns",
+      "sha256": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "original/RAIDAdminFirmware.icns",
+      "sha256": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "packaging/audit-Info.plist",
+      "sha256": "9541012113c97bae55c4b735c34d2f838e352e4ccb4754f59824de21e284d538"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "packaging/audit-launcher",
+      "sha256": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/Launcher.java",
+      "sha256": "eaa4f84e272d36f3d62e88464c1f041e6fdcfd28c1b928fc9bafe95d98198b45"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/com/apple/eio/FileManager.java",
+      "sha256": "ef3d0b2eef8301256781c1c53b3067ffc12e8661f97f4f69dd0d3a72278e72d9"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/com/apple/mrj/MRJApplicationUtils.java",
+      "sha256": "3affe88c3c87520a93c0fb878c910fad4b27ea6a0366bb4d2564c3c41a92d08b"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/com/apple/mrj/MRJFileUtils.java",
+      "sha256": "98786d96334a6e6cfd4b8db5f4c97c24adae8f1b9f2738eb08ea48009c0848df"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/BoundedHeaderStream.java",
+      "sha256": "d6481d31e34b4f84d927f764f954f63d55e87d58a9e60c70f04ee2ae24644b8e"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/BoundedResponseBuffer.java",
+      "sha256": "abae0d2ffb85dd9314ed1774e5f81b15a4b81967ab2badbe902d3b6c0941b995"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/HelpLauncher.java",
+      "sha256": "57897719786909fe03b3bc193b3a6f52eae6162d9899ab109642d1513bccf5ea"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/PreferenceIO.java",
+      "sha256": "d194b098eddc0a3114fc81dd7de7c83c4e0731e24f15e0b903f1687f20bddda7"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/RejectionRecovery.java",
+      "sha256": "ff62133d216904a47d74692c2a5b66e4f8e607e4f7914bae91636321febadb70"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/ResponseFraming.java",
+      "sha256": "4b8bc91e7616c983e370a779654d15c35a5a721d6cac6eefc2d277a344a60b2e"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/SafeLogAppender.java",
+      "sha256": "68026a166ac10bb25dcd93ffe4eee18f803111a1797b3db3670fb37880c8dde9"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/SafePlistParser.java",
+      "sha256": "d30e70253df8f6056700c3d726f77a9c53736909f5681634641a61177930045a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/SafePlistResolver.java",
+      "sha256": "133668bd6d70e2eb8279f9e6c7b1e3173223e722a7b86a99813ac2e8958ac69d"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/SocketConfiguration.java",
+      "sha256": "76e748f7e05e8d631afbae0ea26ae884d44257a1c5830b01c0f75d8cf3fd32e8"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/StoppedDelivery.java",
+      "sha256": "daac90b8d4afe50ad01183bc625e081ca24ed50ca2e84559024132cab8038b60"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/UntrustedResponseException.java",
+      "sha256": "a7b97d2d51991c78b6e958d21e75df3bbf35914648cfc5f8e9b3dd409c0efa32"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/compat/WorkerExit.java",
+      "sha256": "10473b5eb8eb610fdc54df9a34f50035ac266048a73d45bed5f3cb8d2ebcb0b2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "patches/sun/io/MalformedInputException.java",
+      "sha256": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/fixtures/guarded-worker-candidate-manager.javap",
+      "sha256": "72baf5afd5770a4068190df49b5d8eba73236e3d8f2a68bb5fe89371f9e3dbeb"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/fixtures/stop-admission-candidate-manager.javap",
+      "sha256": "403efd1a8337c16071dcf27aaa0406ae572cd82be669fca4196798eee61168cb"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/fixtures/sync-ownership-candidate-manager.javap",
+      "sha256": "86aebc2d839bbab959dfcea1befbaa1349baf53f64bf1f1ba2b01c77ae3d2a8f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/fixtures/sync-ownership-candidate-sender.javap",
+      "sha256": "b757bcd2f04c2d728d979fa986046d1f281789f3eb37fe45a1fc22e95843132c"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/fixtures/sync-ownership-reference-manager.javap",
+      "sha256": "dbba63fa559f71c1b507bdffa695af05d9b928830627a0e99ed41a813747ee6e"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/fixtures/sync-ownership-reference-sender.javap",
+      "sha256": "dd4058119dbfbbf8c666baaf6356bcc6d9f1c45b9da694882518ed8e01ede3a2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/ApiProbe.java",
+      "sha256": "6a9dd0e78b28080170d943b78bed7619f452aeacfe5210b7b07b5f7c6fd04425"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/ClassOriginProbe.java",
+      "sha256": "f4fc1080ae77e01bd0eca3599dcf877b4dbcf088d79f8b8cabd5ba2f4dc3778f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/FirmwareArchiveProbe.java",
+      "sha256": "d538b5c52a5a55c237da9d06435e9f52b1fef1b3bb7f5e427e3b8725232e8f39"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/FolderProbe.java",
+      "sha256": "2141de90b22ef3194a0ebd8098faa887a58caf8f2bb936269d14f6c04e71c182"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/LoggingProbe.java",
+      "sha256": "26fc7aa6b3cd8b7de66c3d42670468e6a5ab372e08ced139627ed18ce316e989"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/OfficialFirmwareProbe.java",
+      "sha256": "71328db70496ffd0318717d6b31753b311a516529e96e0168a24199921ceaa20"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/ParserDefaultsProbe.java",
+      "sha256": "3ec599423cf42067d9f543938444f5c638298bb429d27958cb03264ad4eecb9f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/ParserParityProbe.java",
+      "sha256": "1b14bddc15ea047b3d3e3a58af0c70164e0899353279f46249d969b94887c3aa"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/ParserPolicyProbe.java",
+      "sha256": "a6051c0bea24263c78abe38bc777fb748e963227f3a7e909d5e8bfb90b50ee1d"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/PlistResourceProbe.java",
+      "sha256": "23550b144c49cf0f5e521c5390ed8f4b0a5c2e75ffb84cef4cd145d927d24f0f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/RuntimeProbe.java",
+      "sha256": "15cac2bffa81939b4ef49d075c965cc7627cc74b2b44c33b5fb4a2f4bf8e574b"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/SecurityProbe.java",
+      "sha256": "52ed9a9bc12fc3c60d600574ede4c5a0ec5af86ba66c59ae2e17e3a00a214241"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/XmlObservation.java",
+      "sha256": "a56d53868aeaf97de3a87b68f17229677b4808a2c4863e2422582d0fea17f551"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/mrj/MenuProbe.java",
+      "sha256": "fddc09bfdf4c7d2d453685dc1cf2d6b901e45d04491aec3bfc0e69acff9eecff"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/ConnectFailureObservation.java",
+      "sha256": "bff3f7fa01417b3bdc2037dd9ce710e310d3970aaf93b076ac26f1646dfbb992"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/GuardedWorkerExitObservation.java",
+      "sha256": "b24723819c906d2f6fa357d1368783ab02f61f0bae3eccda761b55726397ea7b"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/HeaderObservation.java",
+      "sha256": "b36a32a1b43679e23618b2ff6dc1d886375fa429d6af19086176395fd8abf029"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/OfflineParity.java",
+      "sha256": "53f6d2eedf3ed449378f9055ed9b025b6392b039c9141170b07fb44622785eee"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/RecoveryObservation.java",
+      "sha256": "64fbac4fec00f286eb29d7a9e4d516ccbbdc1102abb25615928e2a5ff127c602"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/RequestFactoryObservation.java",
+      "sha256": "a18b1f8bf06b1665c4c8e3ae4c18c1aac6237f1f01115ec3d0fda6cc6de4bf98"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/SharedResponseObservation.java",
+      "sha256": "8b6d9028cd32ffd0585fcf495e78336c85b0bb03e1a64f226807e2545b6932b8"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/StopActiveObservation.java",
+      "sha256": "826c65c093b9ba082213797286d19d2850c6d12375326c2fcfeff50759b5cc52"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/StopAdmissionObservation.java",
+      "sha256": "801c0ccc77fc079a1b0c4c7381a6e3a0efae2caf2312e5c5c9bbde66546b736e"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/StopExposureObservation.java",
+      "sha256": "064142d03e1ab197d59359941e9f51030a5d005e89436cb7fed683d2e4939ef1"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/StopLockObservation.java",
+      "sha256": "fd9af7d0961c18962f2fc6657d780e90cb9ae98571d24c51b1be28adc24c6a72"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/StoppedPostObservation.java",
+      "sha256": "1a92267e57599bc70327fc7e49bd5d42718faf0b33f44c997c49dc638f836dc2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/SyncOwnershipObservation.java",
+      "sha256": "e9099c0024f625a53920240bb5e4d614ffa638d756fe72c824b83a68857bba1a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/TransportObservation.java",
+      "sha256": "850a2d7bbfbb06c0da81de8d7ce4bf92aac8434ae0920f0070f7d2847f34b822"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/WorkerCompletionBatchObservation.java",
+      "sha256": "395ea0f5094754c8f52ea8e4208260147c2dfc1275287630646d387cf6901ace"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/WorkerConnectCallbackObservation.java",
+      "sha256": "c5a3786567eb06c3cfe1d3d6a24061580b21caf0645b1ef0b5799cef521fee34"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/WorkerConstructorObservation.java",
+      "sha256": "253fbb3b357b8138385002171d66b7c0f56e87a2fcde8e919d30f3f11ab0feaa"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/WorkerExitObservation.java",
+      "sha256": "6377ce58cc9a2cb4c77b9ca536f09d69b5efb1fc8a57410b9e1b715f5c463cb3"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/com/apple/xsr/net/WorkerOwnershipObservation.java",
+      "sha256": "9ab868dee63bbdb29d9606f6f7ea613df7d1657587b87911631a94511ef63c41"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/connectfixture/AcpxConnection.java",
+      "sha256": "9cf1eac695ba14892c63240032eadb8d188d3a36f291332d58ffad17869533bb"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/connectionfixture/CachedConfigurationObservation.java",
+      "sha256": "b84946a75e075f9761bfbcdd64d85a8dccda28bfe17653de2f0d410a3268e3b8"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/connectionfixture/ConnectionPublicationObservation.java",
+      "sha256": "71c4af6ae661d1ad1ad91b1a4fa3ccb872984a083ddf178f4b08750d69ee1af9"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/fixture/FixtureIdentity.java",
+      "sha256": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/fixture/OfflineGuard.java",
+      "sha256": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/helpfixture/HelpObservation.java",
+      "sha256": "2f07c5ac6e934d723ab919bb08bbef21754f0239ad7031c33c093e83bb3de11a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/modelfixture/ModelDiagnosticObservation.java",
+      "sha256": "938e59482a30f3dc8e8fde590d92ea5cf58842db84d19a2dbdcd94114d8f7f07"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/ownershipfixture/AcpxConnection.java",
+      "sha256": "a5cacb494ccebef36356dfd3e6ad34a287dcff345b5727b48ca1d35cc647b25d"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/preferencefixture/PreferenceLifetimeObservation.java",
+      "sha256": "32215f87ae50e11a6a49fbe3154848f7ebe4780a4670a41c0858200173829b93"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/preferencefixture/PreferenceWriteObservation.java",
+      "sha256": "0fe0bfdeff8811893d3bc17bf9d312db81844894c56dfaabc3c07e5c0a5a3610"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/socketfixture/ConfigurationObservation.java",
+      "sha256": "78b9ad77785c8fc8088ee69a24fafadddd513701b9ccbaa8589ef267803ceae2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/socketfixture/ConfigurationPublicationObservation.java",
+      "sha256": "f5f6961b480dd9948bc61189ff5577a5d442bd6e1eb81457354c269df03e95ee"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/socketfixture/ConfigurationRunner.java",
+      "sha256": "de45872f819d29eedd76932ca1fb5724919e504fd2bcbb342cc28bba2dc99660"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/java/stopfixture/AcpxConnection.java",
+      "sha256": "d0e51cc1b69f9fe7f9bd7d29876dade3b30e63aaf7ddaf1183cf04c3ece54f04"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tests/test_stop_admission.py",
+      "sha256": "c86df42da30e04853de29f18b4789e5b4daeb256ec10e4d9f0c9b7984d4a556d"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/audit_support.py",
+      "sha256": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/baseline.py",
+      "sha256": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/bundle.py",
+      "sha256": "c2f39322fe5c1bd62bc0e36becb6b3e58c56764f97c81ca0c90d9c140e643adb"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_architectures.py",
+      "sha256": "b7754672549b024b013d60aa77bb1977828ebede40089f562b941f9af1c6c979"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_connect_characterization.py",
+      "sha256": "a8e0d61f162ded93144539c84346e9d214223ce35e8ade4ebb88eb2b1c888507"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_connect_stop.py",
+      "sha256": "506ac0fc6787e3cdb0bfb84f8924e725b0b5be743fda17637a3f62f6f5f1f712"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_connection_publication.py",
+      "sha256": "30ac95bb981ef94e2baf0d21e568c20a967a08c101e02411e52c0bf9a9c7321f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_firmware_archives.py",
+      "sha256": "73587f2aa87b7f81307711e07a79e0b65fa16f08349bf9c746f0030e09b7661a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_firmware_preflight.py",
+      "sha256": "53b21c04b5237a09d961dd07042a38db91321a0ca925b97889ccef5c51362a8c"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_folders.py",
+      "sha256": "34dace289776e9ba286a8850d364983074602ec5d65ebbd08e7e7874fef674c3"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_guarded_worker.py",
+      "sha256": "bfa764cf811f0cc9a917a4d4753094e8be137bb52adb85e73dcc23b97b5e74ac"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_help.py",
+      "sha256": "1e1e588ae2cf4bea453a24e0739b774969fe6e6905a646fee14dd2b5245e6b50"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_logging_inventory.py",
+      "sha256": "7157a2ecb44e0e381037f0779fd7727c73ef17620c1cc91d6297804868ca3d29"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_model_diagnostic.py",
+      "sha256": "2d7bcace6be881c3765ad1855970c3fe4a44dd9d01412c90a81812067a2f91bf"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_parity.py",
+      "sha256": "e9567fd1319cfdd51a5b394e99286e0a8d0621aebf77bfd3226420c573c798d8"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_preference_io.py",
+      "sha256": "5163f1936ea071f2f3c4d639ffbcb7de16fc8ff38a118a7633733a0f0582aa68"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_request_factory.py",
+      "sha256": "0f5bea956ad7b06223c8e92d0ddedfc7cbcb0a787ee16861c452e1c1e63ade2c"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_secure_names.py",
+      "sha256": "7b8828c031eb8cd595d3b08f0198c8bb4629819114774736a081e3143e0fecf0"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_secure_native.py",
+      "sha256": "72430876bf9f9fce9393250c7810beff72f4164df98abc2cfa0ac4b173f49f35"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_secure_packaged.py",
+      "sha256": "8bdc08eff90577788caf99facc0343a087cf30e0c9eb0db059bc7dbdea30d742"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_secure_preferences.py",
+      "sha256": "6d03e1b1fb3e9eef34ade6b912385856bde1b8563a76c5f6317dc4fa1aeecc51"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_security.py",
+      "sha256": "2767dd7b6908d15d173eb4bfa76eaf33d3325b11eda03bcd7d068af6ce219292"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_shared_stream.py",
+      "sha256": "f53457e0fd14c302d797bb7c225b70b41ad4c1b2690f5b9497d8deaeb1285b29"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_socket_configuration.py",
+      "sha256": "f1c7215911ad2fbd337a7526448011c6a3d1fd4be76a8e6e236f7ae269215adc"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_stop_admission_experiment.py",
+      "sha256": "001bf461464ba5e03209f9844cc7b199976a5a9bf792422efb0849a3ac4f2d2c"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_stop_lock.py",
+      "sha256": "35bcc5cb4a2a3859aee4d111ea4131327fcab6cd67093a60bd4caec5132e24c2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_stopped_post.py",
+      "sha256": "955be4fdddef6be6f0960422c16e162138fa7b06f897d5a946c8b82b17392613"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_sync_ownership.py",
+      "sha256": "d864f7c0637e0cd333a500a5b76da98b7fec525624fc08c7f83325e67b883cef"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_sync_posting.py",
+      "sha256": "74603e1da450bbd135532419ffbdbb6209e1939f3d13ca313b273b26986e249c"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_transport.py",
+      "sha256": "4297163f195319b08220de26ea4a90aced04a4831998f12c13d30f6de8d85b03"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_worker_exit.py",
+      "sha256": "e174d9926e27d0199882b0db7c544f96eaa08c2bc6046f08f217fe916f9f5b33"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/check_xml_resources.py",
+      "sha256": "e08a9fad3dd393dfbb359302652de982fde1f8753b77ef27b5384cc023f4082a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/class_patch.py",
+      "sha256": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/connection_publication_patch.py",
+      "sha256": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/connection_publication_structure.py",
+      "sha256": "42aa9f581770e159b3ec2b8232fb918eb6cd66618b6c327d18831af09c313ca0"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/diagnose.py",
+      "sha256": "80a6fba2b71b08c617d6abc38297d5661fac8a558eff2e1351ba3ef147df3959"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/firmware_preflight.py",
+      "sha256": "db1b6f7bbc0b3d704d8379fbddc88ef90b10ba0235a7e7f8517222d01305141f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/help_patch.py",
+      "sha256": "59113d1dea6a00ede5a9853907390b5c2379c7cded57a9a6d53568f8b1bdc44a"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/help_structure.py",
+      "sha256": "fb89440025cdccdf07c671cbe730cc4a66bf7e86b9ccdb2c14250a4e3eab8946"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/inspect_apple_archive.py",
+      "sha256": "9993ac6123a2c5bb2b19f48ef5079ced8616827a1f7325b5bc72b6d313c7c050"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/inventory.py",
+      "sha256": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/inventory_exceptions.py",
+      "sha256": "201e6e7b633720d30d5abb0f2e38aed6d6b144f78a372a372d7bdca63070f0fc"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/model_diagnostic_patch.py",
+      "sha256": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/model_diagnostic_structure.py",
+      "sha256": "f264c583e883dc42926b868efa267e46c8ae4ebcc73af1c184399dbfd1444f68"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/preference_io_patch.py",
+      "sha256": "2e10155e843710aa24c77c5d9bf396d1e43f013b81fcdb55e70bd235c82d3792"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/preference_io_structure.py",
+      "sha256": "556726eee94ece1971ee5b1bfd8262f85342713223ddaedecdae159358684b2f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/release_archive.py",
+      "sha256": "a7ca4370af9cdb5c44d84954da6231bebd8b0dbf499d2758d7985f3b7db50c96"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/run_probes.py",
+      "sha256": "17eca0df43bb66ab110a97649395c6c91a4ea3916a517e6baafced0bd1c02a7f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/runtime.py",
+      "sha256": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/secure_build.py",
+      "sha256": "cac4adfecc98545b29072f7b08c9d3b759689903e54f8e4a9193a175dfeb91ef"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/secure_gate_driver.py",
+      "sha256": "09fa81fbf1ccd0988c7566823eb0606d9c52898a1833bcab255567661820c93e"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/secure_package.py",
+      "sha256": "4406aa63248691fdaf065cb545eeab6dfeee7cca2e475122f7e7d6637896dda9"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/secure_qualification.py",
+      "sha256": "b9bc221a8291bef795db28846fdfe7dbcbe4503c836eca5d78640cdc3379b629"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/socket_configuration_consumers.py",
+      "sha256": "25aaa111709ca74155dcab2660105e001f5444e040b6e7603f7f0a9ec00668e5"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/socket_configuration_mutants.py",
+      "sha256": "bbef26a498cbdc7ca66e4cdae9b60916ec1d01fb38477da4a32c1cad94af47c2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/socket_configuration_patch.py",
+      "sha256": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/socket_configuration_structure.py",
+      "sha256": "efb2bfa6d6046824ab2b9d7037f18daa1d3114f581e23eaa73e4e6253d3c64be"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/spdx.py",
+      "sha256": "deb32827b151a81eb18ac7019724a4e07256b758895b9f1f4159dd4ce5da17cc"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/spdx_validator.py",
+      "sha256": "eb8a9ececc88979f623be000bd6327049c41722a09926446779f76a7fa6d4f54"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/stop_admission_fixtures.py",
+      "sha256": "cc01407dc6de6ccaf38821a2ae3d0a80bd890c28407acca7a1d1886be51d1d6f"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/stop_admission_patch.py",
+      "sha256": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/stop_admission_structure.py",
+      "sha256": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/stop_exposure_fixtures.py",
+      "sha256": "c784534e31d98646de1b796520e9b146bc29824455183f418072ea1cf1c1bdc2"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/stopped_post_structure.py",
+      "sha256": "f1b6cf23da3043f2ddd45a198c6145a75d5337a254ca36945a7774c5bd20b96c"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/sync_ownership_patch.py",
+      "sha256": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/sync_ownership_structure.py",
+      "sha256": "ab27e5ff1076414415066e0e817c55b082db292c7929755c62b28ec0367864af"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/verify_builds.py",
+      "sha256": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/verify_bundles.py",
+      "sha256": "4fd91b343f568d927fb5c0dc2d5ac9c4712aafd4c7f428f215e38d7ed4c81544"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/worker_exit_patch.py",
+      "sha256": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6"
+    },
+    {
+      "commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+      "path": "tools/worker_exit_structure.py",
+      "sha256": "f00c3df31919ff67be7b4dba1bb57a28099333e9b522e3c44987d6b68a864a93"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "audit/runtime-lock.json",
+      "sha256": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "audit/sbom.json",
+      "sha256": "8c224afd59ce31009f69a510f049e45be4354cc391ce234904a564a2b720ed11"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "audit/spdx-2.3.1-schema.json",
+      "sha256": "4126dc29f15e92feec92e9622f4939131ad58b125d6f578aa93e980a6e6f3212"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "audit/spdx-validator-lock.json",
+      "sha256": "b46d3f888011ad794f9ebeccd0d03151618246878beb104f50373bf81ba99f26"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "modernization/private-preferences/RAIDAdmin",
+      "sha256": "802acd7814ac6eb873d821072785215a351da9c7c61e4776a20dee637f9033c7"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "packaging/AppIcon.png",
+      "sha256": "4a80e1cf55b28d5c9c3ae249ab7a46a17daf135303017d32e52398aa5252916f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_apple_archive.py",
+      "sha256": "19c2242522f1428dd46c3384b053f8947bf79afd50c875bc541b93ef403a4353"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_audit_support.py",
+      "sha256": "39e6fb5c29b0edf0e72865dde6833599cbd0999c1008114b817ae8d4bf7b1c74"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_baseline.py",
+      "sha256": "14b7f4c907d8d01fffe73d6698d63061c4ede80d6c7211a17ec286aa63e08661"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_bundle.py",
+      "sha256": "d800103b58ee4e5250dbea7a46cc325ca15fc6f61af3ec9692b5c9a209c27354"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_class_patch.py",
+      "sha256": "34871c456eb2319074969d70f38f5ea92ddcb3f36524977c9f82d50c0ae95f95"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_connect_stop.py",
+      "sha256": "883d1c6bb2acdaed680c35fcf40110bebd561285cab9a17594d0fd6dfac8ec78"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_connection_publication.py",
+      "sha256": "a9a5354cf780e8b6ef18385c29112c90aaa810ad4333533d8a7484a21ed1ff28"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_diagnostics.py",
+      "sha256": "3edfb6c67e1e2b10f2df2c0383c1a04eafc2b7ec9fdd5266bfeea3daed05ae59"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_firmware_preflight.py",
+      "sha256": "61dcc667a463dce97ae73d5547cba8d4b90d40ac3a695ab22f51e14284f0846f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_help_patch.py",
+      "sha256": "5aeafb2d0e8ec0e0e2245d69097b89fde489c952b557d5aa927831767d4ca4e7"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_inventory.py",
+      "sha256": "b1dfb67333c261d000195e4077dd9d709c2fed2dec81cc1ebf9142cde4914c60"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_launcher.py",
+      "sha256": "6c71c5196bef0348123dc7dc23a50bde758ac8a3a8fce671dd8afcac2a949c02"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_model_diagnostic.py",
+      "sha256": "87f156fe9b43098eda0ecb1033a9393973e6dc562a182a9b8725d8026727227e"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_preference_io.py",
+      "sha256": "544bb77a2b084ee29362eec3bdda3f334366a1403704b80871cbf45bf60c97dc"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_release_archive.py",
+      "sha256": "a0220a00ec9338fde4febe8a3889154bf5f02387eb817b50866bba9d9ea6b142"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_request_factory.py",
+      "sha256": "91192e537b60c3d59ca2a1f9a5f45b0216bb9a24b8333aaf50ba164ee108a27a"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_runtime.py",
+      "sha256": "ffc10df211d98b15bc767761147273f1a1ae372d6b318172171b5e31c9f190a5"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_secure_artifact.py",
+      "sha256": "1c6299680f343f664633974a777ec32dc6647265351da6236f2b30cf1d3fe06e"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_secure_launcher.py",
+      "sha256": "c14fe938ff48a32a5a410b34021f27a257fa7ed85f6cb48948507bcc3a29e804"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_security_verifier.py",
+      "sha256": "65b82603ebe3fe41f2c99346c0236c3720cb2087327f30d3808ef465c5a8bed2"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_session_stop_gate.py",
+      "sha256": "7dc89a62806d4da93ef658ae875db6c8179a27174d6adf0871d6f1b4ca31713d"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_shared_stream.py",
+      "sha256": "94ef044098b045d2ab1d5ce86064928ae49ba640deed5e243be9099fa1337086"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_socket_configuration.py",
+      "sha256": "33470969bf248e3f7027fc344a2675a32a6d863139380c53e0bddc6e02f89b26"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_spdx.py",
+      "sha256": "9080c1fd8fe07735dc3adbe56c7eb0ec20ab523bdc186746ee6f7adcb11ca74d"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_stop_admission.py",
+      "sha256": "c86df42da30e04853de29f18b4789e5b4daeb256ec10e4d9f0c9b7984d4a556d"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_stop_lock.py",
+      "sha256": "a4d567ae91892f210dad8c3a3604673c2276f85d031319a9d308fcaffd37c88c"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_stopped_post.py",
+      "sha256": "614f3e84ebc74e352fdc67c271537d03985e9384ed4f8cb7f83314b50f574ccd"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_sync_ownership.py",
+      "sha256": "ac83f4b2f998b2a99a3bebc9549bf3b55ff84330d4fa41b1983348ee297a0a4b"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_sync_posting.py",
+      "sha256": "84093ce53242233f1e2acce4343b037a09419a93ee1fee6c5d7969bab2e1f663"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_terminal_io_gate.py",
+      "sha256": "fe80bcf1c082862bfdaec435e9cd815903bd912b4f2cc185f567a547f7c7eeb2"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_transport_comparison.py",
+      "sha256": "49d53986ec137600920c220a1292823998be56f4ccde9441df0af94f4033ed83"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_transport_harness.py",
+      "sha256": "89a4ec13b26af5278ef823731e1fbade63b7e893db2265d36886d5f3f37c8bd0"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_verification.py",
+      "sha256": "3ccece78f6fcf94274d7b56f04e97a74d21e0412d979987d33460dc25ea79eb2"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_worker_exit.py",
+      "sha256": "ee0c4929cdd75c2f6f770577d6f115b38b0ccfb80f3585fc12624f8f6cdea051"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tests/test_worker_stop_gate.py",
+      "sha256": "0615c0261bd3d59db1e671b19a91fcd10c0c4a169a4241a5c4dde6693b3d0d0e"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/audit_support.py",
+      "sha256": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/baseline.py",
+      "sha256": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/bundle.py",
+      "sha256": "c2f39322fe5c1bd62bc0e36becb6b3e58c56764f97c81ca0c90d9c140e643adb"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_architectures.py",
+      "sha256": "b7754672549b024b013d60aa77bb1977828ebede40089f562b941f9af1c6c979"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_connect_characterization.py",
+      "sha256": "a8e0d61f162ded93144539c84346e9d214223ce35e8ade4ebb88eb2b1c888507"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_connect_stop.py",
+      "sha256": "506ac0fc6787e3cdb0bfb84f8924e725b0b5be743fda17637a3f62f6f5f1f712"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_connection_publication.py",
+      "sha256": "30ac95bb981ef94e2baf0d21e568c20a967a08c101e02411e52c0bf9a9c7321f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_firmware_archives.py",
+      "sha256": "73587f2aa87b7f81307711e07a79e0b65fa16f08349bf9c746f0030e09b7661a"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_firmware_preflight.py",
+      "sha256": "53b21c04b5237a09d961dd07042a38db91321a0ca925b97889ccef5c51362a8c"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_folders.py",
+      "sha256": "34dace289776e9ba286a8850d364983074602ec5d65ebbd08e7e7874fef674c3"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_guarded_worker.py",
+      "sha256": "bfa764cf811f0cc9a917a4d4753094e8be137bb52adb85e73dcc23b97b5e74ac"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_help.py",
+      "sha256": "1e1e588ae2cf4bea453a24e0739b774969fe6e6905a646fee14dd2b5245e6b50"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_logging_inventory.py",
+      "sha256": "7157a2ecb44e0e381037f0779fd7727c73ef17620c1cc91d6297804868ca3d29"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_model_diagnostic.py",
+      "sha256": "2d7bcace6be881c3765ad1855970c3fe4a44dd9d01412c90a81812067a2f91bf"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_parity.py",
+      "sha256": "e9567fd1319cfdd51a5b394e99286e0a8d0621aebf77bfd3226420c573c798d8"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_preference_io.py",
+      "sha256": "5163f1936ea071f2f3c4d639ffbcb7de16fc8ff38a118a7633733a0f0582aa68"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_request_factory.py",
+      "sha256": "0f5bea956ad7b06223c8e92d0ddedfc7cbcb0a787ee16861c452e1c1e63ade2c"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_secure_names.py",
+      "sha256": "7b8828c031eb8cd595d3b08f0198c8bb4629819114774736a081e3143e0fecf0"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_secure_native.py",
+      "sha256": "72430876bf9f9fce9393250c7810beff72f4164df98abc2cfa0ac4b173f49f35"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_secure_packaged.py",
+      "sha256": "8bdc08eff90577788caf99facc0343a087cf30e0c9eb0db059bc7dbdea30d742"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_secure_preferences.py",
+      "sha256": "6d03e1b1fb3e9eef34ade6b912385856bde1b8563a76c5f6317dc4fa1aeecc51"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_secure_release.py",
+      "sha256": "54cf04f055ddebce7a49e88011a87e02e8a7aed3ac6f9147c3fd81434c30add8"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_security.py",
+      "sha256": "2767dd7b6908d15d173eb4bfa76eaf33d3325b11eda03bcd7d068af6ce219292"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_shared_stream.py",
+      "sha256": "f53457e0fd14c302d797bb7c225b70b41ad4c1b2690f5b9497d8deaeb1285b29"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_socket_configuration.py",
+      "sha256": "f1c7215911ad2fbd337a7526448011c6a3d1fd4be76a8e6e236f7ae269215adc"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_stop_admission_experiment.py",
+      "sha256": "001bf461464ba5e03209f9844cc7b199976a5a9bf792422efb0849a3ac4f2d2c"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_stop_lock.py",
+      "sha256": "35bcc5cb4a2a3859aee4d111ea4131327fcab6cd67093a60bd4caec5132e24c2"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_stopped_post.py",
+      "sha256": "955be4fdddef6be6f0960422c16e162138fa7b06f897d5a946c8b82b17392613"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_sync_ownership.py",
+      "sha256": "d864f7c0637e0cd333a500a5b76da98b7fec525624fc08c7f83325e67b883cef"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_sync_posting.py",
+      "sha256": "74603e1da450bbd135532419ffbdbb6209e1939f3d13ca313b273b26986e249c"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_transport.py",
+      "sha256": "4297163f195319b08220de26ea4a90aced04a4831998f12c13d30f6de8d85b03"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_worker_exit.py",
+      "sha256": "e174d9926e27d0199882b0db7c544f96eaa08c2bc6046f08f217fe916f9f5b33"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/check_xml_resources.py",
+      "sha256": "e08a9fad3dd393dfbb359302652de982fde1f8753b77ef27b5384cc023f4082a"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/class_patch.py",
+      "sha256": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/connection_publication_patch.py",
+      "sha256": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/connection_publication_structure.py",
+      "sha256": "42aa9f581770e159b3ec2b8232fb918eb6cd66618b6c327d18831af09c313ca0"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/diagnose.py",
+      "sha256": "80a6fba2b71b08c617d6abc38297d5661fac8a558eff2e1351ba3ef147df3959"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/firmware_preflight.py",
+      "sha256": "db1b6f7bbc0b3d704d8379fbddc88ef90b10ba0235a7e7f8517222d01305141f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/help_patch.py",
+      "sha256": "59113d1dea6a00ede5a9853907390b5c2379c7cded57a9a6d53568f8b1bdc44a"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/help_structure.py",
+      "sha256": "fb89440025cdccdf07c671cbe730cc4a66bf7e86b9ccdb2c14250a4e3eab8946"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/historical_secure.py",
+      "sha256": "c1971b77ba480512e1f95b7a8f1fd0a68e49b3e86282869296cf3fd347782b62"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/inspect_apple_archive.py",
+      "sha256": "9993ac6123a2c5bb2b19f48ef5079ced8616827a1f7325b5bc72b6d313c7c050"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/inventory.py",
+      "sha256": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/inventory_exceptions.py",
+      "sha256": "201e6e7b633720d30d5abb0f2e38aed6d6b144f78a372a372d7bdca63070f0fc"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/model_diagnostic_patch.py",
+      "sha256": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/model_diagnostic_structure.py",
+      "sha256": "f264c583e883dc42926b868efa267e46c8ae4ebcc73af1c184399dbfd1444f68"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/preference_io_patch.py",
+      "sha256": "2e10155e843710aa24c77c5d9bf396d1e43f013b81fcdb55e70bd235c82d3792"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/preference_io_structure.py",
+      "sha256": "556726eee94ece1971ee5b1bfd8262f85342713223ddaedecdae159358684b2f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/release_archive.py",
+      "sha256": "a7ca4370af9cdb5c44d84954da6231bebd8b0dbf499d2758d7985f3b7db50c96"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/run_probes.py",
+      "sha256": "17eca0df43bb66ab110a97649395c6c91a4ea3916a517e6baafced0bd1c02a7f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/runtime.py",
+      "sha256": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/secure_build.py",
+      "sha256": "cac4adfecc98545b29072f7b08c9d3b759689903e54f8e4a9193a175dfeb91ef"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/secure_gate_driver.py",
+      "sha256": "09fa81fbf1ccd0988c7566823eb0606d9c52898a1833bcab255567661820c93e"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/secure_package.py",
+      "sha256": "4406aa63248691fdaf065cb545eeab6dfeee7cca2e475122f7e7d6637896dda9"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/secure_qualification.py",
+      "sha256": "b9bc221a8291bef795db28846fdfe7dbcbe4503c836eca5d78640cdc3379b629"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/secure_release.py",
+      "sha256": "842b9b8a6980e40a8590c22a423b79f1326205b26fc263a93c810146690da6c7"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/secure_release_gate.py",
+      "sha256": "9317c575bf556b999604d7c83d9fc87b21de192c670282d053807066d8d9304e"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/socket_configuration_consumers.py",
+      "sha256": "25aaa111709ca74155dcab2660105e001f5444e040b6e7603f7f0a9ec00668e5"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/socket_configuration_mutants.py",
+      "sha256": "bbef26a498cbdc7ca66e4cdae9b60916ec1d01fb38477da4a32c1cad94af47c2"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/socket_configuration_patch.py",
+      "sha256": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/socket_configuration_structure.py",
+      "sha256": "efb2bfa6d6046824ab2b9d7037f18daa1d3114f581e23eaa73e4e6253d3c64be"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/spdx.py",
+      "sha256": "deb32827b151a81eb18ac7019724a4e07256b758895b9f1f4159dd4ce5da17cc"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/spdx_validator.py",
+      "sha256": "eb8a9ececc88979f623be000bd6327049c41722a09926446779f76a7fa6d4f54"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/stop_admission_fixtures.py",
+      "sha256": "cc01407dc6de6ccaf38821a2ae3d0a80bd890c28407acca7a1d1886be51d1d6f"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/stop_admission_patch.py",
+      "sha256": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/stop_admission_structure.py",
+      "sha256": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/stop_exposure_fixtures.py",
+      "sha256": "c784534e31d98646de1b796520e9b146bc29824455183f418072ea1cf1c1bdc2"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/stopped_post_structure.py",
+      "sha256": "f1b6cf23da3043f2ddd45a198c6145a75d5337a254ca36945a7774c5bd20b96c"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/sync_ownership_patch.py",
+      "sha256": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/sync_ownership_structure.py",
+      "sha256": "ab27e5ff1076414415066e0e817c55b082db292c7929755c62b28ec0367864af"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/verify_builds.py",
+      "sha256": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/verify_bundles.py",
+      "sha256": "4fd91b343f568d927fb5c0dc2d5ac9c4712aafd4c7f428f215e38d7ed4c81544"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/worker_exit_patch.py",
+      "sha256": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6"
+    },
+    {
+      "commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+      "path": "tools/worker_exit_structure.py",
+      "sha256": "f00c3df31919ff67be7b4dba1bb57a28099333e9b522e3c44987d6b68a864a93"
+    }
+  ]
+}

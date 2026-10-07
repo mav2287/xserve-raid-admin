@@ -1,0 +1,17 @@
+{
+  "first_build": "build/secure-clean-1",
+  "first_manifest_sha256": "0f697d42502c2493d460faf87a2c727903853f288005522e0c66b5150426b35e",
+  "identical_artifact_identity": true,
+  "identical_native_build_inputs": true,
+  "jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+  "native_sha256": {
+    "aarch64": "2a402a2e2cd98e22fc31c9c4499c75b720d06cbf2826e2bb9aa0c9d77a872284",
+    "x64": "2485d8f66b2c480a94d309ba1f16028f1fa1e0edb957f85063eb28a107834f42"
+  },
+  "qualification": false,
+  "scope": "Clean repeated application files/modes/JAR/helper/native/header/tool inputs; build execution timestamps differ in audit27 reference metadata",
+  "second_build": "build/secure-clean-2",
+  "second_manifest_sha256": "fbbd90ceda92a0d4429411437886ee7c29330d74c3fdf5cc69bc6c32f03e2819",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

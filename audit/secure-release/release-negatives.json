@@ -1,0 +1,62 @@
+{
+  "driver_sha256": "a3e1d5915c5be0ecf141848d6fee9e385eae5454945712ae73aa49686f0f36e2",
+  "execution_commit": "fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8",
+  "inputs": {
+    "tools/check_secure_release.py": "54cf04f055ddebce7a49e88011a87e02e8a7aed3ac6f9147c3fd81434c30add8",
+    "tools/historical_secure.py": "c1971b77ba480512e1f95b7a8f1fd0a68e49b3e86282869296cf3fd347782b62",
+    "tools/secure_release.py": "842b9b8a6980e40a8590c22a423b79f1326205b26fc263a93c810146690da6c7"
+  },
+  "observations": [
+    {
+      "controlled_reason": "Actual packaged product/JNI/launcher differs from verified source",
+      "rejected_before_java": true,
+      "returncode": 1,
+      "scenario": "forged-jar-manifest",
+      "stderr_sha256": "ba593394858d90a0e7f29d3fcef9ae8850c49e37669e433d73af6d741331663c"
+    },
+    {
+      "controlled_reason": "Actual packaged product/JNI/launcher differs from verified source",
+      "rejected_before_java": true,
+      "returncode": 1,
+      "scenario": "forged-native-manifest",
+      "stderr_sha256": "ba593394858d90a0e7f29d3fcef9ae8850c49e37669e433d73af6d741331663c"
+    },
+    {
+      "controlled_reason": "Actual packaged product/JNI/launcher differs from verified source",
+      "rejected_before_java": true,
+      "returncode": 1,
+      "scenario": "forged-launcher-manifest",
+      "stderr_sha256": "ba593394858d90a0e7f29d3fcef9ae8850c49e37669e433d73af6d741331663c"
+    },
+    {
+      "controlled_reason": "Packaged release input closure differs",
+      "rejected_before_java": true,
+      "returncode": 1,
+      "scenario": "wrong-input-manifest",
+      "stderr_sha256": "bcae6518deaf66cd344dfbbaec314ffe13d63ebdcf4f0ca84c2e21eeb5a8d866"
+    },
+    {
+      "controlled_reason": "Packaged fixture reference JAR identity differs",
+      "rejected_before_java": true,
+      "returncode": 1,
+      "scenario": "wrong-reference",
+      "stderr_sha256": "bd584287a65d1b135d5cd7e375ddbc5055f57c27fc4768f0297968b12661426a"
+    },
+    {
+      "controlled_reason": "Unrecognized historical clean fixture manifest",
+      "rejected_before_java": true,
+      "returncode": 1,
+      "scenario": "forged-fixture-manifest",
+      "stderr_sha256": "35d5ca49bad7d80f695405946b30fe31139432f61eab4105b1e342a5be4903f3"
+    },
+    {
+      "rejected_before_output": true,
+      "returncode": 1,
+      "scenario": "nonisolated-release-python"
+    }
+  ],
+  "package_manifest_sha256": "6a4c095ecb82d8a8cccf57c5594c48f35fe35cad92089f1a623b8f21203c2314",
+  "qualification": false,
+  "scope": "Actual committed CLI negative controls; no Java/Main/controller execution",
+  "source_dirty": false
+}

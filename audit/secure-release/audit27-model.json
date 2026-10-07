@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "-E",
+    "-s",
+    "tools/check_model_diagnostic.py",
+    "--jdk",
+    "/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home",
+    "--build",
+    "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/secure-clean-1/audit27-reference",
+    "--output",
+    "build/secure-gates-clean-1/audit27-model-boundary"
+  ],
+  "candidate_jar_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "gate": "model",
+  "result": {
+    "boundary_record_sha256": "c4ede5c8c43d966b1a587072c7102758371c412828e5d03ef01d1e01b44159dc",
+    "stdout": "PASS model diagnostic gate; four runtime/mode variants; sixteen behavioral negative controls; no controller/profile"
+  },
+  "scope": "Frozen fixture on freshly rebuilt audit27; no hardware/GUI qualification",
+  "source_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "source_dirty": false
+}

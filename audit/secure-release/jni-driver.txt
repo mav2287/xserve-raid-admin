@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""Read-only product JNI checking; only disposable synthetic files and pinned fixture classes."""
+import json,hashlib,sys,subprocess,tempfile
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
+from audit_support import ROOT,sha,JAVA_FLAGS,isolated_env,run_jdk,verify_jdk
+from runtime import runtime_manifest,verify_runtime
+from secure_build import state,verify_native_inputs
+sys.path.insert(0,str(ROOT/'experiments/atomic-preferences'))
+from check import setup,disposable
+
+initial=state()
+if initial['dirty']:raise ValueError('Clean source required')
+out=ROOT/'build/secure-jni-clean-2';out.mkdir();jdk=Path('/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home');verify_jdk(jdk);product=json.loads((ROOT/'build/secure-clean-1/provenance.json').read_text());verify_native_inputs(product);matrix=ROOT/'build/secure-native-clean-1';classes=matrix/'classes';observations=json.loads((matrix/'observations.json').read_text());probes={str(f.relative_to(classes)):sha(f) for f in classes.rglob('*.class')}
+if probes!=observations['probe_hashes']:raise ValueError('Actual JNI fixture classes changed')
+control=out/'classes';control.mkdir();source=ROOT/'experiments/atomic-preferences/NativeLoadObservation.java';run_jdk(jdk,'javac',['-source','8','-target','8','-d',str(control),str(source)]);frozen=json.loads((ROOT/'audit/atomic-preference-clean.json').read_text());rows=[];lock=runtime_manifest()
+for folder,arch in [('arm64','aarch64'),('x64','x64')]:
+ runtime=ROOT/('build/logging-bundled-'+folder+'-1/RAID Admin.app/Contents/PlugIns/Runtime.jdk');verify_runtime(runtime,lock['architectures'][arch]);baseline=ROOT/('build/atomic-preferences-clean-1/'+arch+'-loader-baseline.dylib')
+ if sha(baseline) not in {v['baseline_library_sha256'] for v in frozen['jni_load_controls'] if v['architecture']==arch}:raise ValueError('Empty JNI baseline differs from frozen record')
+ candidate=matrix/(arch+'-normal/RAID Admin.app/Contents/Resources/RAID_Admin.jar');library=candidate.parent.parent/'Frameworks/libPrivatePreference.dylib'
+ if sha(candidate)!=product['jar_sha256'] or sha(library)!=product['native_helpers'][arch]['sha256']:raise ValueError('JNI product bytes differ')
+ for mode in ['-Xint','-Xcomp']:
+  with tempfile.TemporaryDirectory(prefix='jni-empty-',dir=out) as directory:
+   argv=[runtime/'Contents/Home/bin/java']+JAVA_FLAGS+[mode,'-Xcheck:jni','-Djava.awt.headless=true','-Duser.home='+str(Path(directory)/'fake-home'),'-Dfixture.atomic.library='+str(baseline),'-cp',str(control),'atomicfixture.NativeLoadObservation'];result=subprocess.run(list(map(str,argv)),cwd=directory,env=isolated_env(),capture_output=True,timeout=120)
+   prefix=b'WARNING in native method: JNI call made without checking exceptions when required to from CallStaticObjectMethod\nWARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod\n'
+   if result.returncode or result.stderr or result.stdout!=prefix+b'PASS native load\n':raise ValueError('JNI empty-control warning baseline differs')
+  rows.append({'architecture':arch,'mode':mode,'scope':'empty JNI load control','native_sha256':sha(baseline),'warning_prefix_sha256':hashlib.sha256(prefix).hexdigest()})
+ for main,text in [('securefixture.AtomicPreferenceObservation','PASS atomic preference experiment; cases=37; old_readers_isolated=true; serialization_failures_preserve_original=true; fd_delta=0'),('atomiccaller.SessionObservation','PASS secure session; consumed_rules=true; duplicate_begin_rejected=true; native_entry_owns_cleanup=true')]:
+  with disposable('jni-product-targets-',out) as directory:
+   root=Path(directory)
+   if main.startswith('securefixture.'):setup(root)
+   argv=[runtime/'Contents/Home/bin/java']+JAVA_FLAGS+['-Xint','-Xcheck:jni','-Xverify:all','-Xms256m','-Xmx256m','-Djava.awt.headless=true','-Dlog4j.defaultInitOverride=true','-Duser.home='+str(root/'fake-home'),'-Dfixture.directory='+str(root),'-Dfixture.candidate='+str(candidate),'-Dfixture.allowed.library='+str(library),'-Dfixture.reference='+str(ROOT/'build/secure-clean-1/audit27-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar'),'-cp',str(classes)+':'+str(candidate),main];result=subprocess.run(list(map(str,argv)),cwd=root,env=isolated_env(),capture_output=True,timeout=120)
+   if result.returncode or result.stderr or result.stdout!=prefix+(text+'\n').encode():raise ValueError('Actual functional/session JNI check differs from exact empty-control prefix')
+  rows.append({'architecture':arch,'mode':'-Xint','scope':main,'native_sha256':sha(library),'product_jar_sha256':sha(candidate),'warning_prefix_sha256':hashlib.sha256(prefix).hexdigest(),'result':text})
+ verify_runtime(runtime,lock['architectures'][arch])
+verify_jdk(jdk);verify_native_inputs(product)
+if state()!=initial or probes!={str(f.relative_to(classes)):sha(f) for f in classes.rglob('*.class')}:raise ValueError('JNI inputs changed')
+record={'qualification':False,'scope':'Actual ABI04 product under JNI checking; exact empty-load control warnings only; no warning filtering','execution_commit':initial['commit'],'execution_dirty':False,'orchestrator_sha256':sha(Path(__file__)),'orchestrator_git_tracked_at_execution':False,'native_fixture_record_sha256':sha(matrix/'observations.json'),'control_source_sha256':sha(source),'control_probe_hashes':{str(f.relative_to(control)):sha(f) for f in control.rglob('*.class')},'product_manifest_sha256':sha(ROOT/'build/secure-clean-1/provenance.json'),'observations':rows,'limits':['Only interpreted functional/session JNI checks; load controls also request compilation','Orchestrator was an ignored local evidence driver; source bytes archived separately','No GUI/hardware/real profiles; x64 Rosetta']};(out/'observations.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n');print('PASS actual product JNI checks; load_controls=4; functional_and_session=4; exact_empty_warning_prefix=true')

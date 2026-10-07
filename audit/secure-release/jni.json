@@ -1,0 +1,85 @@
+{
+  "control_probe_hashes": {
+    "atomicfixture/NativeLoadObservation.class": "29958298f49b330beaf479d9ffc1a2a135dcbd0af94ffc534d9fe756da483aea"
+  },
+  "control_source_sha256": "19da2d00c3cd0d5d541b73eca1b6a798e27997a0a1278a859689475dae64600b",
+  "execution_commit": "e005b9a2877133d98af4cf86fd5b625532b06fcb",
+  "execution_dirty": false,
+  "limits": [
+    "Only interpreted functional/session JNI checks; load controls also request compilation",
+    "Orchestrator was an ignored local evidence driver; source bytes archived separately",
+    "No GUI/hardware/real profiles; x64 Rosetta"
+  ],
+  "native_fixture_record_sha256": "e6859976c197031f8d38c53a757bcd99ce58027f0571e30a2c0fbc02a77f9cc6",
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "mode": "-Xint",
+      "native_sha256": "38463721ed971ad7eb8d1ec11f0608ecf7036fe71647e1d23862f5f88f0b5c3e",
+      "scope": "empty JNI load control",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "aarch64",
+      "mode": "-Xcomp",
+      "native_sha256": "38463721ed971ad7eb8d1ec11f0608ecf7036fe71647e1d23862f5f88f0b5c3e",
+      "scope": "empty JNI load control",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "aarch64",
+      "mode": "-Xint",
+      "native_sha256": "2a402a2e2cd98e22fc31c9c4499c75b720d06cbf2826e2bb9aa0c9d77a872284",
+      "product_jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+      "result": "PASS atomic preference experiment; cases=37; old_readers_isolated=true; serialization_failures_preserve_original=true; fd_delta=0",
+      "scope": "securefixture.AtomicPreferenceObservation",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "aarch64",
+      "mode": "-Xint",
+      "native_sha256": "2a402a2e2cd98e22fc31c9c4499c75b720d06cbf2826e2bb9aa0c9d77a872284",
+      "product_jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+      "result": "PASS secure session; consumed_rules=true; duplicate_begin_rejected=true; native_entry_owns_cleanup=true",
+      "scope": "atomiccaller.SessionObservation",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xint",
+      "native_sha256": "d423b2f3ad346da7041f6a0962f8d09d6bcc5836c27a511694cfcb86359e8402",
+      "scope": "empty JNI load control",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xcomp",
+      "native_sha256": "d423b2f3ad346da7041f6a0962f8d09d6bcc5836c27a511694cfcb86359e8402",
+      "scope": "empty JNI load control",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xint",
+      "native_sha256": "2485d8f66b2c480a94d309ba1f16028f1fa1e0edb957f85063eb28a107834f42",
+      "product_jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+      "result": "PASS atomic preference experiment; cases=37; old_readers_isolated=true; serialization_failures_preserve_original=true; fd_delta=0",
+      "scope": "securefixture.AtomicPreferenceObservation",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xint",
+      "native_sha256": "2485d8f66b2c480a94d309ba1f16028f1fa1e0edb957f85063eb28a107834f42",
+      "product_jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+      "result": "PASS secure session; consumed_rules=true; duplicate_begin_rejected=true; native_entry_owns_cleanup=true",
+      "scope": "atomiccaller.SessionObservation",
+      "warning_prefix_sha256": "f5f29eb4d51150c6120aa9b107a362aab7932fc4860693431bf4bc0b528a83f3"
+    }
+  ],
+  "orchestrator_git_tracked_at_execution": false,
+  "orchestrator_sha256": "b14324cd6f9d08b2c82ecff026d4218388c0f98d0aa8bf0c4197e2333ed0fc8f",
+  "product_manifest_sha256": "0f697d42502c2493d460faf87a2c727903853f288005522e0c66b5150426b35e",
+  "qualification": false,
+  "scope": "Actual ABI04 product under JNI checking; exact empty-load control warnings only; no warning filtering"
+}
