@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Materialize hash-locked QA validator wheels; never modifies Python or the app."""
-import argparse,hashlib,json,sys,tempfile,urllib.request,zipfile
-from pathlib import Path,PurePosixPath
+import argparse,hashlib,json,sys,tempfile,urllib.request,zipfile,platform
+from pathlib import Path
+from pathlib import PurePosixPath
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from audit_support import ROOT,tree,digest,sha,verify_python
 
 def verify(cache):
+    if platform.machine()!='arm64' or platform.python_implementation()!='CPython':raise ValueError('QA validator requires pinned CPython on macOS arm64')
     lock=json.loads((ROOT/'audit/spdx-validator-lock.json').read_text())
     if tree(cache)!=lock['files'] or digest(lock['files'])!=lock['tree_sha256'] or sha(ROOT/'audit/spdx-2.3.1-schema.json')!=lock['schema_sha256']:raise ValueError('QA validator/schema differs')
     return lock
@@ -21,13 +24,14 @@ def main():
                 if not wheel['url'].startswith('https://files.pythonhosted.org/'):raise ValueError('Unexpected validator origin')
                 with urllib.request.urlopen(wheel['url'],timeout=30) as response:
                     if not response.url.startswith('https://files.pythonhosted.org/'):raise ValueError('Unexpected validator redirect')
-                    data=response.read()
-                if hashlib.sha256(data).hexdigest()!=wheel['sha256']:raise ValueError('Validator wheel differs')
+                    data=response.read(wheel['bytes']+1)
+                if len(data)!=wheel['bytes'] or hashlib.sha256(data).hexdigest()!=wheel['sha256']:raise ValueError('Validator wheel differs')
                 archive=tmp/wheel['filename'];archive.write_bytes(data)
                 with zipfile.ZipFile(archive) as z:
+                    if sum(i.file_size for i in z.infolist())!=wheel['total_member_bytes']:raise ValueError('Validator wheel size differs')
                     for item in z.infolist():
                         path=PurePosixPath(item.filename)
-                        if path.is_absolute() or '..' in path.parts or '\\' in item.filename or (item.external_attr>>16)&0o170000==0o120000:raise ValueError('Unsafe validator wheel path')
+                        if path.is_absolute() or '..' in path.parts or '\\' in item.filename or any(part.endswith('.data') for part in path.parts) or item.file_size>wheel['max_member_bytes'] or (item.external_attr>>16)&0o170000==0o120000:raise ValueError('Unsafe validator wheel path')
                         if item.is_dir():continue
                         dest=target/item.filename;dest.parent.mkdir(parents=True,exist_ok=True)
                         with dest.open('xb') as out:out.write(z.read(item))

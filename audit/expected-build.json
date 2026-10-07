@@ -65,9 +65,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "68f7a2deaecf15d5dba43a8cc22fd62497e6e8c6381f8736afcacdd973509b98",
-  "reason": "Audit25 thin Desktop Help boundary for both original UI browser actions; exact core preservation, pinned helper bytes, original localized URLs; original audit24 golden retained.",
+  "previous_record_sha256": "2c4ef9c8e199eea643fb1332397607e0d0ea76f017a9e7b641cb750b780ef25e",
+  "reason": "Audit25 clean source build: original two UI call operands and seven pinned Java8 helper classes; core bytes identical to audit24. Historical golden retained; clean qualification follows.",
   "schema": 1,
-  "source_commit": "6f82a5d026aad99f1a43c43a91e856e633319b33",
-  "source_dirty": true
+  "source_commit": "d4900b497d4b4becdf6215d5c38871bbc681ec5b",
+  "source_dirty": false
 }

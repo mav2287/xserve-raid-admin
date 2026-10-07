@@ -131,6 +131,7 @@
     "rpds_py-0.27.1.dist-info/WHEEL": "9b66ea96f691739f3b5d191d23deb6788c37e7c2bbd0dc46e65e29a1671c65cb",
     "rpds_py-0.27.1.dist-info/licenses/LICENSE": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909"
   },
+  "original_sbom_sha256": "8c224afd59ce31009f69a510f049e45be4354cc391ce234904a564a2b720ed11",
   "platform": "CPython3.14 macOS arm64",
   "purpose": "QA-only SPDX schema validator, not an application dependency",
   "schema_sha256": "4126dc29f15e92feec92e9622f4939131ad58b125d6f578aa93e980a6e6f3212",
@@ -138,42 +139,57 @@
   "tree_sha256": "47ac50151276c3bc4bb8e9265e922a9600d6129d1f3d0fdc20ba5e81c9a37478",
   "wheels": [
     {
+      "bytes": 63815,
       "distribution": "attrs",
       "filename": "attrs-25.3.0-py3-none-any.whl",
+      "max_member_bytes": 96664,
       "metadata_url": "https://pypi.org/pypi/attrs/25.3.0/json",
       "sha256": "427318ce031701fea540783410126f03899a97ffc6f61596ad581ac2e40e3bc3",
+      "total_member_bytes": 219126,
       "url": "https://files.pythonhosted.org/packages/77/06/bb80f5f86020c4551da315d78b3ab75e8228f89f0162f2c3a819e407941a/attrs-25.3.0-py3-none-any.whl",
       "version": "25.3.0"
     },
     {
+      "bytes": 26775,
       "distribution": "referencing",
       "filename": "referencing-0.36.2-py3-none-any.whl",
+      "max_member_bytes": 37854,
       "metadata_url": "https://pypi.org/pypi/referencing/0.36.2/json",
       "sha256": "e8699adbbf8b5c7de96d8ffa0eb5c158b3beafce084968e2ea8bb08c6794dcd0",
+      "total_member_bytes": 115431,
       "url": "https://files.pythonhosted.org/packages/c1/b1/3baf80dc6d2b7bc27a95a67752d0208e410351e3feb4eb78de5f77454d8d/referencing-0.36.2-py3-none-any.whl",
       "version": "0.36.2"
     },
     {
+      "bytes": 18437,
       "distribution": "jsonschema-specifications",
       "filename": "jsonschema_specifications-2025.9.1-py3-none-any.whl",
+      "max_member_bytes": 4819,
       "metadata_url": "https://pypi.org/pypi/jsonschema-specifications/2025.9.1/json",
       "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+      "total_member_bytes": 47261,
       "url": "https://files.pythonhosted.org/packages/41/45/1a4ed80516f02155c51f51e8cedb3c1902296743db0bbc66608a0db2814f/jsonschema_specifications-2025.9.1-py3-none-any.whl",
       "version": "2025.9.1"
     },
     {
+      "bytes": 345676,
       "distribution": "rpds-py",
       "filename": "rpds_py-0.27.1-cp314-cp314-macosx_11_0_arm64.whl",
+      "max_member_bytes": 933440,
       "metadata_url": "https://pypi.org/pypi/rpds-py/0.27.1/json",
       "sha256": "b7fb801aa7f845ddf601c49630deeeccde7ce10065561d92729bfe81bd21fb33",
+      "total_member_bytes": 942074,
       "url": "https://files.pythonhosted.org/packages/af/07/b4646032e0dcec0df9c73a3bd52f63bc6c5f9cda992f06bd0e73fe3fbebd/rpds_py-0.27.1-cp314-cp314-macosx_11_0_arm64.whl",
       "version": "0.27.1"
     },
     {
+      "bytes": 88462,
       "distribution": "jsonschema",
       "filename": "jsonschema-4.23.0-py3-none-any.whl",
+      "max_member_bytes": 117105,
       "metadata_url": "https://pypi.org/pypi/jsonschema/4.23.0/json",
       "sha256": "fbadb6f8b144a8f8cf9f0b89ba94501d143e50411a1278633f56a7acf7fd5566",
+      "total_member_bytes": 471082,
       "url": "https://files.pythonhosted.org/packages/69/4a/4f9dbeb84e8850557c02365a0eee0649abe5eb1d84af92a25731c6c0f922/jsonschema-4.23.0-py3-none-any.whl",
       "version": "4.23.0"
     }
