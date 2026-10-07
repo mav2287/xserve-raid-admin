@@ -1,0 +1,59 @@
+Read-only review. I didn't run any commands. I read the four files plus `secure_gate_driver.py`, `release_archive.py` and the relevant parts of `audit_support.py`, `verify_builds.py` and `verify_bundles.py`.
+
+## Verdict
+
+The bridge idea holds up, but the draft is incomplete in four places (B1–B4) and needs some hardening. There's also a thinner design (A1) that avoids the `sha` substitution entirely; I recommend that one.
+
+What the draft gets right:
+- **The two tools really are nonproducers.** Nothing in `tools/`, `tests/` or the product path imports `secure_package` or `check_secure_packaged`; the only mention is a README line.
+- **The artifact checker can't be swapped out.** `secure_build.py` is itself in the product's `input_hashes` (`sources()` includes every `tools/*.py`), and the diff allowlist rejects any change to it.
+- **The substitution is correctly scoped.** Replacing `secure_build.sha` only affects `check_secure_artifact` line 107 (`tools/secure_build.py:107`), because `tree()` uses `audit_support.sha` directly. Substitutions can only cover the two named files, and `try/finally` restores the original.
+- **The four allowed additions are genuinely new.** None of them exists at e005, so `A` is the right status.
+
+## Blockers
+
+**B1. Packager call sites.** `secure_package.py:37` and `:85` both call `check_secure_artifact` directly, and both will fail once the packager's own hash has changed. Both must go through the bridge, and line 85 should compare against the identity the bridge returned.
+
+**B2. Mislabelled commits in the records.**
+- `secure_package.py:87` writes `'source_commit': initial['commit']`, which is the packager HEAD. With split commits that label is wrong. Use `product_source_commit`, `packager_commit` and `bridge`.
+- `check_secure_packaged.py:42` has the same problem.
+
+**B3. `check_secure_packaged` can't verify the bridge as written.**
+- It has no `--build` input, but the bridge needs the product directory. Add `--build` and require `manifest['source_provenance_sha256'] == sha(build/'provenance.json')` before the bridge runs.
+- Line 13 requires `manifest['source_commit'] == HEAD`. Replace that with three checks:
+  - `manifest['packager_commit'] == HEAD`
+  - `manifest['source_commit'] == PRODUCT_COMMIT`
+  - `fixture['source_commit'] == PRODUCT_COMMIT`
+- The fixture `observations.json` is self-attested: only `probe_hashes` are rechecked against it. Since it can't be regenerated at HEAD, pin its SHA explicitly, the same way the two product manifest SHAs are pinned. If it records its inputs, also verify them with `git show <fixture source_commit>:path`.
+
+**B4. Where does the parentheses fix live?** I can't tell from the code. `release_archive.py` doesn't handle names specially, and the archive name in `secure_package.py:62` has no parentheses. If the fix touches `release_archive.py`, `audit_support.py` or anything else, the bridge will (correctly) reject it, so confirm the diff is confined to the two allowlisted files. Separately, docs under `modernization/private-preferences/` (including the README) are product inputs, so any edit there is also rejected.
+
+## Hardening (not blocking, but cheap)
+
+- **`git diff` parsing** (`build/historical_secure_draft.py:16`): add `--no-renames -z`. A rename row fails today only by accident (unpack error), and quoted paths fail without a clear message. Also add a check that `PRODUCT_COMMIT` is an ancestor of HEAD, so the "split commits" claim is actually proven.
+- **Skip-worktree / assume-unchanged gap:** these flags can hide working-tree edits from `git status --porcelain`, and the two nonproducer files are exactly the ones whose current bytes aren't otherwise checked. Require that the current bytes of `tools/historical_secure.py` and both nonproducers equal `git show HEAD:<path>`.
+- **Manifest read race:** the manifest SHA is computed at line 13 and the file is re-read at line 14 and again inside the checker. Re-hash `provenance.json` after `check_secure_artifact` returns and require the same anchor.
+- **`audit/secure-release/` prefix:** it allows any new file. Narrow it to `.json`/`.txt` or to an explicit list.
+- **Bridge record contents:** include `sha256(tools/historical_secure.py)`. Also choose the bridge only when `source_commit != HEAD`, keeping the direct strict checker otherwise, so `PRODUCT_COMMIT` doesn't become a permanent hard-coded path.
+
+## Thin alternatives
+
+**A1 (recommended): put the fixes in new files.** Leave `secure_package.py` and `check_secure_packaged.py` byte-identical and put the corrected logic in new files, e.g. `tools/secure_package_bridged.py`. `check_secure_artifact` only hashes the *recorded* `input_hashes` (`:107`), so new `tools/*.py` files never affect it. The unmodified checker then passes with **no substitution and no monkeypatch**. The bridge shrinks to:
+- the manifest SHA anchor,
+- a diff that is additions only,
+- the ancestry check,
+- HEAD-bytes checks for the new tools.
+
+The cost is that the old packager stays in the tree. You can't mark it deprecated in the README, because that README is a product input, so record the deprecation in the new audit files instead.
+
+**A2: run the checker against a historical tree.** Run the unmodified checker in a separate interpreter against a `git archive` of e005. `ROOT` comes from `__file__`, so every input is checked against exact e005 bytes, and the diff allowlist proves HEAD differs only as reviewed. This is stricter, but it adds more machinery than A1.
+
+## Runtime-gate prototype
+
+Labelling it as a nontracked orchestrator result and leaving the committed gate driver alone is the right call. The defect is real: `secure_gate_driver.py:45-51` intercepts only `Path.read_text`, so a frozen gate that reads metadata via `read_bytes` still sees the real audit27 metadata instead of the secure identity. For the archive record:
+- Record the SHA-256 of the executed derived driver and its diff against `tools/secure_gate_driver.py@e005`, showing that only the `read_bytes` interception was added.
+- Record the execution state (clean e005 plus an ignored file), the product manifest SHA and the oracle outputs.
+- Confirm the prototype lived outside `tools/`. An ignored `tools/*.py` file would be swept into the `inputs` globs of both the gate driver (`:50`) and the packager (`:39`).
+- If its bytes are committed later, state that hash equality proves "same bytes", not "committed-driver execution".
+
+No existing audit27 frozen record is touched by any of this. The allowlist only permits new files, so it enforces that.

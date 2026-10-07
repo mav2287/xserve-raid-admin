@@ -1,0 +1,47 @@
+I found one blocker and one gap to fix before packaging. The rest of the bridge and the four tools are sound.
+
+## Blocker: help and model gates can't pass in `--historical-product` mode
+
+Two of the original gate tools check that the product was built at the current commit:
+
+- `tools/check_help.py:32`: `product['source_commit']!=initial[0]`
+- `tools/check_model_diagnostic.py:46`: the same check
+
+In historical mode the product's commit is e005b9a, but HEAD will be a later commit that adds the new tools. So `secure_release_gate.py --historical-product --gate help|model` will always stop with "Integrated build differs". It fails safely, but those two gates can never pass. No other gate in `preference-gate-commands.json` compares the product commit to HEAD; the others only record it.
+
+The runtime fix as drafted is therefore not enough. Pick one, and say which in the review record:
+1. **Add a second recorded adaptation for help/model only** (my recommendation). Use the same pattern as the Help window: require the exact text to appear once, then replace `product['source_commit']!=initial[0]` with a comparison to the bridge-verified `PRODUCT_COMMIT`. Record it in `artifact_metadata_adaptations` and drop the "exactly one correction" claim.
+2. **Don't rerun help/model in historical mode.** Leave their results attributed to e005 and say so.
+
+Do not make the checker report HEAD as the product commit. That would falsify where the product came from.
+
+## Should fix: the packaged-fixture check doesn't tie the run JAR to the product
+In `build/check_secure_packaged_draft.py:20-23`, `verify()` compares the bundle against the package's own `provenance.json`. That file has no pinned hash, and the check never confirms that its `files['Contents/Resources/RAID_Admin.jar']` equals `manifest['jar_sha256']`. Someone could swap the JAR, update `files` to match, and the check would still pass. The original tool has the same gap, but your new claim ("actual BF5 JAR") depends on closing it. Add these checks:
+- `sha(jar)==source['jar_sha256']`
+- `sha(library)==source['native_helpers'][arch]['sha256']`
+- `sha(launcher)==sha(ROOT/'modernization/private-preferences/RAIDAdmin')`
+- `manifest['input_hashes']` equals the current tree
+
+## What I verified as correct
+- **Bridge (`historical_secure`)**
+  - It replaces no hashes. It calls the unchanged `secure_build.check_secure_artifact` only after these checks pass: manifest hash is one of the two pinned values, commit and clean flag match, the commit is an ancestor of HEAD, the diff is additions-only, each added file matches HEAD, and every input matches e005 in Git and in the working tree.
+  - It re-checks the manifest hash and repo state afterwards.
+  - `--name-status -z` parsing is correct. Edits, mode changes, deletes and type changes are all rejected because only `A` is allowed.
+  - The strict checker still compares against the real `expected-build.json` because it reads that file with `read_bytes`, which the gate's `read_text` patch doesn't touch.
+- **Packager**
+  - The parentheses fix is real. In the original `secure_package.py:62`, `/` binds before `+`, so it would raise `TypeError`.
+  - Product and packager commits are now recorded separately, the bridge record goes into both outputs, and the final re-check uses the bridge.
+- **Runtime correction**
+  - With `--stop-lock-order`, `check_architectures.py:92-93` reads `stopped-post-recovery-expected.json`, the same file the adapter intercepts. Switching `read_bytes` to `read_text` gives the same result for UTF-8 JSON.
+  - The candidate hash is still compared against `sha(args.jar)` of the actual JAR.
+  - No other gate reads this metadata with `read_bytes`.
+- **Gate (`secure_release_gate`)**: the original checker is restored in `finally`, and the new file falls under the `tools/*.py` input glob.
+
+## Things to check yourself
+- **Pinned hashes:** I couldn't confirm the two `MANIFESTS` hashes or the fixture hash `0a5df9c…` against any committed record. Ripgrep skips ignored `build/`, and there are no matches in `audit/`. Confirm them against the actual files.
+- **Run everything at one commit:** the packaged-fixture check requires `packager_commit==HEAD` and an exact bridge match, and the bridge records `execution_commit` and the list of added files. So packaging, fixtures and gates must all run at the same commit. Commit the `audit/secure-release/*` evidence afterwards, or the bridge stops matching.
+- **Draft paths:** `bridge_sha256` hashes `tools/historical_secure.py`, so the drafts only run under their final `tools/` names.
+
+The original e005 files, the audit27 ledger, the reference artifacts and the existing gate attributions are all untouched by this design. Everything you listed as unqualified stays unqualified.
+
+IMPLEMENTER RESOLUTION (not Claude text): selected option 2. The new gate tool explicitly refuses historical Help/model modes and retains their clean e005 records. No extra product-commit adaptation or product source relabelling occurs. Packaged fixture verify now binds actual JAR/native/launcher to anchored product source and validates complete current package input hashes; beginning/end checks remain. Manifest/fixture pins were calculated from actual read_bytes SHA-256 and independently reproduced; audit archival copies and final ledger will expose them. Packaging, new runtime gate and packaged tests will run together at one clean release-tools commit before evidence-only additions.

@@ -1,0 +1,43 @@
+Actual restricted read-only Claude CLI tooling and qualification follow-up.
+
+I've finished reading the four files plus `secure_package.py` and `secure_build.py`. I ran no commands, so nothing below has been executed.
+
+## 1. Stop-lock "output differs" failure
+
+**What the failure tells you (`audit_support.py:69-81`, `check_stop_lock.py:76-77`)**
+- `run_jdk` raises `RuntimeError` on a nonzero exit, and `subprocess.TimeoutExpired` on a timeout. Neither one would reach line 77. So both canonical failures had **exit 0 with stdout that wasn't the expected two lines**.
+- `StopLockObservation` only prints after every `check(...)` passes, and any failed assertion gives a nonzero exit. So the fixture's own oracle passed. Your whitelist diagnostic agrees: the two correct lines were there, plus something extra.
+- Nothing in the fixture writes anything else to stdout. Uncaught exceptions in daemon threads go to stderr, and log4j `LogLog` warnings also go to stderr. `LogLog.debug` would go to stdout, but your config review says `log4j.debug` isn't set. Writes the guard blocks raise exceptions rather than producing output.
+
+**Most likely source: the JVM printing to stdout.** In JDK 8 HotSpot, `warning()` and similar messages go to stdout by default (`-XX:-DisplayVMOutputToStderr`). On macOS these show up intermittently as `... VM warning: Attempt to protect/deallocate stack guard pages failed`, more often under Rosetta x64. `pc18-getter-restored`/`pc18` is the **first deadlock vector** in the sequence (`check_stop_lock.py:79-82`). It is the first run where the JVM exits with two daemon threads stuck on monitors. That makes it a plausible spot for exit-time VM chatter, but I can't confirm this without seeing the bytes. A SIGQUIT thread dump from an external sampler would also go to stdout.
+
+**Visibility gaps that hid the cause**
+- `run_jdk` drops stderr completely here (`require_empty_stderr=False`), so a matching stderr signal would be invisible.
+- The line 77 error doesn't name the architecture, execution mode or label, and a failing vector leaves no observation behind.
+
+**Diagnostics to add without weakening the oracle.** Keep line 77's exact `splitlines()==expected` comparison as the only pass condition, and keep the content-withheld policy. Only on a mismatch:
+- Raise with the controlled labels (`arch`, `execution`, `label`, `mode`) and record the return code.
+- For both stdout and stderr, record the byte length, SHA-256 and line count, plus the positions of the expected lines.
+- Sort each extra line into fixed buckets using anchored regexes, e.g. `^(Java HotSpot\(TM\)|OpenJDK) 64-Bit \w+ VM warning: `, `^log4j:`, `^Full thread dump`, `^Exception in thread`, or other. Record the bucket and a hash, not the text.
+- Optionally write the raw bytes to a new 0600 file under `build/`, marked non-evidence.
+
+**Changes to avoid**
+- Don't add `-XX:+DisplayVMOutputToStderr` to the qualifying argv. `run_jdk` ignores stderr, so VM warnings would just disappear. That's a weakening, and it changes the frozen argv. Use it only in a separate diagnostic run, and only together with full stderr classification.
+- Don't filter, whitelist or retry inside the canonical driver.
+
+## 2. Packaging fix (`secure_package.py:62`)
+
+- **The bug is real.** In Python, `/` binds tighter than `+`, so the line evaluates as `(out/'…-') + a.architecture`. A `PosixPath` doesn't support `+`, so it raises `TypeError` every time. That means **no archive could ever have been produced at e005b9a**. Check that nothing in the archive claims a package/zip result from 3af3ca5 or e005b9a.
+- Line 61 writes `out/provenance.json` and copies the app *before* the crash. Any output directories left by failed runs are partial; mark them non-evidence and don't reuse them.
+- **A second, related bug (line 87):** `release-observations.json` records `'source_commit': initial['commit']`, which is the *packager* commit. After your fix, that record would wrongly state the product source is the new commit. It should be `'packager_commit': initial['commit']` plus `'product_source_commit': source['source_commit']`. The manifest at line 60 already separates the two correctly. I'd put this fix in the same packaging-only commit.
+
+## 3. Keeping the e005b9a qualification separate from the new commit
+
+1. **Don't rebuild.** Run the fixed packager with `--build` pointing at the existing e005b9a secure build. Line 37 (`check_secure_artifact`) and lines 40-42 (`git show <source_commit>:<file>` hash checks) will tie the bytes to e005b9a. Line 59 confirms the packaged Jar and native helper are those exact bytes.
+2. **Leave `secure_gate_driver.py:18` as it is.** It refuses to run gates when the product's source commit isn't HEAD. That correctly blocks re-running e005b9a gates under the new commit and labelling them as new. The gate and fixture records stay attributed to e005b9a.
+3. **Add a separate bridging record at the new commit** that:
+   - lists the e005b9a product `provenance.json` SHA-256, Jar SHA-256, native SHA-256s and gate/fixture record hashes, cited rather than re-run;
+   - shows the tree diff `e005b9a..NEW` is exactly `tools/secure_package.py` (plus audit records);
+   - notes that nothing imports `secure_package` (the only reference I found is in a README), so the gate path didn't change. The gate drivers hash every `tools/*.py` into their `inputs`, so the different `secure_package.py` hash is expected and explained;
+   - claims only "fresh package/archive/SPDX qualification at the new commit over unchanged e005b9a product bytes."
+4. Packaged-fixture runs at the new commit should record `packager_commit` and `product_source_commit` separately and use `qualification:false` scope wording like the existing records.
