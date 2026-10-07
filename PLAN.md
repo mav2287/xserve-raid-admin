@@ -978,3 +978,19 @@ no blockers in this bounded scope; clean source bytes match Git.
 PATH_MAX, native release integration and visible save failures remain open. An
 unavailable native helper must fail visibly rather than use an insecure in-place
 fallback. Full GUI, physical Intel and hardware remain unverified/deferred.
+
+
+Clean filename/static records at `91aa134` reproduce the same passing matrices
+and correct `compiler_tree_sha256` to the digest string, rather than the full
+compiler lock object previously stored under that name. The older records remain
+historical and are not overwritten. Current records:
+[filename v2](audit/atomic-path-clean-v2.json) and
+[static selection v2](audit/preference-save-site-clean-v2.json).
+
+The atomic-save implementation and preserved caller are committed but remain
+nonshipping. Next required product work is to port tested path handling without
+fixture properties/hooks, provide fixed-code visible save failures, integrate
+architecture-specific native loading/packaging, and rerun the complete candidate
+and unsigned archive/SPDX checks. Neither application launch nor these bounded
+experiments establishes full application functionality. The original JAR,
+installed JAR, audit27 release JAR and frozen integrity ledger remain unchanged.

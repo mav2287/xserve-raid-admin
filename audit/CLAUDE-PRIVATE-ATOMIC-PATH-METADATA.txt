@@ -1,0 +1,7 @@
+The correction is right in both files.
+
+- **Value:** `verify_jdk` (`tools/audit_support.py:61-66`) returns the parsed `audit/jdk-lock.json`. That file has a top-level `"tree_sha256"` (line 231), so `compiler['tree_sha256']` is a plain string. It won't raise `KeyError`, and the record no longer embeds the whole lock, including the ~225-entry `files` map.
+- **Placement:** The change is only in the record dict, at `check.py:97` and `inventory.py:57`. `compiler` is still bound once from the first `verify_jdk` call (`check.py:25`, `inventory.py:19`). Nothing else reads it.
+- **Execution and guards:** These are unchanged. The first verify still runs before any work, and the final re-verify (`check.py:94`, `inventory.py:55`) still discards its return value. The input, output and metadata checks (`check.py:95-96`, `inventory.py:56`) all run before the record is built, and the PASS output and output filenames are the same.
+
+One minor point, not a defect: the recorded value is the digest written in the lock file, not one recomputed from the JDK. `verify_jdk` checks that the JDK's files match `lock['files']`, but doesn't check that `tree_sha256` matches those files. This is fine as long as the lock file is trusted. Otherwise, recompute the digest at the point the record is written.

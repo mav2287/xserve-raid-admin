@@ -72,3 +72,8 @@ real profiles, arbitrary native code, external symlinks, native atomic binding a
 hardware. The earlier caller/atomic tests cover other synthetic target/failure
 scenarios separately; this record does not absorb those scopes. No independent
 physical Intel or hardware qualification is implied. HTTP remains plaintext.
+
+Clean executions pass at `6791a76` and `91aa134`. The v2 archived records under
+audit correct the compiler digest field's type; the earlier full-lock object
+remains in the historical records. Execution and observed semantics are unchanged.
+Both remain `qualification=false`.
