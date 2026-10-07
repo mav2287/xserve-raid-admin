@@ -1,0 +1,34 @@
+{
+  "application_notarization": "not performed",
+  "application_signing": null,
+  "architecture": "x64",
+  "archive_bytes": 217113543,
+  "archive_sha256": "60d4b4a13cecc2d0643c37b85380df3741138aa8852f7b1e263e0c5a200960d5",
+  "bundle_provenance_sha256": "4d3f25f7233ced9aebbb101f30e0449a8c540902baa481d5d09423a8de9e95b5",
+  "bundle_tree_sha256": "f170f4416a7e42754c3af60217ff07b02535cd476b4ea28d4def027c92c934dd",
+  "execution_state": {
+    "commit": "aee4580eeeef8cad4bd3257a255f8a1687e5207a",
+    "dirty": false
+  },
+  "extraction": "verified exact files/modes/directories and vendor signature",
+  "format": "ZIP_STORED; sorted POSIX names; 1980-01-01 timestamps; exact files and directory modes; no links or xattrs",
+  "limits": "Local unsigned distributable candidate; no Finder/Gatekeeper/controller or redistribution-rights acceptance",
+  "python": "3.14.8",
+  "schema": 1,
+  "source_hashes": {
+    "audit/expected-build.json": "44358a0d44138f1555a457315b5d4c2fb8f55b9856f4691df354c83d874048a5",
+    "audit/help-patches.json": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "599289f3ebd2ee9ea4a742276bb6c48910292b5f12f08c994a4d338e771c798d",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/help_patch.py": "afd6ed4c5f1e2d08c4a44271b067599c6efc51fc7a75f893c36fa231f8aa0d40",
+    "tools/release_archive.py": "e1224cfb272d8291f304c34e885e38c938eaa6660aa8405344fc399634c1037b",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/verify_bundles.py": "4fd91b343f568d927fb5c0dc2d5ac9c4712aafd4c7f428f215e38d7ed4c81544"
+  },
+  "source_provenance_sha256": "da4fa1e6b27fd794a1bcb970c197a4628ddf55398efb292ba44782d764e59885"
+}

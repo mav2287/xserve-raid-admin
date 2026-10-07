@@ -13,3 +13,6 @@ commands or workflows actually become necessary. Complete safe local work; do
 not contact hardware for this completion effort. All restricted-operation
 confirmation boundaries remain in effect immediately before any future action.
 No hardware test is queued or scheduled; deferred is not pass or unsupported.
+
+
+Audit25 local gates, unsigned archives and SPDX documents are complete. These are software/packaging evidence only. Hardware tests remain deferred by the user, with no controller contact or production/mounted-volume test. The installed app remains identical to intake. No destructive or setting-changing operation is queued.

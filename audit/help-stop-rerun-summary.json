@@ -1,0 +1,8 @@
+{
+  "accepted": true,
+  "execution_commit": "aee4580eeeef8cad4bd3257a255f8a1687e5207a",
+  "stdout_sha256": "bf9a0e6b4eac59a18eb6d7a25904b4722486dab6a0aaf7d507bd62346ed61693",
+  "stderr_bytes": 0,
+  "observations": 104,
+  "reason": "Initial comparator at34 rejected exact new UI additions. Only strict helper/whole-class reversal added; product and fixture timing unchanged."
+}

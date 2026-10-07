@@ -327,3 +327,26 @@ firmware transfer or installed-app modification occurred. Native GUI workflows,
 physical Intel, signed release acceptance and controller behavior are unverified.
 Separate offscreen native component probes are development-only, with no windows
 shown or app Main/profile/controller access. HTTP remains plaintext.
+
+
+### Audit25 original Help boundary and local release preparation
+
+Qualified JAR `59087dceed5865b08cef4db0b554a0822837618a07e59b6fd92a2b25880e6393`.
+Product/build/package source `82f9c4f`; final stop comparator, units and release
+postprocessing source `aee4580`. Fifteen candidate regression gates and 165 units
+pass. Two original browser call operands route through a thin Desktop helper;
+original localized URLs, UI action filtering, controller code, commands, polling
+and retries remain. Browser failures receive deliberate fixed English feedback.
+The actual browser/native-dialog path remains unverified.
+
+Paired packages, unsigned deterministic ZIPs, extracted vendor runtime signatures
+and repeated schema-validated SPDX inventories pass on both architecture artifacts.
+x64 execution is Rosetta. No installed app modification, controller contact or
+production/mounted-volume test occurred. Hardware acceptance is deferred until
+actual operational need. Native full GUI, physical Intel, signing/notarization,
+redistribution rights and remaining documented compatibility/security gaps are
+not waived. Model diagnostic credential redaction is a separate development
+milestone; its current prototype is not shipping qualification. HTTP is plaintext.
+See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
+[the frozen ledger](audit/help-final-integrity.json), and
+[archived record locations](audit/help-archival-map.json).

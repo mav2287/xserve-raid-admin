@@ -1,0 +1,246 @@
+{
+  "browser_class_reference_entries": [
+    "com/apple/xsr/RaidAdmin$HelpListener.class",
+    "com/apple/xsr/SystemMonitorController$UnsupportedOperationDialog.class",
+    "edu/stanford/ejalbert/BrowserLauncher.class"
+  ],
+  "browser_constant_pool_references": [
+    {
+      "entry": "com/apple/xsr/RaidAdmin$HelpListener.class",
+      "pool_index": 4,
+      "tag": 10
+    },
+    {
+      "entry": "com/apple/xsr/SystemMonitorController$UnsupportedOperationDialog.class",
+      "pool_index": 68,
+      "tag": 10
+    }
+  ],
+  "browser_descriptor_reference_entries": [],
+  "browser_reflection_string_entries": [
+    "edu/stanford/ejalbert/BrowserLauncher.class"
+  ],
+  "candidate_sha256": "59087dceed5865b08cef4db0b554a0822837618a07e59b6fd92a2b25880e6393",
+  "candidate_source_commit": "82f9c4fe3de52be3baf41132d8e521911419e177",
+  "candidate_source_dirty": false,
+  "class_identity_manifest_sha256": "cb398829e30cda71bcabc7e148cdc2461af5a1b6532ccf5e76bfd2738f59a82a",
+  "compiled_helper_hashes": {
+    "compat/HelpLauncher$1.class": "081bde0c73a5c0d502858c76630bf38b2be787615319dc99aa6a1e99abb4f36b",
+    "compat/HelpLauncher$2$1.class": "540a8de3beaa1b6c13276c2802897399d266b2344778160bc0993a32b7367245",
+    "compat/HelpLauncher$2.class": "95fd51ffe1165a242f089a931228b9eb604f4bd25ceda63b73f2f4de1bb5c145",
+    "compat/HelpLauncher$Opener.class": "681a5f732f55e41ed9a57a26b0fdec244ca40927fde66d20c769586d0131e35d",
+    "compat/HelpLauncher$Reporter.class": "3792a4c993df395a9de99cc4a610fd931fef265fe3f6683e24bf9dca8aa8f682",
+    "compat/HelpLauncher$UnsupportedBrowse.class": "b6492d657e7f0d8c5c910e5070bc29561f1e8884bb708910ff6df7aaeccdde77",
+    "compat/HelpLauncher.class": "9c3af2db3b3916a92cb7bf87642f22c70e3e07d207ad2487d7abaea3d3cdcb20"
+  },
+  "compiled_probe_hashes": {
+    "compat/HelpObservation$1.class": "f78e350f1fc18e5b8a9e63bd6f319675a3fe8f7b1103599422d4b36b00928aa2",
+    "compat/HelpObservation$2.class": "b2e16d2f94a36cd361d2f72c8e4f50db4f0bc7477d101dcda4fdb31a0c99039f",
+    "compat/HelpObservation$3.class": "8a8cbcf48d608dab98c40ebf54c05a19d58917e3408d9bdca9996f8d0ed1b89c",
+    "compat/HelpObservation$4.class": "5d72b3b13274dd70bf427253567282158215936bc9fdc9e6411cda9dc694a8c7",
+    "compat/HelpObservation$5.class": "edfc40c513fe9c64d6d4dd2e9db4c6e8f35b6af92007059351bcafd19d665f74",
+    "compat/HelpObservation$6.class": "4bb1d215dcc6017cbe63e5fbc95c3b6c5977a8744271862e9e72d4ee76e3b7e7",
+    "compat/HelpObservation$BrowserGuard.class": "37a2a390c857d1fa44e16f9d82bb52e98ebc54e44aa87137594c3a7d7edd66a5",
+    "compat/HelpObservation$DenyLegacy.class": "8071064393b9cab0aebb5142b264785b2f3c011519a7f9c31d26141c0a055c82",
+    "compat/HelpObservation$Recording.class": "35ca0ae2faa30584a5b0029c43a4e225f4fb674388ad21d7531bd59a5ff70762",
+    "compat/HelpObservation.class": "ba8494dab8fb87538ad9969b7d87b4238d243236d92c3bd0c7560a1a815f2b0b",
+    "fixture/FixtureIdentity.class": "f77279e6a7b3cc365f0a6639e89055472dae5d196a7ca1882443a5db3f914f38",
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be"
+  },
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "disassemblies": {
+    "RaidAdmin$HelpListener.class.javap": "aefb23a2a68c203f3dd3d3a7b59b7f5cbc3e9cd4175091c5de68b75c11a91fbe",
+    "SystemMonitorController$UnsupportedOperationDialog.class.javap": "a83d7673cf886d29df862a736a3009ba7f90419c73c4d5fb0940a6a175469773"
+  },
+  "hypertext_disassembly_sha256": "7019e00b39d7e9bb3ce7fff43bcd0794880ee496af35b657517bd7ade34f8832",
+  "limits": [
+    "x64 executed under Rosetta, not physical Intel",
+    "No Desktop.browse invocation or browser launch",
+    "No complete application startup or production profile access",
+    "UnsupportedOperationDialog constructor bypassed using Unsafe; only hyperlink method exercised",
+    "Old BrowserLauncher references retained in unused constant pool; loading denied in child action loader",
+    "Xcomp requested, no full-VM compilation claim",
+    "Remote content availability unverified"
+  ],
+  "negative_controls": [
+    {
+      "architecture": "aarch64",
+      "candidate_sha256": "2d6146aaa348d28d36b52fe5343cc6fcfb86ff6a295b14f72a2968618ba35cba",
+      "entry": "com/apple/xsr/RaidAdmin$HelpListener.class",
+      "frames": [
+        "compat.HelpObservation.check(HelpObservation.java:14)",
+        "compat.HelpObservation.observedStderr(HelpObservation.java:42)",
+        "compat.HelpObservation.main(HelpObservation.java:100)"
+      ],
+      "identity_manifest_sha256": "05abcde43888bfffeea1db6926c7abdf73092fec7c4ac3679faed36094a7fe22",
+      "mode": "-Xint",
+      "mutation": "missing-invocation",
+      "result": "expected fixture assertion",
+      "stderr_sha256": "25893d35a46ec5bccdfef7308c05b5cddc4863ed56c5b923401bbc029d228417"
+    },
+    {
+      "architecture": "aarch64",
+      "candidate_sha256": "ca37dc0f29d1b85ac1dd3f3e02d8aa347422835c5a2886372a8ae7d3c2330911",
+      "entry": "com/apple/xsr/SystemMonitorController$UnsupportedOperationDialog.class",
+      "frames": [
+        "compat.HelpObservation.check(HelpObservation.java:14)",
+        "compat.HelpObservation.observedStderr(HelpObservation.java:42)",
+        "compat.HelpObservation.main(HelpObservation.java:109)"
+      ],
+      "identity_manifest_sha256": "508d218f313989f97dbf1e0b1c31988b2f438eb429e98b0014d0eae19d771dd5",
+      "mode": "-Xint",
+      "mutation": "missing-invocation",
+      "result": "expected fixture assertion",
+      "stderr_sha256": "586b3df2fb4afafbebce5acf191e8dfa89423546985c2718e8b85802bc6f4497"
+    },
+    {
+      "architecture": "x64",
+      "candidate_sha256": "2d6146aaa348d28d36b52fe5343cc6fcfb86ff6a295b14f72a2968618ba35cba",
+      "entry": "com/apple/xsr/RaidAdmin$HelpListener.class",
+      "frames": [
+        "compat.HelpObservation.check(HelpObservation.java:14)",
+        "compat.HelpObservation.observedStderr(HelpObservation.java:42)",
+        "compat.HelpObservation.main(HelpObservation.java:100)"
+      ],
+      "identity_manifest_sha256": "05abcde43888bfffeea1db6926c7abdf73092fec7c4ac3679faed36094a7fe22",
+      "mode": "-Xint",
+      "mutation": "missing-invocation",
+      "result": "expected fixture assertion",
+      "stderr_sha256": "25893d35a46ec5bccdfef7308c05b5cddc4863ed56c5b923401bbc029d228417"
+    },
+    {
+      "architecture": "x64",
+      "candidate_sha256": "ca37dc0f29d1b85ac1dd3f3e02d8aa347422835c5a2886372a8ae7d3c2330911",
+      "entry": "com/apple/xsr/SystemMonitorController$UnsupportedOperationDialog.class",
+      "frames": [
+        "compat.HelpObservation.check(HelpObservation.java:14)",
+        "compat.HelpObservation.observedStderr(HelpObservation.java:42)",
+        "compat.HelpObservation.main(HelpObservation.java:109)"
+      ],
+      "identity_manifest_sha256": "508d218f313989f97dbf1e0b1c31988b2f438eb429e98b0014d0eae19d771dd5",
+      "mode": "-Xint",
+      "mutation": "missing-invocation",
+      "result": "expected fixture assertion",
+      "stderr_sha256": "586b3df2fb4afafbebce5acf191e8dfa89423546985c2718e8b85802bc6f4497"
+    }
+  ],
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "flags": [
+        "-Xint",
+        "-Xverify:all",
+        "-Djava.awt.headless=true",
+        "-Dfixture.identitymanifest=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/identity.tsv",
+        "-Dfixture.baseline=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/connection-publication-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-Dfixture.candidate=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-cp",
+        "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/probes",
+        "compat.HelpObservation"
+      ],
+      "mode": "-Xint",
+      "result": "PASS help boundary; cases=62; legacy_browser_load_attempts=0; legacy_control_attempts=1; guard_control_rejections=3; forbidden_operations=0"
+    },
+    {
+      "architecture": "aarch64",
+      "flags": [
+        "-Xcomp",
+        "-Xverify:all",
+        "-Djava.awt.headless=true",
+        "-Dfixture.identitymanifest=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/identity.tsv",
+        "-Dfixture.baseline=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/connection-publication-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-Dfixture.candidate=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-cp",
+        "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/probes",
+        "compat.HelpObservation"
+      ],
+      "mode": "-Xcomp",
+      "result": "PASS help boundary; cases=62; legacy_browser_load_attempts=0; legacy_control_attempts=1; guard_control_rejections=3; forbidden_operations=0"
+    },
+    {
+      "architecture": "x64",
+      "flags": [
+        "-Xint",
+        "-Xverify:all",
+        "-Djava.awt.headless=true",
+        "-Dfixture.identitymanifest=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/identity.tsv",
+        "-Dfixture.baseline=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/connection-publication-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-Dfixture.candidate=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-cp",
+        "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/probes",
+        "compat.HelpObservation"
+      ],
+      "mode": "-Xint",
+      "result": "PASS help boundary; cases=62; legacy_browser_load_attempts=0; legacy_control_attempts=1; guard_control_rejections=3; forbidden_operations=0"
+    },
+    {
+      "architecture": "x64",
+      "flags": [
+        "-Xcomp",
+        "-Xverify:all",
+        "-Djava.awt.headless=true",
+        "-Dfixture.identitymanifest=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/identity.tsv",
+        "-Dfixture.baseline=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/connection-publication-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-Dfixture.candidate=/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar",
+        "-cp",
+        "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/help-clean-boundary/probes",
+        "compat.HelpObservation"
+      ],
+      "mode": "-Xcomp",
+      "result": "PASS help boundary; cases=62; legacy_browser_load_attempts=0; legacy_control_attempts=1; guard_control_rejections=3; forbidden_operations=0"
+    }
+  ],
+  "qualification": true,
+  "qualified_baseline_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+  "resource_bundle_sha256": {
+    "com/apple/xsr/resources/GlobalResources.properties": "5327867f7a26ab4555fb3b255e65c895ee5aa68f6ef2e2d590819ca48cc1f5ef",
+    "com/apple/xsr/resources/GlobalResources_da.properties": "4d9cbedc3dce79d9d82dafe0e1fcef4d61068aa4403c9147c296a8da349de77f",
+    "com/apple/xsr/resources/GlobalResources_de.properties": "247299f1dd564acb473f9d4755d91b6a8edab7b994c5e3f185fdbd122afede15",
+    "com/apple/xsr/resources/GlobalResources_en.properties": "1ca20001fb21f7d15c89cf06f9bf8679796fcba2feca2f7955df2486a2ae895b",
+    "com/apple/xsr/resources/GlobalResources_en_AU.properties": "cc07a4f58434e22701bc4d0eba9d7021622c33c59880a48de76dfdd73177f2d9",
+    "com/apple/xsr/resources/GlobalResources_en_GB.properties": "a240702f398a20b21898499603fbcfa19181478960bc54b40ca918bd6d064181",
+    "com/apple/xsr/resources/GlobalResources_es.properties": "d65d46282af581667bdd8b13eaecf36e22652565fe29392a324c9d9b85419ed8",
+    "com/apple/xsr/resources/GlobalResources_fi.properties": "4c3661b443dccbac9c081cb7e98041f4d80f8d695c85a5c79fe6a793e807d091",
+    "com/apple/xsr/resources/GlobalResources_fr.properties": "8700c69a0fb6e30e762415f524bf5ea265c014b98aa362275b476b6a5b931cf6",
+    "com/apple/xsr/resources/GlobalResources_it.properties": "f93401603f89f01eafaf42fefa8ab06c826190f4763b295a8a0447e3c9045e42",
+    "com/apple/xsr/resources/GlobalResources_ja.properties": "f8e907f46631bea1e349b14136933f5b3a53ee003548f387b6fcd3c0d31f3489",
+    "com/apple/xsr/resources/GlobalResources_ko.properties": "8ade6a67ff0eb29a053113b6a17aa897b67c1299569eb114a2886df8b08e9b82",
+    "com/apple/xsr/resources/GlobalResources_nl.properties": "ffed54e6d96f22976f84ed9d1ddccdf65cc15c2077c17d11db76e40e9a6e171c",
+    "com/apple/xsr/resources/GlobalResources_no.properties": "b3a87ea19ae597a038672a8c883f2e35dce8e5d83f0ae4d10b8e1aa39b615c9f",
+    "com/apple/xsr/resources/GlobalResources_pt.properties": "7554596647950527a2285a867174548a4b39afe7e6404d0a12ada883a3d3b041",
+    "com/apple/xsr/resources/GlobalResources_sv.properties": "62b56e079aecd449116c0e98702920c5822e2e31ed16f85fede556bbaa4ef982",
+    "com/apple/xsr/resources/GlobalResources_zh.properties": "c331b7e624fcc3a2c55ac672c4a1f90b0f8573cd95d25d2b4cd65d336b4b7a2b",
+    "com/apple/xsr/resources/GlobalResources_zh_TW.properties": "c7dbac16f94df04acc6a7596cb2857b1bf67afdf851948aa3a31d3b4afaad587"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "scope": "Integrated Help actions and helper; exact unchanged qualified audit24 core bytes; not controller or release acceptance",
+  "source_commit": "82f9c4fe3de52be3baf41132d8e521911419e177",
+  "source_dirty": false,
+  "sources": {
+    "audit/expected-build.json": "44358a0d44138f1555a457315b5d4c2fb8f55b9856f4691df354c83d874048a5",
+    "audit/help-patches.json": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752",
+    "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "original/RAID_Admin_original.jar": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+    "patches/compat/HelpLauncher.java": "57897719786909fe03b3bc193b3a6f52eae6162d9899ab109642d1513bccf5ea",
+    "tests/java/fixture/FixtureIdentity.java": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/helpfixture/HelpObservation.java": "2f07c5ac6e934d723ab919bb08bbef21754f0239ad7031c33c093e83bb3de11a",
+    "tests/test_help_patch.py": "5aeafb2d0e8ec0e0e2245d69097b89fde489c952b557d5aa927831767d4ca4e7",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "599289f3ebd2ee9ea4a742276bb6c48910292b5f12f08c994a4d338e771c798d",
+    "tools/check_help.py": "291935a7f826d3b0933ec6734dcad0f9692e879b320d8e2cf7ec2dd1b915d2d2",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/help_patch.py": "afd6ed4c5f1e2d08c4a44271b067599c6efc51fc7a75f893c36fa231f8aa0d40",
+    "tools/help_structure.py": "fb89440025cdccdf07c671cbe730cc4a66bf7e86b9ccdb2c14250a4e3eab8946",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6"
+  },
+  "unit_stderr_sha256": "4d98caeb55bc5326d215cca60276073c3ca6d227adc6be5a18c56cdec13dbb3b"
+}

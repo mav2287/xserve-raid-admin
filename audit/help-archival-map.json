@@ -1,0 +1,122 @@
+{
+  "build/help-bundled-aarch64-1/provenance.json": {
+    "archived_path": "audit/help-help-bundled-aarch64-1-provenance.json",
+    "sha256": "84d65f78b341fdd56963140a36815e8cec842ff5723f9492976296258fba2a90"
+  },
+  "build/help-bundled-aarch64-2/provenance.json": {
+    "archived_path": "audit/help-help-bundled-aarch64-2-provenance.json",
+    "sha256": "825e63ad0d85ec413af3deb6d5130d476cca85db4b003d0a0ceb43ef52dc7283"
+  },
+  "build/help-bundled-x64-1/provenance.json": {
+    "archived_path": "audit/help-help-bundled-x64-1-provenance.json",
+    "sha256": "9ae08b159bba0afd811aa9b65cb8c7472d8e986a9c499417ef2fcb0deaa4b924"
+  },
+  "build/help-bundled-x64-2/provenance.json": {
+    "archived_path": "audit/help-help-bundled-x64-2-provenance.json",
+    "sha256": "4d3f25f7233ced9aebbb101f30e0449a8c540902baa481d5d09423a8de9e95b5"
+  },
+  "build/help-clean-1/provenance.json": {
+    "archived_path": "audit/help-help-clean-1-provenance.json",
+    "sha256": "23390716a4a2f10f89720b58e0e9d255ab28eec52a19310afb9354685411c77c"
+  },
+  "build/help-clean-2/provenance.json": {
+    "archived_path": "audit/help-help-clean-2-provenance.json",
+    "sha256": "da4fa1e6b27fd794a1bcb970c197a4628ddf55398efb292ba44782d764e59885"
+  },
+  "build/help-clean-admission.json": {
+    "archived_path": "audit/help-clean-admission.json",
+    "sha256": "1c65043a1792daefbf295b92b051dd84228205a214f72c05bfdf220dbe4c36fd"
+  },
+  "build/help-clean-boundary/observations.json": {
+    "archived_path": "audit/help-clean-boundary.json",
+    "sha256": "d0eb5fcefbb9c7fba3b34e4e875a5e2eeb695fa8abf70da14ee4c407200effc3"
+  },
+  "build/help-clean-connect.json": {
+    "archived_path": "audit/help-clean-connect.json",
+    "sha256": "18f89c9e2bd9508ef2774ef46c7a6048fa21c953b6e5956d679406d2a4128762"
+  },
+  "build/help-clean-factory.json": {
+    "archived_path": "audit/help-clean-factory.json",
+    "sha256": "79e81f3b6a5f097df563ab4050735e572caf9631087fd88d1bf70d6d20339096"
+  },
+  "build/help-clean-lock.json": {
+    "archived_path": "audit/help-clean-lock.json",
+    "sha256": "06ed0d8261e76f43f433168381c001ea864057e3460f94e4ad19685529898ccd"
+  },
+  "build/help-clean-posting.json": {
+    "archived_path": "audit/help-clean-posting.json",
+    "sha256": "ff62915c4ed093ffd62f285be6fe3b061d10f8c111fa197a83426264c9a77a7b"
+  },
+  "build/help-clean-publication.json": {
+    "archived_path": "audit/help-clean-publication.json",
+    "sha256": "155511481c875d60e4f1264cd5e405d900df8c65191d6ae862c72b2ca7171748"
+  },
+  "build/help-clean-resources.json": {
+    "archived_path": "audit/help-clean-resources.json",
+    "sha256": "6d995db3ed89ace386f7d0b9af482c4899f65862f83d519ecc3f5c3b1f25f3ff"
+  },
+  "build/help-clean-runtime.json": {
+    "archived_path": "audit/help-clean-runtime.json",
+    "sha256": "eb3319239c8a590eb822bec3e91e10db119f6461840355517905816f399a261c"
+  },
+  "build/help-clean-security.json": {
+    "archived_path": "audit/help-clean-security.json",
+    "sha256": "4cbca023870295f0684ec80858d2b7bb515e74f318240c41877219d6f97d24ba"
+  },
+  "build/help-clean-shared.json": {
+    "archived_path": "audit/help-clean-shared.json",
+    "sha256": "170cc765b56bf36c02c142196d2aab338163592a7eeea12e7c2768b97ad73022"
+  },
+  "build/help-clean-socket.json": {
+    "archived_path": "audit/help-clean-socket.json",
+    "sha256": "6b4dd1e9a6689746638e38a271dfc99f70a9924f11a7ad0caff1e0313b97e26a"
+  },
+  "build/help-clean-stop.json": {
+    "archived_path": "audit/help-clean-stop.json",
+    "sha256": "bf9a0e6b4eac59a18eb6d7a25904b4722486dab6a0aaf7d507bd62346ed61693"
+  },
+  "build/help-clean-transport.json": {
+    "archived_path": "audit/help-clean-transport.json",
+    "sha256": "e9ff25bfbd55e6b9f6c98bf938da609b0a44766ded895b68654497ad94aba996"
+  },
+  "build/help-clean-unit.json": {
+    "archived_path": "audit/help-clean-unit.json",
+    "sha256": "dc70fa0283379385c4a5b8594911ec56d3da3be211ccd373f9946a4a3c0cf7f5"
+  },
+  "build/help-clean-worker.json": {
+    "archived_path": "audit/help-clean-worker.json",
+    "sha256": "fa8cb47883811c0133428f9f519622552ede41d0937ec42a996d18930b11feaa"
+  },
+  "build/releases/audit25/RAID-Admin-aarch64-repeat.archive.json": {
+    "archived_path": "audit/help-RAID-Admin-aarch64-repeat.archive.json",
+    "sha256": "256d24b043ba2807c1ff974d8747f834cd0762dc3ae4f24f8d4bce2f952f6990"
+  },
+  "build/releases/audit25/RAID-Admin-aarch64-repeat.spdx.json": {
+    "archived_path": "audit/help-RAID-Admin-aarch64-repeat.spdx.json",
+    "sha256": "9512079b503ee3f2831fea0fc0e6884ae1b804165afa680da7b3776717588ba8"
+  },
+  "build/releases/audit25/RAID-Admin-aarch64.archive.json": {
+    "archived_path": "audit/help-RAID-Admin-aarch64.archive.json",
+    "sha256": "bedf44a30f5c7f736032239eec6ad136491ba96432bd42f82bcb9f4a67d754e1"
+  },
+  "build/releases/audit25/RAID-Admin-aarch64.spdx.json": {
+    "archived_path": "audit/help-RAID-Admin-aarch64.spdx.json",
+    "sha256": "9512079b503ee3f2831fea0fc0e6884ae1b804165afa680da7b3776717588ba8"
+  },
+  "build/releases/audit25/RAID-Admin-x64-repeat.archive.json": {
+    "archived_path": "audit/help-RAID-Admin-x64-repeat.archive.json",
+    "sha256": "500e0136125a1a748ee37e90790e469287227680798d2176d47c38f4fa28f678"
+  },
+  "build/releases/audit25/RAID-Admin-x64-repeat.spdx.json": {
+    "archived_path": "audit/help-RAID-Admin-x64-repeat.spdx.json",
+    "sha256": "4f3cbdecbb8b175b43a1889e6ef289e7a1cca6d5faaacab8a07f16b25adbdcc9"
+  },
+  "build/releases/audit25/RAID-Admin-x64.archive.json": {
+    "archived_path": "audit/help-RAID-Admin-x64.archive.json",
+    "sha256": "6fdea3baeca4817baa499c98ef48031e3e51a922cf373750e044ce106f50a8f3"
+  },
+  "build/releases/audit25/RAID-Admin-x64.spdx.json": {
+    "archived_path": "audit/help-RAID-Admin-x64.spdx.json",
+    "sha256": "4f3cbdecbb8b175b43a1889e6ef289e7a1cca6d5faaacab8a07f16b25adbdcc9"
+  }
+}
