@@ -98,3 +98,35 @@ Actual Claude CLI reviews:
 The design review describes the superseded NIO prototype at its read time; its recommendation A was applied to the current original-stream helper. The prototype source is retained only in ignored development evidence. The integration review raised a generic version50 verifier concern; the exact original version47/handler evidence and follow-up close that concern. Negative controls bind distinct codes for the assertions they target; remaining general positive assertions are not separate negative-control claims. The clear-interrupt mutation targets a pre-set flag; flags set during serialization are positively tested and structurally protected, without a separate after-flush-clearing mutation. These are static reviews, not executed test evidence. Reviewer questions about
 the shipped runtime are answered by audit26's paired packages/ZIPs and vendor
 signature checks; the artifacts contain pinned Corretto 8.504.04.1 on each arch.
+
+
+## Clean-source executions and evidence review checkpoint
+
+All seventeen candidate gates and 175 full unit tests passed from clean product/
+build/package/release commit `4735f4165340cbca6dc30a83f200f4a31ac6dc15`.
+The two bare builds match, paired bundles match bytes and file/directory modes,
+all four archive extractions retain vendor signatures, and repeated SPDX documents
+match on each architecture. Each SPDX contains 3306 files and 17 packages and
+passes the pinned schema/semantic validator plus twelve negative controls.
+Fixed creation input is `2026-10-07T07:00:55Z`, separate from execution metadata.
+The evidence assembler still requires its clean QA-commit execution; this note
+alone is not a completed frozen-ledger claim.
+
+The [assembler review](CLAUDE-PREFERENCE-EVIDENCE-ASSEMBLER.txt) describes its
+first draft, at review time. Its concrete binding requests were applied before
+execution; the [follow-up](CLAUDE-PREFERENCE-EVIDENCE-ASSEMBLER-FOLLOWUP.txt)
+found no blocking mismatch. Neither reviewer executed any test. Subsequent
+nonblocking suggestions were also applied: runtime-tree equality, negative-control
+mode/artifact checks and preference-specific limits. All core executions finished
+before these QA-only files were committed.
+
+Excluded development/setup results: the earliest preference probe had a nonpublic
+main method; its next lifetime loop encountered GC and was invalidated. Fixed
+small failure data eliminated GC during measurement. The first negative-control
+inspector expected wrong source line numbers; corrected exact codes/frames replaced
+that inspector. The private-creation NIO prototype was rejected for interruption
+semantics, not promoted. A packaging-help query used a nonexistent filename.
+Two ARM archive attempts failed before any archive/record publication because the
+new output parent directory was absent; creating that directory and reexecuting
+from the unchanged clean commit produced the four accepted archive records.
+No failed development/setup attempt is included as accepted execution evidence.

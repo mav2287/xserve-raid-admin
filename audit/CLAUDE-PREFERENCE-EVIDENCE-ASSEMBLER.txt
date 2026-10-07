@@ -1,0 +1,57 @@
+I read only the seven allowed files and ran nothing. The draft is close to the audit26 assembler, and I found no dropped audit26 proof. It still has one real weakness, one significant gap in what it actually proves, and several smaller points to tighten before it's committed. Nothing below claims audit27 is qualified.
+
+## Checks that are correct
+
+- **Jar delta (lines 25–30):** this is exact.
+  - The jar hash must equal `e0fe515d…ff62` and the reference must equal audit26's `7c361034…4158`.
+  - Reversing the patch (`strip_entries`) on the new jar must give back the reference jar's entries exactly.
+  - The entry list must be the old one plus the helpers.
+  - The changed entries must be exactly `{FileBasedPreferences.class} ∪ helpers`.
+  - The helper's hash must match the lock file, and the original and patched hashes of the patched class must match.
+  - If the helper already existed in the reference jar, the changed-entries check fails, so that case is safe.
+- **17-gate binding:** the 17 gate names match the runner's commands, and each recorded command line matches `preference-gate-commands.json`. JSON gates require stdout hash = record hash. Help, model and preference require the exact PASS line, and those strings match the runner's byte for byte. All four of the summary's `sources` entries are checked through `walk()` against both the working tree and Git at the product commit.
+- **Units:** the file `build/preference-clean-unit.json` exists and records `execution_commit` 4735f416…, `execution_dirty: false`, `tests_passed: 175`, an empty stdout hash, and a hash for the unit runner script. The assembler checks the runner hash against Git at the product commit and checks stderr against the same pattern the runner uses.
+- **Source proofs:** every JSON record must yield at least one proof checked against the actual working-tree file and Git. The SPDX comment is walked too, and the commit each record is checked against is taken from the record itself and must equal the product commit.
+- **Packages, archives and SBOMs:** checked per architecture × {1, 2}:
+  - the archive is linked to its bundle and to the matching clean build;
+  - architecture and commit fields agree, and the bundle tree hash matches;
+  - the SPDX `SPDXRef-jar` hash equals the new jar hash;
+  - each zip and SPDX file is byte-identical to its repeat.
+- **Preference rows:** 16 observations, covering every combination of 2 architectures × `-Xint`/`-Xcomp` × umask 18/63 × candidate/reference. There are also 16 negatives (2 architectures × 8 mutations) and 5 unit tests. Set equality plus the length check means there are no duplicates.
+- **Model baseline:** it stays a separate audit25 proof. `qualified_baseline_sha256` is checked against the literal `59087dce…6393`, and the 16 model negatives keep the audit26 tuple set.
+
+## Problems to fix before committing
+
+1. **Medium — the product commit isn't pinned.** `CORE=a.product_commit` (line 11), whereas audit26 hard-coded `CORE`. In practice only 4735f416… can pass, because every record must match that literal. But the committed assembler doesn't name the commit it qualifies. The value also goes unchecked into `git merge-base` and `git diff`, where a value starting with `-` would be read as an option. Fix: `CORE='4735f4165340cbca6dc30a83f200f4a31ac6dc15'` plus `require(a.product_commit==CORE)`, or drop the argument.
+2. **Medium — results inside the observation files are never checked.** The preference and model checks only confirm that the expected *combinations* exist (lines 107–115). Nothing checks that:
+   - each candidate or reference row passed;
+   - each negative control was actually detected or rejected;
+   - candidate rows used the new jar hash and reference rows used `REFERENCE`;
+   - `cases=18` held for each run.
+
+   Today these are trusted only through the gate's PASS line and return code. Check the per-row outcome and jar-hash fields once you've seen the real schema.
+3. **Low–medium — the single helper isn't pinned in the assembler.** `helper_lock` is read from the JSON file, so the assembler would accept any number of helpers. It also never compares the JSON's `entry`, `original_sha256` and `patched_sha256` with the module's `ENTRY` and hash constants. Add:
+   - `require(helper_lock=={'compat/PreferenceIO.class':'51d208b2…90a3'})`;
+   - `ENTRY=='com/apple/util/prefs/FileBasedPreferences.class'`;
+   - a check that the JSON's hash fields equal `ORIGINAL_SHA` and `PATCHED_SHA`.
+4. **Low — field names in the observation files are unverified.** I couldn't confirm several assumed field names because the gates are still running and I didn't read `check_preference_io.py`:
+   - `reference_sha256`, `original_class_sha256`, `patched_class_sha256`;
+   - `helper_hashes` and `mutation_pipeline_identity_hashes` (both compared to `helper_lock`, which is odd; confirm it's intended);
+   - `class_major_version` 47 and `helper_major_version` 52;
+   - a top-level `candidate_sha256`, `jar_sha256` or `candidate_jar_sha256`, which line 102 requires for every boundary file.
+
+   A wrong name fails safely, but fix any mismatch before committing.
+5. **Low — model gate against a two-patch jar.** `check_model_diagnostic` now runs on a jar that has both patches. Confirm the model gate's record still binds the new jar hash rather than an audit26-shaped comparison.
+6. **Low — the final record leaves things out:**
+   - It doesn't record the audit25 model baseline separately. Add something like `model_qualified_baseline_audit25_sha256`.
+   - The `limits` list is copied from audit26. Add a preference-specific limit: synthetic preference fixtures only, no real or user preferences, load path not modified.
+7. **Inherited gaps (not new):**
+   - The unit record's `command` isn't checked.
+   - The reference jars named in the commands aren't pinned by the assembler: `socket-configuration-clean-1`, `stop-admission-clean-1`, `worker-exit-clean-3`, `stopped-post-clean-3`. Neither are the `logging-bundled-*-1` runtimes.
+   - The gate runner doesn't reject a stale `*-boundary/observations.json` left in place before a gate runs.
+   - Lines 93–94 repeat the `len(proofs)>prior` check, which is harmless.
+
+## Process notes
+
+- The draft must be committed as `audit/preference-evidence-assembler.py`, the only non-`.md`/`.txt` file allowed to change after the product commit. It also has to run from that path, because line 22 compares the running file with `git show`.
+- None of this has been executed. The archives and SPDX files don't exist yet, so audit27 isn't qualified until the gates finish, the assembler is reviewed and committed, and it passes from a clean QA commit.

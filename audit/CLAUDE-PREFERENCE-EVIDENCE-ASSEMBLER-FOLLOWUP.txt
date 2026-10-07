@@ -1,0 +1,49 @@
+I found no binding error that blocks promotion. Every field the draft reads exists in both observation files, and the values it compares against match. What's left is hardening, plus one stale document.
+
+## Checks against the two observation files
+
+**Preference file** (`preference-clean-preference-boundary/observations.json`)
+- Top-level fields:
+  - `candidate_sha256` is e0fe…ff62 (PIN) and `reference_sha256` is 7c36…4158 (REFERENCE).
+  - `candidate_source_commit` and `source_commit` are 4735f416…; both dirty flags are `false`; `qualification` is `true`.
+  - `helper_hashes` and `mutation_pipeline_identity_hashes` both equal exactly `{compat/PreferenceIO.class: 51d208…90a3}`.
+  - `class_major_version` is 47, `helper_major_version` is 52, `unit_tests` is 5.
+- **16 observations:** the set of architecture × mode × umask {18, 63} × phase is complete.
+  - Candidate rows carry PIN and have the exact `PASS preference write; cases=18; …` string.
+  - Reference rows carry REFERENCE. Their `new_file_mode` evaluates to `644` for umask 18 and `600` for umask 63, matching line 140's `format(0o666&~umask,'o')`.
+- **16 negatives:** 2 architectures × 8 mutations. All 8 `assertion_code` values match `expected_codes` exactly (line 142).
+- `original_class_sha256` is 9a9a41cf… and `patched_class_sha256` is 76935f03…. Line 137 needs these to equal `ORIGINAL_SHA`/`PATCHED_SHA` in `preference_io_patch`, which was outside the files I read.
+
+**Model file** (`preference-clean-model-boundary/observations.json`)
+- Top-level `candidate_sha256` is PIN. All 4 observations put `preference-clean-1` on `-Dfixture.candidate`, so the model gate ran against the two-patch jar.
+- All 4 `(architecture, mode)` rows have the exact `PASS model diagnostic redaction; cases=40; …` string.
+- The 16 negatives (2 architectures × {`both`, `product`} × 4 mutations) all say `expected model differential assertion`.
+- `qualified_baseline_sha256` is 59087dce…; that jar is `help-clean-1`, which the flags use as the reference and which is pinned in `reference_artifacts`.
+- `original_model_sha256` is 870f5f3e… and `patched_model_sha256` is f2b2c2f5…. The patched value matches every observation's `-Dfixture.modelHash`. Line 133 still depends on the `model_diagnostic_patch` constants, which I didn't read.
+
+## Proof the files contain but the draft never binds (suggestions, not blockers)
+
+1. **Runtime trees.** Both files record the same `runtime_trees` (aarch64 ce517f…, x64 6aa1fb…). The final record writes `fixture_runtime_trees` from `runtime_lock` but never compares them. Add:
+   `require(preference['runtime_trees']==model['runtime_trees']=={a:runtime_lock['architectures'][a]['tree_sha256'] for a in ('aarch64','x64')})`
+   This is the most worthwhile addition: as written, the record states runtime trees it hasn't checked against the fixtures.
+2. **Negative-control jar hashes.** Nothing checks that a negative ran a mutated jar rather than PIN or REFERENCE. Suggested checks:
+   - Preference: `row['candidate_sha256'] not in (PIN, REFERENCE)`. The same mutation should also give the same hash on both architectures; it does today.
+   - Model: `model_sha256==MODEL_ORIGINAL` exactly when `mutation=='original'`, and otherwise `model_sha256 not in (MODEL_ORIGINAL, MODEL_PATCHED)`.
+3. **Negative-control mode.** Every negative in both files is `-Xint`, but the tuple-set checks ignore mode. Add `row['mode']=='-Xint'` if that's intended.
+4. **Final `limits` list.** It's missing items the preference record lists itself: no atomic replace, fsync or encryption; original truncation on serialization failure still happens; concurrent filesystem attackers and JVM exhaustion aren't qualified; `-Xcomp` was requested only, not confirmed. The preference and model identity hashes (entry, helper, original and patched) also appear only indirectly, through `records`.
+5. **Minor:**
+   - `unit_stderr_sha256` in each boundary file is unbound.
+   - Lines 112 and 114 repeat the same check.
+   - Line 125's `sys.executable` equality is brittle if the interpreter is reached through a different path. It fails safely.
+
+## Outside these four files, so not verified
+
+- Line 87, `provenance['negative_controls']==12` in the SPDX comment, may be a count carried over from audit26.
+- The PASS line strings in the gate runner.
+- The `runner_sha256` and `command` fields in the unit record.
+
+## Stale document
+
+`build/CLAUDE-PREFERENCE-EVIDENCE-ASSEMBLER.txt` still lists the now-fixed issues as open (unpinned commit, unpinned helper, unchecked rows, missing limits), and its line numbers no longer match the draft. Line 21 lets `.txt` changes into the QA commit, so update it or leave it out; otherwise the committed review contradicts the assembler.
+
+The assembler and gates haven't been run. Audit27 isn't qualified until the remaining gates and x64 SPDX finish, and the assembler is committed as `audit/preference-evidence-assembler.py` and passes from the clean QA commit.
