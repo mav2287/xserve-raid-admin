@@ -1,0 +1,132 @@
+# Help compatibility prototype review (read-only)
+
+I read the 11 files you listed. I ran nothing, wrote nothing, and touched no controllers, profiles or credentials. I saw no run output (`observations.json`, test results), so whether any gate actually passed is **unverified**.
+
+**Verdict:** The bytecode substitution itself looks right, and its round-trip proof is strong. It is not ready to sign off. There are four blockers, all in fixture isolation and gate evidence, not in the patch.
+
+## Blockers
+
+**B1. The fixture can open a real browser if run outside the checker.**
+- **Facts:**
+  - The only thing stopping a browser launch is the `-Djava.awt.headless=true` flag in `tools/check_help_prototype.py:48`.
+  - `HelpObservation` never checks that it is headless itself.
+  - It calls the real `DESKTOP` opener three times: at `HelpObservation.java:62`, through the Help action at `:69` with the real Apple `helpURL`, and through the dialog at `:77`.
+  - If someone runs it directly on a Mac with a display, it would call `Desktop.browse` and reach out to remote Apple content.
+- **Inference:** In JDK 8, `Desktop.browse` does its permission check through `checkPermission(new FilePermission("<<ALL FILES>>","execute"))`, not `checkExec(String)`. `OfflineGuard.checkPermission` (`OfflineGuard.java:14-18`) allows that permission. LaunchServices also runs natively, outside the SecurityManager. So `forbidden_operations=0` does not cover browser launch.
+- **Smallest fix:**
+  - Make `check(GraphicsEnvironment.isHeadless())` the first statement of `main`.
+  - In `OfflineGuard.checkPermission`, deny `FilePermission` with the `execute` action and `AWTPermission`.
+
+**B2. The class-loader denial has no positive control, and the loader identity check is weak.**
+- **Facts:**
+  - `loader.attempted==0` (`:81`) only means something if `DenyLegacy` really defines and resolves the target classes.
+  - The CodeSource checks at `:66` and `:71` cannot show that. The parent loader reads the same jar, so a class it defines would report the same location.
+- **Smallest fix:**
+  - Assert `help.getClassLoader()==loader` and `dialog.getClassLoader()==loader`.
+  - Add one control run against the original `HelpListener` bytes through the same `DenyLegacy` class. Expect `attempted>=1` and a `NoClassDefFoundError`/`ClassNotFoundException` that the fixture catches. This needs a second loader over a temporary original-entry jar or the pinned baseline. Without it, "0 attempts" may simply mean the denial was never reachable.
+
+**B3. The 36 locale cases can pass without testing anything.**
+- **Facts:**
+  - `ResourceBundle.getBundle(name, locale)` (`:49`) falls back to the JVM's default locale, then the base bundle.
+  - If any of the 18 hard-coded tags has no bundle, that case quietly tests a different bundle, and which one depends on the host's locale.
+  - The tag list is not derived from the jar.
+  - The design doc says there are "four localized helpURL values", which conflicts with 18 tags. Neither number has been reconciled with the jar.
+  - The locale cases also bypass `Resources.getString`, the path the real classes use.
+- **Smallest fix:**
+  - Use `ResourceBundle.Control.getNoFallbackControl(FORMAT_DEFAULT)` and assert `b.getLocale().equals(locale)`.
+  - Have the checker enumerate the `GlobalResources*` entries in the jar, assert that set equals the fixture's tag list, and record a hash of each (locale, key, value).
+  - Pin `-Duser.language`/`-Duser.region` in the JVM flags.
+
+**B4. The patch's negative controls are not part of the gate.**
+- **Facts:**
+  - The checker hashes `tests/test_help_patch.py` (`check_help_prototype.py:18`) but never runs it.
+  - The tests' input jar, `original/RAID_Admin_original.jar`, is not hashed.
+  - The every-byte mutation test is therefore not gate evidence.
+- **Smallest fix:** Run the unit tests inside the checker, or record their result as a separate pinned artifact, and add the original jar to `inputs`.
+
+## Non-blocking weaknesses, with small fixes
+
+**Patch and preservation**
+- **Precision on "all other bytes":** besides the operand, `constant_pool_count` (bytes 8–10) also changes. `normalize` covers this; it's worth stating in the claim.
+- **Missing refusal tests:**
+  - `plan()` on already-patched bytes
+  - `normalize()` on original bytes
+  - one entry's bytes passed under the other entry's name
+
+  Each is a one-liner.
+- **javap comparator (`:30-37`) has no negative control.** It also only checks the new instruction, not that the old one was `BrowserLauncher.openURL`. Factor it into a function and unit-test it against a synthetic second change.
+- **The overlay-change check (`:29`) runs on the in-memory dict, not the jar that was written.** Re-read `help-candidate.jar` and compare its entries, including `META-INF/*`.
+- **`assert normalize(...)` (`:24`) disappears under `python -O`.** Use an explicit `if`/`raise`.
+- **The candidate jar is hashed only after the runs (`:55`).** Hash it before as well and compare.
+
+**Caller inventory (gap carried over from the design)**
+- Nothing in the gate shows that exactly two call sites exist. Add a scan of the whole jar for:
+  - any instruction that uses a `BrowserLauncher` Methodref (any method, not just `openURL`)
+  - the string `edu.stanford.ejalbert.BrowserLauncher` as an `ldc` constant
+  - link handling inside `com/apple/gui/HyperTextPane`
+
+  It should assert the set equals `TARGETS`. Any third caller would still hit the original initializer crash.
+
+**Deviation from the design**
+- `CLAUDE-HELP-DESIGN.txt` test 1 says the new class has *no* `BrowserLauncher` reference. The implementation keeps the original pool entries, unused, and relies on the loader denial instead (it does list this in its limits).
+- That trade-off is reasonable, but it should be recorded as an accepted change to the design, not left implicit.
+
+**Compilation**
+- `javac -source 8 -target 8` with no `--release 8` (`:21`, `:39`) builds against whatever class library the compiling JDK has. Its version isn't visible in these inputs.
+- Fix: use `--release 8` if that JDK is 9 or later, and assert major version ≤ 52 on the compiled helper classes.
+
+**Gate record**
+- The record leaves out the runtime lock hashes and the actual `java -version` of each run. Add them.
+
+**Coverage gaps (fine to leave as documented limits)**
+- **Reporter and dialog:** the real `NOTIFY` reporter is only observed for `BROWSE_UNSUPPORTED` and `HELP_URL_INVALID`, and its `JOptionPane` branch never runs.
+- **Dialog URL:** the dialog's `url` is set by hand to an `example.invalid` value (`:74`). The real `unsupportedOperationDialog.url` is never tested through the dialog.
+- **Missing URL:** a null `url` through the dialog (`HELP_URL_MISSING`) is not tested.
+
+## Error handling, secrets and URL behaviour
+
+**Facts**
+- No URL, exception message or stack trace reaches stderr or the dialog.
+  - Reporter codes are fixed literals, and the dialog text is a fixed non-HTML string.
+  - The `synthetic-detail` cases plus `require_empty_stderr=True` back this up.
+- **Dialog URL source:** the dialog always uses its own `url` field, set from `Resources` in the constructor (javap `:361-364`), and never the event's `getURL()`. The original did the same.
+- **Event filtering:** only `ACTIVATED` events reach the helper, which the three event types at `:76-78` confirm.
+- **Exceptions:**
+  - The helper catches `Exception` and `LinkageError`.
+  - Other `Error`s, such as `InternalError`, still escape to the event thread, the same way the original `ExceptionInInitializerError` did.
+  - Both original `catch Exception` blocks are now dead but harmless.
+- **URL parsing:**
+  - `new URI(url)` plus `isAbsolute()` accepts any scheme, including `custom:`, and passes `uri.toString()` through unchanged.
+  - Strings with leading or trailing whitespace, or with spaces, now fail as `HELP_URL_INVALID`, where `BrowserLauncher` passed them straight to the OS.
+  - The bundle-value cases show the shipped values parse. That only counts once B3 is fixed.
+
+**Behaviour change, not a defect**
+- The original failed silently. The new code shows a modal dialog with hard-coded English text in an app localized into many languages. It may also appear over an `AquaAlert` sheet (dialog case) with a null parent.
+- This conflicts with `help_patch.py:1`'s claim of "no event-flow changes". Either reword that claim or make the dialog a deliberate, recorded decision.
+
+**Optional hardening:** allow only `http`/`https` and assert that every bundle value matches. Rejecting a URL is not rewriting it, so this stays within the design.
+
+**Unverified (inference)**
+- On JDK 8 macOS, `Desktop.browse` hands `uri.toString()` to LaunchServices. Values with non-ASCII characters, like the `日本語` case, may fail there.
+- Real browser launch and whether the remote content still exists are unverified, as you specified.
+
+## Class identity and isolation
+
+**Facts**
+- The manifest ties each probe class and each candidate target/helper/`Resources` class to a CodeSource and a SHA-256.
+- The classpath puts the jar first, and the checker rejects any probe that shadows the candidate.
+
+**Gaps**
+- **Child-loader copies aren't hashed.** `FixtureIdentity` verifies the system-loader copies, but the copies `DenyLegacy` defines are only location-checked. They come from the same file, so this is low risk; adding B2's loader assertion closes it.
+- **Shared package.** `HelpObservation` sits in package `compat` so it can reach the package-private test hook. That works only because `write_jar` doesn't seal packages (inference); asserting no `Sealed` attribute is cheap.
+- **Resource bundles aren't in the identity manifest.**
+- **Design-note correction.** The design's reason for skipping `com.apple.eio.FileManager` assumes Java 9 export rules. On pinned Java 8 that reason doesn't hold. The prototype doesn't use `FileManager`, so nothing changes, but the note should be corrected.
+
+## Confirmed from the files
+- **`UnsupportedOperationDialog` patch values:**
+  - The only `BrowserLauncher` call is at pc 14, `invokestatic #68`.
+  - Pool #190 is `openURL:(Ljava/lang/String;)V`, and the last pool entry is #280, so `count=281`.
+  - The new Methodref #283 reuses NameAndType #190.
+  - These match `TARGETS`, `extra()`, and the checker's `spec[6]+2`.
+- **`normalize`** requires the exact appended constants, the new operand and the `pool_count`. It then requires the reversed bytes to match the SHA pin and `plan(old)==data`. Assuming `compose` is a pure splice, which I didn't read, this proves byte preservation outside the count field, the operand and the appended constants.
+- **Case count:** 36 + 3 + 4 + 7 + 1 + 1 + 3 + 1 = 56, which matches the `cases==56` check.

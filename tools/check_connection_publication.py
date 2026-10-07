@@ -13,7 +13,7 @@ from connection_publication_patch import ENTRY,CODE,normalize
 from connection_publication_structure import check_publication
 REFERENCE='2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad'
 JAVA=('tests/java/connectionfixture/ConnectionPublicationObservation.java','tests/java/connectionfixture/CachedConfigurationObservation.java','tests/java/fixture/OfflineGuard.java','tests/java/fixture/FixtureIdentity.java')
-SOURCES=JAVA+('tools/check_connection_publication.py','tools/connection_publication_patch.py','tools/connection_publication_structure.py','tools/audit_support.py','tools/runtime.py','tools/baseline.py','tools/inventory.py','tools/verify_builds.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/stop_admission_patch.py','tools/socket_configuration_patch.py','audit/expected-build.json','audit/jdk-lock.json','audit/runtime-lock.json','audit/python-lock.json','audit/security-patches.json','tests/test_connection_publication.py','tests/fixtures/connection-publication-candidate-acpx.javap')
+SOURCES=JAVA+('tools/check_connection_publication.py','tools/connection_publication_patch.py','tools/help_patch.py','audit/help-patches.json','tools/connection_publication_structure.py','tools/audit_support.py','tools/runtime.py','tools/baseline.py','tools/inventory.py','tools/verify_builds.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/stop_admission_patch.py','tools/socket_configuration_patch.py','audit/expected-build.json','audit/jdk-lock.json','audit/runtime-lock.json','audit/python-lock.json','audit/security-patches.json','tests/test_connection_publication.py','tests/fixtures/connection-publication-candidate-acpx.javap')
 FRAMES={'early-publication': ['ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)', 'ConnectionPublicationObservation.unpublished(ConnectionPublicationObservation.java:34)', 'ConnectionPublicationObservation$MemoryImpl.connect(ConnectionPublicationObservation.java:47)'], 'missing-publication': ['ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)', 'ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:151)'], 'missing-open': ['ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)', 'ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:151)'], 'missing-persistent': ['ConnectionPublicationObservation.check(ConnectionPublicationObservation.java:32)', 'ConnectionPublicationObservation.lambda$request$0(ConnectionPublicationObservation.java:101)', 'ConnectionPublicationObservation.main(ConnectionPublicationObservation.java:163)']}
 
 def state():
@@ -32,7 +32,9 @@ def main():
     if identity!=json.loads((ROOT/'audit/expected-build.json').read_text())['expected'] or (manifest['source_dirty'] and not a.development):raise ValueError('Product source or expected identity differs')
     original=ROOT/'original/RAID_Admin_original.jar';verify_original(original)
     before,after=entries(reference),entries(candidate)
-    if before.keys()!=after.keys() or {n for n in before if before[n]!=after[n]}!={ENTRY} or normalize(after[ENTRY])!=before[ENTRY]:raise ValueError('Private method-only predecessor reversal differs')
+    from help_patch import strip_entries
+    core=strip_entries(after)
+    if before.keys()!=core.keys() or {n for n in before if before[n]!=core[n]}!={ENTRY} or normalize(after[ENTRY])!=before[ENTRY]:raise ValueError('Private method-only predecessor reversal differs')
     check_publication(disassemble_entries(a.jdk,candidate,[ENTRY],verbose=True))
     hashes={n:sha(ROOT/n) for n in SOURCES};artifacts={str(j):sha(j) for j in (candidate,reference,original)}
     lock=runtime_manifest();runtimes={};rows=[];negative=[]

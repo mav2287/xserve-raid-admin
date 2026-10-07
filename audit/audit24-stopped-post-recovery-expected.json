@@ -1,5 +1,5 @@
 {
-  "candidate_jar_sha256": "59087dceed5865b08cef4db0b554a0822837618a07e59b6fd92a2b25880e6393",
+  "candidate_jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
   "lines": [
     "ordinary logger owner=CommunicationsManager method=run; terminal=-102; sends=1; connected=false; stop=true",
     "length gates: runtime parseInt parity, malformed/overflow/negative fixed markers; no-input-or-cause",
@@ -145,8 +145,8 @@
     "containment callback-throws null_io=true; sends=1; stopped=true; queued=1; callback-drain-unqualified",
     "PASS recovery fixed=true; guarded_operations=0"
   ],
-  "previous_candidate_jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
-  "roll_forward_reason": "Audit25 changes only two original UI browser invocation operands and adds seven hash-locked browser helper classes. Network/recovery code and 143 lines remain byte-identical to audit24; runtime gate must be rerun on candidate.",
+  "previous_candidate_jar_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+  "roll_forward_reason": "Only private Acpx createConnection publication changes from audit23. Existing 143 recovery lines retained exactly; new failed-open coverage is in the separate connection-publication gate.",
   "schema": 1,
   "scope": "Audit.20 retained recovery matrix; stopped post admission separately qualified."
 }

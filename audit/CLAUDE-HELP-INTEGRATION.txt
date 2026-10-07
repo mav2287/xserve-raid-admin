@@ -1,0 +1,43 @@
+I read all seven files. I ran nothing and wrote nothing.
+
+## Run evidence: unverified
+
+`build/help-prototype/check-6/observations.json` does not exist, so none of the gate results are evidence yet. The only things in `check-6/` are the seven `helper/compat/HelpLauncher*.class` files. These are also missing: `hypertext.javap`, `help-candidate.jar`, `identity.tsv`, any probe classes and all mutant jars.
+
+My guess from what's missing: the checker stopped after compiling the helper (`check_help_prototype.py:27`) and before writing `hypertext.javap` (`:43`). That window covers the browser-reference / reflection-string scan (`:41`) and the HyperTextPane `javap` (`:43`). It could also have been interrupted. The error messages are withheld, so only your terminal output can tell which.
+
+So none of the following has been observed yet:
+- the 62-case result
+- the four runtime/mode runs
+- both missing-invocation mutants
+- the audit24 denial control
+- the unit gate result
+
+## Remaining blockers
+
+1. **No completed `check-6` run.** This blocks everything else.
+
+2. **Possible cross-loader access failure (inference, can't check without running).** `DenyLegacy` defines `RaidAdmin$HelpListener` and `SystemMonitorController$UnsupportedOperationDialog` in the child loader (`HelpObservation.java:33-35`). Everything else in `com.apple.xsr`, such as `RaidAdmin`, `SystemMonitorController` and `Resources`, comes from the parent loader. That puts them in a different runtime package. If either action method or its synthetic accessors touch package-private members of the outer class or of `Resources`, you get `IllegalAccessError` under `-Xverify:all`. The patched path would fail its expected `BROWSE_UNSUPPORTED`. The audit24 control would also fail, because the cause would not be `NoClassDefFoundError`. If the run fails at `:94` or `:103`, look here first.
+
+3. **"Original four public URLs unchanged" isn't tied to the jar.** The four support URLs at `:107` are hard-coded. Nothing checks that the set of distinct `unsupportedOperationDialog.url` values across the 18 bundles is exactly that set. The locale loop only checks that each bundle value passes through unchanged. Add a set-equality check, either in the fixture or in the checker against the hashed `resource_bundle_sha256` entries.
+
+4. **The audit25 integration itself doesn't exist or hasn't been reviewed.** This checker is scoped as a standalone overlay (`:95`, `scope`). Before integrating:
+   - The baseline builder must apply `plan()` and pin the seven helper class hashes against `compiled_helper_hashes`. Otherwise javac could produce different helper bytes from build to build.
+   - The integrated jar gets a new SHA, so the audit24 clean gates have to be re-run against audit25. Today's overlay evidence doesn't carry over.
+
+5. **Small ordering gap in input binding.** The unit tests run (`:19`) before `sources` is hashed (`:25`). Edits made during the unit run would go unnoticed. Hash the inputs first.
+
+## Evidence caveats (fine to keep as documented limits)
+
+- **BrowserGuard is never exercised.** `HelpLauncher` checks `isHeadless()` before any `Desktop` call, so `guard.browsers==0` is true trivially. It's defence in depth with no positive control.
+- **The reference scan covers member refs only.** It looks at Fieldref, Methodref and InterfaceMethodref (tags 9/10/11) plus exact-string `ldc`s. Bare `Class` refs (tag 7: catch types, `instanceof`, `checkcast`) aren't scanned. The exclusion only covers the exact name `BrowserLauncher.class`, so any `BrowserLauncher$*` inner classes in the library would make `:41` fail.
+- **HyperTextPane `javap` is recorded but not asserted.** The scan already covers it for BrowserLauncher refs. Any other browser path it might have is unexamined.
+- **Dialog coverage is partial.** The `UnsupportedOperationDialog` constructor is bypassed with `Unsafe`, so the field being populated from `Resources` in the real constructor is not observed.
+- **Mutant controls are narrow.** They run under `-Xint` only and cover only the missing-invocation case. A wrong-target or wrong-code mutant isn't tested.
+- **Bundled runtime version isn't visible in these files.** If the bundled runtime is newer than 8, then `sun.misc.Unsafe`, `setSecurityManager` warnings and `require_empty_stderr` could break the run. Earlier audits using `OfflineGuard` suggest it's fine.
+- **Behaviour changes, accepted per your statement:**
+  - URLs with whitespace or spaces now report `HELP_URL_INVALID`, where BrowserLauncher passed them straight to the OS.
+  - `Desktop.browse` runs synchronously on the event thread.
+  - The fixed English `JOptionPane` uses a null parent and may stack over a modal `AquaAlert`.
+  - None of these has been seen on real hardware.
+- **Already listed in your record's `limits`:** the x64 runs are under Rosetta; real browser launch, the native dialog, full `Main` startup and whether the remote content still exists are all unverified.

@@ -1,0 +1,22 @@
+{
+  "classes": {
+    "com/apple/xsr/RaidAdmin$HelpListener.class": {
+      "original_sha256": "1dea3b8e439a54901dbce7a0daa78e0df6b7d46e02b180e8589cdc23ae1884bf",
+      "patched_sha256": "abebc44a958f19aa5d2f3b4b34904f068ff996445cb4ba46bfb6ade62c7adde3"
+    },
+    "com/apple/xsr/SystemMonitorController$UnsupportedOperationDialog.class": {
+      "original_sha256": "ff7980a5c9abb60e270caed19092772537daef348a8cfac61982054599da6aac",
+      "patched_sha256": "498dc09e6b11531e930a2a583c875a23755dfd26ab4385823529faa4c8bebace"
+    }
+  },
+  "helpers": {
+    "compat/HelpLauncher$1.class": "081bde0c73a5c0d502858c76630bf38b2be787615319dc99aa6a1e99abb4f36b",
+    "compat/HelpLauncher$2$1.class": "540a8de3beaa1b6c13276c2802897399d266b2344778160bc0993a32b7367245",
+    "compat/HelpLauncher$2.class": "95fd51ffe1165a242f089a931228b9eb604f4bd25ceda63b73f2f4de1bb5c145",
+    "compat/HelpLauncher$Opener.class": "681a5f732f55e41ed9a57a26b0fdec244ca40927fde66d20c769586d0131e35d",
+    "compat/HelpLauncher$Reporter.class": "3792a4c993df395a9de99cc4a610fd931fef265fe3f6683e24bf9dca8aa8f682",
+    "compat/HelpLauncher$UnsupportedBrowse.class": "b6492d657e7f0d8c5c910e5070bc29561f1e8884bb708910ff6df7aaeccdde77",
+    "compat/HelpLauncher.class": "9c3af2db3b3916a92cb7bf87642f22c70e3e07d207ad2487d7abaea3d3cdcb20"
+  },
+  "scope": "Only two original invocation operands plus three appended constant-pool entries per class and updated pool count; fixed English browser failure feedback is deliberate. No controller code or localized URL changes."
+}
