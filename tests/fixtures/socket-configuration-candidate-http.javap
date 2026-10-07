@@ -1,0 +1,675 @@
+Classfile jar:file:/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-config-prototype/prototype.jar!/com/apple/xsr/net/HttpConnection.class
+  Last modified Jan 1, 1980; size 3934 bytes
+  MD5 checksum 99d82bd949e6517d151dff89ed911bee
+public class com.apple.xsr.net.HttpConnection
+  minor version: 0
+  major version: 47
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+    #1 = Methodref          #121.#122     // java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+    #2 = Class              #123          // java/lang/ClassNotFoundException
+    #3 = Class              #124          // java/lang/NoClassDefFoundError
+    #4 = Methodref          #2.#125       // java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
+    #5 = Methodref          #3.#126       // java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
+    #6 = Methodref          #57.#127      // java/lang/Object."<init>":()V
+    #7 = Fieldref           #56.#128      // com/apple/xsr/net/HttpConnection.connected:Z
+    #8 = Fieldref           #56.#129      // com/apple/xsr/net/HttpConnection.persistent:Z
+    #9 = Fieldref           #56.#130      // com/apple/xsr/net/HttpConnection.timeout:I
+   #10 = Fieldref           #56.#131      // com/apple/xsr/net/HttpConnection.requestOutstanding:Z
+   #11 = Fieldref           #56.#132      // com/apple/xsr/net/HttpConnection.requestSent:Z
+   #12 = Fieldref           #56.#133      // com/apple/xsr/net/HttpConnection.responseReceived:Z
+   #13 = Fieldref           #56.#134      // com/apple/xsr/net/HttpConnection.host:Ljava/lang/String;
+   #14 = String             #135          // There is an outstanding request. Either send the request or read the response first.
+   #15 = Class              #136          // java/lang/IllegalStateException
+   #16 = Methodref          #15.#126      // java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+   #17 = Class              #137          // java/net/URL
+   #18 = String             #138          // http
+   #19 = Methodref          #17.#139      // java/net/URL."<init>":(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+   #20 = Class              #140          // com/apple/xsr/net/HttpRequest
+   #21 = Methodref          #20.#141      // com/apple/xsr/net/HttpRequest."<init>":(Lcom/apple/xsr/net/HttpConnection;Ljava/net/URL;)V
+   #22 = String             #142          // No outstanding request
+   #23 = String             #143          // Unsent request outstanding
+   #24 = Class              #144          // com/apple/xsr/net/HttpResponse
+   #25 = Methodref          #24.#145      // com/apple/xsr/net/HttpResponse."<init>":(Lcom/apple/xsr/net/HttpConnection;)V
+   #26 = Fieldref           #56.#146      // com/apple/xsr/net/HttpConnection.socket:Ljava/net/Socket;
+   #27 = Methodref          #56.#147      // com/apple/xsr/net/HttpConnection.createSocket:(I)V
+   #28 = Methodref          #49.#148      // java/net/Socket.close:()V
+   #29 = Fieldref           #56.#149      // com/apple/xsr/net/HttpConnection.logger:Lorg/apache/log4j/Logger;
+   #30 = String             #150          // Socket closed
+   #31 = Methodref          #151.#152     // org/apache/log4j/Logger.debug:(Ljava/lang/Object;)V
+   #32 = Methodref          #56.#153      // com/apple/xsr/net/HttpConnection.connect:()V
+   #33 = Methodref          #56.#154      // com/apple/xsr/net/HttpConnection.disconnect:()V
+   #34 = Methodref          #49.#155      // java/net/Socket.setSoTimeout:(I)V
+   #35 = Class              #156          // java/net/SocketException
+   #36 = Class              #157          // java/io/IOException
+   #37 = Class              #158          // java/lang/StringBuffer
+   #38 = Methodref          #37.#127      // java/lang/StringBuffer."<init>":()V
+   #39 = String             #159          // Failed to set SO timeout:
+   #40 = Methodref          #37.#160      // java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+   #41 = Methodref          #35.#125      // java/net/SocketException.getMessage:()Ljava/lang/String;
+   #42 = Methodref          #37.#161      // java/lang/StringBuffer.toString:()Ljava/lang/String;
+   #43 = Methodref          #36.#126      // java/io/IOException."<init>":(Ljava/lang/String;)V
+   #44 = Methodref          #49.#162      // java/net/Socket.getSoTimeout:()I
+   #45 = String             #163          // Failed to read SO timeout:
+   #46 = Methodref          #56.#164      // com/apple/xsr/net/HttpConnection.isConnected:()Z
+   #47 = Methodref          #49.#165      // java/net/Socket.getOutputStream:()Ljava/io/OutputStream;
+   #48 = Methodref          #49.#166      // java/net/Socket.getInputStream:()Ljava/io/InputStream;
+   #49 = Class              #167          // java/net/Socket
+   #50 = Methodref          #49.#168      // java/net/Socket."<init>":(Ljava/lang/String;I)V
+   #51 = Methodref          #151.#169     // org/apache/log4j/Logger.error:(Ljava/lang/Object;)V
+   #52 = Fieldref           #56.#170      // com/apple/xsr/net/HttpConnection.class$com$apple$xsr$net$HttpConnection:Ljava/lang/Class;
+   #53 = String             #171          // com.apple.xsr.net.HttpConnection
+   #54 = Methodref          #56.#172      // com/apple/xsr/net/HttpConnection.class$:(Ljava/lang/String;)Ljava/lang/Class;
+   #55 = Methodref          #151.#173     // org/apache/log4j/Logger.getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+   #56 = Class              #174          // com/apple/xsr/net/HttpConnection
+   #57 = Class              #175          // java/lang/Object
+   #58 = Class              #176          // com/apple/xsr/net/HttpConnection$SocketProducer
+   #59 = Utf8               SocketProducer
+   #60 = Utf8               InnerClasses
+   #61 = Utf8               CONNECTION_TIMEOUT
+   #62 = Utf8               I
+   #63 = Utf8               ConstantValue
+   #64 = Integer            5000
+   #65 = Utf8               DEFAULT_SO_TIMEOUT
+   #66 = Integer            30000
+   #67 = Utf8               SCHEME
+   #68 = Utf8               Ljava/lang/String;
+   #69 = Utf8               PORT
+   #70 = Integer            80
+   #71 = Utf8               socket
+   #72 = Utf8               Ljava/net/Socket;
+   #73 = Utf8               host
+   #74 = Utf8               connected
+   #75 = Utf8               Z
+   #76 = Utf8               persistent
+   #77 = Utf8               timeout
+   #78 = Utf8               requestOutstanding
+   #79 = Utf8               requestSent
+   #80 = Utf8               responseReceived
+   #81 = Utf8               logger
+   #82 = Utf8               Lorg/apache/log4j/Logger;
+   #83 = Utf8               class$com$apple$xsr$net$HttpConnection
+   #84 = Utf8               Ljava/lang/Class;
+   #85 = Utf8               Synthetic
+   #86 = Utf8               <init>
+   #87 = Utf8               (Ljava/lang/String;)V
+   #88 = Utf8               Code
+   #89 = Utf8               Exceptions
+   #90 = Class              #177          // java/net/UnknownHostException
+   #91 = Utf8               newRequest
+   #92 = Utf8               (Ljava/lang/String;)Lcom/apple/xsr/net/HttpRequest;
+   #93 = Class              #178          // java/net/MalformedURLException
+   #94 = Utf8               getResponse
+   #95 = Utf8               ()Lcom/apple/xsr/net/HttpResponse;
+   #96 = Utf8               connect
+   #97 = Utf8               ()V
+   #98 = Utf8               Deprecated
+   #99 = Utf8               disconnect
+  #100 = Utf8               open
+  #101 = Utf8               close
+  #102 = Utf8               isConnected
+  #103 = Utf8               ()Z
+  #104 = Utf8               setPersistent
+  #105 = Utf8               (Z)V
+  #106 = Utf8               isPersistent
+  #107 = Utf8               setTimeout
+  #108 = Utf8               (I)V
+  #109 = Utf8               getTimeout
+  #110 = Utf8               ()I
+  #111 = Utf8               getOutputStream
+  #112 = Utf8               ()Ljava/io/OutputStream;
+  #113 = Utf8               getInputStream
+  #114 = Utf8               ()Ljava/io/InputStream;
+  #115 = Utf8               setRequestOutstanding
+  #116 = Utf8               setRequestSent
+  #117 = Utf8               createSocket
+  #118 = Utf8               class$
+  #119 = Utf8               (Ljava/lang/String;)Ljava/lang/Class;
+  #120 = Utf8               <clinit>
+  #121 = Class              #179          // java/lang/Class
+  #122 = NameAndType        #180:#119     // forName:(Ljava/lang/String;)Ljava/lang/Class;
+  #123 = Utf8               java/lang/ClassNotFoundException
+  #124 = Utf8               java/lang/NoClassDefFoundError
+  #125 = NameAndType        #181:#182     // getMessage:()Ljava/lang/String;
+  #126 = NameAndType        #86:#87       // "<init>":(Ljava/lang/String;)V
+  #127 = NameAndType        #86:#97       // "<init>":()V
+  #128 = NameAndType        #74:#75       // connected:Z
+  #129 = NameAndType        #76:#75       // persistent:Z
+  #130 = NameAndType        #77:#62       // timeout:I
+  #131 = NameAndType        #78:#75       // requestOutstanding:Z
+  #132 = NameAndType        #79:#75       // requestSent:Z
+  #133 = NameAndType        #80:#75       // responseReceived:Z
+  #134 = NameAndType        #73:#68       // host:Ljava/lang/String;
+  #135 = Utf8               There is an outstanding request. Either send the request or read the response first.
+  #136 = Utf8               java/lang/IllegalStateException
+  #137 = Utf8               java/net/URL
+  #138 = Utf8               http
+  #139 = NameAndType        #86:#183      // "<init>":(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+  #140 = Utf8               com/apple/xsr/net/HttpRequest
+  #141 = NameAndType        #86:#184      // "<init>":(Lcom/apple/xsr/net/HttpConnection;Ljava/net/URL;)V
+  #142 = Utf8               No outstanding request
+  #143 = Utf8               Unsent request outstanding
+  #144 = Utf8               com/apple/xsr/net/HttpResponse
+  #145 = NameAndType        #86:#185      // "<init>":(Lcom/apple/xsr/net/HttpConnection;)V
+  #146 = NameAndType        #71:#72       // socket:Ljava/net/Socket;
+  #147 = NameAndType        #117:#108     // createSocket:(I)V
+  #148 = NameAndType        #101:#97      // close:()V
+  #149 = NameAndType        #81:#82       // logger:Lorg/apache/log4j/Logger;
+  #150 = Utf8               Socket closed
+  #151 = Class              #186          // org/apache/log4j/Logger
+  #152 = NameAndType        #187:#188     // debug:(Ljava/lang/Object;)V
+  #153 = NameAndType        #96:#97       // connect:()V
+  #154 = NameAndType        #99:#97       // disconnect:()V
+  #155 = NameAndType        #189:#108     // setSoTimeout:(I)V
+  #156 = Utf8               java/net/SocketException
+  #157 = Utf8               java/io/IOException
+  #158 = Utf8               java/lang/StringBuffer
+  #159 = Utf8               Failed to set SO timeout:
+  #160 = NameAndType        #190:#191     // append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+  #161 = NameAndType        #192:#182     // toString:()Ljava/lang/String;
+  #162 = NameAndType        #193:#110     // getSoTimeout:()I
+  #163 = Utf8               Failed to read SO timeout:
+  #164 = NameAndType        #102:#103     // isConnected:()Z
+  #165 = NameAndType        #111:#112     // getOutputStream:()Ljava/io/OutputStream;
+  #166 = NameAndType        #113:#114     // getInputStream:()Ljava/io/InputStream;
+  #167 = Utf8               java/net/Socket
+  #168 = NameAndType        #86:#194      // "<init>":(Ljava/lang/String;I)V
+  #169 = NameAndType        #195:#188     // error:(Ljava/lang/Object;)V
+  #170 = NameAndType        #83:#84       // class$com$apple$xsr$net$HttpConnection:Ljava/lang/Class;
+  #171 = Utf8               com.apple.xsr.net.HttpConnection
+  #172 = NameAndType        #118:#119     // class$:(Ljava/lang/String;)Ljava/lang/Class;
+  #173 = NameAndType        #196:#197     // getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+  #174 = Utf8               com/apple/xsr/net/HttpConnection
+  #175 = Utf8               java/lang/Object
+  #176 = Utf8               com/apple/xsr/net/HttpConnection$SocketProducer
+  #177 = Utf8               java/net/UnknownHostException
+  #178 = Utf8               java/net/MalformedURLException
+  #179 = Utf8               java/lang/Class
+  #180 = Utf8               forName
+  #181 = Utf8               getMessage
+  #182 = Utf8               ()Ljava/lang/String;
+  #183 = Utf8               (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+  #184 = Utf8               (Lcom/apple/xsr/net/HttpConnection;Ljava/net/URL;)V
+  #185 = Utf8               (Lcom/apple/xsr/net/HttpConnection;)V
+  #186 = Utf8               org/apache/log4j/Logger
+  #187 = Utf8               debug
+  #188 = Utf8               (Ljava/lang/Object;)V
+  #189 = Utf8               setSoTimeout
+  #190 = Utf8               append
+  #191 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuffer;
+  #192 = Utf8               toString
+  #193 = Utf8               getSoTimeout
+  #194 = Utf8               (Ljava/lang/String;I)V
+  #195 = Utf8               error
+  #196 = Utf8               getLogger
+  #197 = Utf8               (Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+  #198 = Utf8               compat/SocketConfiguration
+  #199 = Class              #198          // compat/SocketConfiguration
+  #200 = Utf8               (Ljava/lang/String;I)Ljava/net/Socket;
+  #201 = NameAndType        #100:#200     // open:(Ljava/lang/String;I)Ljava/net/Socket;
+  #202 = Methodref          #199.#201     // compat/SocketConfiguration.open:(Ljava/lang/String;I)Ljava/net/Socket;
+{
+  public static final int CONNECTION_TIMEOUT;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 5000
+
+  public static final int DEFAULT_SO_TIMEOUT;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 30000
+
+  public static final java.lang.String SCHEME;
+    descriptor: Ljava/lang/String;
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: String http
+
+  public static final int PORT;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 80
+
+  private java.net.Socket socket;
+    descriptor: Ljava/net/Socket;
+    flags: ACC_PRIVATE
+
+  private java.lang.String host;
+    descriptor: Ljava/lang/String;
+    flags: ACC_PRIVATE
+
+  private boolean connected;
+    descriptor: Z
+    flags: ACC_PRIVATE
+
+  private boolean persistent;
+    descriptor: Z
+    flags: ACC_PRIVATE
+
+  private int timeout;
+    descriptor: I
+    flags: ACC_PRIVATE
+
+  private boolean requestOutstanding;
+    descriptor: Z
+    flags: ACC_PRIVATE
+
+  private boolean requestSent;
+    descriptor: Z
+    flags: ACC_PRIVATE
+
+  private boolean responseReceived;
+    descriptor: Z
+    flags: ACC_PRIVATE
+
+  private static final org.apache.log4j.Logger logger;
+    descriptor: Lorg/apache/log4j/Logger;
+    flags: ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+
+  static java.lang.Class class$com$apple$xsr$net$HttpConnection;
+    descriptor: Ljava/lang/Class;
+    flags: ACC_STATIC
+    Synthetic: true
+
+  public com.apple.xsr.net.HttpConnection(java.lang.String) throws java.io.IOException, java.net.UnknownHostException;
+    descriptor: (Ljava/lang/String;)V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: invokespecial #6                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: iconst_0
+         6: putfield      #7                  // Field connected:Z
+         9: aload_0
+        10: iconst_0
+        11: putfield      #8                  // Field persistent:Z
+        14: aload_0
+        15: sipush        30000
+        18: putfield      #9                  // Field timeout:I
+        21: aload_0
+        22: iconst_0
+        23: putfield      #10                 // Field requestOutstanding:Z
+        26: aload_0
+        27: iconst_0
+        28: putfield      #11                 // Field requestSent:Z
+        31: aload_0
+        32: iconst_0
+        33: putfield      #12                 // Field responseReceived:Z
+        36: aload_0
+        37: aload_1
+        38: putfield      #13                 // Field host:Ljava/lang/String;
+        41: return
+    Exceptions:
+      throws java.io.IOException, java.net.UnknownHostException
+
+  public com.apple.xsr.net.HttpRequest newRequest(java.lang.String) throws java.io.IOException, java.net.MalformedURLException;
+    descriptor: (Ljava/lang/String;)Lcom/apple/xsr/net/HttpRequest;
+    flags: ACC_PUBLIC
+    Code:
+      stack=5, locals=4, args_size=2
+         0: aload_0
+         1: getfield      #10                 // Field requestOutstanding:Z
+         4: iconst_1
+         5: if_icmpne     20
+         8: ldc           #14                 // String There is an outstanding request. Either send the request or read the response first.
+        10: astore_2
+        11: new           #15                 // class java/lang/IllegalStateException
+        14: dup
+        15: aload_2
+        16: invokespecial #16                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        19: athrow
+        20: new           #17                 // class java/net/URL
+        23: dup
+        24: ldc           #18                 // String http
+        26: aload_0
+        27: getfield      #13                 // Field host:Ljava/lang/String;
+        30: aload_1
+        31: invokespecial #19                 // Method java/net/URL."<init>":(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+        34: astore_2
+        35: new           #20                 // class com/apple/xsr/net/HttpRequest
+        38: dup
+        39: aload_0
+        40: aload_2
+        41: invokespecial #21                 // Method com/apple/xsr/net/HttpRequest."<init>":(Lcom/apple/xsr/net/HttpConnection;Ljava/net/URL;)V
+        44: astore_3
+        45: aload_0
+        46: iconst_1
+        47: putfield      #10                 // Field requestOutstanding:Z
+        50: aload_0
+        51: iconst_0
+        52: putfield      #11                 // Field requestSent:Z
+        55: aload_3
+        56: areturn
+    Exceptions:
+      throws java.io.IOException, java.net.MalformedURLException
+
+  public com.apple.xsr.net.HttpResponse getResponse() throws java.io.IOException;
+    descriptor: ()Lcom/apple/xsr/net/HttpResponse;
+    flags: ACC_PUBLIC
+    Code:
+      stack=3, locals=2, args_size=1
+         0: aload_0
+         1: getfield      #10                 // Field requestOutstanding:Z
+         4: ifne          17
+         7: new           #15                 // class java/lang/IllegalStateException
+        10: dup
+        11: ldc           #22                 // String No outstanding request
+        13: invokespecial #16                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        16: athrow
+        17: aload_0
+        18: getfield      #11                 // Field requestSent:Z
+        21: ifne          34
+        24: new           #15                 // class java/lang/IllegalStateException
+        27: dup
+        28: ldc           #23                 // String Unsent request outstanding
+        30: invokespecial #16                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        33: athrow
+        34: new           #24                 // class com/apple/xsr/net/HttpResponse
+        37: dup
+        38: aload_0
+        39: invokespecial #25                 // Method com/apple/xsr/net/HttpResponse."<init>":(Lcom/apple/xsr/net/HttpConnection;)V
+        42: astore_1
+        43: aload_1
+        44: areturn
+    Exceptions:
+      throws java.io.IOException
+
+  public void connect() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #26                 // Field socket:Ljava/net/Socket;
+         4: ifnull        14
+         7: aload_0
+         8: getfield      #7                  // Field connected:Z
+        11: ifne          26
+        14: aload_0
+        15: sipush        5000
+        18: invokespecial #27                 // Method createSocket:(I)V
+        21: aload_0
+        22: iconst_1
+        23: putfield      #7                  // Field connected:Z
+        26: return
+    Exceptions:
+      throws java.io.IOException
+    Deprecated: true
+
+  public void disconnect() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=3, args_size=1
+         0: aload_0
+         1: getfield      #26                 // Field socket:Ljava/net/Socket;
+         4: ifnull        47
+         7: aload_0
+         8: getfield      #26                 // Field socket:Ljava/net/Socket;
+        11: invokevirtual #28                 // Method java/net/Socket.close:()V
+        14: getstatic     #29                 // Field logger:Lorg/apache/log4j/Logger;
+        17: ldc           #30                 // String Socket closed
+        19: invokevirtual #31                 // Method org/apache/log4j/Logger.debug:(Ljava/lang/Object;)V
+        22: jsr           34
+        25: goto          47
+        28: astore_1
+        29: jsr           34
+        32: aload_1
+        33: athrow
+        34: astore_2
+        35: aload_0
+        36: aconst_null
+        37: putfield      #26                 // Field socket:Ljava/net/Socket;
+        40: aload_0
+        41: iconst_0
+        42: putfield      #7                  // Field connected:Z
+        45: ret           2
+        47: return
+      Exception table:
+         from    to  target type
+             7    25    28   any
+            28    32    28   any
+    Exceptions:
+      throws java.io.IOException
+    Deprecated: true
+
+  public void open() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #32                 // Method connect:()V
+         4: return
+    Exceptions:
+      throws java.io.IOException
+
+  public void close() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #33                 // Method disconnect:()V
+         4: return
+    Exceptions:
+      throws java.io.IOException
+
+  public boolean isConnected();
+    descriptor: ()Z
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #7                  // Field connected:Z
+         4: ireturn
+
+  public void setPersistent(boolean);
+    descriptor: (Z)V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: iload_1
+         2: putfield      #8                  // Field persistent:Z
+         5: return
+
+  public boolean isPersistent();
+    descriptor: ()Z
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #8                  // Field persistent:Z
+         4: ireturn
+
+  public void setTimeout(int) throws java.io.IOException;
+    descriptor: (I)V
+    flags: ACC_PUBLIC
+    Code:
+      stack=4, locals=4, args_size=2
+         0: iload_1
+         1: ifeq          9
+         4: iload_1
+         5: istore_2
+         6: goto          13
+         9: sipush        30000
+        12: istore_2
+        13: iload_2
+        14: aload_0
+        15: getfield      #9                  // Field timeout:I
+        18: if_icmpne     22
+        21: return
+        22: aload_0
+        23: getfield      #26                 // Field socket:Ljava/net/Socket;
+        26: iload_2
+        27: invokevirtual #34                 // Method java/net/Socket.setSoTimeout:(I)V
+        30: aload_0
+        31: iload_2
+        32: putfield      #9                  // Field timeout:I
+        35: goto          69
+        38: astore_3
+        39: new           #36                 // class java/io/IOException
+        42: dup
+        43: new           #37                 // class java/lang/StringBuffer
+        46: dup
+        47: invokespecial #38                 // Method java/lang/StringBuffer."<init>":()V
+        50: ldc           #39                 // String Failed to set SO timeout:
+        52: invokevirtual #40                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+        55: aload_3
+        56: invokevirtual #41                 // Method java/net/SocketException.getMessage:()Ljava/lang/String;
+        59: invokevirtual #40                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+        62: invokevirtual #42                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+        65: invokespecial #43                 // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+        68: athrow
+        69: return
+      Exception table:
+         from    to  target type
+            22    35    38   Class java/net/SocketException
+    Exceptions:
+      throws java.io.IOException
+
+  public int getTimeout() throws java.io.IOException;
+    descriptor: ()I
+    flags: ACC_PUBLIC
+    Code:
+      stack=4, locals=2, args_size=1
+         0: aload_0
+         1: getfield      #26                 // Field socket:Ljava/net/Socket;
+         4: invokevirtual #44                 // Method java/net/Socket.getSoTimeout:()I
+         7: ireturn
+         8: astore_1
+         9: new           #36                 // class java/io/IOException
+        12: dup
+        13: new           #37                 // class java/lang/StringBuffer
+        16: dup
+        17: invokespecial #38                 // Method java/lang/StringBuffer."<init>":()V
+        20: ldc           #45                 // String Failed to read SO timeout:
+        22: invokevirtual #40                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+        25: aload_1
+        26: invokevirtual #41                 // Method java/net/SocketException.getMessage:()Ljava/lang/String;
+        29: invokevirtual #40                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+        32: invokevirtual #42                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+        35: invokespecial #43                 // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+        38: athrow
+      Exception table:
+         from    to  target type
+             0     7     8   Class java/net/SocketException
+    Exceptions:
+      throws java.io.IOException
+
+  java.io.OutputStream getOutputStream() throws java.io.IOException;
+    descriptor: ()Ljava/io/OutputStream;
+    flags:
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #26                 // Field socket:Ljava/net/Socket;
+         4: ifnull        14
+         7: aload_0
+         8: invokevirtual #46                 // Method isConnected:()Z
+        11: ifne          18
+        14: aload_0
+        15: invokevirtual #32                 // Method connect:()V
+        18: aload_0
+        19: getfield      #26                 // Field socket:Ljava/net/Socket;
+        22: invokevirtual #47                 // Method java/net/Socket.getOutputStream:()Ljava/io/OutputStream;
+        25: areturn
+    Exceptions:
+      throws java.io.IOException
+
+  java.io.InputStream getInputStream() throws java.io.IOException;
+    descriptor: ()Ljava/io/InputStream;
+    flags:
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #26                 // Field socket:Ljava/net/Socket;
+         4: ifnull        14
+         7: aload_0
+         8: invokevirtual #46                 // Method isConnected:()Z
+        11: ifne          18
+        14: aload_0
+        15: invokevirtual #32                 // Method connect:()V
+        18: aload_0
+        19: getfield      #26                 // Field socket:Ljava/net/Socket;
+        22: invokevirtual #48                 // Method java/net/Socket.getInputStream:()Ljava/io/InputStream;
+        25: areturn
+    Exceptions:
+      throws java.io.IOException
+
+  void setRequestOutstanding(boolean);
+    descriptor: (Z)V
+    flags:
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: iload_1
+         2: putfield      #10                 // Field requestOutstanding:Z
+         5: return
+
+  void setRequestSent(boolean);
+    descriptor: (Z)V
+    flags:
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: iload_1
+         2: putfield      #11                 // Field requestSent:Z
+         5: return
+
+  private void createSocket(int) throws java.io.IOException;
+    descriptor: (I)V
+    flags: ACC_PRIVATE
+    Code:
+      stack=3, locals=2, args_size=2
+         0: aload_0
+         1: aload_0
+         2: getfield      #13                 // Field host:Ljava/lang/String;
+         5: aload_0
+         6: getfield      #9                  // Field timeout:I
+         9: invokestatic  #202                // Method compat/SocketConfiguration.open:(Ljava/lang/String;I)Ljava/net/Socket;
+        12: putfield      #26                 // Field socket:Ljava/net/Socket;
+        15: return
+    Exceptions:
+      throws java.io.IOException
+
+  static java.lang.Class class$(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/Class;
+    flags: ACC_STATIC
+    Code:
+      stack=3, locals=2, args_size=1
+         0: aload_0
+         1: invokestatic  #1                  // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+         4: areturn
+         5: astore_1
+         6: new           #3                  // class java/lang/NoClassDefFoundError
+         9: dup
+        10: aload_1
+        11: invokevirtual #4                  // Method java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
+        14: invokespecial #5                  // Method java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
+        17: athrow
+      Exception table:
+         from    to  target type
+             0     4     5   Class java/lang/ClassNotFoundException
+    Synthetic: true
+
+  static {};
+    descriptor: ()V
+    flags: ACC_STATIC
+    Code:
+      stack=2, locals=0, args_size=0
+         0: getstatic     #52                 // Field class$com$apple$xsr$net$HttpConnection:Ljava/lang/Class;
+         3: ifnonnull     18
+         6: ldc           #53                 // String com.apple.xsr.net.HttpConnection
+         8: invokestatic  #54                 // Method class$:(Ljava/lang/String;)Ljava/lang/Class;
+        11: dup
+        12: putstatic     #52                 // Field class$com$apple$xsr$net$HttpConnection:Ljava/lang/Class;
+        15: goto          21
+        18: getstatic     #52                 // Field class$com$apple$xsr$net$HttpConnection:Ljava/lang/Class;
+        21: invokestatic  #55                 // Method org/apache/log4j/Logger.getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+        24: putstatic     #29                 // Field logger:Lorg/apache/log4j/Logger;
+        27: return
+}
+InnerClasses:
+     private #59= #58 of #56; //SocketProducer=class com/apple/xsr/net/HttpConnection$SocketProducer of class com/apple/xsr/net/HttpConnection

@@ -70,7 +70,7 @@ def main():
                'tests/java/com/apple/xsr/net/SharedResponseObservation.java',
                'patches/sun/io/MalformedInputException.java')]
     inputs = sources + [Path(__file__).resolve()] + [ROOT/'tools'/name for name in
-             ('audit_support.py', 'baseline.py', 'runtime.py', 'class_patch.py')]
+             ('audit_support.py', 'baseline.py', 'runtime.py', 'class_patch.py', 'socket_configuration_patch.py')]
     hashes = {str(p.relative_to(ROOT)): sha(p) for p in inputs}
     identities = {jar: sha(jar) for jar in (original, candidate)}
     commit = subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD'], cwd=ROOT, env=isolated_env(), text=True).strip()

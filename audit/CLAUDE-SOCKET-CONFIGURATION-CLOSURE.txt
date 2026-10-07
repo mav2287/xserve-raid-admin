@@ -1,0 +1,17 @@
+**Short answer:** there's no product or behaviour blocker for this narrow initial-SO_TIMEOUT fail-closed repair. Two evidence-record problems should be fixed before promotion. I read the files only and re-ran nothing.
+
+**Still blocking:**
+
+1. **Mutant count is stale in `INTENDED-CHANGE.md`.** Line 11 still says "Nine semantic mutants (six helper, three bytecode)". `mutant-observations.json` and `mutants.py` have ten (seven helper, three bytecode). Line 13 mentions the IllegalArgumentException case but not the new escaped-runtime mutant. Change it to ten / seven helper.
+
+2. **"Exact per-mutant expected first assertion" isn't true yet.** `mutants.py:23-24,32` only checks the assertion message. In `ConfigurationObservation.java:9`, every `check()` throws the same "Configuration assertion" message, so any failing check in that file would satisfy the test. All six "Configuration assertion" mutants are affected, and so are the four "Publication assertion" ones. The stderr files do show the intended lines (attached-cause 38/50, missing-close 52, wrapped-security and wrapped-error 66, escaped-runtime 67, and so on), and their hashes are recorded. But nothing requires a mutant to fail at its intended line. Either assert the expected caller frame or line for each mutant in `mutants.py` and record it in the JSON, or reword the claim to "expected assertion message; failing frame recorded in hashed stderr".
+
+**Confirmed addressed:**
+- **Consumer inventory:** `message_invocations` has exactly 88 sites, including `CommandLineException.toString` at instruction 89 (`exception-message-consumers.json:2338-2341`). The JAR hash matches the prototype.
+- **Intended-change doc:** it covers the fixed-detail policy, the runtime-exception-to-IOException conversion, the IllegalArgumentException case (`ConfigurationObservation.java:62-67`), close failures being discarded rather than added as suppressed, and unchanged constructor cleanup. It also states the corrected SafeLogAppender and UI/CLI stack-trace wording.
+- **Mutant record:** it has `qualification: false` and the dev-JDK interpreter-only scope. It records the JDK tree hash, which matches the pinned lock hash used across `audit/*.json`, and the `-Xint -Xverify:all` flags. It also records hashes for OfflineGuard, the probe classes, the sources, the mutant JARs and stderr, plus the excluded verifier-invalid run. The prototype JAR hash matches every row in `publication-observations.json`.
+- **Bundled-runtime coverage:** the publication record has four runtime/mode rows on two bundled runtime trees.
+
+I didn't check the 27-case pass count, `socket_configuration_patch.py` reconstruction, or the 3,369 rejected bit mutants beyond the files above; those are taken as you reported them.
+
+Once items 1 and 2 are fixed, I see nothing else blocking promotion as a prototype and independent gate. It is still not integrated into product source, and none of this supports a hardware, native-GUI or release claim.

@@ -28,7 +28,7 @@ def main():
     commit = subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip()
     dirty = bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()))
     sources = [ROOT/'tests/java/PlistResourceProbe.java', ROOT/'tests/java/ParserPolicyProbe.java', ROOT/'tests/java/ParserDefaultsProbe.java', ROOT/'tests/java/fixture/OfflineGuard.java']
-    helpers = [Path(__file__).resolve()] + [ROOT/'tools'/name for name in ('audit_support.py','baseline.py','class_patch.py','runtime.py','verify_builds.py')]
+    helpers = [Path(__file__).resolve()] + [ROOT/'tools'/name for name in ('audit_support.py','baseline.py','class_patch.py','socket_configuration_patch.py','runtime.py','verify_builds.py')]
     hashes = {str(p.relative_to(ROOT)): sha(p) for p in sources + helpers}
     lock = runtime_manifest(); seen = set(); observations = []; expected = {}; policy_observations = []; defaults_observations = []
     lowered = ['-Djdk.xml.entityExpansionLimit=32','-Djdk.xml.totalEntitySizeLimit=256',

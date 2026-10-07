@@ -24,7 +24,18 @@ def write_fixture(path,entries,manager):
   for name,value in sorted(entries.items()):
    info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.create_system=3;info.external_attr=(0o40755<<16)|0x10 if name.endswith('/') else 0o100644<<16
    z.writestr(info,manager if name==ENTRY else value)
-def build(reference,out):
+def select_basis(entries,guarded,basis):
+ from socket_configuration_patch import ENTRY as HTTP,normalize as normalize_socket
+ helper='compat/SocketConfiguration.class'
+ with zipfile.ZipFile(basis) as z:
+  names=z.namelist()
+  if len(names)!=len(set(names)):raise ValueError('Duplicate candidate basis entries')
+  candidate={n:z.read(n) for n in names}
+ if set(candidate)-set(entries)!={helper} or set(entries)-set(candidate) or {n for n in entries if entries[n]!=candidate[n]}!={ENTRY,HTTP}:raise ValueError('Candidate basis changes unrelated entries')
+ if candidate[ENTRY]!=guarded or normalize_socket(candidate[HTTP])!=entries[HTTP]:raise ValueError('Candidate basis predecessor differs')
+ if hash(candidate[helper])!='dc61c25925a8213e33779e7282b31485cae4cefb1dfa99f3853f28f054ebb397':raise ValueError('Candidate basis helper differs')
+ return candidate
+def build(reference,out,*,basis=None):
  reference=Path(reference);out=Path(out)
  if hash(reference.read_bytes())!=JAR:raise ValueError('Unreviewed reference JAR')
  original=Path('original/RAID_Admin_original.jar')
@@ -37,6 +48,7 @@ def build(reference,out):
  if entries[ENTRY]!=source or hash(source)!=PIN:raise ValueError('Source-reference mismatch')
  guarded=plan(source)
  if normalize(guarded)!=source:raise ValueError('Stop guard reconstruction differs')
+ if basis is not None:entries=select_basis(entries,guarded,basis)
  result={}
  for name,data in [('legacy',source),('guarded',guarded)]:
   patched=hook(data)

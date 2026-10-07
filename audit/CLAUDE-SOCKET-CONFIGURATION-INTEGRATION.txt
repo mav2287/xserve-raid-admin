@@ -1,0 +1,97 @@
+# Audit23 socket-configuration review (read-only)
+
+I ran nothing. Everything below comes from reading the source and the archived `build/` artifacts. **[O]** marks something I saw directly in a file. **[I]** marks an inference.
+
+## Blockers
+
+**1. The audit23 stop experiment reports the wrong JAR delta.**
+- [O] `tools/check_stop_admission_experiment.py:33` now requires the candidate to differ from audit21 in three entries: the Manager, `HttpConnection`, and the new `compat/SocketConfiguration.class`.
+- [O] Line 90 still prints `'jar_delta_from_reference':[entry]`, which lists only the Manager.
+- [O] The `limits` text on the same line still says "All non-Manager JAR entries unchanged; hooks reverse to exact reference/prototype".
+- [I] If this record is assembled, it will contradict the gate that produced it. The old assembler (`audit/stop-admission-evidence-assembler.py:138`) still requires the single-entry list, so it would also hide the change. The field should be derived from the computed delta, and the limits text should describe the hybrid fixtures (point 4).
+
+**2. One fixture gap: the read-timeout setup step can lose the exception type and nothing catches it.**
+- [O] The direct fixture's `fixed()` (`ConfigurationObservation.java:36-39`) checks only the message, the cause and suppressed exceptions. It does not check the exception's class.
+- [O] Publication scenario 1 checks only `!(e instanceof SocketTimeoutException)` (`ConfigurationPublicationObservation.java:103`).
+- [I] So a mutant that changes `configure`'s `catch (IOException failure) { throw fixed(failure); }` to `throw new IOException(MESSAGE)` would pass all 27 cases. The existing `lost-connect-category` mutant only covers the `fixed()` mapping on the Socket-constructor path.
+- Before the production negative gate, add `clean.getClass()==SocketException.class` assertions for faults 1, 3 and 8. Optionally add an `InterruptedIOException` from `setSoTimeout` to check `bytesTransferred` on this path too.
+
+**3. Gates that read `audit/expected-build.json` can no longer replay the audit22 evidence from the current tree.**
+- [O] `audit/expected-build.json` now pins the audit23 JAR `2fccbee…`, and `previous_record_sha256` is `670e22…`.
+- [O] These all compare against that file:
+  - `audit/stop-admission-evidence-assembler.py:93`
+  - `check_stop_lock.py:40`
+  - `check_stopped_post.py:42`
+  - `check_connect_stop.py:44`
+  - `check_sync_posting.py:44`
+  - `check_guarded_worker.py:43`
+- [O] The untracked `audit/audit22-expected-build.json` is not referenced by any file in the repository.
+- [I] If you expect historical replays only from their own commits, this is fine but should be written down. If the audit22 snapshot is meant to anchor those replays, the wiring is missing.
+
+## Should fix or document
+
+**4. With a candidate basis, the "legacy" stop fixtures mix old and new code.**
+- [O] When `basis` is set, both `stop_admission_fixtures.build` and `stop_exposure_fixtures.build` copy every non-Manager entry from the candidate. The legacy JAR is then the audit21 Manager plus the audit23 `HttpConnection` and helper.
+- [O] The `active` scenario still uses the pure audit21 reference as legacy (`check_stop_admission_experiment.py:60`). So "legacy" means different things across scenarios.
+- [O] Inside `build()`, the basis check only confirms that `candidate_entries[ENTRY]==guarded`. All other entry checks are left to the caller (`check_stop_admission_experiment.py:33-37`).
+- [I] The hybrid is probably harmless, because the stub `AcpxConnection` shadow should keep `HttpConnection` out of reach. That is unverified, though. Either assert in `build()` that the basis differs from the reference only in the Manager, `HttpConnection` and the helper, or document it.
+
+**5. Historical default path (`basis=None`).**
+- [O] The default path reads like the pre-audit23 code, and the audit22 assembler calls the builders with no basis (`stop-admission-evidence-assembler.py:148`).
+- [O] No unit test checks the default-path fixture JAR hashes against the archived audit22 `fixture_jar_sha256` values. `test_fixture_archives_ignore_clock_and_input_order` uses a synthetic dict.
+- [I] Default determinism therefore rests on code reading plus the assembler, which itself can't run in the current tree (point 3).
+
+**6. AcpxConnection keeps a half-open connection after a setup failure.**
+- [O] `AcpxConnection.createConnection` stores the new `HttpConnection` before calling `open()` (javap lines 29512-29525). Inside `send()`, this call sits outside the try block.
+- [O] After a failed `open()`, the next `send()` calls `HttpConnection.setTimeout(t)`. If `t` is not 30000, that dereferences a null `socket` and throws a `NullPointerException`.
+- [I] This already happened when the Socket constructor failed. Setup failure is now a second way into that state, because the original code published the socket even when `setSoTimeout` failed. The "custom timeout/reconnect" coverage in `INTENDED-CHANGE.md` is at the `HttpConnection` level only, not this `AcpxConnection` sequence. Characterize it or list it as a limit.
+
+## Verified as sound
+
+- **Failure containment** [O]
+  - The socket is assigned to the field only after `open()` returns. A failed setup leaves `socket` and `connected` unchanged.
+  - Setup failure closes the socket best effort and discards any exception from `close()`.
+  - `SecurityException` and `Error` pass through unchanged, and other `RuntimeException`s become a fixed `IOException`.
+  - The `timeout<=0` guard can't be reached from original callers: the field starts at 30000, `setTimeout` maps 0 to 30000, and a negative value throws before the field is assigned.
+  - [O] `doConnect` catches `IOException` across `new AcpxConnection` (exception table row `415 497 498`) and wraps it as `ConnectException(getMessage())`, so the user sees "Connection setup failed".
+  - [I] The run/dispatch classification is unchanged, because the fixed message never starts with "PropertyListException".
+- **Publication ordering** [O] The new bytecode is `aload_0, aload_0, getfield host, aload_0, getfield timeout, invokestatic #202, putfield socket, return`, with `stack=3, locals=2`, no exception table and no attributes.
+  - [I] One small ordering difference: `timeout` is now read before the blocking DNS/TCP connect, where the original read it afterwards. This matters only if another thread calls `setTimeout` mid-connect, and that already hit a null socket in the original.
+- **Exception types** [O]
+  - The `instanceof` order in `fixed()` is correct.
+  - Casting to `InterruptedIOException` is safe, because the result is only that type when the input was.
+  - The constructor-path classes are checked by exact class equality for all eight types.
+  - `PortUnreachableException` and similar subclasses map to `SocketException`, as documented.
+- **Helper linkage** [O]
+  - The five pool entries appended at 198-202 reuse `#100 "open"`.
+  - The helper is class version 52 and is called from a version-47 class.
+  - All fixture runs used `-Xverify:all`.
+  - The helper compiled standalone is byte-identical to the shipped copy, using JDK 1.8.0_362, so there is no bootclasspath warning.
+  - `check_security` verifies the helper's strings and the absence of `getMessage`, `initCause` and `addSuppressed`.
+  - The development security record says `independent_preservation: PASS`, and its stderr is empty.
+- **Exact original class preservation** [O]
+  - `plan()` is pinned to the original hash, and `normalize()` reconstructs the whole original class and checks it against that hash.
+  - The gate requires the reference and candidate entries to differ only in `HttpConnection`, and requires the reference `HttpConnection` to equal the original.
+  - The single-bit mutation test covers the constant pool, Code attributes and members.
+  - `transform()`/`TARGETS` are unchanged, and `HttpConnection` exists only in `CURRENT_TARGETS`.
+  - Development builds 1 and 2 have the same JAR hash, and the security pin `5e8690…` matches the gate's product hash.
+- **Fixture independence, class origins, network and secrets** [O]
+  - `FixtureIdentity` checks each listed class's code source and bytes before any guard is installed.
+  - The shadowing check rejects fixture class names that exist in the JAR, and fixtures come after the JAR on the classpath.
+  - The publication fixture uses only an in-memory `SocketImpl` with the literal `127.0.0.1`; reads and writes are asserted forbidden.
+  - The direct fixture's `Fake` overrides every call that would reach native code.
+  - With validation removed, `open("must.not.resolve.invalid", …)` would be blocked by `OfflineGuard.checkConnect` before any lookup.
+  - `user.home` is a temp directory, and no profiles or credentials are used.
+
+## Minor observations
+
+- [O] The direct fixture is in package `compat` so it can call the package-private `configure`. That is a test seam in the product package. It works only because the JAR is unsealed.
+- [O] In the publication fixture, log4j and the socket factory are initialized before `MemoryGuard` is installed, so log4j's configuration reads are not policed.
+- [O] The fixture compile allows stderr. The comment blames a `SocketImplFactory` deprecation note, but that API isn't deprecated in JDK 8. [I] Consider requiring empty stderr there too.
+- [O] `tests/fixtures/socket-configuration-candidate-http.javap` was produced from `build/socket-config-prototype/prototype.jar`, and nothing binds it by hash to the candidate.
+- [O] Fixture PASS strings still say "prototype", although the `limits` text explains it.
+- [O] The `exception-message-consumers.json` type scan lists only 5 types for the helper, missing `SocketException` and `BindException`. [I] That suggests it used a fixed type filter, so `catch SocketException` consumers were not inventoried.
+- [O] For production negative integration: the prototype mutants run without `FixtureIdentity`, use only the development JDK interpreter, and their expected stack frames are tied to the prototype probes' line numbers.
+- [O] Survivors to add as mutants:
+  - point 2's setup-path category loss
+  - narrowing `catch (Throwable ignored)` on `close()` to `IOException`, since no case throws a `RuntimeException` or `Error` from `close()`

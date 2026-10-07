@@ -30,7 +30,7 @@ def write_fixture(path,entries,manager):
   for name,value in sorted(entries.items()):
    info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.create_system=3;info.external_attr=(0o40755<<16)|0x10 if name.endswith('/') else 0o100644<<16
    z.writestr(info,manager if name==ENTRY else value)
-def build(reference,out):
+def build(reference,out,*,basis=None):
  reference=Path(reference);out=Path(out)
  if hash(reference.read_bytes())!=JAR:raise ValueError('Unreviewed reference JAR')
  original=Path('original/RAID_Admin_original.jar')
@@ -43,6 +43,9 @@ def build(reference,out):
  if source!=entries[ENTRY] or hash(source)!=PIN:raise ValueError('Source-reference mismatch')
  guarded=plan(source)
  if normalize(guarded)!=source:raise ValueError('Guard reconstruction differs')
+ if basis is not None:
+  from stop_admission_fixtures import select_basis
+  entries=select_basis(entries,guarded,basis)
  result={}
  for name,data in [('legacy',source),('guarded',guarded)]:
   patched=hook(data);unhook(patched,data);path=out/(name+'-exposure-fixture.jar')

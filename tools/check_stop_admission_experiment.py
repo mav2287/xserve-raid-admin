@@ -10,7 +10,7 @@ from inventory import disassemble_entries
 from stop_admission_structure import normalize_stop_admission
 import stop_admission_fixtures,stop_exposure_fixtures
 REFERENCE='9f3f521dab9f696e46612875157f2dbc2ae112a57fd479813914db5192b9b562'
-SOURCES=('tests/java/com/apple/xsr/net/StopAdmissionObservation.java','tests/java/com/apple/xsr/net/StopExposureObservation.java','tests/java/com/apple/xsr/net/StopActiveObservation.java','tests/java/stopfixture/AcpxConnection.java','tests/java/fixture/OfflineGuard.java','tests/java/fixture/FixtureIdentity.java','tools/check_stop_admission_experiment.py','tools/stop_admission_patch.py','tools/stop_admission_structure.py','tools/stop_admission_fixtures.py','tools/stop_exposure_fixtures.py','tools/class_patch.py','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/check_security.py','tools/inventory.py','tools/sync_ownership_structure.py','tools/audit_support.py','tools/verify_builds.py','tools/runtime.py','audit/runtime-lock.json','audit/python-lock.json','audit/jdk-lock.json','tests/fixtures/guarded-worker-candidate-manager.javap','tests/fixtures/stop-admission-candidate-manager.javap','tests/fixtures/sync-ownership-candidate-sender.javap','tests/test_stop_admission.py','audit/expected-build.json','audit/security-patches.json')
+SOURCES=('tests/java/com/apple/xsr/net/StopAdmissionObservation.java','tests/java/com/apple/xsr/net/StopExposureObservation.java','tests/java/com/apple/xsr/net/StopActiveObservation.java','tests/java/stopfixture/AcpxConnection.java','tests/java/fixture/OfflineGuard.java','tests/java/fixture/FixtureIdentity.java','tools/check_stop_admission_experiment.py','tools/stop_admission_patch.py','tools/stop_admission_structure.py','tools/stop_admission_fixtures.py','tools/stop_exposure_fixtures.py','tools/class_patch.py','tools/socket_configuration_patch.py','tools/socket_configuration_structure.py','patches/compat/SocketConfiguration.java','tools/sync_ownership_patch.py','tools/worker_exit_patch.py','tools/check_security.py','tools/inventory.py','tools/sync_ownership_structure.py','tools/audit_support.py','tools/verify_builds.py','tools/runtime.py','audit/runtime-lock.json','audit/python-lock.json','audit/jdk-lock.json','tests/fixtures/guarded-worker-candidate-manager.javap','tests/fixtures/stop-admission-candidate-manager.javap','tests/fixtures/sync-ownership-candidate-sender.javap','tests/test_stop_admission.py','audit/expected-build.json','audit/security-patches.json','audit/stop-admission-clean-stop.json')
 def state():
  return (subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip(),bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env())))
 def main():
@@ -28,7 +28,13 @@ def main():
  with zipfile.ZipFile(reference) as z:old={n:z.read(n) for n in z.namelist()}
  with zipfile.ZipFile(candidate) as z:new={n:z.read(n) for n in z.namelist()}
  entry='com/apple/xsr/net/CommunicationsManager.class'
- if set(old)!=set(new) or {n for n in new if old[n]!=new[n]}!={entry}:raise ValueError('Candidate differs beyond final stop guard')
+ from socket_configuration_patch import ENTRY as HTTP,normalize as normalize_socket
+ helper='compat/SocketConfiguration.class'
+ if set(new)-set(old)!={helper} or set(old)-set(new) or {n for n in old if old[n]!=new[n]}!={entry,HTTP}:raise ValueError('Candidate differs beyond stop guard and socket setup')
+ if normalize_socket(new[HTTP])!=old[HTTP]:raise ValueError('Socket setup predecessor differs')
+ with tempfile.TemporaryDirectory(prefix='raid-stop-helper-check-') as checkdir:
+  run_jdk(a.jdk,'javac',['-source','8','-target','8','-d',checkdir,str(ROOT/'patches/compat/SocketConfiguration.java')],require_empty_stderr=True)
+  if (Path(checkdir)/helper).read_bytes()!=new[helper]:raise ValueError('Socket helper differs from source')
  from stop_admission_patch import plan,normalize
  prototype=plan(old[entry]);manager_sha=hashlib.sha256(prototype).hexdigest()
  if prototype!=new[entry] or normalize(prototype)!=old[entry] or manager_sha!=json.loads((ROOT/'audit/security-patches.json').read_text())[entry]['patched_sha256']:raise ValueError('Shipped prototype linkage differs')
@@ -43,6 +49,14 @@ def main():
  if seen!={'aarch64','x64'}:raise ValueError('Both locked architectures required')
  with tempfile.TemporaryDirectory(prefix='raid-stop-admission-experiment-') as temporary:
   tmp=Path(temporary);stub=tmp/'stub';stub.mkdir()
+  historical=json.loads((ROOT/'audit/stop-admission-clean-stop.json').read_text())
+  historical_hashes={}
+  for label,builder in (('admission',stop_admission_fixtures),('exposure',stop_exposure_fixtures)):
+   folder=tmp/('historical-'+label);folder.mkdir()
+   for policy,jar in builder.build(reference,folder).items():
+    expected={r['fixture_jar_sha256'] for r in historical['observations'] if r['scenario'].startswith(label+':') and r['policy']==policy}
+    if expected!={sha(jar)}:raise ValueError('Historical default fixture bytes differ from frozen audit22 evidence')
+    historical_hashes[label+'-'+policy]=sha(jar)
   run_jdk(a.jdk,'javac',['-source','8','-target','8','-cp',str(reference),'-d',str(stub),'tests/java/stopfixture/AcpxConnection.java'])
   shadows={str(v.relative_to(stub)):sha(v) for v in stub.rglob('*.class')}
   if set(shadows)!={'com/apple/xsr/net/AcpxConnection.class','com/apple/xsr/net/AcpxConnection$1.class'}:raise ValueError('Memory shadow class allowlist differs')
@@ -51,7 +65,7 @@ def main():
    run_jdk(a.jdk,'javac',['-source','8','-target','8','-cp',str(stub)+':'+str(reference),'-d',str(fixtures),'tests/java/fixture/OfflineGuard.java','tests/java/fixture/FixtureIdentity.java','tests/java/com/apple/xsr/net/'+name+'.java'])
    classes={str(v.relative_to(fixtures)):sha(v) for v in fixtures.rglob('*.class')}
    if set(classes)!={'fixture/OfflineGuard.class','fixture/FixtureIdentity.class','com/apple/xsr/net/'+name+'.class'}:raise ValueError('Compiled fixture allowlist differs')
-   variants=builder.build(reference,directory) if builder is not None else {'legacy':reference,'guarded':candidate}
+   variants=builder.build(reference,directory,basis=candidate) if builder is not None else {'legacy':reference,'guarded':candidate}
    for policy,jar in variants.items():
     with zipfile.ZipFile(jar) as z:app={n:hashlib.sha256(z.read(n)).hexdigest() for n in z.namelist() if n.endswith('.class') and (n.startswith('compat/') or n in ('com/apple/xsr/net/CommunicationsManager.class','com/apple/xsr/net/CommunicationsManager$SyncSender.class','com/apple/xsr/net/CommunicationsManager$Transaction.class'))}
     rows=[]
@@ -81,5 +95,5 @@ def main():
  for root,arch in runtimes:verify_runtime(root,lock['architectures'][arch])
  verify_jdk(a.jdk)
  if state()!=initial or sha(reference)!=REFERENCE or sha(candidate)!=a.candidate_sha256 or any(sha(ROOT/name)!=h for name,h in hashes.items()):raise ValueError('Experiment source changed during execution')
- print(json.dumps({'qualification':not a.development,'purpose':'Local stop-admission software qualification; not release, controller or native GUI acceptance','fixture_commit':initial[0],'fixture_dirty':initial[1],'candidate_sha256':sha(candidate),'candidate_manager_sha256':manager_sha,'jar_delta_from_reference':[entry],'application_reference_sha256':REFERENCE,'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'application_reference_source_commit':reference_manifest['source_commit'],'compiler_tree_sha256':compiler['tree_sha256'],'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'source_hashes':hashes,'observations':records,'compilation_policy':'Xcomp variants compile only dispatchLoop and require its installed nmethod; other methods interpreted. Xint variants use full interpreter. This is method compilation evidence, not native GUI or whole-application compiled execution qualification.','limits':'Memory-only forced seams with actual Manager/SyncSender classes but synthetic constructor bypass. All non-Manager JAR entries unchanged; hooks reverse to exact reference/prototype and never enter product packaging. No controller, real credentials/profiles, mounted volume, native GUI, installed app or TCP receipt claim. Guard-only stop branch targets280 and constructs unsent response independently of connectionFailureSent; artificial stale-flag controls supplement source and original reported-failure gates. After-admission controls use the actual shipped JAR without a hook; deadlines unresolved.'},indent=2))
+ print(json.dumps({'qualification':not a.development,'purpose':'Local stop-admission software qualification; not release, controller or native GUI acceptance','fixture_commit':initial[0],'fixture_dirty':initial[1],'candidate_sha256':sha(candidate),'candidate_manager_sha256':manager_sha,'jar_delta_from_reference':sorted(n for n in old.keys()|new.keys() if old.get(n)!=new.get(n)),'historical_default_fixture_hashes':historical_hashes,'application_reference_sha256':REFERENCE,'source_commit':manifest['source_commit'],'source_dirty':manifest['source_dirty'],'application_reference_source_commit':reference_manifest['source_commit'],'compiler_tree_sha256':compiler['tree_sha256'],'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for _,arch in runtimes},'source_hashes':hashes,'observations':records,'compilation_policy':'Xcomp variants compile only dispatchLoop and require its installed nmethod; dispatchLoop is the only Java method selected by compileonly; unrelated compiled VM helpers and native wrappers are not inventoried. Xint variants use full interpreter. This is method compilation evidence, not native GUI or whole-application compiled execution qualification.','limits':'Memory-only forced seams with actual Manager/SyncSender classes but synthetic constructor bypass. Admission/exposure hook variants retain every non-Manager entry of the actual candidate; their legacy Manager is the exact audit21 predecessor. Hook reversal recovers the intended Manager bytes. Active controls use unmodified audit21 reference and shipped candidate. Separate HttpConnection/helper delta is independently validated; no hooks enter product packaging. No controller, real credentials/profiles, mounted volume, native GUI, installed app or TCP receipt claim. Guard-only stop branch targets280 and constructs unsent response independently of connectionFailureSent; artificial stale-flag controls supplement source and original reported-failure gates. After-admission controls use the actual shipped JAR without a hook; deadlines unresolved.'},indent=2))
 if __name__=='__main__':main()

@@ -77,6 +77,17 @@
     "scope": "Audit.22: audit.21 ownership/worker containment plus final volatile stopped read before exposure, guard-only unsent response independent of stale connection-failure suppression. Other members, pool, commands, polling and retry timing remain unchanged.",
     "stop_before_send_scope": "audit.22: final volatile stopped read after ownership claim and before exposure. Guard-only stopped path constructs the original -102 unsent response at280 irrespective of stale connectionFailureSent; original first-response and callback-attempt protections remain. After final read, actual reply or unconfirmed outcome retained; no atomic TCP cancellation or deadline claim."
   },
+  "com/apple/xsr/net/HttpConnection.class": {
+    "method": [
+      "createSocket",
+      "(I)V"
+    ],
+    "original_major_version": 47,
+    "original_sha256": "c8a632a9c5c76e94fe1c3a9e23b6e362d8e50fff75eeb26ee7379ab6c7159303",
+    "patched_major_version": 47,
+    "patched_sha256": "5e86901259dc34bf86ac6d2a9c842f11337f46d4df9081f22a1df2772155cc66",
+    "scope": "Only createSocket Code plus five appended helper pool entries; exact original DNS/TCP constructor timing retained, read-timeout setup fails closed before publication"
+  },
   "com/apple/xsr/net/HttpResponse.class": {
     "method": [
       "getBody",

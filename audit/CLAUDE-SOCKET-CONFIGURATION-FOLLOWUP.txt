@@ -1,0 +1,36 @@
+I found **three things to fix before promotion**. The rest holds up. This was a static read only; I didn't execute anything.
+
+## Blockers
+
+**1. The `getMessage` inventory misses one site, and it's a CLI renderer.**
+The `.javap` has 91 `getMessage:()` invocations. Three of them are `CommunicationsManager$Transaction.getMessage:()RequestMessage`, which were correctly excluded. That leaves **88 String sites, not 87**. The one missing is `exception-message-consumers.javap:25491`, inside `CommandLineException.toString()`:
+```
+89: invokevirtual #19   // Method getMessage:()Ljava/lang/String;
+```
+javap prints same-class calls without an owner, and the extractor's pattern seems to need `owner.getMessage`. This site matters. `CommandLineException(Exception)` copies `e.getMessage()` (line 25421), and `toString()` then writes it unescaped into the CLI plist XML `<string>`. That makes it the CLI consumer of the fixed message. To fix: change the extractor to match unqualified `Method getMessage:`, regenerate the JSON and `.javap` hash, and change "87" in `INTENDED-CHANGE.md`.
+
+**2. `INTENDED-CHANGE.md` doesn't mention that RuntimeExceptions are converted.**
+At `compat/SocketConfiguration.java:48-49`, any RuntimeException other than SecurityException from `setSoTimeout`/`getSoTimeout` becomes `IOException("Connection setup failed")`. The doc covers Errors, SecurityException and nonstandard IOException subclasses, but not this. No mutant or memory case tests it either. Either document it as intended, or add a case and a mutant that drops the catch.
+
+**3. `mutant-observations.json` isn't tied to the prototype it tests.** It doesn't record:
+- the `prototype.jar` sha256 that all nine mutants start from. Nothing ties them to `2fccbee5…`.
+- the identity of the JDK used to compile and run the mutants. `mutants.py:11` calls `verify_jdk`, but the result isn't saved. The mutants also run only on the dev Corretto 362 with `-Xint`, not on the bundled runtimes, so that should be stated.
+- the hash of `tests/java/fixture/OfflineGuard.java`.
+- which assertion killed each mutant. The regex at `mutants.py:28` accepts any of five messages and the stderr isn't kept.
+
+An independent gate can't check the mutant claim without at least the base JAR hash and the JDK identity.
+
+## Smaller items (not blockers)
+- **Logs show the fixed text too.** It's written by the log4j `Logger.error(Object, Throwable)` calls in CommunicationsManager (javap lines 30491/30517/30554) and by `printStackTrace` calls. The doc only says "UI/CLI"; add logs. This is a disclosure gap only, since the text is fixed.
+- **`wrong-read-field` is caught by the `<= 0` guard, not by the value check.** Field #8 is `persistent:Z`, which is false (0), so the helper throws and scenario 0's `check(scenario!=0)` fails. The constant mutant (30000 vs 7301) does test the value check, so coverage is fine. Just don't say both mutants test value matching.
+- **Wording:** "any close Throwable is suppressed" reads like `addSuppressed`. The code actually discards it (`catch (Throwable ignored)`).
+- **`runtime_version` is hard-coded** in `run.py:47`. The tree hash is the real identity.
+
+## Checked and fine
+- **Patched code:** `2a2ab4000d2ab40009b800cab5001ab1` has max_stack 3 and no branches. HttpConnection is pre-StackMap (it uses `jsr`), so dropping the exception table and attributes is safe.
+- **The `readTimeout <= 0` guard can't be hit in normal use:** `setTimeout` maps 0 to 30000, and a negative value throws in `setSoTimeout` before the field is stored. Field #9 is `timeout:I`, initialised to 30000.
+- **The constant mutant `00117530`** (nop, sipush 30000) keeps the stack shape and length, and the early-publish mutant fits max_stack 3.
+- **The two offset-555 `IOException.getMessage` sites** are separate real sites in `dispatchLoop` and `doConnect`. Their `startsWith("PropertyListException")` check still behaves correctly with the fixed message, and a host-controlled prefix can no longer reach it.
+- **`run.py`:** the duplicate classpath is gone, and it records the compiler tree, the runtime trees (checked before and after), the helper and Http hashes, and the source and probe hashes. All four runtime/mode rows show the same prototype JAR hash.
+
+Once 1–3 are fixed, I don't see any other blocker to promoting the source and building the independent gate.

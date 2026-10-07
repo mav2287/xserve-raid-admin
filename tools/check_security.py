@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 from audit_support import ROOT, verify_python, verify_jdk, run_jdk, sha, isolated_env
 from baseline import verify_original
-from class_patch import TARGETS, ClassFile, u2
+from class_patch import CURRENT_TARGETS as TARGETS, ClassFile, u2
 from verify_builds import check_artifact, EXPECTED
 from inventory import disassemble_entries
 
@@ -253,6 +253,10 @@ def independent_preservation(jdk, original, candidate, entry, target, descriptor
         branches=lambda code:[(offset,rest) for offset,rest in code if re.match(r'(?:if\w*|goto)\s',rest)]
         if branches(ai)!=branches(bi) or any('#'+str(i)+' ' in rest for _,rest in bi for i in (58,59,60)):raise ValueError('Header branch or peer-text reference differs')
         return
+    if target=='createSocket':
+        from socket_configuration_structure import check_socket_setup
+        check_socket_setup(after)
+        return
     expected_frame = {'resolveEntity':'stack=2, locals=3, args_size=3', 'getParser':'stack=1, locals=0, args_size=0'}.get(target,'stack=1, locals=1, args_size=1')
     if expected_frame not in new[3] or 'Exception table:' in new[3]:
         raise ValueError('Unexpected target stack/locals/exception table')
@@ -324,6 +328,15 @@ def main():
     marker_helper=disassemble_entries(args.jdk,args.jar,['compat/UntrustedResponseException.class'],verbose=True)
     if 'public final class compat.UntrustedResponseException extends java.lang.IllegalArgumentException' not in marker_helper or '  major version: 52' not in marker_helper or '  major version: 52' not in recovery_helper or not all(text in recovery_helper for text in ('public final class compat.RejectionRecovery', 'public static java.lang.Throwable sendFailure(java.lang.Throwable, com.apple.xsr.net.AcpxConnection);', 'descriptor: (Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;', 'public static void report(com.apple.xsr.net.CommunicationsManager, java.lang.Exception);')):
         raise ValueError('Marker/recovery helper linkage or hierarchy differs')
+    socket_helper=disassemble_entries(args.jdk,args.jar,['compat/SocketConfiguration.class'],verbose=True)
+    if '  major version: 52' not in socket_helper or not all(value in socket_helper for value in (
+        'public final class compat.SocketConfiguration',
+        'descriptor: (Ljava/lang/String;I)Ljava/net/Socket;',
+        'descriptor: (Ljava/net/Socket;I)Ljava/net/Socket;',
+        '// String Connection setup failed', 'java/net/Socket.setSoTimeout', 'java/net/Socket.getSoTimeout', 'java/net/Socket.close')):
+        raise ValueError('Socket helper version, linkage or configuration boundary differs')
+    if any(value in socket_helper for value in ('getMessage', 'initCause', 'addSuppressed', 'StringBuilder', 'StringBuffer')):
+        raise ValueError('Socket helper renders or retains untrusted failure details')
     verified_methods = {}
     for entry, (_, name, descriptor) in TARGETS.items():
         independent_preservation(args.jdk, original, args.jar, entry, name, descriptor)
@@ -333,11 +346,14 @@ def main():
             if method is None or any(not re.search(pattern,method[1],re.M) for pattern in (r'^\s+14:\s+goto\s+109$',r'^\s+116:\s+if_acmpne\s+129$',r'^\s+135:\s+goto\s+20$')):raise ValueError('Sync constructor trampoline disassembly differs')
             verified_methods[entry]='Exact preenqueue guard retained; ownership claim, interrupt wait and first-reply guards independently normalized to reviewed predecessor'
             continue
-        match = re.search(r'^  (?:public|protected) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
+        match = re.search(r'^  (?:public|protected|private) [^\n]*\b' + name + r'\([^\n]*\n(.*?)(?=^  \S|^})', disassembly, re.M | re.S)
         if match is None: raise ValueError('javap did not find patched method')
         operations = re.findall(r'^\s+\d+:\s+(\S+)', match[1], re.M)
         if name in ('run','send'):
             verified_methods[entry]=('Exact doConnect stop windows/tail and unchanged run report/null-IO/prefix-stop windows and typed handler reroute independently verified; retry and superseded handler/test regions unreachable; original handler ranges/types and prefix result/log retained' if name=='run' else 'Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained')
+            continue
+        if name == 'createSocket':
+            verified_methods[entry]='Exact host/current read-timeout delegate before socket publication, no use of connect argument; full original pool and all unrelated methods/metadata preserved'
             continue
         if name == 'getBody':
             verified_methods[entry] = 'Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons'
@@ -363,7 +379,7 @@ def main():
     fixture_dirty=bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env()))
     print(json.dumps({'fixture_commit':fixture_commit,'fixture_dirty':fixture_dirty,'source_commit':provenance['source_commit'],'source_dirty':provenance['source_dirty'],
         'request_inventory':request_inventory,'http_reference_inventory':http_reference_inventory,'independent_preservation':'PASS', 'original_sha256':sha(original),'candidate_sha256':sha(args.jar),'jdk_tree_sha256':lock['tree_sha256'],
-        'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py', ROOT/'tools/class_patch.py', ROOT/'tools/stopped_post_structure.py', ROOT/'tools/worker_exit_structure.py', ROOT/'tools/stop_admission_structure.py', ROOT/'tools/sync_ownership_structure.py', ROOT/'tools/check_security.py', ROOT/'tests/fixtures/guarded-worker-candidate-manager.javap', ROOT/'tests/fixtures/sync-ownership-candidate-manager.javap', ROOT/'tests/fixtures/sync-ownership-reference-manager.javap', ROOT/'tests/fixtures/sync-ownership-reference-sender.javap']},
+        'verifier_sources':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__).resolve(), ROOT/'tools/inventory.py', ROOT/'tools/verify_builds.py', ROOT/'tools/class_patch.py', ROOT/'tools/socket_configuration_patch.py', ROOT/'tools/socket_configuration_structure.py', ROOT/'patches/compat/SocketConfiguration.java', ROOT/'tests/test_socket_configuration.py', ROOT/'tests/fixtures/socket-configuration-candidate-http.javap', ROOT/'tools/stopped_post_structure.py', ROOT/'tools/worker_exit_structure.py', ROOT/'tools/stop_admission_structure.py', ROOT/'tools/sync_ownership_structure.py', ROOT/'tools/check_security.py', ROOT/'tests/fixtures/guarded-worker-candidate-manager.javap', ROOT/'tests/fixtures/sync-ownership-candidate-manager.javap', ROOT/'tests/fixtures/sync-ownership-reference-manager.javap', ROOT/'tests/fixtures/sync-ownership-reference-sender.javap']},
         'fixture_sources':{str(p.relative_to(ROOT)):sha(p) for p in sources},'javap_verified_methods':verified_methods,'observations':results,
         'limits':'Manager.run null-message trampoline and non-prefix IO branch to the fixed marker block independently verified; original retry-region bytes retained but exactly that region is unreachable; prefix response, initial connection/queue and exit-close paths remain reachable; typed malformed-input handler and generic faults stop the worker session; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification.'},indent=2))
 

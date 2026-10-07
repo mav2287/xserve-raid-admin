@@ -18,6 +18,7 @@ TARGETS = {
     'com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class':
         ('8067f54187a63486c30c4969988a3f14b8fdf4c9d4c14842ec8f27556e9b3b37', 'toString', '()Ljava/lang/String;'),
 }
+CURRENT_TARGETS = dict(TARGETS, **{'com/apple/xsr/net/HttpConnection.class': ('c8a632a9c5c76e94fe1c3a9e23b6e362d8e50fff75eeb26ee7379ab6c7159303', 'createSocket', '(I)V')})
 SECONDARY = {'com/apple/xsr/net/CommunicationsManager.class': ('doConnect','(Lcom/apple/xsr/net/CommunicationHandler;)V',0x0002)}
 AUDIT18_MANAGER_SHA256='a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893'
 AUDIT17_MANAGER_SHA256='7c07f4c31a6104f52ee151e07141296d5b59ef33fa5105b895c6504c58ac2a1c'
@@ -104,6 +105,9 @@ def transform(entry, data):
 
 def transform_current(entry, data):
     """Current candidate; transform() remains the immutable audit.20 predecessor."""
+    if entry=='com/apple/xsr/net/HttpConnection.class':
+        from socket_configuration_patch import plan
+        return plan(data)
     result=transform(entry,data)
     if entry=='com/apple/xsr/net/CommunicationsManager.class':
         from sync_ownership_patch import transform_manager

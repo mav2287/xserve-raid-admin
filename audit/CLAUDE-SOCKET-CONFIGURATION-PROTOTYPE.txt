@@ -1,0 +1,34 @@
+# Review: socket-config prototype (`build/socket-config-prototype/`)
+
+I only read files. Nothing was run, written or sent over the network.
+
+**Verdict:** The helper and the `createSocket` patch match the narrowed design. The evidence package isn't complete yet: the mutant claim has no artifacts behind it, and one of the mutants is broken. Below are what I confirmed, what blocks integration, and smaller gaps.
+
+## Confirmed
+
+- **Original connect behaviour is kept.** `open` still calls `new Socket(host, 80)` exactly once (`compat/SocketConfiguration.java:30`). There's no connect deadline, poll, retry or controller change. The memory `SocketImpl` checks `deadline==0` and port 80 (`ConfigurationPublicationObservation.java:33`).
+- **The patch reads the right field.** The new code `2a 2a b4000d 2a b40009 b8 00ca b5001a b1` reads `host` (#13) and `timeout` (#9) and only then stores `socket` (#26). Like the original, it ignores the `5000` argument from `connect()` (`original-http.javap:146,350`). Stack 3, locals 2, no handlers. `run.py:27` checks that the whole original class can be rebuilt from the patched one. It also checks that the helper is major 52, has no name collision, and that the JAR is neither signed nor sealed.
+- **Fail-closed ordering is right.** The timeout is set and read back before the socket is stored. It's closed on any failure (`:36-54`). Security exceptions and Errors pass through as the same object. The interrupt flag is never touched.
+- **Exception mapping.** The standard categories are checked from most to least specific, so subclasses come first. `bytesTransferred` is copied, no cause is attached, and nothing is suppressed. Other custom IOException types become a plain IOException, as you intended.
+- **The `<= 0` guard can't fire in production.** The constructor stores 30000, `setTimeout(0)` maps to 30000, and a negative value fails before the field is written. So the guard only protects against reflection, which matches the fixture's use.
+- **`publication-observations.json`** says `qualification:false` and describes the scope accurately. It records 4 runs (aarch64 and x64 under Rosetta, each with -Xint and -Xcomp), 12 direct cases plus 15 cases through the real class, and the locked runtime tree hashes. The "27 cases" claim matches those counts.
+
+## Blockers
+
+1. **`mutant-observations.json` doesn't exist, so the "nine mutants rejected" claim has no evidence.** `mutants/constant-read-timeout/` contains only `mutant.jar`. There's no `wrong-read-field` or `publish-before-configuration` folder. `mutants.py` writes its JSON only at the end, so the run must have stopped at the first bytecode mutant.
+2. **The `constant-read-timeout` mutant fails the verifier, so it can never count.** `mutants.py:42-43` replaces only `b40009` with `117530`, leaving the `aload_0` before it. That needs a stack depth of 4 (the limit is 3) and passes an `HttpConnection` where a `String` is expected. That's a `VerifyError` under `-Xverify:all`, which the script's own check at `:29` rejects. Fix: replace `2ab40009` with `117530`. The fixture's 7301 case would then catch a constant of 30000.
+3. **The exception-consumer evidence covers a different JAR.** `exception-consumers.json` was produced for the earlier setup prototype, against the reference JAR `202c9e…`, not this prototype JAR `2fccbee…`. It also only disassembles selected classes, not the whole JAR. It needs to be re-bound to this prototype before integration.
+4. **The new fixed message is user-visible, and that isn't recorded.** `CommunicationsManager` lets `ConnectException` through unchanged. Every other exception is rewrapped as `new IOException(e.getMessage())` (`exception-consumers.javap:584-590`). So outside `ConnectException`, categories are lost on that path anyway, and "Connection setup failed" is what callers see. Callers that read IOException messages aren't listed anywhere. You need either a list of those consumers or an explicit sign-off that this message change is intended.
+
+## Smaller gaps
+
+- The `publish-before-configuration` mutant stores a placeholder `new Socket()`. The realistic regression would be storing the real socket before it's configured, which is the original's order.
+- Several claims have no mutant behind them: the `bytesTransferred` copy, keeping the interrupt flag, categories other than `ConnectException`, and the readback check.
+- No test sends a `SecurityException` through the Socket constructor in the real class. It's correct by reading the code (only IOException is caught there), but it isn't tested.
+- Mutants run only on the build JDK (1.8.0_362, -Xint), not the locked runtimes.
+- `catch (Throwable ignored)` around `close()` (`:52`) also swallows an Error thrown by `close()`. The JDK's own constructor cleanup only catches IOException. This is minor, but it should be noted alongside the "Error identity preserved" claim.
+- The helper class and patched `HttpConnection.class` hashes aren't recorded separately; only the JAR hash is.
+- `run.py:31` passes `-cp` twice. It's harmless (the last one wins), but untidy.
+- Accepted residuals, matching your scope: original JDK cleanup when an Error happens inside the Socket constructor, custom IOException types becoming plain IOException, and the dropped `logger.error` call.
+
+**Before calling this the next product milestone:** fix the mutant bytes and produce `mutant-observations.json` for all nine mutants. Then re-run the consumer scan against `2fccbee…` and add the IOException message consumers.

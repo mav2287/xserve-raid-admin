@@ -14,12 +14,12 @@ import zipfile
 from datetime import datetime, timezone
 from audit_support import sha, tree, modes, digest, verify_jdk, verify_python, run_jdk, isolated_env
 
-from class_patch import TARGETS, transform_current as transform, embedded_dtd
+from class_patch import CURRENT_TARGETS as TARGETS, transform_current as transform, embedded_dtd
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL_SHA256 = '5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449'
 PATCH_CLASSES = {
-    'compat/WorkerExit.class', 'compat/WorkerExit$Entry.class', 'compat/WorkerExit$CallbackBatch.class',
+    'compat/SocketConfiguration.class', 'compat/WorkerExit.class', 'compat/WorkerExit$Entry.class', 'compat/WorkerExit$CallbackBatch.class',
     'compat/StoppedDelivery.class', 'compat/StoppedDelivery$Callback.class',
     'Launcher.class', 'com/apple/eio/FileManager.class',
     'com/apple/mrj/MRJApplicationUtils.class',
@@ -29,8 +29,8 @@ PATCH_CLASSES = {
     'compat/SafePlistParser.class', 'compat/BoundedResponseBuffer.class', 'compat/BoundedHeaderStream.class', 'compat/UntrustedResponseException.class', 'compat/RejectionRecovery.class', 'compat/ResponseFraming.class',
 }
 ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | {'compat/PropertyList.dtd', 'log4j.properties'}
-VERSION = '1.5.1-modern.audit.22'
-BUNDLE_VERSION = '22'
+VERSION = '1.5.1-modern.audit.23'
+BUNDLE_VERSION = '23'
 
 
 def tree_hash(files):
@@ -128,7 +128,7 @@ def main():
         files = tree(app)
         file_modes = modes(app)
         commit = subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD'], cwd=ROOT, env=isolated_env(), text=True).strip()
-        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'tools/sync_ownership_patch.py', ROOT / 'tools/worker_exit_patch.py', ROOT / 'tools/stop_admission_patch.py', ROOT / 'audit/security-patches.json', ROOT / 'audit/logging-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
+        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'tools/sync_ownership_patch.py', ROOT / 'tools/worker_exit_patch.py', ROOT / 'tools/stop_admission_patch.py', ROOT / 'tools/socket_configuration_patch.py', ROOT / 'audit/security-patches.json', ROOT / 'audit/logging-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
         provenance = {
             'schema': 2, 'purpose': 'unsigned offline audit build; not a qualified release',
             'apple_version': '1.5.1', 'compatibility_version': VERSION,
