@@ -502,3 +502,32 @@ real default preference-directory policy, save-error feedback and replacement
 frequency, native packaging and full candidate/release requalification. This
 record is explicitly `qualification=false`; factory/Main/GUI, physical Intel and
 real controllers are not validated. No hardware action was performed.
+
+
+### Clean filename and save-site findings — nonshipping
+
+Clean source `6791a76` passes four ARM/Rosetta-x64 interpreted/compiled filename
+variants of 22 cases. Raw APFS directory-entry bytes, File/NIO normalization,
+observed 0644 modes, permission-check calls and synthetic XML hashes are recorded.
+The original-style stream substitutes `?` for lone surrogates; the experimental
+encoder rejects them. Kernel resolution of dotdot must be preserved: nonexistent
+or file components cannot be lexically removed. File.list normalizes NFD names
+to NFC, so it is not sufficient evidence of stored filename bytes.
+
+Read-only bytecode selection verifies 22 original classes and 23 methods matching
+selected call names. Original Apple counter writes are load reset and set/remove
+increments; store does not reset it. The seven selected putfield instructions
+include three belonging to the separate chaotic Preferences class. Among selected
+audit27 classes only FileBasedPreferences differs. No retry, count, polling or
+controller changes follow from these observations. MacPreferences null default is
+`preferences.plist`.
+
+See [filename evidence](audit/atomic-path-clean.json),
+[static evidence](audit/preference-save-site-clean.json),
+[scope](experiments/atomic-preferences/paths/README.md), and
+[save-site findings](audit/PREFERENCE-SAVE-SITES.md). Actual Claude reviews found
+no blockers in this bounded scope; clean source bytes match Git.
+`qualification=false`: audit27 packages remain unchanged. Existing-name aliases,
+PATH_MAX, native release integration and visible save failures remain open. An
+unavailable native helper must fail visibly rather than use an insecure in-place
+fallback. Full GUI, physical Intel and hardware remain unverified/deferred.
