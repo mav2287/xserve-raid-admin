@@ -1,0 +1,70 @@
+I read all three files and the prior-findings note. I ran nothing and changed nothing.
+
+**Verdict:** the probe now covers most of the earlier gaps. I found three blockers before a clean experimental commit. Two are about whether the evidence says what it claims (findings 1 and 2), and one is about provenance (finding 3). None of them is a hole that would let the fixture write outside the run's temporary fixture directory through Java code.
+
+## Blockers
+
+**1. The native-prefs "tripwire" class doesn't exist (fact).**
+- `check.py:60` passes `-Djava.util.prefs.PreferencesFactory=atomiccaller.NoNativePreferencesFactory`. No source file in the repo defines that class; a search finds the name only in `check.py`.
+- **Inference (assumes the Java 8 `Preferences` code):** if `java.util.prefs.Preferences` were ever initialized, factory lookup would fail with an `InternalError`. Nothing records or asserts that failure, and the denial counter doesn't see it. If the error were swallowed, the run could still pass.
+- The protection that actually exists comes from the guard:
+  - `RuntimePermission("preferences")` is denied and counted (`AtomicCallerObservation.java:21`).
+  - `checkLink` would deny loading the JDK's `prefs` library, which is not on the allowlist (`:29`).
+- **Fix (pick one):**
+  - Add a real `NoNativePreferencesFactory` that sets a static flag and throws, and assert the flag is unset next to the `denied==0` check.
+  - Or drop the property and record that the guard's permission and library denials are the tripwire.
+
+**2. Two negative controls fail with a generic assertion code, not the specific one (fact).**
+- `Observed.size()` throws `AssertionError` for `store-lock-held`, `actual-caller-chain` and `actual-helper-chain` (`:34-37`).
+- `Backend.sync()` catches that error and returns it (`:55`). It then shows up only as the generic `caller-callbacks-observed` (`:86`).
+- That's why the `audit27-helper` and `inplace` controls expect `caller-callbacks-observed` (`check.py:68`, `:74`). Any other error that reaches the observed save in those two runs would produce the same result. They are exact at the outer code only, not proof that the helper-chain check fired.
+- **Fix:**
+  - Have `Observed` record the first failing code in a field instead of throwing.
+  - Assert that field is null with its own code right after `:86`.
+  - Change the expected codes for those two controls to `actual-helper-chain`.
+
+**3. The passing run isn't tied to a commit yet (fact).**
+- The `caller/` files are untracked, so the record will have `source_dirty=true`. Its `source_commit` will be `34f2246`, which doesn't contain these sources.
+- For a clean experimental commit, commit the sources and regenerate the evidence from a clean tree, as the earlier atomic-save archive commit (`34f2246`) did.
+- `audit/CLAUDE-PRIVATE-ATOMIC-CALLER-DEVELOPMENT.txt` is also untracked. You'll need to decide whether to commit it or move it out; otherwise the tree stays dirty.
+
+## Confirmed in source (facts)
+- **SecurityManager guard:**
+  - It denies preferences, `setSecurityManager`, exec, exit, connect, listen, multicast and writes/deletes outside the fixture root.
+  - It allows only the native library from the property plus a fixed core-library list.
+  - It's installed before any loaders are created, and `denied==0` is asserted at the end (`:156`), so a swallowed `SecurityException` still fails the run.
+- **Fake home:** `-Duser.home=<root>/home` is set, and reads under `/Library/Preferences` are denied.
+- **Output location:** `--output` must resolve strictly inside a real, non-symlinked `ROOT/build`, and it must be new (`check.py:26-27`).
+- **Class origin and isolation:**
+  - Both loaders have a null parent.
+  - The code source is asserted for `FileBasedPreferences` in both loaders, and for `PreferenceIO`, `AtomicPreferenceFile` and `PropertyListUtilities` in the candidate.
+  - `compat.PreferenceIO` and `atomicfixture.AtomicPreferenceFile` are confirmed absent from the Apple loader.
+- **Manifest and duplicates:** no duplicate entries and no `Class-Path` in the reference or Apple JARs. The candidate and mutant JARs are built from a dict, so they can't contain duplicates.
+- **Per-entry and delta pins:** the hashes of both `FileBasedPreferences.class` entries are pinned. The JAR delta is checked exactly, and `candidate_delta_scope` says the comparison covers entry contents only, with archive metadata normalized.
+- **Callback evidence:** inside the serializer callback, the probe checks that the store lock is held and checks the stack (`FileBasedPreferences.store`, `Preferences.synchronize`, `writeXML`, plus `PreferenceIO.write` and `writeWithHook` for the candidate). It also requires at least one callback per loader.
+- **Library ready:** `Library.AVAILABLE` is asserted directly (`:82`), so failure cases no longer depend on case order.
+- **Case count:** 5 + 1 + 2 + 2 + 3 + 2 + 3 + 1 = 19, and `cases==19` is asserted before the PASS line. The PASS text is fixed, but it is only reached after every check passes.
+- **Error handling:** the same `primary` instance must come back from both backends. `getSuppressed().length==0` and `getCause()==null` are checked after all 36 additional rethrows.
+- **Failure retention:** the candidate's sentinel bytes and its ino, dev, mode, size, mtime and ctime are unchanged after failure, and the Apple file is shown to change.
+- **Counters:** the GC "supported" check (`>=0`) is correct. File-descriptor and GC counts are compared around 32 saves.
+- **Exact negatives:** each requires exit code 1, empty stdout, an exact first stderr line, and a stack trace consisting only of 2–3 probe frames. The runs are 8 variants × 2 architectures = 16.
+- **Immutability:** these are re-hashed after the run: the sources, both reference JARs, the candidate JAR, the probe classes, the mutant sources/JARs/classes, the native libraries (per architecture), the runtimes, the JDK, and `HEAD`.
+- **Inference:** `JAVA_FLAGS` sets `-Djava.ext.dirs=`, which only a Java 8 runtime accepts. So the SecurityManager approach is sound on these runtimes.
+
+## Non-blocking gaps (narrow offline fixes)
+1. **Helper class bytes aren't re-hashed after the run (fact).** `build/atomic-preferences-clean-1/classes` is checked only before (`check.py:38-39`). The bytes actually used are covered by the candidate JAR hash, but add a post-run check to `:119` for symmetry.
+2. **Failure maps aren't `Observed` (fact).** The candidate's bad-key and Error cases can't show they reached `writeWithHook`; the sentinel is also kept if the store refused early. Building those maps on `Observed` would fix this.
+3. **Old findings still open (fact):**
+   - The Error is still thrown only at `size()` (#8).
+   - Swallowed exceptions still have no identity (#4).
+   - The leftover check is still `.xra-`-only (`check.py:105`); comparing an exact listing of the fixture directory would replace it.
+4. **No inode check on replace (fact).** The existing-file replace case doesn't check that the inode changed, which would show the file was replaced by rename rather than rewritten in place.
+5. **The guard's write check is purely path-based (fact).**
+   - It doesn't resolve symlinks, and native writes bypass the guard entirely.
+   - **Inference:** writes from the helper stay inside the fixture directory because of the helper's own path check, not because of the guard.
+6. **The library allowlist is a permitted set, not an observed one (fact).** Recording which libraries were linked and asserting the exact set would make the "core libraries only" claim observed rather than permitted.
+7. **JAR index files aren't rejected (inference).** On Java 8, `URLClassLoader` follows `META-INF/INDEX.LIST`. Rejecting that entry, plus `META-INF/versions/`, alongside the `Class-Path` check is cheap.
+8. **The GC-count check can fail spuriously, but it can't produce a false pass (inference).** The file-descriptor count is the meaningful leak check.
+9. **Scope is unchanged:** umask 022 only, `-Xint` only for negatives, no `-Xcheck:jni`, and x64 runs under Rosetta. The `limits` field already records the last of these.
+
+None of this supports product, `Main`/factory, GUI, physical-Intel or hardware qualification, and the record correctly sets `qualification=false`.

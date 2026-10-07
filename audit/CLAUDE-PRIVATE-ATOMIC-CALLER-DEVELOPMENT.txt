@@ -1,0 +1,73 @@
+I found no blocking defect in the eight-case caller experiment. All the properties you listed are present in some form. Several checks are weaker than their PASS labels suggest, though, and the run has fewer safety guards than the audit27 gate. This review is static only: I ran nothing and modified nothing.
+
+## Confirmed in source (facts)
+
+- **Apple JAR immutability:** the Apple JAR is pinned by SHA before (`check.py:28`) and after (`check.py:65`). It is only loaded read-only through a `URLClassLoader`. The audit27 JAR, candidate JAR, probe classes, sources, runtimes, JDK and native libraries are also re-hashed after the run.
+- **Candidate delta:** the candidate is built from the audit27 JAR entries. `check.py:43` requires that the only added entries are the three `AtomicPreferenceFile{,$Library,$Session}` classes and that the only changed entry is `compat/PreferenceIO.class`.
+  - The helper bytes come from `build/atomic-preferences-clean-1/classes`. All three are pinned in `atomic-preference-clean.json` `probe_hashes` (lines 1346–1348).
+  - The adapter signature `write(String,Object)` matches the audit27 call site in `tools/preference_io_patch.py:8`.
+- **Loader isolation:** both loaders use a `null` parent (`AtomicCallerObservation.java:41`). The app classpath holds only `atomiccaller`. The code source of `FileBasedPreferences` is asserted for each loader (`:16`).
+- **Real `synchronize` call:** `synchronize()` on a real `FileBasedPreferences` is called through reflection (`:24`).
+  - `PREFERENCE-IO.md:16-17` says `synchronize` calls `store()` under the lock when `changeCount > 0`, and that store never resets the count.
+- **Error handling:**
+  - The Error case requires both loaders to rethrow the same `AssertionError` instance (`:61`).
+  - The bad-key cases require the exception to be swallowed (`sync()==null`).
+  - The candidate's failure cases require unchanged ino/dev/mode/size/mtime/ctime and sentinel bytes (`:63`).
+  - Each failure case also checks that the Apple original changed its file (`:64`).
+- **Success output:** success cases compare Apple and candidate bytes and require mode 0600 for the candidate. `PREFERENCE-IO.md:26` records 0644 for the original under umask 022, so the mode check does tell the two apart.
+- **Path boundary:** the helper rejects paths outside `fixture.directory` (`AtomicPreferenceFile.java:65-68`). This bounds the candidate's writes but not the Apple backend's.
+- **No unsafe calls:** no factory, `Main`, GUI or controller classes are called directly, and the run is headless.
+
+## Safety gaps
+
+1. **Fact:** the audit27 gate ran under a `Guard` SecurityManager (`PreferenceLifetimeObservation.java:14-29`). It denied the `preferences` permission, exec, connect and writes outside the fixture directory. The caller probe installs no guard at all.
+   - **Fact:** `isolated_env()` does not set `HOME`, and the JVM gets no `-Duser.home`.
+   - **Inference:** if class initialization of the Apple or audit27 `FileBasedPreferences` (or its superclass) reached `java.util.prefs` or `MacPreferences`, `user.home` would resolve to the real home directory. Nothing in this run would detect that, so "no factory/native user preferences" is asserted, not observed.
+2. **Fact:** `--output` is not restricted to `build/`. The disposable root is created inside it.
+3. **Inference, unverified:** the manifest `Class-Path` of either JAR is not checked. `URLClassLoader` follows it, so classes could come from outside the pinned JARs. The origin check covers only `FileBasedPreferences`.
+
+## False-positive gaps
+
+1. **Helper use is never shown directly.** No assertion proves the candidate's `store` reached `PreferenceIO` → `AtomicPreferenceFile` → `PropertyListUtilities.writeXML`.
+   - The 0600 mode and sentinel retention imply it. However, the failure cases would also pass if `Library.AVAILABLE` were false, because that throws `IOException`, which is swallowed, and the file stays untouched.
+   - Today they are only protected because the success cases run first in the same loader. That is a dependency on case order, not an explicit check.
+2. **The swallowed-exception cases can't show an exception happened.** For the bad-key cases, `null` from `sync()` looks the same as "the store never ran" or "the store refused early" (path or library errors).
+3. **Error identity is checked, but the instance could still be changed.** `abortPreserving` and try-with-resources can call `addSuppressed` on the primary. Nothing checks that `getSuppressed()` is empty or `getCause()` is null.
+4. **The monitor check can't fail.** `!Thread.holdsLock(lock)` after `synchronize()` returns is always true. It does not show that the store ran *under* the lock.
+5. **The count check doesn't distinguish anything.** Store never resets `changeCount` (fact), so `count==7` holds on success and failure alike. It only shows the count was preserved, not that the failure path was taken.
+6. **Replacing an existing file is untested.** Every success case writes to an absent target, which uses `RENAME_EXCL`. Rename over an existing file, the target-identity check at commit, and the inode change are not exercised through the caller. (Your planned 18-case expansion covers this; it's noted here, not counted against the current eight.)
+7. **The leftover check is too narrow.** `check.py:60` only looks for names starting with `.xra-`. A temporary file with any other naming would go unnoticed.
+8. **The Error case only fails at `size()`.** **Inference:** the serializer probably calls `size()` before writing anything, so this doesn't test an Error thrown partway through a large write.
+9. **The zero-count case runs on the candidate only,** with no Apple comparison.
+10. **The PASS line is a literal.** `actual_synchronize=true; failure_retains_original=true` is printed as fixed text, not built from measured values.
+
+## Provenance gaps
+
+- **Fact:** the baseline backend is the Apple JAR, not audit27. The candidate's parent (audit27) is never run in this probe, so audit27-specific behaviour is covered only by the earlier gate.
+- **Fact:** the `FileBasedPreferences.class` entries are pinned only through whole-JAR hashes. The record does not state the per-entry hashes (`9a9a41cf…` original, `76935f03…` patched).
+- **Fact:** rewriting the ZIP into a dict would silently merge duplicate entry names and normalizes metadata. The pinned input makes this low-risk, but the record should state that the delta is at the entry-content level.
+- **Fact:** the probe is at umask 022 only, with no `-Xcheck:jni` run, and `source_dirty` will be true (the caller directory is untracked). This is consistent with `qualification=false`.
+
+## Recommended improvements (offline, narrow)
+
+1. **Restore the guard.** Reuse `PreferenceLifetimeObservation.Guard`, allowing only the pinned `System.load` and `writeFileDescriptor`. Add `-Duser.home=<root>/home` and a tripwire `-Djava.util.prefs.PreferencesFactory` that throws. Require `--output` to be under `ROOT/build`.
+2. **Assert where every class comes from.**
+   - In the candidate loader, check the code source of `compat.PreferenceIO`, `AtomicPreferenceFile` and `PropertyListUtilities`.
+   - In the Apple loader, require `ClassNotFoundException` for `compat.PreferenceIO` and `atomicfixture.*`.
+   - Check that neither JAR's manifest has a `Class-Path` entry.
+   - Alternatively, use `-Xlog:class+load` written to a file and assert an allowlist of loaded classes, which also proves no factory, `Main` or GUI classes loaded.
+3. **Record the call path inside the store.** Inside the throwing map callback, record `Thread.holdsLock(lock)` and the stack frames (`FileBasedPreferences.store` → `PreferenceIO.write` → `AtomicPreferenceFile.writeWithHook` → `writeXML`) per loader. Assert the expected chain for each and build the PASS fields from these values.
+4. **Use an identified exception.** Add a `RuntimeException` with a known identity, thrown by an entry iterator after a large prefix. Assert it was thrown exactly once and swallowed, and use the same pattern for an Error thrown partway through a write. Assert `getSuppressed().length==0` and `getCause()==null`.
+5. **Check the library directly.** Assert `Library.AVAILABLE` reflectively, or run a success precondition before every failure case, so failure results never depend on case order.
+6. **Replace the leftover check.** Compare the exact recursive directory listing after each case instead of matching `.xra-`.
+7. **Run the zero-count case on both backends.**
+8. **Record per-entry hashes** for both `FileBasedPreferences.class` entries and the adapter in `observations.json`.
+9. **Add caller-specific negative controls,** each required to fail at its exact assertion code:
+   - candidate built with the unmodified audit27 `PreferenceIO`
+   - library property unset
+   - an adapter that swallows or wraps Errors
+   - an adapter that adds suppressed exceptions
+   - a loader whose parent is the app loader, or with swapped URLs
+   - an adapter that writes in place
+
+**Bottom line:** the eight cases are sound development evidence for the absent-target success path and pre-write failures through the real `synchronize`. Before the 18-case expansion, I'd add the guard and the positive call-path assertions (items 1–3). Without them, a candidate that never reached the helper could still pass some of the cases.
