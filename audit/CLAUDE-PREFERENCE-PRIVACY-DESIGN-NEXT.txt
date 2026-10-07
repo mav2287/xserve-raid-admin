@@ -1,0 +1,70 @@
+I read the four files, plus the `Guard` grep hits, `PLAN.md:850-880`, `GAPS.md:435-465` and `patches/com/apple/eio/FileManager.java`. I ran nothing and touched no profiles or controllers. **[F]** means I read it in the repo. **[I]** means it comes from my knowledge of OpenJDK 8 and macOS and hasn't been checked against the pinned `src.zip` or binaries.
+
+## Verdict
+
+`Files.createFile(path, 0600)` followed by the original `new FileOutputStream(file)` is safe to ship as a **partial** privacy fix. It makes newly created profiles private against other local users when nothing hostile can write to the parent directory. It doesn't regress interrupts, existing files, links or serializer failures. It can't fully close the gap: TOCTOU, inherited ACLs and dangling-link targets need one descriptor that is both created privately and written to. In Java 8 that means NIO, which can be interrupted (already rejected), reflection, or native code.
+
+## Assessment by concern
+
+**Interrupts.** **[F]** The rejected prototype failed because the bytes went through an NIO channel (design review lines 7, 18). **[I]** `Files.createFile` only opens a channel and closes it again. Neither step calls `begin()/end()`, so a thread that is already interrupted still gets the file created, and its interrupt flag is left alone. All writes still go through the native `FileOutputStream.write`, which can't be interrupted. The fixture must prove this on both runtimes.
+
+**Serializer failures.** **[I]** Creating the file happens before serialization, just as the original open did. Partial output and Error/Exception propagation stay the same. An OOM inside `createFile` touches nothing; an OOM after it leaves an empty new file. That isn't data loss, because the original also leaves an empty or truncated file when it fails mid-save.
+
+**Existing files and links.** **[I]** `CREATE_NEW` uses `O_EXCL`. That fails on an existing file, a directory, or any symlink (even a dangling one), so all of those fall through to the unchanged `FileOutputStream`. Existing modes, inodes and hard links are untouched, and symlinks are followed as before. This keeps the `existing-mode`, `original-link` and `dangling-link` assertions. The trade-off: a dangling link's target is still created with the umask-based mode (0644 under umask 022), so that gap stays open.
+
+**TOCTOU.** **[I]** Between `createFile` closing its file and `FileOutputStream` opening by path, anyone who can write the parent directory can swap in a symlink or their own file. The original already has the same exposure at every save, so this is no regression, but it isn't closed either. Checking file identity afterwards is pointless because `O_TRUNC` has already run.
+
+**ACLs.** **[I]** On macOS a new file inherits the parent's inheritable ACL entries whatever its mode is, so 0600 doesn't remove an inherited ACE that grants read. As far as I know, the JDK 8 macOS provider has no `AclFileAttributeView`. Pure Java can't inspect or strip ACLs, and the Guard denies exec, so this needs native code, or a documented assumption that `~/Library/Preferences` has no inheritable ACEs.
+
+**Concurrent creation.** **[I]** Whichever writer wins `O_EXCL` creates the file as 0600. The loser falls through and truncates the same 0600 inode without changing its mode. Writes can still interleave, exactly as in the original. If an old, unpatched app version creates the file first, it ends up 0644.
+
+**New edge case.** **[I]** With a umask that removes owner-write (e.g. 0277), `createFile` produces a 0400 file. `FileOutputStream` then gets EACCES, so the save fails where the original's `O_CREAT` open would have succeeded. Fix it, or decide and test it explicitly (see below).
+
+**Path parity.** **[I]** `new File(id).toPath()` can throw `InvalidPathException` (for example on NUL), where the original gives `FileNotFoundException`. Catching it and falling through restores the original outcome.
+
+## Recommended implementation (narrow)
+
+```java
+File file = new File(identifier);
+try {
+    Files.createFile(file.toPath(), PosixFilePermissions.asFileAttribute(
+        PosixFilePermissions.fromString("rw-------")));
+} catch (IOException | InvalidPathException | UnsupportedOperationException e) {
+    // Existing file, link, directory or missing parent: the original open decides.
+}
+try (OutputStream output = new FileOutputStream(file)) { /* unchanged body */ }
+```
+
+- Let `SecurityException` and `Error` propagate. The original open throws the same things.
+- For the umask edge: only when the file was just created *and* lacks `OWNER_WRITE`, set it to owner read/write. Otherwise keep the existing failure as a documented, tested limit.
+- Tightening existing files to 0600 is a separate opt-in milestone. It changes a property the fixture currently asserts is preserved. If you do it, only act when the file is owned by the current user, is a regular file, has a link count of 1, and was checked with `NOFOLLOW_LINKS`. **[I]** JDK 8's NOFOLLOW chmod uses `fchmod` on an `O_NOFOLLOW` descriptor; verify that in `src.zip`.
+
+## Fixture changes
+
+**Update:**
+- The `mode-kind-*` and `error-state` mode checks: the candidate should be 0600 under umask 022, while the original stays 0644. Under umask 077 the two should match.
+
+**Add:**
+- A file that doesn't exist yet, saved on a thread that's already interrupted: the file is created as 0600, the bytes match, and the interrupt flag is still set.
+- Descriptor growth of zero for new-file saves.
+- A threaded race on a new path: the final mode is 0600.
+- A umask 0277 case.
+
+**Negative controls (each must fail):**
+- Remove the create step: the mode check fails.
+- Create through `Files.newOutputStream` or a byte channel: the interrupt checks fail.
+- Let `FileAlreadyExistsException` propagate: the existing-file bytes check fails.
+- Delete and recreate an existing file: the inode or mode check fails.
+
+**Document as not qualified:** TOCTOU, ACLs, dangling-link targets, network or non-POSIX volumes, and mixed app versions.
+
+## When native code is needed
+
+Fully closing the gap needs `open(O_CREAT|O_EXCL|O_NOFOLLOW, 0600)` (ideally `openat` against a verified parent), clearing ACLs with `fchmod`/`acl_set_fd`, then writing and closing that same descriptor without interruption. Java 8 can only do this through interruptible NIO (rejected) or the reflective `FileChannelImpl.fd` approach, which still has the unresolved gates in the design review (lines 42-49). A small JNI or launcher-side helper that owns the descriptor is the clean answer. It means a native build, signing, and qualification on both architectures.
+
+## Testing the GUI in isolation
+
+- **[F]** `PLAN.md:860` says `user.home` doesn't isolate native preferences. `FileManager.findFolder` derives the preferences folder from `user.home`.
+- **[I]** That means the Java-level profile path may be redirected, but I haven't confirmed that `MacPreferences` builds its identifier through `FileManager`. A static `javap` read would settle it.
+- **[I]** AppKit's defaults, saved application state and `java.util.prefs` (CFPreferences) all resolve the real home outside the SecurityManager. Setting `HOME`, `CFFIXED_USER_HOME`, `-Duser.home` and `-ApplePersistenceIgnoreState YES` together reduces that exposure, but doesn't provably eliminate it. Proving it would mean watching the real `~/Library`, which is off-limits.
+- **Recommendation:** treat that combination as development-only. Qualify the GUI only in a disposable macOS account or VM with networking disabled and no saved systems, which is the path `GAPS.md:435` already names. Headless fixtures stay the qualified evidence for preference I/O.

@@ -1,0 +1,134 @@
+# Design review: Darwin JNI private-open helper for `PreferenceIO`
+
+I read only `patches/compat/PreferenceIO.java`, `audit/PREFERENCE-IO.md` and the earlier interrupt-design review. I didn't build or run anything. Statements about JDK 8 internals come from memory, not from the pinned `rt.jar`/`src.zip`. Each one is listed under "Required source gates" and needs checking against both pinned runtimes.
+
+## Verdict
+
+The design is feasible and much closer to the original stream semantics than the rejected NIO prototype. Java's `FileOutputStream.write`/`close` stay in charge of I/O, and nothing uses NIO or interrupts. I recommend prototyping it outside packaging, with the changes below. The three biggest ones:
+
+1. **Construct the `FileOutputStream` before the native open, not after.** This removes the "Java constructor fails after the fd is transferred" window and the separate native close function.
+2. **Use strict UTF-8 encoding, plus a test that the encoded path matches what load uses.** `String.getBytes(UTF_8)` silently replaces bad characters, so it could write to a different file.
+3. **Turn native-library failures into `IOException`.** `UnsatisfiedLinkError` is an `Error`, and the original handler passes Errors up to the caller.
+
+The rest of this review covers what it does and doesn't fix, a recommended order of operations, and the policy decisions.
+
+## 1. Descriptor ownership (most important change)
+
+**Proposed:** native opens → transfer fd into a preallocated `FileDescriptor` → `new FileOutputStream(descriptor)` → if that fails, a native close that invalidates first.
+
+**Recommended:**
+```java
+FileDescriptor descriptor = new FileDescriptor();             // fd == -1
+try (OutputStream output = new FileOutputStream(descriptor)) { // checkWrite(fd), attach: before open
+    PrivateOpen.open(pathBytes, descriptor);                   // sets fd only as its last step
+    OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
+    PropertyListUtilities.writeXML(dictionary, writer);
+    writer.flush();
+}
+```
+Why this is better:
+- In JDK 8, `FileOutputStream(FileDescriptor)` only runs `checkWrite(FileDescriptor)` and `attach(this)`. It doesn't check the fd value. So a `writeFileDescriptor` security denial or an OOM happens **before anything is opened or truncated**. The earlier review raised exactly this denial-after-truncation risk (point 5).
+- If native throws, try-with-resources calls `close()` with fd = -1. `fileClose` returns immediately for -1, so nothing gets closed twice and no reused descriptor number is at risk.
+- Native closes its own fd on every error path and writes the `fd` field only after all checks and `ftruncate` succeed. No Java code runs while native owns the fd, so the native close/invalidate function can go away.
+- The stream is the descriptor's only parent, so `closeAll` closes once. Never call `getChannel()`.
+
+Be honest about one point: `SetIntField` on `FileDescriptor.fd` depends on the same JDK-internal field as reflection does. It just skips Java access checks. Look up the `jfieldID` in `JNI_OnLoad`. If the lookup fails, mark the library unavailable so nothing is ever opened.
+
+## 2. Loading and Errors
+
+- `UnsatisfiedLinkError`, `ExceptionInInitializerError` and `NoClassDefFoundError` are Errors. The original handler propagates Errors after releasing the monitor, so the helper would newly throw an Error here. Load the library in a holder class whose static initializer catches `LinkageError`/`SecurityException` and records "unavailable". The helper then throws `IOException` **before** encoding or opening anything.
+- Throw only JDK exception types from native: `FileNotFoundException` for open failures (matches the original's type) and `IOException` for policy rejections. A custom exception class adds another way to hit a class-loading Error.
+- Load with `System.load(absolute)` from a location the fixture or bundle controls. Never use `loadLibrary`/`java.library.path`.
+- For later packaging only: you need arm64 and x86_64 slices (the x64 bundle runs an x64 JVM under Rosetta). The arm64 slice needs a valid ad-hoc signature, so any post-link edit can break loading. You also need a pinned toolchain, deterministic `LC_UUID`, and updates to the reproducibility, SPDX and ledger evidence. Do none of this until the prototype qualifies.
+
+## 3. Path handling and parity with the original
+
+| Step | Recommendation |
+|---|---|
+| Normalization | Use `new File(identifier).getPath()` for **both** `checkWrite` and encoding. That is the normalized string the original passed to both. |
+| Order | Match JDK 8: `checkWrite(path)` first, then NUL check → `FileNotFoundException("Invalid file path")`. |
+| Encoding | Use `UTF_8.newEncoder()` with `CodingErrorAction.REPORT`, not `getBytes`. `getBytes` turns an unpaired surrogate into `?`, which names a **different file**. Reject before opening. |
+| Native | Copy with `GetByteArrayRegion`, NUL-terminate, re-check for embedded NUL and empty input. |
+| Relative paths | Resolve against the process cwd, not `user.dir`, same as the original. Don't absolutize. |
+
+**Parity risk:** load still uses `FileInputStream(File)`, which converts the path with the JDK's own platform-chars routine. I'm not certain JDK 8 on macOS produces standard UTF-8 there for supplementary characters (it may use modified UTF-8). If the two encodings differ, save and load would use **different files**. Required gate: for ASCII, BMP non-ASCII, NFC vs NFD forms, supplementary characters and unpaired surrogates, compare the directory entry bytes the original creates with the helper's. Until supplementary-character parity is shown, reject those identifiers. BMP non-ASCII has to work, because home directory names can contain it.
+
+## 4. Recommended native sequence
+
+Fail-before-truncate holds because `ftruncate` is the only step that changes content, and it runs last.
+
+1. Split the bytes at the last `/` into parent and basename (`.` if there is no slash). Reject basename `.`, `..` or empty.
+2. `dirfd = open(parent, O_RDONLY|O_DIRECTORY|O_CLOEXEC)`. Intermediate symlinks are followed, as in the original.
+3. **Parent ACL check** on `dirfd`: reject if any entry has the file-inherit flag. See §6.
+4. `fd = openat(dirfd, base, O_WRONLY|O_CREAT|O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC, 0600)`, then close `dirfd`.
+5. `fstat`: regular file, `st_uid == geteuid()`, `st_nlink == 1`. `fstatfs`: reject if `MNT_IGNORE_OWNERSHIP` is set. On such volumes, owner and mode mean nothing.
+6. `acl_get_fd_np(fd, ACL_TYPE_EXTENDED)`. `NULL` with `ENOENT` means no ACL, which passes. A present ACL with zero entries also passes. Any entry → reject. Other errors (e.g. `ENOTSUP`) → reject.
+7. `fchmod(fd, 0600)`.
+8. Check again: `fstat` (regular, uid, nlink, `(mode & 07777) == 0600`) and the ACL is still empty.
+9. `fcntl(F_GETFL)` / `F_SETFL` to clear `O_NONBLOCK`, then confirm it's cleared.
+10. `ftruncate(fd, 0)`.
+11. `SetIntField(descriptor, fdID, fd)` and return.
+
+On any error: save `errno` before cleanup (`acl_free`/`close` can overwrite it), close every descriptor you hold, throw, return. Retry `EINTR` on every syscall. Darwin difference: `acl_get_entry` returns -1/`EINVAL` at the end of the list, not 1 as on Linux. Handle the empty case explicitly.
+
+## 5. O_NONBLOCK
+
+- It's justified. `O_WRONLY` on a FIFO with no reader would otherwise block forever; with `O_NONBLOCK` it fails with `ENXIO`. If a reader exists, `fstat` rejects it and nothing is written.
+- **Clear it before step 10.** On local regular files it does nothing, but on network or unusual filesystems a leftover `O_NONBLOCK` could cause `EAGAIN` mid-write and a partial file. Clearing it keeps the stream semantically identical to the original.
+- It doesn't stop a device driver's open side effects. The original has the same exposure; just record it.
+
+## 6. ACL policy: reject, don't remove
+
+- **Existing file with any ACL entry → reject, with no changes.** Removing an ACL overrides an explicit choice the user or an admin made, adds an `acl_set` path that can partly fail, and widens the review. Rejecting deny-only entries is stricter than strictly necessary, but simple and auditable. Keep it.
+- **Is an inherited ACL on a newly created, empty file safe? No.** Inherited entries can grant other users read or write. The file is empty, so nothing has leaked yet. But ACLs and modes are checked only at open time: a grantee who opens the file between creation and stripping **keeps that descriptor**. That's why "strip, then write" isn't safe against an active race, and why the check in step 3 (before creation, on the same directory object as `openat`) is the right policy. Step 6 stays as a backstop.
+- The same open-time rule limits "tighten an existing file to 0600": **descriptors opened before `fchmod` keep their access.** Document it.
+
+## 7. openat and parent directory policy
+
+My recommendation is narrow: use `openat` **only** to do the inheritable-ACL check and the create through one directory object, and to confine `O_NOFOLLOW` to the basename. **Don't add parent owner or writability rejection in this prototype.** Reasoning:
+
+- With the final-component checks, someone controlling the parent can't make the helper write into an inode it doesn't own, a hard-linked inode or a symlink. At worst they cause denial of service, or redirect a write to a file with the same basename that you own, has one link and no ACL. The data still gets mode 0600.
+- Intermediate-component symlink or directory swaps are **not** handled. `O_NOFOLLOW_ANY` would reject normal paths like `/var`/`/tmp`, so don't use it.
+
+Known regressions to record: opening the parent with `O_RDONLY` needs **read** permission, where the original needed only search permission. A search-only directory will start failing, unless `O_SEARCH` exists on your minimum macOS (please verify). Reading a foreign parent's ACL may fail, and that will reject the save.
+
+## 8. Races and residual behavior (write these into the doc)
+
+- After `fstat`, a rename or replace of the path doesn't redirect your fd, but the data can end up in an inode that no longer has that name. That loses the save; it doesn't leak it.
+- A hard link created after the `nlink` check exposes nothing, because mode and ACL are already private. The check is meaningful when it runs.
+- A rejection after creation leaves an empty 0600 file. **Don't unlink by name**: it's racy and could delete a file someone swapped in. You need to characterize how the original **load** treats an empty file versus a missing one.
+- A rejected existing file means saves fail silently forever. The handler swallows the exception and `changeCount` stays positive, so every `synchronize` retries at the original rate. This is a user-visible behavior change that needs explicit acceptance.
+- Unchanged: truncate-then-write is not crash-safe, there's no fsync, concurrent writers to the same file interleave, a writer OOM after truncation (`PREFERENCE-IO.md:72`), and `fileClose` handling of fd numbers 0–2.
+- **Not claimed:** intermediate path attacks, root or same-uid attackers, network filesystems (uid mapping, `ENOTSUP`), old copies in backups, at-rest credential protection, plaintext HTTP. All open items at `PREFERENCE-IO.md:87–91` stay open except final-component symlink/hard-link/mode/ACL handling.
+
+## 9. Required source gates (each pinned runtime)
+
+- `javap -p java.io.FileDescriptor` shows `fd:I`, `parent` and `closed`, and no Cleaner.
+- From `src.zip`: `FileOutputStream(FileDescriptor)` doesn't check the fd value. `fileClose` returns for -1 and sets the field to -1 before `close`. `File.isInvalid` is NUL-only. `checkWrite` comes before the NUL check.
+- Native writes go through `handleWrite` with an `EINTR` retry loop.
+
+## 10. Tests
+
+Run in the disposable directory only, on both runtimes, under umask 000/022/077:
+
+- **Parity:** all 18 existing cases give byte-identical output, keep the interrupt flag, keep change counts and lock release, and show zero fd growth over success, Exception and Error loops.
+- **Mode:** a new file is 0600 with no ACL. An existing 0644 or 0200 file becomes 0600 with exactly the new bytes.
+- **Reject with nothing changed** (content, size, mode and `ctime` the same): file with an ACL entry, hard link (`nlink` 2), symlink to an existing file, dangling symlink (no file created), directory, FIFO with no reader (under a timeout), FIFO with a reader (reader sees EOF), parent with an inheritable ACL (no file created).
+- **Invalid paths:** NUL, unpaired surrogate, empty string, trailing or double slash, relative path, basename `..`, plus the encoding comparison from §3.
+- **Descriptors:** `O_CLOEXEC` set and `O_NONBLOCK` cleared; the fd field is -1 after close; a reuse test (open a sentinel file after close and check it stays valid).
+- **Security manager:** denying `checkWrite(path)` or `writeFileDescriptor` → no file created or truncated.
+- **Missing library** → `IOException`, not an Error, and nothing touched.
+- **Fault injection** at each of steps 2–10 (a separate test-only build, recorded as different evidence) → content unchanged, no fd leak.
+- **Limits:** a foreign owner and `MNT_IGNORE_OWNERSHIP` can't be set up without root or other volumes. Cover them with mutation controls and record them as unqualified.
+- **Negative controls, each expected to fail at an exact assertion:** add `O_TRUNC`; drop `O_NOFOLLOW`; drop `O_NONBLOCK` (timeout); move `ftruncate` before the ACL check; set the fd field before the checks; leak the fd on an error path; use `getBytes` instead of the strict encoder; skip the `nlink` check; remove the `LinkageError` conversion; skip clearing `O_NONBLOCK`.
+
+## Summary of decisions
+
+1. Adopt pre-construction (§1) and drop the native close function.
+2. Use the strict encoder, and reject supplementary characters until the encoding test passes.
+3. Convert native-loading Errors to `IOException`.
+4. Reject any ACL; never remove one. Check for inheritable parent ACLs before creating.
+5. Use `openat` only for that check; no parent owner or writability policy in this prototype.
+6. Clear `O_NONBLOCK` before truncating.
+7. Reject `MNT_IGNORE_OWNERSHIP` and `ENOTSUP`.
+8. Keep the current original-stream helper shipping until the prototype passes every gate above and the silent-failure behavior is explicitly accepted.

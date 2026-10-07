@@ -1,0 +1,108 @@
+I read all five files and ran nothing, so everything below comes from reading the code. I can't tell you whether `check.py` passes. A `__pycache__/check.cpython-314.pyc` file exists, so something imported the script at some point, but that doesn't show a run happened or passed. Anything I say about JDK 8 or Darwin behaviour is from memory and is marked where it matters.
+
+## Overall
+
+The native open sequence matches the design: the stream is attached before the open, the parent directory is checked, symlinks are refused, every check and `fchmod` runs before `ftruncate`, and the descriptor is handed over as the very last step. I found no way for the code to truncate a file before its checks, write to the wrong file, or give one descriptor two owners.
+
+The weak part is the harness. Several of the tests can pass without testing what they claim to, and one fixture bug lets a Java `Error` escape, which the design specifically ruled out.
+
+## A. Fix before producing any clean prototype evidence
+
+**A1. A missing library property escapes as an `Error`** (`PrivatePreferenceFile.java:15-16`)
+- If `fixture.private.library` isn't set, `System.load(null)` throws `NullPointerException`. The holder only catches `LinkageError | SecurityException`, so `write()` throws `ExceptionInInitializerError`, and every later call throws `NoClassDefFoundError`.
+- **Fix:** require a non-null absolute path and also catch `RuntimeException`.
+- **Test:** add the missing-library test the design asked for. Point the property at an absent absolute path, and separately leave it unset. Call `write` twice and expect `IOException("private-library-unavailable")` both times, with nothing created.
+
+**A2. The failure and interrupt cases can pass without testing anything** (`PrivatePreferenceObservation.java:47-48`, used at 29, 94-97, 138)
+- `compare` only checks that the old and new code behave the same. If both succeed, it passes.
+- If `writeXML` never calls `size()`, the "midinterrupt" and "error" cases never actually interrupt or throw.
+- If an `Integer` key is serialized instead of rejected, kinds 5 and 6 never fail.
+- The 12 runs could then report "synthetic failure data preserved" without ever going through a failure path.
+- **Fix:** give `compare` an expected outcome for each case and assert it:
+  - kinds 5 and 6 throw the expected class;
+  - "error" throws an `AssertionError` whose message is `synthetic-error`;
+  - midinterrupt leaves the interrupt flag set;
+  - kind 6 leaves a partial file that isn't empty (that's the buffering path).
+- Also add one case where a failing serializer overwrites an existing file that has content, so you show the data loss is identical to the original.
+
+**A3. The filename-encoding test can't see byte differences** (`PrivatePreferenceObservation.java:148-157`)
+- The test never compares the bytes of the directory entries, which design §3 required. APFS ignores Unicode normalization when it looks names up, so NFC and NFD names find the same file and hide any difference.
+- Path strings come from NIO `root.resolve(...).toString()`. If I remember JDK 8 correctly, macOS NIO turns names into NFC when it converts them back to strings, so the `"e\u0301"` case probably passes NFC `é` to both writers. In that case NFD is never tested.
+- **Fix:** build the path strings by plain concatenation. Write the original's output and the helper's output into two separate directories, and have `check.py` compare `os.listdir(b...)` bytes.
+- Add an unpaired-surrogate filename. Expect `CharacterCodingException` and no file created.
+
+**A4. The fd-count checks would pass if the counter is unsupported** (lines 68/78, 140-147)
+- If `getOpenFileDescriptorCount()` returns -1, `== before` is always true.
+- The leak mutant shows the counter works for rejections under `-Xint`. Nothing shows it for the descriptor-denial run.
+- **Fix:** add `check(before >= 3, "fd-count-supported")` everywhere the count is used.
+
+**A5. The reuse test only exercises the stream's `closed` flag** (lines 120-134)
+- In JDK 8, a second `close()` returns at the `closed` check before it touches the fd. So this would pass for any `FileOutputStream`.
+- The risk that actually matters has no test: native publishing the fd before its checks, then closing it on an error path, after which Java `close()` closes a number that may have been reused.
+- **Fix:** add a mutant that moves `SetIntField` ahead of the checks. In `rejected()`, assert `e.getSuppressed().length == 0`. The double close throws `EBADF`, which ends up suppressed, so this assertion catches it.
+
+**A6. Mutants and Java-side controls** (`check.py:100-110`)
+- The guard only checks `changed == native`, so in `keep-public-mode` one of its two replacements could silently do nothing. **Fix:** assert that each `str.replace` target occurs exactly once.
+- There are no Java-side controls at all. Add:
+  - construct the stream after `open0`, which should fail at `descriptor-denial-bytes`;
+  - use `getBytes` instead of the strict encoder, which the A3 surrogate test should catch;
+  - remove the holder's catch, which the A1 test should catch.
+
+**A7. The evidence can't be "clean" yet**
+- `experiments/` and this design doc are untracked, so `source_dirty` will always be true. `source_commit` therefore doesn't cover the code that was tested.
+- **Fix:** commit both and delete `__pycache__` first.
+
+**A8. The recorded limits leave out known residual risks** (`check.py:138`)
+Add these, all from design §§6-8:
+- Other users' descriptors opened before `fchmod` keep read access to the data written afterwards.
+- A rejected existing file means saves fail silently and are retried forever.
+- A rejection after the file is created leaves an empty 0600 file.
+- Opening the parent with `O_RDONLY` needs read permission, where the original needed only search permission.
+
+**A9. Smaller fixes**
+- **EINTR:** retry `fchmod`, `fcntl`, `fstatfs` and `acl_get_fd_np` on `EINTR`, as the design specifies (`private_file.c:51-54, 87-89`). On network volumes a missing retry makes the save fail when it shouldn't; it doesn't lose data.
+- **Paths in the record:** `observations.json` stores full `argv`, `build_command` and the clang version text. All of these contain `/Users/<name>/...` paths, which contradicts the script's own "output withheld" policy (`check.py:32`). Use relative paths or hashes before archiving.
+
+## B. Missing tests the design required (static gap)
+
+- A FIFO with a reader attached (the reader should see EOF and the save be rejected).
+- A `checkWrite(String)` denial.
+- A NUL in the path.
+- Existing files at mode 0200 and 0400.
+- `ctime` and mode unchanged after a policy rejection.
+- No ACL on newly created files.
+- Characterize the search-only-parent regression.
+
+Clearing `O_NONBLOCK`, `O_CLOEXEC`, a foreign file owner and `MNT_IGNORE_OWNERSHIP` can't be observed without root or another volume. Record those as unqualified rather than tested.
+
+## C. Gates that block product integration (not the prototype)
+
+1. **Path and exception parity.**
+   - The fixture absolutizes against `user.dir` and runs `checkWrite` on that absolute path (`PrivatePreferenceFile.java:25,30`).
+   - It checks for NUL before `checkWrite` and throws a plain `IOException`.
+   - Native throws `IOException` where the original throws `FileNotFoundException`.
+   - Product code must use `new File(id).getPath()` in the order `checkWrite` → NUL check → `FileNotFoundException("Invalid file path")`, and throw `FileNotFoundException` for open failures.
+   - Add a differential test of exception types for open failures (missing parent, directory, `EACCES`). Today `compare` never covers that path.
+2. **Handler-level parity.** Run the original 18 cases, change counts and lock release through the real `PreferenceIO` call site. Today only 11 serializer comparisons and 18 direct `write` scenarios exist.
+3. **JDK source gates.** Check §9 against both pinned `src.zip`/`rt.jar` copies. The record admits the `fd` field binding rests only on these runs.
+4. **Explicit acceptances.**
+   - Silent permanent save failure when a file is rejected.
+   - The empty 0600 file left behind, plus how load treats it.
+   - The parent-read regression (check whether `O_SEARCH` exists at your macOS 11 minimum).
+   - Over-rejection of existing files whose parent has an inheritable ACL.
+   - The new `writeFileDescriptor` permission point.
+5. **Packaging.**
+   - Load with `System.load` from an absolute path the bundle controls.
+   - Build per-architecture slices with a pinned toolchain and a valid arm64 ad-hoc signature, without breaking it after linking.
+   - Deterministic `LC_UUID`.
+   - Update the SPDX and ledger records.
+   - Ship unsigned offline packages only, as you intend.
+6. **What these tests can't qualify.** You have no disposable GUI environment and no hardware tests, so GUI startup, real profiles and controllers stay unqualified. x64 runs under Rosetta, not physical Intel.
+
+## Not findings (checked statically)
+
+- The order is correct: checks → `fchmod` → recheck → clear `O_NONBLOCK` → `ftruncate` → publish.
+- A umask can only make the 0600 create mode stricter, and `fchmod` restores 0600, so the umask 0277 case is covered.
+- Every error path frees memory and closes descriptors.
+- `acl_get_entry`'s Darwin end-of-list behaviour (-1/`EINVAL`) is handled.
+- The `early-truncation`, `follow-final-symlink`, `allow-hardlink`, `keep-public-mode`, `leak` and `skip-parent-acl` mutants each fail first at the assertion they name, as far as I can trace the order statically.

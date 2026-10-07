@@ -1,0 +1,93 @@
+I found six problems to fix before this counts as clean experimental evidence (A1–A6 below). Everything here comes from reading the code; I ran nothing.
+
+What I read:
+- all four files in `experiments/private-preferences/`;
+- the previous review, `audit/CLAUDE-PRIVATE-DESCRIPTOR-IMPLEMENTATION.txt`;
+- `FileOutputStream.java`, `FileDescriptor.java` and `File.java` for both architectures, plus `manifest.json`, all in `build/private-descriptor-runtime-source/`.
+
+The arm64 and x64 copies of each runtime file match at the lines I checked, and the manifest gives each pair the same entry hash. Its source-archive hashes match the pinned runtime hashes in `audit/*-bundle-results.json`.
+
+## Fixes confirmed in the code
+- **Library loading:** an unset or relative library path is rejected, and loading catches both `LinkageError` and `RuntimeException`.
+- **Path encoding:** the strict UTF-8 encoder runs before `toPath()`.
+- **Expected outcomes:** `compare` now asserts the exception class, the interrupt flag, the `synthetic-error` message and the kind-6 partial bytes.
+- **Nested fixture:** it uses `new ArrayList(...)`.
+- **FD counts:** every place that uses the count first checks it is at least 3.
+- **Publish-before-validation:** the mutant exists, and `rejected()` asserts there is no suppressed close failure. The first validation failure after the publish is the hardlink case, so the mutant fails at `suppressed-close` as intended.
+- **Mutation targets:** I checked every `replace_once` target, including the publish-before-validation one, and each appears exactly once.
+- **EINTR:** every syscall that can be retried is looped. `close` correctly isn't.
+- **Filenames:** paths are built by plain concatenation into separate original and candidate directories, and `check.py` lists them as bytes.
+- **Denial and library runs:** each one writes twice, to an existing file and a new one.
+- **Counts:** the case count is 34, there are 28 observation rows and 14 negative controls.
+- **`__pycache__`:** it's in `.gitignore`, so my earlier advice to delete it doesn't apply.
+
+## A. Blockers before clean experimental evidence
+
+**A1. The runtime-source gate isn't part of the evidence.**
+- `build/` is git-ignored. `check.py` doesn't read, check or record `build/private-descriptor-runtime-source/manifest.json` or the extracted files.
+- No script that does the extraction is in the repo; I found nothing outside `build/` that refers to that directory.
+- **Fix:** in `check.py`, for each runtime:
+  - open `Contents/Home/src.zip`;
+  - check its hash against the manifest;
+  - check the hashes of the `java/io/FileOutputStream.java` and `java/io/FileDescriptor.java` entries;
+  - record all of these hashes in `observations.json`.
+
+**A2. The limits text is out of date and misses a limit you asked for** (`check.py:154`).
+- `'JNI FileDescriptor field bound only by these pinned runtime executions'` is out of date. Both source copies show `private int fd` with a default of `-1`, and the Java side of attach, close and `closed` (`FileDescriptor.java:48,59,174-225`, `FileOutputStream.java:239-252,342-359`).
+- Replace it with a limit along these lines: *"Vendor native `fileClose`/`initIDs` not source-verified. The fd=-1 no-op, setting the field to -1 before `close`, and close errors surfacing as `IOException` are inferred only from the invalidation, reuse and publish-before-validation runs."*
+- The reuse case (`Observation.java:136-150`) only shows two things:
+  - the native code reset the field to -1 (the `descriptor-invalidated` check);
+  - the second `close()` stops at the Java `closed` flag (`FileOutputStream.java:344`).
+
+  The record should say exactly that and no more.
+
+**A3. NFD is recorded but never asserted** (`check.py:96-103`).
+- If both writers normalized `e\u0301` to NFC, the parity check would still pass and NFD would never be tested.
+- **Fix:** assert that `names` equals `['6173636969', 'e697a5e69cace8aa9e', 'c3a9', '65cc81', 'f09f9883']`, or at least that `names[2] != names[3]`. Record the filesystem type too, because APFS keeps names as written while HFS+ would rewrite them.
+
+**A4. The invalid-path checks accept any `IOException`** (`Observation.java:182-186`).
+- **Fix:** assert the exact outcome for each name:
+  - NUL should give `e.getClass() == IOException.class` with the message `private-fixture-path`;
+  - both surrogate names should give `MalformedInputException`.
+- Also assert that the root directory's listing is unchanged, not just that `invalid?suffix` is absent.
+
+**A5. The descriptor-flags check has no negative control** (`private_file.c:132-139`, `Observation.java:131`).
+- A getter that always returned 1 would pass.
+- **Fix:** add two mutants, both expected to fail at `descriptor-flags`:
+  - `keep-nonblock`: change `flags & ~O_NONBLOCK` to `flags`, and `(get_flags(fd, F_GETFL) & O_NONBLOCK)` to `0`;
+  - `drop-cloexec`: remove ` | O_CLOEXEC` from the `openat` line.
+- Make each replacement target unique. The plain string `O_CLOEXEC` appears twice and `O_NONBLOCK` four times. ` | O_NONBLOCK | O_CLOEXEC, 0600` is unique.
+- Update the counts in the check at `check.py:152` and the PASS message at `check.py:157` (14 negative controls becomes 18).
+
+**A6. The record contains absolute user paths, and one build entry is inconsistent.**
+- `argv`, `build_command` and the clang path recorded at `check.py:87,103,113,146` contain absolute `/Users/...` paths. This conflicts with the script's own "output withheld" rule. Make them relative to `args.output`/`ROOT`, or replace them with hashes.
+- The recorded `build_command` (`check.py:87`) points at the repeat-2 library, but its `sha256` and every run use `binaries[0]`. Record both builds, or record the repeat-1 command.
+
+**Lower priority (no current input triggers it):** the fixture boundary check is purely lexical (`PrivatePreferenceFile.java:38-39`). It normalizes `..` in Java, but the bytes sent to native still contain it, and the kernel resolves it after following symlinks. So `root/symlink/../x` could escape the fixture directory. Reject `.` and `..` components in `file.getPath()`. Don't compare `value.toString()` instead, because it could change how NFD names are encoded.
+
+## B. Blockers for product integration (separate from the experiment)
+1. **Path and exception parity:**
+   - the fixture calls `checkWrite` on the absolute path, where the original uses `file.getPath()`;
+   - the fixture's NUL check throws `IOException`, where the original throws `FileNotFoundException("Invalid file path")`;
+   - native open failures throw `IOException`, where the original throws `FileNotFoundException`.
+
+   Also, `File.isInvalid()` hands off to `fs.isInvalid(this)` (`File.java:186-193`), and `UnixFileSystem.java` wasn't extracted. So it isn't proven that the original rejects only NUL. Extract it from both `src.zip` files.
+2. **Surrogate rejection is a behaviour change.** The original substitutes a character for unpaired surrogates, which is what the `invalid?suffix` check assumes. This needs an explicit acceptance.
+3. **Descriptor flags differ.** The candidate sets `FD_CLOEXEC`, and the original's flags are never observed. Characterize them by calling `flags0` on a `FileOutputStream` opened by the original.
+4. **`flags0` and the fixture boundary must not ship.** `path()` throws `NullPointerException` if `fixture.directory` is missing.
+5. **Vendor native close:** there is no source for the vendor's native close code (see A2). Either get it or accept that limit explicitly.
+6. **Handler-level parity through the real `PreferenceIO` call site, plus explicit acceptances:**
+   - silent retries after a rejection;
+   - an empty 0600 file left behind;
+   - parent directories now need read access, not just search;
+   - existing files are over-rejected when the parent has an inheritable ACL;
+   - the new permission check on writing to a file descriptor.
+7. **Packaging:**
+   - absolute load path controlled by the bundle;
+   - locked toolchain;
+   - per-architecture builds with valid arm64 ad-hoc signatures;
+   - deterministic `LC_UUID`;
+   - SPDX and ledger updates.
+8. **Untested areas:** GUI, real profiles, controllers and physical Intel hardware remain untested. x64 runs only under Rosetta.
+
+Keeping `qualification=false` and leaving the clean-Git requirement until after commit is consistent with all of the above.
