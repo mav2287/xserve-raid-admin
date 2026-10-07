@@ -284,3 +284,38 @@ is 30000 milliseconds per blocking read, rather than a whole-operation limit.
 An ignored socket-timeout setup failure can leave reads unlimited. See
 [Transport timeout source evidence](audit/TRANSPORT-TIMEOUTS.md). These are source
 facts and a possible error path; no production controller timing test was run.
+
+
+### Private atomic-save security investigation — nonshipping
+
+Audit27 remains the packaged application. The in-place private-descriptor
+experiment cannot protect new content from an already-open reader. The separate
+atomic-save experiment writes a checked private temporary inode and replaces the
+profile only after serialization and raw close. This deliberately changes inode,
+ACL, hard-link, metadata and failed-save behavior; no controller code, command,
+polling or retry timing changes are made by the experiment.
+
+Actual Claude reviews identified and refined read-only/deny-write preservation,
+partial JNI registration, stale-library binding, cleanup reporting and negative
+control coverage. Native methods are private, eager linking and ABI token
+0x58415201 are required, and partial registration is undone on failed load.
+Sustained exceptional failures can leave private temporary files per attempt;
+there is no blanket zero-leftover claim and no unsafe glob cleanup.
+
+The latest development matrix passes on both pinned runtimes: 16 variants of
+37 cases; 26 native negative controls; 44 injected-failure/recovery variants;
+32 library/permission bindings; four empty JNI load controls; two full JNI-checked
+functional variants; four pure-Java suppression variants. x64 is Rosetta.
+These are dirty-source, nonshipping observations, not application qualification.
+See [scope and reproduction](experiments/atomic-preferences/README.md) and
+[development evidence](audit/atomic-preference-development.json).
+
+Next safe milestone: qualify the actual FileBasedPreferences.synchronize caller,
+resolve experimental filename restrictions, visible save failures and replacement
+frequency, then integrate native packaging and rerun the complete candidate and
+unsigned release checks. Real remote filesystems, ownership-disabled filesystems,
+other users/root, arbitrary JVM exhaustion and full GUI remain unqualified.
+Hardware is deferred until actual need. No disposable VM/account or signing setup
+is available; continue offline and finish unsigned local packages. The immutable
+Apple JAR and installed app remain unchanged. HTTP remains plaintext; no stored
+credential encryption claim is made.

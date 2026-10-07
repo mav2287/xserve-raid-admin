@@ -1,0 +1,116 @@
+# Static review: atomic preference save experiment
+
+I read all four files in `experiments/atomic-preferences/` and the whole design note. For comparison I also read `patches/compat/PreferenceIO.java` and `audit/PREFERENCE-IO.md`. I didn't build or run anything and didn't touch any profile. **[I]** marks Darwin or JDK 8 behaviour that I'm stating from memory, which a gate needs to confirm.
+
+**Bottom line:** the ownership core holds up. I found no use-after-free and no double free on any path I traced, and the old target is never opened. But I'd fix five things before more implementation or a clean record: one change in authorization behaviour that hasn't been approved, three cleanup or leak bugs, and a test suite that would still pass after several of the planned negative-control mutations.
+
+## What checks out
+
+- **Handle zeroing.** `Session.commit()` and `abort()` zero the handle before calling native (`AtomicPreferenceFile.java:24,29`). `consume()` always frees the session, and no path in `begin0`, `commit0` or `abort0` uses `s` after `consume` (`atomic_file.c:115-122, 202-204`).
+- **Descriptor ownership is split as designed.**
+  - Java owns only the published fd. Its `FileDescriptor` starts at -1, so if `begin0` throws, the try-with-resources close is a no-op **[I, gate B4]**.
+  - Native owns `verify_fd` and `dirfd` and closes them exactly once.
+  - Begin failure paths close the unpublished `fd` themselves (`:165,169,171`).
+- **The old target is never written.** `base` is only used by `fstatat` and as the rename destination. Abort only touches the temp name, and only after checking its identity (`:105-113`).
+- **Publish order is safe.** The handle is published before the fd (`:173-174`), but neither `SetLongField` nor `SetIntField` can fail with valid field IDs, so the order has no effect today. Add a comment so nobody later puts a step that can fail between them.
+- **The two security changes match the design's recommendations.** A target with an ACL is replaced (`target_ok` has no ACL check), and a target with `nlink > 1` is accepted, which splits the link (`:92-95`).
+
+## Findings, ranked
+
+### F1 (high): read-only and deny-write targets are now overwritten
+- **Original behaviour.** `FileOutputStream(File)` opens with `O_WRONLY|O_TRUNC`. On an owner-read-only file (0400 or 0444), or one with an ACL denying the owner write, that fails with `EACCES`. The handler swallows the error and the file stays unchanged.
+- **Experiment behaviour.** `target_ok` (`:92-95`) checks only the file type, owner and flags. Rename needs permission on the parent, not the file, so the experiment replaces the file and leaves it at 0600, which is *more* writable than before.
+- **Why it matters.** A user who froze their profile with `chmod a-w` loses that protection. This isn't in the design's §7 list, and it isn't part of the authorized ACL-drop or link-split changes.
+
+Fix (narrow, keeps the original behaviour): in `target_ok`, at both begin and commit, require `faccessat(dirfd, base, W_OK, AT_EACCESS | AT_SYMLINK_NOFOLLOW) == 0`. This honours the mode bits and ACL deny entries the same way the original `open` did, and root still passes, as before **[I: `AT_SYMLINK_NOFOLLOW` support in `faccessat` on macOS 11]**. A smaller alternative is `st_mode & S_IWUSR`, but that ignores deny ACLs, so it would need its own documented difference. Reject with a new code, `atomic-target-unwritable`.
+
+### F2 (high): a temp file leaks if `fstat` fails right after it's created
+At `:165`, the temp has already been created by `openat(O_CREAT|O_EXCL)`, but `s->created` is still 0. `consume(s, 0)` therefore never unlinks it. That breaks "begin failures create nothing" and leaves a hidden 0-byte file.
+
+Fix choices:
+- **(a) Recommended:** retry `fstat(fd)`. If it still fails, fall back to `fstatat(dirfd, tmp, NOFOLLOW)` as the identity source. Only if both fail, report a separate code (`atomic-temporary-stat-leftover`) so the leftover is reported rather than silent.
+- **(b)** Unlink by name with no identity check. Under the parent policy only the same uid or root could have swapped the name, which is out of scope, but this breaks the stated rule "never unlink an unverified name". I wouldn't choose it.
+
+Related, and a smaller risk: the `EINTR` retry around `openat(O_CREAT|O_EXCL)` (`:160`). On a filesystem where the create can complete and still return `EINTR` (network filesystems **[I]**), the retry gets `EEXIST`, the loop moves to a new name, and the first file leaks. Either don't retry `EINTR` for the create, or treat it the same way as (a).
+
+### F3 (high): lazy native linking can leak a full temp file
+`Library.AVAILABLE` only proves that `System.load` succeeded. `commit0` and `abort0` are linked on their first call. If the dylib doesn't match (symbol missing), `commit()` zeroes the handle and then gets `UnsatisfiedLinkError`. The result is a leaked 0600 temp file containing the **whole serialized profile**, plus two leaked fds. A `StackOverflowError` thrown at the native-call boundary leaves the same leftover.
+
+Fix: bind all three methods with `RegisterNatives` inside `JNI_OnLoad`, so a missing method fails the library load (and becomes `atomic-library-unavailable`). Document the remaining case, a JVM error at the call boundary, alongside JVM death: at most one private temp is left.
+
+### F4 (medium): errors after commit, and a network-filesystem gap
+- **Wording.** `atomic-close-after-commit` (`:204`) is an `IOException`, the same type as every pre-commit failure, but the target *has* been replaced. Through FileBasedPreferences (FBC) this makes no difference: the handler swallows it and `changeCount` isn't reset either way. Still, the record token `precommit_failures_preserve_original` is only true for messages other than this one. Give it a distinct prefix (`atomic-committed:`), or don't throw at all after a successful rename.
+- **The real gap.** `verify_fd` is a `dup`, so it shares the open file description. Java's `close()` is therefore **not** the last close; the native `close(verify_fd)` after the rename is. On NFS or SMB, write-back errors are reported at the last close **[I]**. So on a network home the profile can be renamed into place with incomplete data, and the only signal is this post-commit error.
+- **Fix, recommended:** in `commit0`, before the rename, call `fsync(verify_fd)` only when `!(f_flags & MNT_LOCAL)`, and abort on error. That keeps "the raw close succeeded means the data was accepted" true everywhere, without the fsync cost on APFS (decision 5 stays open).
+- **Fix, alternative:** reject filesystems without `MNT_LOCAL`. This is simpler but makes every save on a network home fail silently.
+
+### F5 (medium): cleanup failures are thrown away
+- Begin failure paths ignore what `consume(s, 1)` returns (`:169, :171`).
+- `commit0` ignores `closed` when `error != NULL` (`:202-203`).
+
+So a failed temp removal, which leaves a leftover, is reported only as the primary code. Return a combined code (`atomic-rename+cleanup`), or throw the primary and add a suppressed cleanup exception. Also add errno numbers to the codes, as the design specified; that's absent now.
+
+### F6 (medium): JNI_OnLoad hygiene and the global-reference leak
+- `:31-34` call `FindClass` four times without checking for a pending exception in between. Calling JNI with an exception pending is illegal.
+- On the `JNI_ERR` return at `:40`, an `io_exception` or `open_exception` global ref that was already created is never deleted, and there's no `JNI_OnUnload`. The leak is bounded and happens once, but it is real.
+- Fix: check after each call, delete the globals on the failure path, and add one run with `-Xcheck:jni`. `check.py` already fails on any stderr, so JNI warnings would trip it.
+
+### F7 (low): decisions made and differences not yet listed
+- **Root-owned parent accepted** (`:88`). This settles open decision 7 in code. There's also a related availability regression: a profile owned by the user inside a parent that isn't writable used to save in place and now fails forever with `atomic-temporary-open`.
+- **Any allow entry on the parent is rejected,** including harmless ones for the owner. That ties into blocker B1.
+- **The Java `path()` rejects interior `.`/`..` and unpaired surrogates** (`:46-49`). This sits outside the "fixture-only" comment, but it's a product-visible difference. The original accepted `a/../b` and wrote surrogates as `?` through the `sun.jnu.encoding` replacement **[I]**. Either mark it fixture-only or list it in §7.
+
+## Tests that pass but don't prove what they appear to
+
+1. **Rejections under a subdirectory parent only list `root`** (`:43-47, 98-99, 124`). A temp leaked inside `acl-parent/` or `public-parent/` wouldn't be noticed. List the subdirectory itself and walk the tree recursively for `.xra-`.
+2. **One ACL fixture carries both `allow` and `file_inherit`** (`check.py:36`). Removing *either* the inherit check or the allow check still rejects, so neither negative control can fail. Also, nothing positively tests that a deny-only parent is accepted. That's the only thing exercising the end-of-entry-list logic at `:74` (`-1`/`EINVAL` **[I]**). If that logic is wrong, every parent with an ACL is rejected silently.
+3. **`RENAME_EXCL` is never reached.** In the race with no existing target, the pre-check at `:194` fails first, so removing `RENAME_EXCL` still passes. It needs a native hook placed between the pre-check and the rename.
+4. **`public-parent` is only 0777.** A mutation to `& 0002` would pass. Add 0770 or 0775.
+5. **`acl-target-private` checks only the mode** (`:103-104`). It never confirms the ACL was actually removed. Have `check.py` run `/bin/ls -led` inside the `TemporaryDirectory` block after the Java run.
+6. **The temp ACL check can't be reached.** Inheriting parents are rejected first, so removing `acl_ok(..., 0)` is undetectable without a test-only build that skips the parent check.
+7. **The "close the Writer" negative control is now meaningless.** A partial flush goes into the temp, which is then discarded, so the target is unaffected. Drop it from the list or rewrite it as "the temp contents never reach the target."
+8. **The race tests don't check temp removal per case, or that `getSuppressed()` is empty.** Only the final listing of `root` catches a leftover.
+9. **The fd-lifetime loops cover only success, Exception and Error** (`:118`). Begin rejections and commit failures, where most of the `close` paths are, are never looped. No test checks `CLOEXEC`, `FileDescriptor.fd == -1` after close, a second commit or abort, or a missing library.
+10. **"Original" means the audit27 helper, not the FBC caller.** `REFERENCE_SHA` is the candidate JAR (`PREFERENCE-IO.md:43`). Byte parity is inherited from that helper. But `changeCount`, lock release, Exception swallowing and Error propagation through `synchronize()` aren't tested, and the 18-case suite's failure cases haven't been **re-expected** (unchanged target instead of partial or truncated).
+11. **`RESULT` is a fixed string.** Its claim tokens are hardcoded rather than measured. `precommit_failures_preserve_original` covers only the three serialization failures. Close failure, OOM-at-Writer and rename failure are untested, so rename it to `serialization_failures_preserve_original`.
+
+## Differences from the original seen through the FBC caller (need tests or §7 entries)
+
+- **Read-only or deny-write target:** the original failed with the file unchanged; this version overwrites it (F1).
+- **Interior `..` and surrogate identifiers:** the original succeeded; this version throws `atomic-fixture-path`/encoder errors (F7).
+- **Target owned by another uid but writable:** the original succeeded in place; this version fails forever.
+- **Parent without write permission, user-owned file:** the original succeeded; this version fails.
+- **Close failure:** the original left new bytes in place plus an exception; this version leaves the target unchanged plus an exception.
+- **Post-commit close error:** the target is replaced and the error looks the same as a pre-commit one (F4).
+- **Behaviour the design already lists:** OOM-at-Writer and serialization failures now leave the target unchanged; metadata, xattrs and BSD group are lost; the name's normalization or case bytes may change on rename (still untested).
+
+## Negative controls and tests to add
+
+Each one should fail at its own assertion code. A crash doesn't count. "Test build" below means a separate dylib compiled with `-DATOMIC_FAULTS`, reading a fault spec from an environment variable. `check.py` should confirm the production dylib contains neither that string nor its symbols.
+
+| # | Mutation or case | How to make it detectable |
+|---|---|---|
+| 1 | Separate allow-only parent and deny-with-`file_inherit` parent, plus a positive deny-only parent | Three `chmod +a` fixtures, with exact codes and acceptance for the deny-only one |
+| 2 | Group-write check removed | 0770 parent fixture |
+| 3 | `RENAME_EXCL` removed | Test-build hook that creates the target between the pre-check and the rename; expect `atomic-rename`, the planted file unchanged, and the temp removed |
+| 4 | Commit skips the temp-name identity check | Java hook: rename the real temp aside (nlink stays 1), then put a foreign file at the temp name. Expect `atomic-temporary-changed`; the foreign file is neither renamed nor unlinked. Repeat with a symlink |
+| 5 | Abort unlinks without the identity check | Same swap, then the hook throws. Expect suppressed `atomic-abort-cleanup` and the foreign file intact |
+| 6 | Parent changes between begin and commit | Hook does a `chmod 0777` on a subdirectory parent; expect `atomic-parent-changed` and the temp removed |
+| 7 | Target deleted with the target present at begin | Hook deletes it; expect `atomic-target-changed` |
+| 8 | `O_EXCL` removed | Test-build fixed RNG plus a planted name. The bounded retry fails and the planted bytes are unchanged |
+| 9 | `created` set late / fstat failure (F2) | Inject an `fstat` failure after create; expect no leftover, or the explicit leftover code |
+| 10 | Fd published before the checks | Inject a `temporary_ok` failure; read `FileDescriptor.fd` by reflection and expect -1, with no fd growth |
+| 11 | Handle zeroed after the free | Test build records freed handles and throws `atomic-stale-handle` instead of crashing with a double free |
+| 12 | Temp ACL check removed | Test build skips the parent inherit check; with an inheriting parent, expect `atomic-temporary-policy` |
+| 13 | `fchmod` failure, `dup` failure, rename failure, `close` failure after commit | Injection; check the target is unchanged (or, after commit, the `atomic-committed:` code) and the listing |
+| 14 | Read-only and deny-write targets (F1) | 0400, 0444 and an owner deny-write ACL; expect `atomic-target-unwritable` and the target unchanged |
+| 15 | `chflags uchg` target, socket target | `chflags nouchg` in `finally`, otherwise `TemporaryDirectory` cleanup fails |
+| 16 | fd loops over rejections and commit failures; `CLOEXEC` via `fcntl` in a test build; double commit or abort; missing library | Extend `:116-123` |
+| 17 | NFD and case-variant existing names; 255-byte basename | Compare the bytes from `os.listdir(b...)` before and after |
+| 18 | FBC end-to-end | Patched `FileBasedPreferences` calling the atomic helper, against the original, through `synchronize()`; re-expect the 18 cases |
+| 19 | `-Xcheck:jni` | At least one run per architecture |
+| 20 | `MNT_IGNORE_OWNERSHIP` | Optional: a disposable DMG attached with `-owners off` (no root needed); otherwise keep it unqualified |
+
+Still unqualified: other uids, root, same-uid attackers, the real parent (B1), and product, GUI and hardware integration.
+
+My recommended order: fix F1, F2 and F3 and add the F4 code prefix in native, then add controls 1–5, 9 and 14 before the next development record, since those cover the false positives and the new bugs.

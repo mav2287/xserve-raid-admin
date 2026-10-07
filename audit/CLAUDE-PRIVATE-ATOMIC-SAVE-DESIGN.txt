@@ -1,0 +1,238 @@
+# Design review: private atomic profile save (temp file + rename), not shipping
+
+I read `patches/compat/PreferenceIO.java`, `experiments/private-preferences/private_file.c`, `PrivatePreferenceFile.java`, `audit/CLAUDE-PRIVATE-DESCRIPTOR-DESIGN.txt`, and for context `PREFERENCE-IO.md` and the two other untracked review notes. I didn't run or build anything, and I didn't touch any real profile, GUI, Keychain or controller. Statements about Darwin and JDK 8 behaviour come from memory, not the pinned sources. **[I]** marks the ones a gate needs to confirm.
+
+## Verdict
+
+Writing a private temp file and renaming it over the profile is the right fix, and it is the only one that lets you make the confidentiality claim the in-place `fchmod` design couldn't. The old inode is never opened for writing, so another user who already has it open keeps the old content and never sees the new bytes. Your outline is sound. Six changes:
+
+1. **No finalizer.** Use a session that is always consumed, not "synchronized handle + zeroing to prevent double finalize."
+2. **Native keeps its own duplicate of the temp descriptor**, so commit checks the exact inode without reopening it by name.
+3. **Parent policy is now required.** The earlier design rejected it; it is now what makes the rename safe.
+4. **Use `renameatx_np(RENAME_EXCL)` when the target didn't exist at begin.**
+5. **Give the temp file a fixed-length name**, so long basenames don't start failing with ENAMETOOLONG.
+6. **Reconsider the single-link rule on the target.** With rename it no longer protects confidentiality, and it gives other users a way to block saves (§6).
+
+This **goes beyond thin preservation scope**: it changes inode identity, failure behaviour, the permissions a save needs, link handling, and on-disk metadata. It also brings native code into the bundle. Treat it as its own security milestone with its own acceptance record (§9).
+
+## 1. Transaction ownership API (smallest correct version)
+
+```java
+FileDescriptor fd = new FileDescriptor();               // -1
+Session session = new Session();                       // allocated before native work
+try (FileOutputStream out = new FileOutputStream(fd)) { // checkWrite(fd) + attach before anything exists
+    session.begin(pathBytes, fd);                      // native: publishing fd is the very last step
+    OutputStreamWriter w = new OutputStreamWriter(out, "UTF-8");
+    PropertyListUtilities.writeXML(dictionary, w);
+    w.flush();
+} catch (Throwable t) { session.abortQuietly(t); throw t; }   // runs after out.close()
+session.commit();                                       // only after a successful raw close
+```
+
+- `Session` has a `private long handle` and two synchronized methods, `commit()` and `abort()`. Each one does `long h = handle; handle = 0;` and then calls `commit0(h)` or `abort0(h)`. Native **always** frees the session, on success and on failure. A failed `commit0` runs the abort internally before freeing. The handle is zeroed in Java before native frees it, so a double free can't happen at all, with or without a lock. If the handle is 0, throw `IOException` without calling native.
+- **Don't add `finalize()`.** The session never leaves `write()`, so try/finally covers every path except the JVM dying. In that case the OS closes the fds and at most one private 0600 temp file is left behind. A finalizer would unlink files from the GC thread at unpredictable times, which only makes things worse.
+- In `abortQuietly`, catch `Throwable` and add it with `addSuppressed`, so an abort failure (including an OOM from `ThrowNew`) never replaces the serializer's Error or Exception.
+- The native session struct holds:
+  - `dirfd`
+  - the temp name
+  - temp `dev`/`ino`
+  - the target state at begin: absent, or `dev`/`ino`
+  - `verify_fd`, a `dup` made before publishing and kept native-only, with `O_CLOEXEC`
+
+  The published fd belongs only to Java. `verify_fd` belongs only to native and is closed in commit or abort.
+- Within `begin0`, do these in order:
+  1. malloc the session
+  2. open `dirfd` and apply the parent policy
+  3. `fstatat` the target and apply the target policy
+  4. create the temp file
+  5. `fchmod(0600)` and verify it (see §2)
+  6. `dup`
+  7. record the identities
+  8. `SetIntField(fd)`
+  9. return the handle
+
+  Every step before 8 closes and unlinks everything it created when it fails. Steps 8 and 9 can't fail.
+- Look up the `FileDescriptor.fd` field ID and global refs to `IOException`/`FileNotFoundException` in `JNI_OnLoad`, so error paths never need `FindClass`. Library loading keeps the existing holder pattern: a missing library becomes an `IOException`.
+
+## 2. Native sequence
+
+**Begin**
+1. Split parent and basename and reject an empty basename, `.` or `..`, as now. Then `dirfd = open(parent, O_RDONLY|O_DIRECTORY|O_CLOEXEC)`.
+2. Parent policy, checked on `dirfd`:
+   - `fstat`: a directory owned by `euid` (or root, see §8) with no group or other write bit.
+   - `fstatfs`: reject if `MNT_IGNORE_OWNERSHIP` is set.
+   - ACL: reject any entry with `file_inherit`, and reject any **allow** entry. Deny-only entries without inherit flags are fine.
+3. Target policy: `fstatat(dirfd, base, AT_SYMLINK_NOFOLLOW)`.
+   - `ENOENT` means absent.
+   - Otherwise it must be `S_ISREG` and owned by `euid`, and its `st_flags` must have none of `UF_IMMUTABLE|UF_APPEND|SF_*`.
+   - This never opens the target, so FIFOs and devices can't block or trigger side effects.
+4. Temp file:
+   - Name: `".xra-" + 32 hex characters from arc4random_buf + ".tmp"`, a fixed length unrelated to the basename.
+   - `openat(dirfd, tmp, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC, 0600)`.
+   - On `EEXIST`, retry at most 4 times, then fail.
+5. Then:
+   - `fchmod(fd, 0600)` unconditionally. Under umask 0277 the file is created 0400, and load would later break.
+   - `fstat`: regular file, `euid`, `nlink == 1`, `(mode & 07777) == 0600`, same `st_dev` as `dirfd`.
+   - ACL must be absent or empty.
+   - `O_NONBLOCK` is never set, because `O_EXCL` guarantees a fresh regular file.
+
+**Commit** (Java has already closed the stream successfully)
+1. `fstat(verify_fd)`: same `dev`/`ino`, regular, `euid`, `nlink == 1`, 0600, no ACL.
+2. `fstatat(dirfd, tmp, NOFOLLOW)` returns the same `dev`/`ino`, so the name still points at the inode.
+3. `fstatat(dirfd, base, NOFOLLOW)` matches the state recorded at begin.
+4. Check the parent policy again. It's cheap.
+5. Rename: if the target was absent, use `renameatx_np(dirfd, tmp, dirfd, base, RENAME_EXCL)`; otherwise `renameat`.
+6. On failure, abort. In every case, close `verify_fd` and `dirfd` and free the session.
+
+**Abort**
+- `fstatat(dirfd, tmp, NOFOLLOW)` must match the temp's `dev`/`ino`; only then call `unlinkat(dirfd, tmp, 0)`.
+- On a mismatch, leave the file alone and report it.
+- Abort never touches `base`.
+
+**Errors**
+- Retry on `EINTR`.
+- Save `errno` before `acl_free`/`close`.
+- Messages carry a code plus the errno number, **never path bytes**.
+- Throw `FileNotFoundException` when begin fails to open or create, and `IOException` for everything else.
+- Native never throws an `Error`, apart from an unavoidable OOM inside `ThrowNew`.
+
+## 3. Races and confidentiality
+
+| Scenario | Result |
+|---|---|
+| Another user had the old profile open before the save | Keeps the old content and never sees the new bytes. That old content was already exposed. **This is the claim you can make.** |
+| Another user tries to open the temp file | Not possible: it is created 0600 with no inherited ACL, under a parent that has no allow entries. |
+| Another user writes to the parent | Rejected by the parent policy. Without that policy they could put their own file at the temp name between the identity check and the rename, and inject content into the profile. That's why the parent check is required, not optional. |
+| Same uid or root replaces the target or temp between check and rename | Out of scope. The identity checks only catch accidental concurrency. |
+| Two app instances, or an unpatched app writing in place | Last writer wins, as in the original. An in-place writer keeps the same inode, so it passes the check. A replacing writer makes commit fail; the next `synchronize` retries. |
+| Intermediate-path swap by an ancestor writer | `dirfd` is pinned at begin. A swap can only redirect the save into some other directory that passes the policy (yours, private), so you lose availability and integrity of where it lands, but nothing leaks. No ancestor walk: walking with `O_NOFOLLOW` would reject `/var` → `/private/var` and symlinked homes. |
+| **Profile is public before its first successful save** | Load doesn't change the mode, so the existing 0644 file stays readable until a commit succeeds. A rejected target or parent means it **stays public forever**. Document this. |
+
+**Data loss.** After this change, a failed save never changes the target. The remaining loss windows: a save is dropped when commit sees a concurrent replacement (it is retried later), and a power loss without fsync (§4).
+
+## 4. fsync
+
+You don't need fsync for confidentiality, or for atomicity when the process fails or crashes. **[I]** Without it, APFS doesn't promise the data blocks are on disk before the rename after a power loss. You could end up with an empty or short file under the new name. The original truncate-then-write has the same exposure, so this isn't a regression.
+
+Scope the claim to "unchanged after a failure inside the process." If you add durability later, use plain `fsync(verify_fd)` before the rename and abort on EIO. Don't use `F_FULLFSYNC`.
+
+**Measure the store rate before you decide** (blocker B2). `PREFERENCE-IO.md:17` says store never resets `changeCount`, so after the first change every `synchronize` writes a file. That sets the cost of fsync and how many inodes get replaced.
+
+## 5. Parent directory read permission and `O_SEARCH`
+
+- `O_RDONLY` on the parent needs read permission; the original needed only search permission. The parent must now be owned by `euid`, so this only hits owner-unreadable directories. Document it as a regression.
+- **[I]** I don't know whether `O_SEARCH` exists on your macOS 11 minimum, and if it does, whether `acl_get_fd_np` works on a descriptor opened that way. Check both before using it.
+- A rename needs write and search permission on the parent. The original needed only write permission on the file. Document this too.
+
+## 6. Hard links and an easy way to block saves
+
+**[I]** macOS has no protection against hard-linking files you don't own. Any local user who can search every ancestor directory and write a directory on the same volume (for example `/Users/Shared` or `/private/tmp` on the Data volume) can hard-link your profile. They can't read it, because it's 0600, but `nlink` becomes 2.
+
+If begin rejects targets with `nlink > 1`, that one link makes **every future save fail silently**.
+
+With rename, the single-link rule on the target no longer protects anything. Rename detaches the name, and other links keep the old content. **My recommendation: accept a target with `nlink > 1`**, and document "link split" as an intentional difference from the original, which wrote through links.
+
+Keep `nlink == 1` for the **temp**. The temp name is random and can only be found by someone who can list the parent, so a link-based block there needs read access to your parent.
+
+## 7. Behaviour changes to document (intentional security/atomicity differences, not a protocol change)
+
+- A failed save (Exception, Error, close failure, OOM while allocating the Writer) leaves the original unchanged. The original left it truncated or partial. `changeCount`, catch ranges, lock release and Error propagation stay the same. Controller commands, polling and retry are untouched.
+- New files are 0600 under any umask. Existing profiles become 0600 after their first save.
+- Replacing the inode **loses**:
+  - xattrs, including the Time Machine exclusion and Finder tags
+  - file flags such as `UF_HIDDEN` and `UF_NODUMP`
+  - ACLs
+  - the BSD group (the new file takes the parent's)
+  - birthtime and inode number
+- A symlinked profile, for example one synced through a cloud folder, is now **rejected permanently and silently**. The original followed the link. No fallback, as you specified.
+- **Name bytes** **[I]**: on APFS, renaming onto an existing entry that differs only in normalization (NFD vs NFC) or, on a case-insensitive volume, in case, probably takes the new name's bytes. The original's in-place write kept the existing entry's bytes. You can test this; deciding is in §10.
+
+## 8. Errors and making failures visible
+
+The handler swallows Exceptions, so any rejection is invisible and retried on every `synchronize`. Begin rejects before creating a temp file, so retries don't pile up files. A "visible failure" requirement can't be met without a new output channel; see §10.
+
+## 9. Offline tests
+
+Run in the disposable directory only, on both runtimes and architectures, under `-Xint` and `-Xcomp`, with umask 000, 022, 077 and 0277.
+
+**Success**
+- The original success cases produce byte-identical files.
+- The target is a new inode: 0600, no ACL, `nlink` 1.
+- The directory listing is exactly the expected entries; no temp file remains.
+- The interrupt flag is preserved, both before and during the save.
+- **Key confidentiality test:** open a read fd on the old target before the save. Afterwards it reads exactly the old bytes and `fstat` shows `nlink 0`. This is the same mechanism as a cross-uid reader; record cross-uid itself as unqualified.
+
+**Failure**
+- Cases: early and late invalid key, synthetic Error, OOM-at-Writer and close failure (both via a test-only build), each against an existing file with content.
+- Target bytes, inode, mode, `mtime` and `ctime` are unchanged; no temp file remains; the Error's identity is kept and `getSuppressed()` is empty.
+- `changeCount` and lock release match the original through the real call site.
+- The failure cases in the existing 18-case parity suite must be **re-expected**, not just compared. For example, kind 6 previously expected a partial file and now expects the original to be unchanged.
+
+**Begin rejects with nothing created (listing unchanged)**
+- Target: symlink to an existing file, dangling symlink, directory, FIFO (no hang, without needing a timeout), socket, `chflags uchg`.
+- Parent: mode 0775, 0777 or 1777; an inheritable ACL entry (`chmod +a` on your own directory needs no root); a non-inheriting allow entry.
+- Paths: missing parent, NUL, unpaired surrogate, empty, `..`.
+- A deny-only, non-inheriting entry on the parent is **accepted**.
+
+**Commit and abort races** (test-only build with a hook between close and commit)
+- Target replaced with a new inode: commit fails, the temp file is removed, and the replacement is untouched.
+- Target deleted: commit fails.
+- Target created when it was absent at begin: `RENAME_EXCL` fails.
+- Temp swapped for a foreign file or a symlink: commit **and** abort refuse, and the foreign file is neither renamed nor unlinked.
+
+**Other**
+- Names: NFD and case-variant existing entries, comparing `os.listdir(b...)` bytes before and after; a 255-byte basename succeeds.
+- Temp name collision: a deterministic RNG in a test build plus a planted file. The bounded retry then fails, and the planted file is untouched.
+- Descriptors:
+  - Zero fd growth (asserting the counter is ≥ 3, so an unsupported counter can't pass) over success, Exception, Error and rejection loops.
+  - `CLOEXEC` set on both fds; `FileDescriptor.fd == -1` after close; handle is 0 after commit or abort; a second commit or abort throws `IOException` without calling native.
+- 1000 rejected saves create zero temp files.
+- Missing or unset library → `IOException` on both calls, nothing created.
+- A security manager denying `checkWrite` or `writeFileDescriptor` → nothing created.
+
+**Negative controls** (each must fail at its exact assertion)
+- drop `O_EXCL` (using the planted name)
+- an in-place fallback
+- write the target directly
+- skip `fchmod` under umask 0277
+- skip the parent inherit or allow ACL check
+- skip the temp ACL check
+- publish the fd before the checks
+- abort unlinks by name without the identity check
+- abort unlinks `base`
+- commit skips the target identity check, or the temp identity check
+- drop `RENAME_EXCL`
+- zero the handle after the native free (`abort0` must observe a stale handle)
+- abort only in a finalizer, or without try/finally
+- close the Writer instead of the raw stream
+- NIO move or channel
+
+## 10. Blockers and decisions still open
+
+**Blockers**
+- **B1. The real parent is unknown.** No real `~/Library/Preferences` mode or ACL has ever been inspected. If it carries any allow or inheritable ACL entry, every save fails silently. This can only be settled in a disposable account or VM.
+- **B2. Store frequency is unmeasured** (§4).
+- **B3. Cross-uid behaviour, root-owned parents and `MNT_IGNORE_OWNERSHIP`** can't be qualified without root or a second account; mark them unqualified.
+- **B4. JDK and JNI source gates** from the earlier design, on both runtimes: the `fd` field, attach-before-open, and `fileClose` on -1.
+- **B5. `O_SEARCH`** behaviour, and **`renameatx_np`** on the macOS minimum.
+- **B6. Native packaging:** architecture slices, arm64 ad-hoc signature, deterministic `LC_UUID`, SPDX and ledger.
+- **B7. Acceptance** of everything in §7 and of "public until the first successful save."
+
+**Decisions that need you (genuinely unresolved)**
+1. **Target with an ACL:** replace it (dropping the ACL) or reject it. I recommend replace. Rejecting leaves the profile public and saves failing forever.
+2. **Target with `nlink > 1`:** accept and split the link (my recommendation, §6) or reject it (as you proposed, which lets other users block saves).
+3. **Visible failure:** stay silent, as the original was, or print a rate-limited single line to stderr per distinct error code. That line would be new output.
+4. Whether changing the name's case or normalization is acceptable.
+5. Whether to add `fsync`.
+6. Leftover temp files after a crash: leave them, or clean up by age. Don't clean up by glob alone, because that could delete another instance's in-progress file.
+7. Whether a root-owned parent with no group or other write is allowed.
+
+Implementing and testing all of this in the disposable fixture is ordinary authorised work and needs no further permission. Only the decisions above need you.
+
+## Smaller alternative
+
+A pure-Java version is possible: `Files.createTempFile` in the parent with `rw-------`, write through `FileOutputStream(tmp)`, then `Files.move(ATOMIC_MOVE)`. **[I]** It never routes the write through a channel, so interrupts behave as before. It covers most of the same ground with no native code or packaging work.
+
+It can't check ACLs (JDK 8 on macOS has no ACL view). It reopens the temp by path. Its rename isn't pinned to the parent you checked. So its confidentiality depends on a written assumption that the parent has no allow or inheritable ACL entries and isn't writable by others.
+
+If you want the leak fully closed with no such assumption, the native design above is justified. If you want a quick, low-risk improvement inside the current scope, ship the Java version with that assumption written down, and keep the native version as the follow-up.

@@ -1,0 +1,96 @@
+I found no new critical or high-severity issues. Nothing here was executed; everything comes from reading the source. I've kept what the source literally does (**Fact**) apart from what I'm inferring or recalling about Darwin, JDK 8 or HotSpot (**Inference**).
+
+## The five properties you asked me to confirm
+
+### 1. Ownership (Fact)
+- **Before the fd is handed to Java:** every failure path after `openat` closes the raw `fd` exactly once: stat-leftover `:248`, mode `:253` and dup/policy `:257`. Each one closes it before calling `consume`.
+- **After it's handed over:** native code never touches `fd` again. Java's try-with-resources closes it, and `verify_fd`/`dirfd` stay in `Session`.
+- **Publishing order:** `SetLongField` comes before `SetIntField` (`:262-263`), and nothing that can fail sits after them.
+- **Java side:** `Session.commit`/`abort` set `handle` to 0 before calling into native code, so a native call that throws can't lead to a second `consume`. When `begin0` fails, `handle` is still 0, so `abortPreserving` does nothing.
+
+### 2. Cleanup bits on every `consume` call (Fact)
+Bit 1 means the abort-time unlink failed or hit a name it couldn't verify. It can only be set when `aborting=1`. Bit 2 means a close failed.
+
+| Site | `aborting` | `created` | Bits that can be set | Correct? |
+|---|---|---|---|---|
+| `:209` (pending exception, return ignored) | 0 | 0 | none (fds are -1) | yes |
+| `:210 :215 :217 :220` | 0 | 0 | none | yes |
+| `:221 :224 :225 :227` | 0 | 0 | 2 (dirfd) | yes |
+| `:241` uncertain/open | 0 | 0 | 2 | yes. The possible leftover is named in the code itself |
+| `:248` stat-leftover | 0 | 0 | 2, plus raw close | yes. Nothing is unlinked, and the code names the leftover |
+| `:253` mode | 1 | 1 | 1, 2, plus raw close | yes |
+| `:258` dup / policy | 1 | 1 | 1, 2, plus raw close | yes. The code is chosen before `consume` runs |
+| `abort_native:270` | 1 | — | 1, 2 → `atomic-abort+leftover/+close` | yes |
+| `commit_native:304` | `error != NULL` | — | when it fails: 1 and 2. When it succeeds: only 2 → `atomic-committed:close` | yes |
+
+The `errno` value that decides `create-uncertain` is saved before `consume` runs (`:240`). The longest possible message is about 49 characters, which fits the 96-byte buffer.
+
+### 3. Pending-exception discipline (Fact)
+- **`begin_native`:** the null checks short-circuit before any `GetIntField`/`GetLongField`. After `GetByteArrayRegion`, the code does `ExceptionCheck`, then only `free`/`close`, then returns. Each path throws at most once.
+- **`JNI_OnLoad` failure path:** it calls `ExceptionOccurred` → `ExceptionClear` → `UnregisterNatives` → clear → `Throw(pending)` → `DeleteLocalRef`/`DeleteGlobalRef`. The only calls made while an exception is pending are the ones the spec allows.
+
+### 4. Stale binding (Fact, plus Inference)
+- **Fact:** the natives are `static` and compiled with `-fvisibility=hidden`, so a library built from this source exports no `Java_*` symbols. In the mismatch case, the `begin0` that registered successfully is unregistered again before `JNI_ERR` is returned.
+- **Inference:** JDK 8's `NativeLibrary.load` re-throws the pending `NoSuchMethodError` and unloads the library. `Library.load` catches that as a `LinkageError`, so no function pointer into the unloaded image stays bound.
+- **Fact:** if a probe fails after a successful load, the bindings stay in place but `AVAILABLE` is false, so `write` can never reach them.
+
+### 5. Identity of the primary throwable (Fact)
+`catch (Throwable primary) { abortPreserving(primary); throw primary; }` rethrows the same object. The checks at `AtomicPreferenceObservation:95-96` assert the exact `ClassCastException`/`AssertionError` class with no suppressed exceptions. There is one edge case, listed as F2 below.
+
+## Mutation strings (Fact)
+I checked each `replace_once` target against the current source. Every one matches exactly once, and the expected assertion is reached first:
+- **`skip-temporary-identity`:** the commit goes through, `swapFailure` is null, and it fails at `temporary-swap-rejected` (`:165`). The earlier N1 problem is fixed.
+- **`abort-without-identity`:** the message is `atomic-temporary-changed` with no suffix, so `:165` passes and it fails at `foreign-temporary-not-deleted` (`:166`).
+- **`skip-begin-write-check`:** commit returns `…-unwritable-at-commit`, which fails `rejection-code` at `:120`.
+- **`skip-commit-write-check`:** the freeze save goes through and fails at `commit-readonly-rejected`.
+- **`'if (!parent_ok(s->dirfd))'`:** matches only begin (`:221`), because commit has the `!error && ` prefix.
+- **`'return value == 0;\n}\n\nstatic int temporary_ok'`:** this is unique. It doesn't match `remove_temporary`.
+- **`'value = fstatfs(s->verify_fd, &fs)'`:** matches only commit (`:289`), not `owner_filesystem`.
+- **`rename-cleanup`:** gives `atomic-rename+leftover`. **`dup`:** gives `atomic-temporary-dup`. **`statfs`:** gives `atomic-temporary-filesystem`. **`remote-sync`:** gives `atomic-temporary-sync`. **`remote-sync-ok`:** commits on a new inode. All four match their expectations.
+- **Counts:** 11 fault variants × 2 modes × 2 architectures = 44, and 13 negatives × 2 = 26. Both agree with `check.py:250`.
+
+## New findings (none critical or high)
+
+**F1 (medium, Inference): the probe confirms that the natives link, not which version they are.**
+- **Fact:** the probes only check three error strings (`AtomicPreferenceFile.java:20-22`), and those strings haven't changed since earlier builds.
+- **Inference:** a dylib from an earlier build of this experiment would still bind (it exports `Java_*` and/or registers in `JNI_OnLoad`) and pass all three probes. `AVAILABLE` would then be true but with the old behaviour: `+cleanup`, no `-at-commit` code and no `dup` code.
+- In this harness the risk is limited because the dylib SHAs are pinned. Outside the harness it is not.
+- The upcoming no-onload test, if it's built from current source, fails only because the functions are now `static`. It won't catch an older build that still exports them.
+- **Suggested fix:** an ABI token, such as a fourth registered native returning a constant that `Library.load` checks. Alternatively, build the stale-library control from a pre-`static` revision.
+
+**F2 (low to medium): `abortPreserving` can lose the primary.**
+- **Fact:** `primary.addSuppressed(failure)` is not guarded (`:38`).
+- **Fact:** if `failure == primary`, `addSuppressed` throws `IllegalArgumentException` (self-suppression). If it throws `OutOfMemoryError` itself, that error replaces the primary because `throw primary` is never reached.
+- **Inference:** HotSpot can hand out the same preallocated `OutOfMemoryError` instance twice (from `writeXML`, then from `ThrowNew` in `abort0`).
+- **Suggested fix:** `if (failure != primary) try { primary.addSuppressed(failure); } catch (Throwable ignored) {}`.
+
+**F3 (low, Inference): the session is consumed even if the native call never runs.**
+`commit`/`abort` set `handle` to 0 before the call. If the call throws before native code is entered (for example a `StackOverflowError` at the call site), `dirfd`, `verify_fd` and the temp file leak with no report. Either document this or accept it.
+
+**F4 (low, Fact): `-Xcheck:jni` still doesn't cover the new code.**
+`NativeLoadObservation` calls `System.load` directly, which bypasses `Library.load`. As a result, the probes, the `ThrowNew` paths and the `JNI_OnLoad` failure branch (`UnregisterNatives`/re-`Throw`) never run under `-Xcheck:jni`. Adding `-Xcheck:jni` to the `mismatch` and `normal` binding runs would cover them.
+
+**F5 (low, Fact): one negative run doesn't pin the umask.**
+The RENAME_EXCL negative run (`check.py:211`) uses `subprocess.run` with no umask set, and its record has no `umask` field. Every other run is pinned. By my trace the result doesn't depend on the umask.
+
+**F6 (low, Fact): some cleanup reporting is never tested.**
+- No fault ever expects `+close` on a failure path, the raw-fd `| raw_issue`, or the `atomic-abort+…` text that should appear as a suppressed exception. A mutant that drops `| raw_issue` would survive.
+- `AtomicFaultObservation:33` maps a `temporary-acl` scenario that has no matching variant, so the N4.2 control appears not to be implemented.
+
+**F7 (low, Inference): one error code is misleading.**
+If `fstatfs` fails inside `temporary_ok` during commit, the error is reported as `atomic-temporary-changed`.
+
+## Status of the earlier findings (Fact)
+| Finding | Status |
+|---|---|
+| N1 swap-check split | Done (`:165-167`) |
+| N3 b, c | Done |
+| N3 a | Done, but see F1 |
+| N4.1, N4.3, N4.4 | Done |
+| N5 separate leftover/close codes | Done |
+| N5 errno values in codes | Not done |
+| N6 | Handled through `disposable()`, which now runs `chmod -N` on the files inside the directory. The fixture itself is unchanged |
+| N7 rejection lifetime loops | Added (`:180-187`) |
+| N8 umask pinning | Done, except F5 |
+
+I didn't count the missing no-onload test as coverage.

@@ -1,0 +1,126 @@
+I've read every file you listed. I'm treating this as a development experiment only, not product qualification. **[I]** marks Darwin, JDK 8 or HotSpot behaviour that I'm stating from memory or inferring, not reading from source. I didn't run anything.
+
+## Bottom line
+
+Most of my earlier findings are fixed in source. Three things need attention before the next development record:
+
+- **The harness can't pass as written.** One negative control (`skip-temporary-identity`) fails at a different assertion than `check.py` expects.
+- **The remote `fsync` branch never runs.** On many network filesystems it is probably unreachable anyway.
+- **Eager binding only covers libraries built from this source.**
+
+Several of the new checks pass without a control that proves they are what makes them pass.
+
+## Earlier findings: what's fixed (source fact)
+
+| Finding | Status |
+|---|---|
+| **F1** read-only and deny-write | Fixed. `faccessat(W_OK, AT_EACCESS\|AT_SYMLINK_NOFOLLOW)` runs at begin (`atomic_file.c:213`) and at commit (`:268`). The tests compare 0400, 0444 and an ACL deny-write against the reference's `FileNotFoundException`, plus a chmod made between write and commit (`AtomicPreferenceObservation.java:113-139`). Caveat in N4. |
+| **F2** fstat leak | Fixed. `fstat` is tried twice, then `atomic-temporary-stat-leftover` is reported with no unlink (`:235-237`). A create that hits `EINTR` is not retried and reports `atomic-temporary-create-uncertain` (`:222-229`). |
+| **F3** lazy linking | `RegisterNatives` in `JNI_OnLoad` (`:63-68`), and the mismatch library is rejected. Caveat in N3. |
+| **F4** post-commit errors | `atomic-committed:close` (`:289`) is distinct. The `fsync` for non-`MNT_LOCAL` filesystems runs before the rename (`:274-279`). Neither is exercised on the remote path (N2). |
+| **F5** dropped cleanup failures | `fail_cleanup` is used at every begin and commit failure site. Errno numbers in the codes are still missing. |
+| **F6** JNI hygiene | Fixed. Exceptions are checked after every call, the failure path deletes the globals, and there is a `JNI_OnUnload`. The comment at `:73` is correct: the JNI spec allows `Delete*Ref` while an exception is pending. |
+| Earlier test gaps | Fixed: separate allow, inherit-deny and deny-only fixtures with the deny-only case positive; a 0770 parent; `ls -led` after the ACL target save (`check.py:101-103`); recursive `tree()` in `rejected()` and for the final leftovers; `RENAME_EXCL` reached by the `rename-exclusive` fault; an empty JNI load baseline. |
+
+## Findings, ranked
+
+### N1 (high, harness bug, high-confidence inference from tracing): the `skip-temporary-identity` control fails at the wrong assertion
+
+The mutant removes the whole check at `:263-264`, so commit renames the *foreign* file at the temp name onto `swap-target` and succeeds. The first check that fails is then `foreign-temporary-not-deleted` (`AtomicPreferenceObservation.java:165`), because `foreign[0]` has been renamed away. `check.py:174` expects `temporary-swap-rejected`, so the run raises `Atomic negative failed unexpectedly`. If an actual run passed, my trace is wrong somewhere and I'd like to see it.
+
+You can't just reorder lines 165 and 166: `abort-without-identity` would then fail at `temporary-swap-rejected` instead, because its message loses `+cleanup`. Fix: split the checks in this order:
+1. `swapFailure instanceof IOException && message.startsWith("atomic-temporary-changed")` as `temporary-swap-rejected`
+2. `foreign-temporary-not-deleted`
+3. `"atomic-temporary-changed+cleanup".equals(...)` as `temporary-swap-cleanup-reported`
+
+That puts each mutant at its own code.
+
+### N2 (medium): the remote `fsync` branch is dead in every run and possibly in practice
+- **Fact:** every run is on APFS (`MNT_LOCAL`). None of the eight fault variants forces the non-local branch, a failing `fsync`, or a failing `fstatfs` (`atomic-temporary-filesystem`). A mutant that deletes the `fsync` would pass.
+- **Inference [I]:** on SMB and on many NFS mounts, `acl_get_fd_np` fails with `ENOTSUP`/`EOPNOTSUPP` rather than `ENOENT`. In that case `acl_ok` (`:108`) returns 0, and every save fails at `atomic-parent-policy` before the `fsync` code is reached. A network home would then fail every save, permanently and silently. The original saved in place. This isn't in §7.
+- **Fact:** the record's limit `'No fsync/power-loss durability'` is now misleading.
+
+Fixes:
+- Add fault variants:
+  - `remote-sync-ok`: replace `!(fs.f_flags & MNT_LOCAL)` with `1`. Expect a successful commit.
+  - `remote-sync-fail`: also replace the `fsync(...)` call with `(errno = EIO, -1)`. Expect `atomic-temporary-sync`, the target unchanged and no temp.
+  - `statfs-fail`: expect `atomic-temporary-filesystem`.
+- Change the limit to: "Non-MNT_LOCAL fsync branch exercised only by injection; no real remote filesystem observed; ACL-unsupported filesystems are expected to be rejected by the parent policy."
+- Put the ACL-unsupported behaviour in §7 and leave it deliberately undecided.
+
+### N3 (medium): eager binding only proves the table in this source
+- **Fact:** the `Java_…` functions are still `JNIEXPORT`, so they are exported. A stale or foreign library with no `JNI_OnLoad` still loads, `AVAILABLE` is true, and binding falls back to lazy lookup. That reopens the F3 leak if a symbol is missing.
+- **Inference [I, HotSpot]:** `RegisterNatives` registers methods in order and stops at the first failure. In the `mismatch` variant, `begin0` therefore stays bound to the library after the load fails. This is unreachable only because `AVAILABLE` is false.
+
+Fixes:
+- **(a)** In `Library.load()`, after `System.load`, probe each native with no side effects and require the exact codes:
+  - `abort0(0)` → `atomic-session-consumed`
+  - `commit0(0)` → `atomic-session-consumed`
+  - `begin0(null, null, null)` → `atomic-session-state`
+
+  Treat any `LinkageError` or other code as unavailable.
+- **(b)** Make the three functions `static` with no `JNIEXPORT`, so the table is the only way they can be bound.
+- **(c)** On a `RegisterNatives` failure: save the pending exception, `ExceptionClear`, `UnregisterNatives(helper)`, then `Throw` the saved exception again.
+- Add a binding scenario `no-onload`: `JNI_OnLoad` removed and `commit0` renamed. Expect `atomic-library-unavailable` and no temp.
+
+### N4 (medium): checks that pass without a control proving them
+1. **Begin-time writability (`:213`).** Removing it changes nothing anyone can observe. Commit (`:268`) rejects with the same code, the temp is removed and the tree is identical. So "preserved at begin" isn't demonstrated. Fix: give the commit-time failure its own code (for example `atomic-target-unwritable-at-commit`), and add mutants that remove each check in turn, expecting `rejection-code` and `commit-readonly-rejected`.
+2. **Temp ACL check `acl_ok(verify_fd, 0)`.** It still has no control that can tell it apart. `skip-parent-policy` fails at `rejection-code` whether or not this check exists, because commit's `parent_ok` catches it anyway. Fix: one mutant that skips both parent checks and asserts `atomic-temporary-policy` for `acl-parent`, and a second that also removes the temp ACL check and must fail at that assertion.
+3. **`RENAME_EXCL`.** The fault test is built so it would catch the flag being removed, but no mutant shows it. Add `rename-exclusive` with `RENAME_EXCL` replaced by `0`, expecting `failure-code`.
+4. **`dup` failure** reports `atomic-temporary-policy`, so a dup failure looks the same as a policy failure. Use `atomic-temporary-dup`.
+
+### N5 (medium): leftover policy versus the design, and unclear cleanup codes
+- **Fact:** design §8 says "begin rejects before creating a temp file, so retries don't pile up files." That's no longer true. `stat-leftover`, `create-uncertain`, `…+cleanup` and the suppressed `atomic-abort-cleanup` can each leave a 0600 temp. Since FBC retries on every `synchronize`, a fault that persists could leave one per retry. Update §8 and §7, and link this to open decision 6.
+- **Fact:** `+cleanup` and `atomic-abort-cleanup` cover both "the unlink failed or the name didn't match" (a possible leftover) and "a close failed" (no leftover). Return those separately from `consume` and use `+leftover` and `+close`. Also add the errno values as the design specified.
+- **Inference:** the comment on `remove_temporary` (`:158`) slightly overclaims. Between the `fstatat` and the `unlinkat` there is a window for a same-uid race. That's within the stated threat model, but the comment should say "best effort against same-uid races".
+
+### N6 (medium, harness, [I]): the `allow-parent-inherit-acl` mutant may break cleanup
+With the inherit check removed, the temp in `inherit-deny-parent` inherits `everyone deny delete`. **[I]** An explicit deny-delete on a file blocks unlink, so `remove_temporary` fails and the temp is left behind with that ACL. `disposable()` only runs `chmod -N` on the directory itself (`check.py:56-58`), so `TemporaryDirectory` cleanup probably raises. The assertion code still matches, but the harness crashes. Fix: change the fixture to an inheritable deny that doesn't affect delete or ACL management, for example `everyone deny readextattr,file_inherit` **[I]**.
+
+### N7 (low to medium): coverage gaps in faults and lifetime
+- No fault variant covers:
+  - a failed abort cleanup with a serialization failure (expect a primary `ClassCastException`, one suppressed `atomic-abort-cleanup`, and a partial private leftover)
+  - begin `+cleanup` (`mode` combined with removal failure)
+  - `create-uncertain` (inject `errno = EINTR` into the `openat` result after the real create, and expect the leftover reported)
+- The fd and GC lifetime loops still don't cover rejections (`parent-policy`, `target-policy`, `target-unwritable`). A rejection path that returns without `consume` would leak `dirfd` and the `Session` without detection.
+- Still missing: a check that `FileDescriptor.fd == -1` after close, a double commit or abort, a `CLOEXEC` probe, and the FBC end-to-end run.
+
+### N8 (low): fault, binding and load runs inherit the operator's umask
+`execute(...)` is called without a mask there. **[I]** `stat-leftover` asserts the leftover is `rw-------`, but no `fchmod` ran, so under umask 0277 it would be 0400. Pass `0o022` explicitly and record the umask for every run.
+
+### N9 (low): behaviour differences missing from §7 (source fact versus design text)
+- **Security manager.** The experiment needs `RuntimePermission("writeFileDescriptor")` (`FileOutputStream(FileDescriptor)`); the original needed only `FilePermission` write. This is tested (`deny-fd`) but not listed in §7.
+- **Also not listed:**
+  - interior `.`/`..` rejection and strict UTF-8 (`AtomicPreferenceFile.java:46-49`)
+  - a writable target owned by another uid
+  - a parent that isn't writable, where the original saved in place
+  - ACL-unsupported or remote filesystems (N2)
+  - leftover-producing failure codes (N5)
+  - root-owned parents accepted (`:134`), which settles open decision 7 in code
+- **Minor:** an `Error` thrown in `Library` static init later surfaces as `NoClassDefFoundError`, which is an Error, out of `write`. It isn't documented or tested.
+
+### N10 (low): provenance gaps
+- The mismatch mutant's source isn't hashed into `bindings`. Fault and negative sources are hashed.
+- Built dylibs (candidate, baseline, mismatch, faults, negatives) aren't hashed again at the end. Only sources, classes, the JDK, runtimes and the reference are re-verified.
+- `-Xcheck:jni` covers loading only, as the record says. `begin0`, `commit0` and `abort0` never run under it. Add it to at least one functional run and one fault run per architecture. **[I]** HotSpot writes JNI warnings to stdout, so the exact `RESULT` comparison would catch them.
+- `source_dirty` will be true because the files are untracked. That's fine with `qualification: False`, but make sure no record is described as clean.
+
+## The eight fault variants (source fact)
+- `stat-recovered` and `stat-leftover`: correct and discriminating. They cover the second attempt and the leftover with no unlink.
+- `mode` and `dup`: correct. `dup` shares its code with policy failures (N4.4).
+- `rename` and `rename-cleanup`: correct. They show the leftover is reported with full contents. They don't cover the abort path (N7).
+- `close-committed`: correct. It shows the `atomic-committed:` prefix, the new inode and no leftover.
+- `rename-exclusive`: a real race between the pre-check and the rename. The planted bytes are kept, `fault-plant` would show up as a code mismatch rather than a silent pass, and there is no control mutant (N4.3).
+
+## Recommended order (all offline and in source only)
+1. N1: split the swap checks.
+2. N6: change the inheritable deny fixture.
+3. N3: link probe, `static` natives, `UnregisterNatives` on failure.
+4. N2: the three remote and statfs fault variants, plus the updated limit text.
+5. N4: control mutants and the separate commit-time code.
+6. N5: separate leftover and close codes, plus errno.
+7. N8: pin the umask.
+8. N7: the extra faults and rejection lifetime loops.
+9. N9 and N10: §7 additions and the provenance fixes.
+
+Still unqualified: real remote filesystems, other uids and root, same-uid races, the real parent (B1), FBC and product integration, GUI, signing, and physical Intel. A passing development run of this harness wouldn't change any of that.

@@ -1,0 +1,27 @@
+I found no new high-severity issue. I only read the five files you named; I didn't run, change or access anything else, and didn't need the earlier ownership review.
+
+**ABI token and registration**
+- Java `version0() == 0x58415201` (`AtomicPreferenceFile.java:23`) matches the native `return 0x58415201` (`atomic_file.c:105`).
+- The `version0`, `"()I"` entry matches `private static native int version0()`, and `RegisterNatives(..., methods, 4)` matches the array's four entries. One small point: `version0` is the first entry in the array, not the fourth. Order doesn't matter to JNI, so this has no effect.
+- The other three signatures and the `handle`/`J` field match the Java declarations.
+
+**Failed-registration cleanup (`atomic_file.c:79-85`)**
+- `UnregisterNatives(helper)` unbinds every native method on the class. That removes any partly registered prefix.
+- Any pending exception is saved with `ExceptionOccurred`, cleared, and thrown again after unregistering. An exception raised by unregistering itself is discarded. Deleting the local reference afterwards is allowed while an exception is pending.
+- This only runs once registration has been attempted, so `helper` is never null there.
+
+**Load probe order (`AtomicPreferenceFile.java:20-23`)**
+- The probe calls `abort0(0)`, then `commit0(0)`, then `begin0(null,null,null)`, then checks the token. Each call must throw an `IOException` with the exact expected message. `writeWithHook` checks `Library.AVAILABLE` before `path()` or `begin0`, so all probing finishes before any save.
+- The real native code rejects each probe before touching any session or file: a zero handle fails as `atomic-session-consumed`, and `!bytes` is checked first in `begin_native`.
+- `stale_no_onload.c` passes `abort0`, then `commit0` fails with `UnsatisfiedLinkError`. That is a `LinkageError`, so the library is reported unavailable.
+- `stale_bad_abi.c` passes all three error-code probes but returns token `0`, so it is also unavailable.
+- Neither stub has any side effects; they only throw or return a constant.
+
+**Session and suppression**
+- `Session` is still `static final class`.
+- `preserveSuppression` skips the call when `failure == primary`, which avoids the self-suppression `IllegalArgumentException`. It also wraps `addSuppressed` in `catch (Throwable)`, so a failure there (including running out of memory) can't replace the primary. Both call sites then rethrow `primary`.
+- The three controls in `SuppressionObservation` (self, normal, suppression disabled) match that behaviour.
+
+**Minor notes (not material)**
+- No control actually forces an allocation failure inside `addSuppressed`. That case is covered only by reading the `catch (Throwable)`.
+- If `JNI_OnLoad` fails with an `Error` that isn't a `LinkageError`, such as running out of memory during `FindClass`, it escapes `Library.load`. Saving then fails with an initialization error rather than `atomic-library-unavailable`. It still fails before anything is written.
