@@ -46,6 +46,7 @@ public final class CredentialPersistenceObservation {
     }
     static void run() throws Exception {
         check("true".equals(System.getProperty("java.awt.headless")) && "true".equals(System.getProperty("log4j.defaultInitOverride")), "flags");
+        check(System.getProperty("os.arch").equals(System.getProperty("fixture.expectedArch")), "jvm-architecture");
         Path root = Paths.get(System.getProperty("fixture.directory")).toRealPath();
         AtomicCallerObservation.Guard guard = new AtomicCallerObservation.Guard(root, System.getProperty("fixture.allowed.library"));
         System.setSecurityManager(guard);
