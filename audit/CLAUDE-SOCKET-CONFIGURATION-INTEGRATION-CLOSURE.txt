@@ -1,0 +1,44 @@
+I didn't run anything for this review. I read the listed files, plus `build/socket-config-development-stop-3.json`, `build/socket-configuration-consumers.json` and `audit/expected-build.json`, because they back claims in the record.
+
+## The remaining blocker
+
+**Most of the changes you listed check out. The one exception is the consumer inventory: its archived evidence came from an earlier version of the scanner, and the scanner can't produce a record that shows a clean source tree.**
+
+- **Wrong scanner version.** `tools/socket_configuration_consumers.py:18-20` hashes 10 inputs, including `audit/expected-build.json`. The archived `build/socket-configuration-consumers.json:5222-5232` lists only 9 and leaves that file out. So the archive came from a different version of the script.
+  - The counts in the document still match the archive: 2862 classes, 194 `getMessage`-reference classes, 281 classes that reference the exception types (475 − 194), roughly 319 selected classes, and 210 call sites.
+  - But nothing ties those counts to the current scanner.
+- **No commit or dirty-state field.** Unlike the socket and stop gates, the scanner never records the git commit or whether the tree was dirty (`:47-54`). Even a rerun from a clean commit wouldn't produce a clean-source record.
+- **Counts aren't machine-checked.** No gate consumes the scanner's output, so the counts in `SOCKET-CONFIGURATION.md:41-45` are copied by hand.
+
+Fix: add the commit and dirty-state fields to the scanner, rerun it from the clean commit, and either check the counts in a gate or cite the record's hash in the document.
+
+Beyond that, the remaining steps are process, not code: commit the 11 untracked and 19 modified files, rebuild cleanly, and rerun every gate without `--development`. Every archived record says it ran on a dirty tree (`fixture_dirty`/`source_dirty: true`). I found nothing that would make a clean run fail or pass when it shouldn't. The clean build identity doesn't depend on the commit (`verify_builds.py:27`), so `2fccbee…` should reproduce if the inputs don't change.
+
+## Claims that match the code and records
+- **Stop JAR delta and limits:** the delta is now computed (`check_stop_admission_experiment.py:98`). `socket-config-development-stop-3.json:8-12` shows all three entries, and its limits text matches the current code.
+- **Historical default fixtures:** checked against the frozen `audit/stop-admission-clean-stop.json`. Its recorded hash `fd7998…` matches the audit22 final-integrity record. Note this check runs inside the experiment, not as a unit test.
+- **Basis check:** `select_basis` requires the exact allowed entry difference, that the HttpConnection normalizes back to its predecessor, and the pinned helper hash `dc61c2…`, which matches matrix-2.
+- **Socket gate:**
+  - The helper recompiles to identical bytes and reconstructs the whole original class.
+  - Mutants now run with `FixtureIdentity`.
+  - There are 29 positive cases across each of 4 runtime/mode combinations, and 24 mutant rows (12 × 2 runtimes, `-Xint` only).
+  - The frame line numbers match the current fixture sources.
+- **Setup category equality** is checked at `ConfigurationObservation.java:50`, and the close RuntimeException/Error cases at `:71-76`.
+- **Logging:** log4j now starts after the guard (`ConfigurationPublicationObservation.java:84`). `HttpConnection.class.getDeclaredField` earlier in the file doesn't initialise the class.
+
+## Fixture failure independence (limits, not blockers)
+- **Shared assertion lines.** The mutants are pinned to a source line, not to a specific case:
+  - `wrapped-security` and `wrapped-error` have identical stderr (`d47e05…`), both at line 66. The record can't show that the Error case, rather than the SecurityException case, is what rejected `wrapped-error`. The ThreadDeath case is never the first to fail.
+  - `narrow-close-catch` is caught by fault 9 (close throws a RuntimeException). Fault 10 (close throws an Error) shares line 74, so no record shows it rejecting anything on its own.
+  - Per-case assertion messages would make each rejection attributable.
+- **Common harness.** The direct and publication fixtures both rely on `OfflineGuard` and `FixtureIdentity`, so they aren't independent of each other on those.
+- **Category checks only in the direct fixture.** The publication setup faults still don't check exact exception classes. That's acceptable because the new HttpConnection code has no exception table, so it can't wrap exceptions.
+
+## Smaller issues
+- **Dead code in the mutants file:** `socket_configuration_mutants.py:22-23` set `lost-setup-category` and `narrow-close-catch` to the `changes` tuples (a copy-paste). Lines 26-27 overwrite them, so it does no harm, but it's misleading in a hashed source file.
+- **Document wording:** "210 String-returning invocation sites" (`SOCKET-CONFIGURATION.md:44`) are only `getMessage()` calls returning String. One of them sits inside `CommandLineException.toString`; calls to `toString` itself aren't counted. Consumers that render messages through `Throwable.toString`, `getLocalizedMessage`, `String.valueOf` or `append(Object)` aren't inventoried. That's harmless for security because the detail is fixed, but it understates the error-prose changes.
+- **Unbacked count:** I found no archived record for "140 unit tests pass".
+- **Unbound javap fixture:** `tests/fixtures/socket-configuration-candidate-http.javap` is still not tied to the candidate. The gate's structure check on the real candidate covers it.
+- **Compile stderr:** fixture compilation still allows stderr output (`check_socket_configuration.py:93`).
+
+The `AcpxConnection` null-socket problem is documented as the next separate repair. Historical audit22 replay is documented as only reproducible at its original commits. Both are consistent with the current wiring.

@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """Static exception/message consumer inventory; no application execution."""
-import argparse,hashlib,json,re
+import argparse,hashlib,json,re,subprocess
 from pathlib import Path
-from audit_support import ROOT,sha,verify_jdk,verify_python
+from audit_support import ROOT,sha,verify_jdk,verify_python,isolated_env
 from verify_builds import entries
 from class_patch import ClassFile,u2
 from inventory import disassemble_entries
 TYPES={'java/io/IOException','java/io/InterruptedIOException','java/net/UnknownHostException',
        'java/net/ConnectException','java/net/NoRouteToHostException','java/net/SocketTimeoutException',
        'java/net/BindException','java/net/SocketException'}
+def state():
+    return (subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip(),
+            bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env())))
 def scan(jdk,jar,reference,output):
-    verify_python();compiler=verify_jdk(jdk);before=sha(jar);reference_sha=sha(reference)
+    verify_python();compiler=verify_jdk(jdk);initial=state();before=sha(jar);reference_sha=sha(reference)
     output=output.resolve()
     if not output.is_relative_to((ROOT/'build').resolve()) or output.suffix!='.json' or output.exists() or output.with_suffix('.javap').exists():raise ValueError('New ignored build JSON required')
     expected=json.loads((ROOT/'audit/expected-build.json').read_text())['expected']['files']['Contents/Resources/RAID_Admin.jar']
@@ -42,9 +45,9 @@ def scan(jdk,jar,reference,output):
         call=re.search(r'^\s+(\d+):\s+invoke\S*.*// (?:InterfaceMethod|Method) ((?:[^ ]*\.)?getMessage):\(\)Ljava/lang/String;',line)
         if call:invocations.append({'class':owner,'method':method,'offset':int(call[1]),'target':call[2]})
     verify_jdk(jdk)
-    if hashes!={str(p.relative_to(ROOT)):sha(p) for p in sources} or sha(jar)!=before or sha(reference)!=reference_sha:raise ValueError('Inventory artifact changed')
+    if state()!=initial or hashes!={str(p.relative_to(ROOT)):sha(p) for p in sources} or sha(jar)!=before or sha(reference)!=reference_sha:raise ValueError('Inventory artifact changed')
     output.with_suffix('.javap').write_text(text)
-    output.write_text(json.dumps({'jar_sha256':before,'reference_jar_sha256':reference_sha,
+    output.write_text(json.dumps({'fixture_commit':initial[0],'fixture_dirty':initial[1],'jar_sha256':before,'reference_jar_sha256':reference_sha,
         'class_entries_scanned':len(classes),'exception_type_classes':types,
         'getMessage_reference_classes':messages,'selected_class_entries':selected,
         'selected_disassembly_sha256':sha(output.with_suffix('.javap')),

@@ -41,9 +41,11 @@ setup categories, including IOException, SocketException and BindException.
 It supersedes the earlier prototype's narrower type filter. All 2862 candidate
 class constant pools are scanned; 194 getMessage-reference classes and 281
 exception-type-reference classes are listed. Full disassembly covers 319 selected
-classes and 210 String-returning invocation sites, including unqualified
+classes and 210 String-returning getMessage invocation sites, including unqualified
 CommandLineException.toString. Other library getMessage references are listed;
 external extension reachability and actual UI/CLI rendering remain unqualified.
+Throwable.toString, getLocalizedMessage, append(Object) and other rendering paths
+are not exhaustively inventoried; this scan identifies getMessage calls only.
 The configured SafeLogAppender emits fixed codes, never these messages or causes.
 
 AcpxConnection publishes a HttpConnection before open succeeds. A later send with
@@ -66,3 +68,7 @@ using exact audit21 or guarded Manager bytes. Active controls retain the actual
 unmodified audit21 reference and actual candidate. Both basis entry deltas and
 helper identity are validated; historical default fixture hashes are checked
 against frozen audit22 evidence. All hooks remain test-only.
+
+The direct failure cases share assertion lines. Negative records identify each
+source mutation and its first failing fixture assertion, not independent failure
+traces for every positive case. All positive cases remain individually checked.
