@@ -1,0 +1,27 @@
+I found no real mistakes in the corrections. Checked against the producer code, none of them would reject the records your runs actually produced. Nothing was executed or changed.
+
+## Do this before you copy or commit
+**Wait for SPDX generation to finish before copying the assembler into `audit/` or committing.** `spdx.py` refuses to run on a dirty tree and records the current HEAD as `execution_state.commit`. The assembler then requires that commit to be `CORE`. So if you copy or commit the assembler while SPDX is still being generated, either the SPDX run fails or its documents fail binding. Also run both SPDX documents per architecture with `--self-test` and the same `--created` value; the assembler checks for 12 negative controls and byte-identical repeats.
+
+After that, commit the assembler at exactly `audit/model-evidence-assembler.py` (only that file plus `.md`/`.txt` files may differ from `CORE`) and run it from there.
+
+## The four previous blockers are fixed
+- **Transport pin:** `transport` must now show `PIN` in `observations[*].jar_sha256`, and `check_transport.py` writes it there. The other 12 JSON gates must have a top-level `PIN`, and each producer writes `candidate_sha256` or `jar_sha256`. Help and model write `candidate_sha256`.
+- **Unit runner:** its bytes are now checked against `git show CORE:`, and the stderr pattern matches the runner's own `fullmatch`.
+- **Gate runner:** the source set matches the runner's `source_files` exactly. Every JSON file must now produce at least one source proof, and each record type has one: `sources`, `source_hashes`, `fixture_sources`, `input_hashes`, or `source_hashes` inside the SPDX comment.
+- **Architecture:** the archive's `architecture` and the bundle's `bundled_runtime.architecture` must both equal the directory architecture.
+
+## New checks that I confirmed won't reject your records
+- **ENTRY delta:** `baseline.py` writes a constant `MANIFEST.MF`, so `RaidSystem.class` really is the only entry that differs from the audit25 JAR. Its patched and original hashes match the module constants.
+- **Commit fields:** every `source_commit` and `candidate_source_commit` comes from the model-clean-1 candidate manifest, which is `CORE`. The older reference commits sit in keys that aren't checked (`application_reference_source_commit`, and the reference identity in socket/publication). Help and model write `source_commit` as the fixture HEAD, which is `CORE`.
+- **Argv and PASS lines:** argv equals `shlex.split(commands[gate])`, and the help/model stdout hashes equal the runner's `EXPECTED` lines plus a newline.
+- **Package and SBOM pins:** bundle `source_commit`/`packager_commit`, `source_provenance_sha256` and `files[...jar]`, plus the SPDX `SPDXRef-jar` SHA256, all match what `bundle.py` and `spdx.py` write.
+- **Model reference hashes:** `qualified_baseline_sha256`, `original_model_sha256` and `patched_model_sha256` are written from the same constants.
+- **`original/*.icns`:** these are walked as build inputs. That walk is unchanged from audit25's assembler, which passed.
+
+## Optional, not blocking
+- Line 91 repeats line 89's check and can be removed.
+- Each gate tool's own `tool_sha256` is still not proven against `CORE`. It's covered indirectly wherever that tool appears in a proven source set.
+- The Help negative-control count, re-hashing the boundary side files, and checking that the unit record's `command` and the summary's `scope` are unchanged.
+
+Once SPDX has finished, it's ready to copy, commit and run.

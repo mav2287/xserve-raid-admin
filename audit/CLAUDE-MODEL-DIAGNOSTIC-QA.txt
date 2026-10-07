@@ -1,0 +1,62 @@
+I reviewed everything statically and ran nothing. **The gate is sound for development overlay runs, but it's not ready for integrated development builds or clean qualification.** The `--build` path can't pass yet, because the product build doesn't apply this patch. One note first: `tests/test_model_diagnostic.py` and `tools/check_model_diagnostic.py` changed while I was reading them (a fifth test was added, and the gate moved from `Ran 4 tests` to `Ran 5 tests`). This review covers those latest versions, so freeze the files before you run anything.
+
+## Blocking flaws
+
+1. **The integrated build path can't succeed.**
+   - `tools/baseline.py:34` doesn't include `com/apple/xsr/som/RaidSystem.class` in `ALLOWED_JAR_CHANGES`, and nothing in the builder calls `model_diagnostic_patch`.
+   - A build that contains the change fails `check_artifact` (`verify_builds.py:35`). A build without it fails `check_model_diagnostic.py:47`.
+   - **Fix:** apply `plan()` in the builder and add `ENTRY` to the allowlist. Then regenerate `audit/expected-build.json` from a clean commit.
+   - **Version conflict:** line 47 requires the built JAR to be byte-identical to "audit25 plus this one entry". If the build bumps `VERSION` or `MANIFEST.MF` (for example to audit26), that check fails by design. Decide which you want, then pin it.
+
+2. **Other gates' comparators will break after integration.**
+   - `check_socket_configuration.py:64`, `check_connection_publication.py:35`, `check_stop_admission_experiment.py:34` and `stop_admission_fixtures.py:35` all compare `help_patch.strip_entries(new)` against the reference.
+   - Once `RaidSystem` changes, those comparisons will fail unless they also run `model_diagnostic_patch.strip_entries`.
+
+3. **The working tree isn't committed.** All five reviewed files are untracked, so clean qualification (`check_model_diagnostic.py:37`) can't run until they're committed.
+
+There are no blocking flaws in the patch itself or in the overlay gate's logic.
+
+## Checked items
+
+- **Two-window minimality:**
+  - `plan`/`normalize` pin the input and output SHAs, both 4-byte windows at PCs 156 and 190, a pool count of 1184→1186, and the exact appended pool bytes.
+  - The recorded javap (`original-model.javap:5765-5781`) confirms the windows are `aload_0; getfield #74/#75`. No branch targets point into them, and the exception table starts at 768.
+  - The per-byte flip test plus the window, index, nop-order and pool-count mutants cover my earlier Python mutant list.
+- **Independent javap comparison:** `model_diagnostic_structure.py` imports only `re`. It removes exactly the two new pool lines and reverses exactly the two instruction windows, then requires the whole class text to match. It also checks the `#74`/`#75` read counts and `#76`. The synthetic unit test includes negative cases for locals, return, putfield and pop.
+- **Child loader binding:**
+  - `findResource` is used, which bypasses the parent-first lookup.
+  - It checks the `jar:` origin, uses `setUseCaches(false)` and hashes both `RaidSystem` and `AbstractSystemElement` per loader.
+  - It also requires the superclass to come from the same loader (`ModelDiagnosticObservation.java:27-37`).
+- **Original-reference differential:**
+  - The reference model's passwords are set to the token, so any field read in the candidate shows up as a difference.
+  - Seven public String fields get sentinels, and `fans` has two entries (that covers the separator branch).
+  - The observer must be notified exactly once on both models. The javap confirms `setChanged`→`notifyObservers` is unconditional (`:6241-6250`).
+- **Single-loader product case:** the gate runs through the app-loader `RaidSystem` and checks its origin against the candidate JAR (`:86-89`). FixtureIdentity binds its bytes.
+- **Negative controls:** four mutants (the original, each window left unpatched, and an empty-string token) on each of two architectures. Each must fail on the `model differential` check at the expected stack frames and must not raise `VerifyError`.
+- **Before/after binding:** all `tools/*.py` files plus the listed inputs, the git state, the reference/candidate/overlay JARs, the manifest, the probes, the JDK and both runtimes are checked before and after. My earlier items 1–5 are all addressed.
+
+## Limitations (record these; they don't block)
+
+- **Constructor bypass:** `Unsafe.allocateInstance` skips constructors. `agent`, `comms`, `messageFactory`, `eventLog`, `listenerList` and the timer are null, and setting `obs` and the maps by hand stands in for constructor state. That is acceptable only because `paramString` doesn't read any of those fields, which I confirmed at `:5695-6205`. The copy constructor and `setMonitoringPassword` aren't executed; only the javap equality covers them.
+- **No runtime `VerifyError` control:** the `#1184` mutant is rejected only by the Python tests, so verification of child-defined classes rests on the JVM spec, not on observed evidence.
+- **Negative control coverage:** every mutant stops at the first case in `main:85`, so no control ever reaches the product-loader phase. All four mutants also produce byte-identical stderr; only their input hashes tell them apart. The negative-control records don't store their JVM argv.
+- **Gate-level gaps:**
+  - `check_artifact` runs only at the start; after the run, only the JAR is rechecked.
+  - `candidate_source_commit` isn't compared with `source_commit`. Today the build's recorded input hashes stand in for that link.
+- **Unit test runtime:** the per-byte test does about 30k `normalize` calls (the class is 30,021 bytes) against a 120 s timeout. The earlier development run passed, but there isn't much headroom.
+- **Unchanged from before:** x64 runs under Rosetta, and `-Xcomp` is only requested, never confirmed.
+
+## Credential paths the gate doesn't cover
+
+- **RaidSystem itself is complete:** `paramString` reads only the two password fields plus non-secret fields and the five maps. `toString` just wraps it.
+- **Nested `toString` calls aren't inventoried.** The nested check only looks at field names that each class's `paramString` reads directly, using the regex `password|credential`.
+  - `SystemController.paramString` appends `smtpServer` through `IPAddress.toString` (`nested-models.javap:1573`).
+  - `RaidController.paramString` appends `RaidSet`, `Disk`, `HostInterface` and `DiskSlot` objects (`:4470-4547`).
+  - None of those classes is inventoried, and the regex would miss names like `secret`, `community` or `auth`.
+- **Outside this repair:** the password parameters to `connect`/`authenticate(…, String, String, boolean)`, the static `crypt(String)`, the public getters, and logging in `RaidSystemAgent`, `CommunicationsManager` and `AcpxMessageFactory`.
+
+## Readiness
+
+- **Development overlay runs (`--development` without `--build`):** ready once the frozen files pass.
+- **Integrated development builds:** not ready until blockers 1 and 2 are done.
+- **Clean qualification:** not ready until blockers 1–3 are done, a clean `--build` run passes, and the nested `toString` calls above are inventoried or written down as limits.

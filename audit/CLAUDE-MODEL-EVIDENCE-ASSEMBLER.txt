@@ -1,0 +1,56 @@
+I read both files and the producers they depend on: `check_model_diagnostic.py`, `check_help.py`, `check_transport.py`, `release_archive.py`, `spdx.py`, `bundle.py`, `verify_bundles.py`, `baseline.py`, `model_diagnostic_patch.py` and `model-unit-runner.py`. I ran and changed nothing. The findings below are about what the assembler *requires* of the metadata, not about whether any future run will pass.
+
+## Blocking: missing bindings that should be fixed
+
+1. **The transport gate record is never tied to the pinned JAR (`PIN`).**
+   - The `transport` command has no `--candidate-sha256`.
+   - `check_transport.py` writes the JAR hash only inside `observations[*].jar_sha256`, alongside the original JAR's hash.
+   - Lines 73–74 check the pin only when a top-level key happens to exist. Line 79 requires `PIN` in observations only for `factory` and `shared`.
+   - As a result, `build/model-clean-transport.json` can pass without ever naming `PIN`.
+   - **Fix:** add `transport` to line 79. Better, make pin presence mandatory for all 16 gate records (top-level `candidate_sha256`/`jar_sha256`, or an observation for the listed exceptions), instead of checking only when a key is present.
+
+2. **The unit runner's own source is never proven.**
+   - `audit/model-unit-runner.py` is not in its record's `sources` (only `tools/**.py` and `tests/**.py`). It is recorded only as a bare `runner_sha256`.
+   - **Fix:** require `unit['runner_sha256']==sha(ROOT/'audit/model-unit-runner.py')`, and require that this equals the hash of `git show CORE:audit/model-unit-runner.py`.
+
+3. **The gate-runner binding and proof presence are optional when they should be required.**
+   - `build/model-gate-run-summary.json` doesn't match the `build/model-clean-` prefix, so the `len(proofs)>prior` check at line 72 never applies to it.
+   - `gate_runner_sha256` (line 84) is taken from current bytes and never compared with `summary['sources']`.
+   - Bundle provenances, archive records and SPDX documents likewise aren't required to produce any proofs.
+   - **Fix:**
+     - Require `set(summary['sources'])=={'audit/model-gate-runner.py','audit/model-gate-commands.json','tools/audit_support.py','audit/python-lock.json'}`.
+     - Require `summary['sources']['audit/model-gate-runner.py']==sha(runner)`.
+     - Require `len(proofs)>prior` for every JSON file in `files`.
+
+4. **Architecture is never bound to the archive pairs.**
+   - Nothing checks `archive['architecture']` or `metadata['bundled_runtime']['architecture']` against `arch`.
+   - `check_bundle` verifies the runtime for whatever architecture the manifest claims, not the one in the path name. An aarch64 bundle in the `x64` directories would pass every current check.
+   - **Fix:** require both fields `==arch` for each of the four pairs.
+
+## Correct as written
+- **Assembler self-proof:** the assembler resolves its own path from `__file__`, so it still works after being copied unchanged to `audit/`. Run from the untracked `build/` copy, `git show` fails, which is the right outcome.
+- **Source proofs:** these check current bytes against the recording commit (`CORE`), with HEAD clean and equal to `--commit`. This also covers the assembler's imports, because the model record's `sources` include every `tools/*.py`.
+- **Gate rows:** the 16 rows are checked strictly (exact name set plus `len==16`, `returncode`, empty stderr, record path and hash, and stdout = record for JSON gates).
+- **Dirty and qualification flags:** the dirty keys are walked through nested SPDX provenance, and `qualification` is checked.
+- **Unit and negative-control counts:** 170 units with stdout/stderr hashes; model 4/16/5 with the exact 16-tuple set; SPDX 12 per document.
+- **Pairing links:** zip → archive → bundle provenance and source provenance; SPDX → bundle tree; repeat zip/SPDX byte equality.
+- **Bundled JAR is `PIN`, transitively:** `release_archive`/`spdx` call `check_bundle` → `check_artifact` against `audit/expected-build.json`, which pins `PIN`, and those sources are proven.
+
+## Optional extra checks (not correctness errors)
+- **Make the audit25 reversal explicit.** Line 21 also passes if `RaidSystem.class` is unpatched, because `strip_entries` is a no-op on the original bytes. It's currently sound only because `PIN` and the model record pin it. Cheap explicit checks:
+  - The set of differing entries is exactly `{ENTRY}`.
+  - The patched entry hashes to `PATCHED_SHA` and the reference entry to `ORIGINAL_SHA`.
+  - The model record has `qualified_baseline_sha256==REFERENCE`, plus `original_model_sha256` and `patched_model_sha256` equal to the module constants.
+- **Check the JAR pin directly in metadata:** `files['Contents/Resources/RAID_Admin.jar']==PIN` in `model-clean-{1,2}` and all four bundle provenances, and the SPDX `SPDXRef-jar` SHA256 equal to `PIN`. Today `model-clean-2` is pinned only transitively.
+- **Check fields that are currently skipped:**
+  - Bundle `source_commit` (the commit used is `packager_commit`).
+  - SPDX `source_commit`/`packager_commit` should both be `CORE`.
+  - `metadata['source_provenance_sha256']==archive['source_provenance_sha256']`.
+- **Tie `--commit` to `CORE`:** check that `CORE` is an ancestor of `--commit` (`git merge-base --is-ancestor`) and that the diff between them is limited to the assembler (plus any documents you allow). Currently that relationship is only implied by the per-file proofs.
+- **Smaller checks:**
+  - Regex the unit stderr file for `Ran 170 tests … OK`.
+  - Check that each row's `argv` equals `shlex.split(commands[gate])`.
+  - Check the help/model row stdout hashes against the exact PASS lines.
+  - Count the Help negative controls.
+  - Re-hash the boundary side files (`identity.tsv`, `.javap`).
+  - Add `is_symlink()` checks on the `files` entries.

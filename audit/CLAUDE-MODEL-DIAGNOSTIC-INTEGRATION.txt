@@ -1,0 +1,47 @@
+I reviewed everything statically and ran nothing. **All three blockers from my earlier review are fixed in code, and I found no further code defect that would stop clean qualification.** What's left is procedural: commit the work, then build and run the gates from that commit. `audit/MODEL-DIAGNOSTIC.md` also needs some stale text updated. I read `build/model-diagnostic-development-2/observations.json` as a record only. It says `qualification:false`, and both the source and the candidate were built from `d8d94fa` with uncommitted changes. That makes it development evidence, not qualification.
+
+## Prior blockers
+
+1. **Integrated build path: fixed.**
+   - `baseline.py:35` adds `MODEL_ENTRY` to the allowlist.
+   - `baseline.py:104-107` checks the lock file against the module's pins, and `model_plan` checks both the input and output SHAs (`model_diagnostic_patch.py:15,21`).
+   - The manifest is still fixed (`:117`), and the version appears only in the plist (`:131`). That supports the claim that the audit26 JAR is identical to the audit25-plus-model overlay.
+   - `expected-build.json` pins the JAR as `7c361034…`. `verify_builds.check_artifact` leaves the commit out of the build identity, so committing doesn't invalidate that record.
+2. **Comparators: fixed.** `help_patch.strip_entries` first calls `model_diagnostic_patch.strip_entries`, which reverses only the exact pinned redaction. Every comparator that calls `strip_entries` (socket, publication, stop-admission, `stop_admission_fixtures`) inherits this. `select_basis` returns the full candidate, so the fixtures still run against the real candidate bytes.
+3. **Uncommitted tree: still open, and it's procedural.** The tree is still dirty. Both runners refuse to run on a dirty tree, and `check_model_diagnostic.py:45` requires the build's `source_commit` to equal HEAD.
+
+The new checks you listed are all in place:
+- **Final full artifact recheck:** `:114`.
+- **Commit equality:** `:45`.
+- **Nested inventory:** `:53-65`. It covers RaidSet, Disk, HostInterface, DiskSlot and IPAddress, and the name regex now includes secret, community and auth.
+- **16 negative controls:** 4 mutants × 2 phases × 2 architectures. In the `product` phase the child-loader cases are skipped, so a product-phase failure must come from the product loader.
+- **Runner:** it requires a clean commit, runs exactly 16 named gates, and starts `lock` only after the others finish.
+
+## Remaining conditions for clean qualification
+
+- **Order of steps:**
+  1. Commit everything.
+  2. Rebuild `build/model-clean-1` from that commit.
+  3. Run `verify_builds` on two builds without `--update-expected`.
+  4. Run `model-unit-runner.py --commit <sha>` and then `model-gate-runner.py`.
+- **Keep the pinned files unchanged.** If `baseline.py`, `help_patch.py` or `model_diagnostic_patch.py` changes again, `expected-build.json` has to be regenerated from a reviewed build.
+- **Unit timing hasn't been checked.** `model-unit-runner.py` expects exactly 170 tests within 300 s. That includes the slow per-byte model test, which used to have a 120 s budget on its own. I haven't checked this; it's for execution to confirm.
+
+## Weaknesses that don't block
+
+- **Weak acceptance for 14 gates:** `model-gate-runner.py:24-27` accepts any gate other than help and model if it exits with 0, prints nothing on stderr, and prints any valid JSON. It doesn't look at what the JSON says. That's safe only if every gate raises an error when it fails.
+- **Help gate is less strict than the model gate:** `check_help.py` doesn't compare `product['source_commit']` with HEAD, and it doesn't recheck the artifact at the end. The model gate run against the same build covers both.
+- **Per-gate records don't hash `model_diagnostic_patch.py`:** most gate records don't list it, so the patch is tied to them only through the runner's `execution_commit`.
+
+## Documentation corrections needed in `audit/MODEL-DIAGNOSTIC.md`
+
+- **Line 60:** it still says "Eight interpreted behavioral controls (four per architecture)". It should say sixteen: four mutants, both the child and product phases, on each architecture.
+- **Lines 31-35:** they cite only `development-1`. Add `development-2`, and say it ran from a dirty tree with `qualification:false`.
+- **Line 78:** "being completed" should describe what is actually done now.
+- **Nested inventory wording:** it's static, one level deep, and only matches names against the `// Field` reads in each class's `paramString`/`toString`. It wouldn't catch a credential that arrives through a method call such as a getter, or through objects nested deeper. It also disassembles the reference JAR, and is valid for the candidate only because those entries are asserted identical. Say this explicitly, not "nested model diagnostics inventoried".
+- **Lines 89-96:** keep the existing security limits. Passwords are still Strings in memory, public getters and copy constructors remain, and HTTP is still plaintext. Getter-based logging elsewhere is out of scope, and the 83-reference inventory is conservative, not exhaustive. Also keep the testing limits: constructors are bypassed with Unsafe, the copy constructor and `setMonitoringPassword` are never executed, x64 runs under Rosetta, and `-Xcomp` is requested but not confirmed.
+
+## Readiness
+
+- **Development overlay and integrated development runs:** ready, as far as static review can tell.
+- **Clean qualification:** I found no remaining code blocker. Clean qualification still depends on committing everything, building from that commit, and both runners passing from it. Until then, all I can say is that the code reads correctly; none of this is evidence that it runs correctly.

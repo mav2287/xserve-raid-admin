@@ -1,0 +1,65 @@
+I've reviewed the five files. Constructor safety for the three components is still unresolved, because the repo has no disassembly of `AboutBox`, `RaidAdmin$LicensePanel` (or its inner classes), `ManagementSystemPane$PasswordChangeSheet` or `Resources.load`. The bytecode files I searched only show call sites of `Resources.getString`. I ran nothing and found nothing in the fixture that calls `Main`, a controller or a profile. A committed gate is reasonable, but only after that disassembly and the fixes below.
+
+## Unresolved until disassembled
+
+Disassembling only the three constructors isn't enough. The review also needs:
+- **Static initializers.** `AboutBox.<clinit>` and `getSharedInstance`, plus `RaidAdmin.<clinit>` and `ManagementSystemPane.<clinit>`. Getting the constructors via `RaidAdmin.class`/`ManagementSystemPane.class` loads the outer classes but doesn't initialize them. Any static call from a constructor would run their initializers.
+- **Inner classes.** Constructors and paint paths of `LicensePanel$InvertableImageIcon` and `$LanguageMenuRenderer`.
+- **Everything those methods call inside the app**, including `com.apple.gui.*`.
+
+Things to look for:
+- `invokestatic` into `Main`, `RaidAdmin` or `ManagementSystemPane`
+- `FileManager.findFolder`, plist or Preferences access (earlier review found the profile path is resolved through FileManager)
+- `URL`, `openStream` or `JEditorPane.setPage`. HTML `setPage` loads on a background thread, so it would escape the timing of the checks.
+- `Desktop`, `openURL`, `Runtime.exec`
+- `Thread`/`Timer` starts, `setVisible`/`show`, `JOptionPane`, and `com.apple.eawt.Application` handler registration
+
+## Concrete gaps
+
+1. **`Desktop.browse`/`open` get past OfflineGuard.** In JDK 8, `Desktop` checks `FilePermission("<<ALL FILES>>","execute")` through `checkPermission`, not `checkExec`. `OfflineGuard.checkPermission` (`tests/java/fixture/OfflineGuard.java:14`) allows it.
+   - Fix: deny `FilePermission` with the execute action.
+   - I'm not sure which permission `com.apple.eio.FileManager.openURL` checks. Settle that only if the bytecode reaches it.
+2. **Native AppKit code isn't covered by the guard.** With `headless=false`, AppKit reads user defaults natively, and it may write some state. The guard never sees this.
+   - The accurate claim is "no Java-level writes, sockets, exec or `java.util.prefs`". It is not "no preference access".
+   - `-Dapple.awt.UIElement=true` stops the Dock icon, menu bar and app activation. Today's "no visible windows" check doesn't cover those.
+   - Earlier review recommended a separate account with no saved systems; that still applies.
+3. **Background threads aren't covered.** `denied` is a plain `int` checked once, after `invokeAndWait`. Timers, image loaders or `setPage` loaders could still try something after `assertUntouched`, and those writes might not be visible to the main thread.
+   - Make the counter atomic.
+   - Snapshot threads before and after, and fail if new non-JDK threads appear.
+4. **The visibility check only looks at the end state.** `NativeUiObservation.java:45-47` misses a window that was shown and then hidden.
+   - A modal dialog opened on the EDT would hang inside `invokeAndWait`.
+   - Fix: register an `AWTEventListener` for `WINDOW_OPENED`/`COMPONENT_SHOWN` before `Resources.load`, and give the harness a hard timeout.
+   - Also say plainly that `about.pack()` creates a real NSWindow. It's displayable, just not visible.
+5. **Identity binding is incomplete.** `FixtureIdentity.verify()` runs before construction and covers only the classes in the manifest.
+   - Classes loaded during construction (inner and anonymous classes, `com.apple.gui`, log4j) aren't bound unless listed.
+   - Resources (images, license text, bundles) aren't hashed at all.
+   - Fix: require the classpath to be exactly `[fresh probe dir with only .class files, jar]`, with no bootclasspath, ext or endorsed overrides, and check the loaded set after the run.
+   - Also unresolved: the boot `rt.jar` contains `com.apple.eawt`, `com.apple.laf` and `com.apple.eio`. If the JAR bundles any class in those packages, the JDK's copy silently wins. `UI-INVENTORY.md` lists only `com.apple.xsr` classes, so check the JAR entries against `rt.jar` directly.
+6. **The `Main` check is a weak signal.** `findLoadedClass` only means "not loaded by the app loader". The more relevant risk is outer-class initialization, which it can't see. On JDK 8, `sun.misc.Unsafe.shouldBeInitialized(RaidAdmin.class / ManagementSystemPane.class)` is a test-only way to check that after the run. Bytecode verification can also load `Main` without running it, which would fail the gate even though nothing unsafe happened.
+7. **Output depends on the host.**
+   - On macOS, Java takes its default locale from native settings. Pin `-Duser.language`/`-Duser.country` and assert them.
+   - Fonts depend on the host too.
+   - `patches/Launcher.java:14-21` UI overrides aren't applied by the fixture. If any of the three components use tabs or tables, what's painted isn't the shipped look. Copy those `put`s into the fixture (don't call `Launcher.main`) or state the difference.
+8. **Smaller fixture issues.**
+   - Failures lose their cause. Fixed stage codes would help debugging without leaking stderr.
+   - `printAll` takes the print path, not the screen paint path.
+   - With a null outer, the components are in a state the app never produces.
+   - The "pixels differ" check passes on just a border.
+   - The newer file does fix the prototype's leaked windows on failure (its `finally` block).
+
+## Is a test-only allowlist loader worth it?
+
+Yes, but mainly because it records every class that loads, which closes gap 5. Denying `Main` is a secondary benefit. It only works with these conditions:
+- **The JAR must not be on `-cp`.** Otherwise parent-first delegation goes around the loader. Only a small stub goes on `-cp`; the fixture and JAR load inside a loader whose parent is the boot/ext loader.
+- **It must serve resources too**, because `ResourceBundle` and `getResource` use the caller's loader.
+- **Deny `Main`, and possibly the transport, profile and `PreferencesWindow` classes.** If the verifier needs one of them, the result is `NoClassDefFoundError`/`VerifyError`. That fails closed, but the deny list may need tuning. Whether that's feasible is unresolved.
+- **Keep the `findLoadedClass` check.**
+
+## Exact limits of a passing gate
+
+A pass shows only that these three components construct (with null outers and empty fields), lay out and paint into BufferedImages under Aqua on both runtimes, with no Java-level writes, sockets or exec. It does not cover:
+- full GUI startup, `Main`/`Launcher`, menus or app handlers
+- events, interaction or accessibility
+- clipping or readability
+- native preference reads
+- controller acceptance
