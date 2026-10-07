@@ -1,0 +1,394 @@
+{
+  "adapter_sha256": "714626265ac4308722c4c9be428a6af70a42ff88ad7ce1a67cc73aab1ef0c05e",
+  "apple_backend_sha256": "9a9a41cf9982b5413dddec7f73c84bd644617b417e4602b53a551589de968d6d",
+  "apple_reference_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "audit27_reference_sha256": "e0fe515d1a02e53afd6e3aadc3ba0c4d4ab2878e3981aacc687015710ed6ff62",
+  "candidate_backend_sha256": "76935f031ec1555f7e2f267d74d32be46de8f39257d84f1fc34ae102fbdf3b5a",
+  "candidate_delta": {
+    "added": [
+      "atomicfixture/AtomicPreferenceFile.class",
+      "atomicfixture/AtomicPreferenceFile$Library.class",
+      "atomicfixture/AtomicPreferenceFile$Session.class"
+    ],
+    "modified": [
+      "compat/PreferenceIO.class"
+    ]
+  },
+  "candidate_delta_scope": "ZIP entry content; archive metadata normalized",
+  "candidate_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+  "clean_experimental_execution": true,
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "limits": [
+    "No application release integration or complete native ownership qualification",
+    "Original 18-case scenario types re-expectated plus zero-count case; 16 caller-specific interpreted negatives; factory/Main, GUI and real profiles still unqualified",
+    "x64 is Rosetta, not physical Intel; no hardware/production volume access"
+  ],
+  "mutant_guard_sha256": {
+    "build/atomic-caller-clean-1/audit27-helper.jar": "e0b7962ddc1d7b552d6c91d29719c5d4b5ba224dfec3ce75a6b24c68d50348c2",
+    "build/atomic-caller-clean-1/caller.jar": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+    "build/atomic-caller-clean-1/classes/atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+    "build/atomic-caller-clean-1/classes/atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+    "build/atomic-caller-clean-1/classes/atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+    "build/atomic-caller-clean-1/classes/atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+    "build/atomic-caller-clean-1/classes/atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+    "build/atomic-caller-clean-1/classes/atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2",
+    "build/atomic-caller-clean-1/inplace/PreferenceIO.java": "8c8f83c697871916faceb20f3044fca345921bcbb87df0cba88d51ef901e03e4",
+    "build/atomic-caller-clean-1/inplace/caller.jar": "239badeda79ecd5a0c5bd350bb9137cd4c67419ad37263b954a6cba233f79a2c",
+    "build/atomic-caller-clean-1/parent-loader/AtomicCallerObservation.java": "62ac980628f7a4f0ca15f739d89261a9d13e760148edaa959225deb1b71b210e",
+    "build/atomic-caller-clean-1/parent-loader/classes/atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+    "build/atomic-caller-clean-1/parent-loader/classes/atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+    "build/atomic-caller-clean-1/parent-loader/classes/atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+    "build/atomic-caller-clean-1/parent-loader/classes/atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+    "build/atomic-caller-clean-1/parent-loader/classes/atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+    "build/atomic-caller-clean-1/parent-loader/classes/atomiccaller/AtomicCallerObservation.class": "612c3ebaec0d09d0d4b24470b6ef3e933eada5bc3884691a8ae4aab649e08000",
+    "build/atomic-caller-clean-1/suppress-error/PreferenceIO.java": "b6b173774382a09e07917a5a58a04113d3ecc59d17751e77fc70342d3aa0d732",
+    "build/atomic-caller-clean-1/suppress-error/caller.jar": "f88f14fd7687daac241ad384d1f1ca0c968ca983cd6092e7c81d5798c690bfd0",
+    "build/atomic-caller-clean-1/swallow-error/PreferenceIO.java": "c2a4c63397d24c86f0251ec817b5b13332f92dc396e62d97c11519063888fb80",
+    "build/atomic-caller-clean-1/swallow-error/caller.jar": "a8690ad68895da8304dba6edc20d45270a17489bb51cb2efe8253fc3cd323296",
+    "build/atomic-caller-clean-1/swapped-loaders/AtomicCallerObservation.java": "de29b8a58b95e13578a528386d2ee5b7aca8daa1151293a8d86735bbbcaf8199",
+    "build/atomic-caller-clean-1/swapped-loaders/classes/atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+    "build/atomic-caller-clean-1/swapped-loaders/classes/atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+    "build/atomic-caller-clean-1/swapped-loaders/classes/atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+    "build/atomic-caller-clean-1/swapped-loaders/classes/atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+    "build/atomic-caller-clean-1/swapped-loaders/classes/atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+    "build/atomic-caller-clean-1/swapped-loaders/classes/atomiccaller/AtomicCallerObservation.class": "9018cd34b352cb78e41c5cf5544d89a2e75c9e55ab78473399cb780c6b3736e4",
+    "build/atomic-caller-clean-1/wrap-error/PreferenceIO.java": "3e926c2c331dfde07620cc12b882470ace2922d738d680b1228728e43460ea65",
+    "build/atomic-caller-clean-1/wrap-error/caller.jar": "d3905c1f65b83fa3d6bf337ead1f563a12cec2b434387003d08de647fe0f3b1c"
+  },
+  "negative_controls": [
+    {
+      "architecture": "aarch64",
+      "assertion_code": "actual-helper-chain",
+      "jar_sha256": "e0b7962ddc1d7b552d6c91d29719c5d4b5ba224dfec3ce75a6b24c68d50348c2",
+      "mode": "-Xint",
+      "mutation": "audit27-helper",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "6430d44ae5cb565ac8a4224216bc82903da65c1a174dc1dd8e270dd86ebde6df",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "native-library-ready",
+      "jar_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+      "mode": "-Xint",
+      "mutation": "unset-library",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "875db132541d2681253dcf47b03f30367eca6b673f5e4d24d7c8378e7dba7c46",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "catch-error-identity",
+      "jar_sha256": "a8690ad68895da8304dba6edc20d45270a17489bb51cb2efe8253fc3cd323296",
+      "mode": "-Xint",
+      "mutation": "swallow-error",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "4540c0cff71d63c0dc91034efcbcf35a6ec6de415f806b54f3f34e12765fdd07",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "catch-error-identity",
+      "jar_sha256": "d3905c1f65b83fa3d6bf337ead1f563a12cec2b434387003d08de647fe0f3b1c",
+      "mode": "-Xint",
+      "mutation": "wrap-error",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "4540c0cff71d63c0dc91034efcbcf35a6ec6de415f806b54f3f34e12765fdd07",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "error-unmodified",
+      "jar_sha256": "f88f14fd7687daac241ad384d1f1ca0c968ca983cd6092e7c81d5798c690bfd0",
+      "mode": "-Xint",
+      "mutation": "suppress-error",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "fb1accf656ef41afefddf839536f7d8fd394fe69090bdf0be278fd9717cd64e7",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "actual-helper-chain",
+      "jar_sha256": "239badeda79ecd5a0c5bd350bb9137cd4c67419ad37263b954a6cba233f79a2c",
+      "mode": "-Xint",
+      "mutation": "inplace",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "6430d44ae5cb565ac8a4224216bc82903da65c1a174dc1dd8e270dd86ebde6df",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "loader-isolated",
+      "jar_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+      "mode": "-Xint",
+      "mutation": "parent-loader",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "612c3ebaec0d09d0d4b24470b6ef3e933eada5bc3884691a8ae4aab649e08000"
+      },
+      "stderr_sha256": "7d277f709a311590eb6cab5c5c55bd82aa7c32005bd0820466f4dd31cc66bd2a",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "assertion_code": "class-origin",
+      "jar_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+      "mode": "-Xint",
+      "mutation": "swapped-loaders",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "9018cd34b352cb78e41c5cf5544d89a2e75c9e55ab78473399cb780c6b3736e4"
+      },
+      "stderr_sha256": "47b7a672a2576262a0d6dcc40635a42c9a6b98a600f3e84d8885eb3f3088806a",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "actual-helper-chain",
+      "jar_sha256": "e0b7962ddc1d7b552d6c91d29719c5d4b5ba224dfec3ce75a6b24c68d50348c2",
+      "mode": "-Xint",
+      "mutation": "audit27-helper",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "6430d44ae5cb565ac8a4224216bc82903da65c1a174dc1dd8e270dd86ebde6df",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "native-library-ready",
+      "jar_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+      "mode": "-Xint",
+      "mutation": "unset-library",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "875db132541d2681253dcf47b03f30367eca6b673f5e4d24d7c8378e7dba7c46",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "catch-error-identity",
+      "jar_sha256": "a8690ad68895da8304dba6edc20d45270a17489bb51cb2efe8253fc3cd323296",
+      "mode": "-Xint",
+      "mutation": "swallow-error",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "4540c0cff71d63c0dc91034efcbcf35a6ec6de415f806b54f3f34e12765fdd07",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "catch-error-identity",
+      "jar_sha256": "d3905c1f65b83fa3d6bf337ead1f563a12cec2b434387003d08de647fe0f3b1c",
+      "mode": "-Xint",
+      "mutation": "wrap-error",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "4540c0cff71d63c0dc91034efcbcf35a6ec6de415f806b54f3f34e12765fdd07",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "error-unmodified",
+      "jar_sha256": "f88f14fd7687daac241ad384d1f1ca0c968ca983cd6092e7c81d5798c690bfd0",
+      "mode": "-Xint",
+      "mutation": "suppress-error",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "fb1accf656ef41afefddf839536f7d8fd394fe69090bdf0be278fd9717cd64e7",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "actual-helper-chain",
+      "jar_sha256": "239badeda79ecd5a0c5bd350bb9137cd4c67419ad37263b954a6cba233f79a2c",
+      "mode": "-Xint",
+      "mutation": "inplace",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+      },
+      "stderr_sha256": "6430d44ae5cb565ac8a4224216bc82903da65c1a174dc1dd8e270dd86ebde6df",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "loader-isolated",
+      "jar_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+      "mode": "-Xint",
+      "mutation": "parent-loader",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "612c3ebaec0d09d0d4b24470b6ef3e933eada5bc3884691a8ae4aab649e08000"
+      },
+      "stderr_sha256": "7d277f709a311590eb6cab5c5c55bd82aa7c32005bd0820466f4dd31cc66bd2a",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "assertion_code": "class-origin",
+      "jar_sha256": "2a6c9097d7f789fb4bd05366671c3aae04b14a1b1dd48dcba054624b4a967917",
+      "mode": "-Xint",
+      "mutation": "swapped-loaders",
+      "probe_hashes": {
+        "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+        "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+        "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+        "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+        "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+        "atomiccaller/AtomicCallerObservation.class": "9018cd34b352cb78e41c5cf5544d89a2e75c9e55ab78473399cb780c6b3736e4"
+      },
+      "stderr_sha256": "47b7a672a2576262a0d6dcc40635a42c9a6b98a600f3e84d8885eb3f3088806a",
+      "umask": 18
+    }
+  ],
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "mode": "-Xint",
+      "result": "PASS atomic caller; cases=19; actual_synchronize=true; failure_retains_original=true",
+      "umask": 18
+    },
+    {
+      "architecture": "aarch64",
+      "mode": "-Xcomp",
+      "result": "PASS atomic caller; cases=19; actual_synchronize=true; failure_retains_original=true",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xint",
+      "result": "PASS atomic caller; cases=19; actual_synchronize=true; failure_retains_original=true",
+      "umask": 18
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xcomp",
+      "result": "PASS atomic caller; cases=19; actual_synchronize=true; failure_retains_original=true",
+      "umask": 18
+    }
+  ],
+  "probe_hashes": {
+    "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+    "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+    "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+    "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+    "atomiccaller/AtomicCallerObservation$Observed.class": "7b6c5c9d04e837e61c97738776189332efedab8908a20a636712d52bfbb854c4",
+    "atomiccaller/AtomicCallerObservation.class": "d4bb15246b2e4dd54388a46412e5222184f81acac5f3792f252873e1890ecce2"
+  },
+  "qualification": false,
+  "scope": "Nonshipping FBC synchronize caller development; explicit disposable identifiers only",
+  "source_commit": "7a5d32b6bec67f110cb538a80a20901640a7d6e2",
+  "source_dirty": false,
+  "sources": {
+    "audit/atomic-preference-clean.json": "5529e8173b15a7e7e940d09a62c309a1b74251ca07566d5e1dd5d96be0d359e4",
+    "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "experiments/atomic-preferences/AtomicFaultObservation.java": "8933c28a45e394263a1e1a3247a3a4b864e090955de91e61e5a7bd4096157f6f",
+    "experiments/atomic-preferences/AtomicPreferenceFile.java": "432085b04ddddb891ff6f8c5042b5207a0c0e72ae06efcc73158accf64412630",
+    "experiments/atomic-preferences/AtomicPreferenceObservation.java": "cb769d05575b78e106190dea8b55c0970256fd9862283bdc575c85544b3777f1",
+    "experiments/atomic-preferences/NativeBindingObservation.java": "2a37b301ef4472d1b7886fc9e768367d2bfee607cf80a611565fcf4b76ed9356",
+    "experiments/atomic-preferences/NativeLoadObservation.java": "19da2d00c3cd0d5d541b73eca1b6a798e27997a0a1278a859689475dae64600b",
+    "experiments/atomic-preferences/README.md": "2dee045d2b0e835eb0848308dbffb9a2f5e1bf180fde00f96732615e5869a2a8",
+    "experiments/atomic-preferences/SuppressionObservation.java": "d61ea48e404aa73d84ed47d422f44f3d02c3deefc496837b284200c3144badea",
+    "experiments/atomic-preferences/atomic_file.c": "dd89bf0531843ecf41c2cb103a74ead4ca2b375ef3fcac380cea233505dcaa1a",
+    "experiments/atomic-preferences/caller/AtomicCallerObservation.java": "3a3f0165f44c9402bc6061dbccab7168a3a1b43149d5b824d86f69b38875ae34",
+    "experiments/atomic-preferences/caller/PreferenceIO.java": "ca8ad322cdefe7bf22570f8e6640f4bc4797e48280e9b65628888c60c83e39f2",
+    "experiments/atomic-preferences/caller/README.md": "6cad4c83dca857537cafa5ce5a343cbdca0e78b8a6bf54440ba668c6316585e8",
+    "experiments/atomic-preferences/caller/check.py": "c2dfb857b0728e3db027617bc1b91b39ee41edbbae0966f9c9eee860b684528e",
+    "experiments/atomic-preferences/check.py": "41b8bdb80baac390b3cf188e9d0e0b7ae3a723c6b915a6d8f0eed0a4a1e99986",
+    "experiments/atomic-preferences/load_baseline.c": "2391aba3323621e669a355dff81107ab7b68c730455a39ec82dfb0b8d172a82f",
+    "experiments/atomic-preferences/stale_bad_abi.c": "53cfb3dc97a2819b32bf4cf5832cd3b72bbce73cd8447038bc1d372de6ce1bec",
+    "experiments/atomic-preferences/stale_no_onload.c": "b270b5a761cac1720701ef507d3a57424ff2e4242be5ca44d23c0a0abb1a0732",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4"
+  }
+}

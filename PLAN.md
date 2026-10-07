@@ -930,3 +930,22 @@ repeated native outputs, and compiler/runtime/probe/native-input/output hashes
 checked before and after. Record: [atomic-preference-clean.json](audit/atomic-preference-clean.json).
 `qualification=false` remains explicit: this qualifies the nonshipping experiment
 only, not FileBasedPreferences caller integration or the application release.
+
+
+### Clean preserved-caller evidence — nonshipping
+
+The atomic-save adapter now passes the preserved Apple and audit27
+FileBasedPreferences.synchronize caller at clean source `7a5d32b`: four
+ARM/Rosetta-x64 interpreted/compiled variants of 19 cases, plus sixteen
+caller-specific negative controls. Actual store locking, XML bytes, Error
+identity, unchanged changeCount, interrupt flags, failure retention and zero
+FD/GC growth are asserted. Source bytes match Git before and after execution.
+See [caller scope](experiments/atomic-preferences/caller/README.md) and
+[clean caller record](audit/atomic-caller-clean.json).
+
+FACT: only the nonshipping adapter JAR changes; release audit27 and the installed
+app remain unchanged. UNRESOLVED: original filename encoding/path behavior,
+real default preference-directory policy, save-error feedback and replacement
+frequency, native packaging and full candidate/release requalification. This
+record is explicitly `qualification=false`; factory/Main/GUI, physical Intel and
+real controllers are not validated. No hardware action was performed.
