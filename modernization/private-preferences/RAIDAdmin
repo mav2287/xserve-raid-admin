@@ -1,0 +1,42 @@
+#!/bin/bash -p
+# Pinned-runtime bundle launcher. Keep controller/application behavior in the original JAR.
+PATH=/usr/bin:/bin
+export PATH
+unset BASH_ENV ENV CDPATH JAVA_TOOL_OPTIONS _JAVA_OPTIONS JDK_JAVA_OPTIONS CLASSPATH JAVA_HOME
+unset DYLD_INSERT_LIBRARIES DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH DYLD_FALLBACK_LIBRARY_PATH DYLD_FALLBACK_FRAMEWORK_PATH LD_PRELOAD
+unset JAVA_LIBRARY_PATH _JAVA_SPLASH_FILE _JAVA_SPLASH_JAR _JAVA_VERSION_SET _JAVA_LAUNCHER_DEBUG
+DIR="$(cd -P -- "$(/usr/bin/dirname -- "$0")" && pwd)" || exit 1
+CONTENTS="$(/usr/bin/dirname -- "$DIR")"
+RESOURCES="$CONTENTS/Resources"
+RUNTIME="$CONTENTS/PlugIns/Runtime.jdk/Contents/Home"
+JAVA="$RUNTIME/bin/java"
+
+runtime_error() {
+    /usr/bin/osascript -e 'display dialog "The bundled Java runtime is missing or cannot run on this Mac. Please obtain a complete RAID Admin build for your Mac architecture." with title "RAID Admin" buttons {"OK"} default button "OK" with icon stop' >/dev/null 2>&1
+    exit 1
+}
+
+[ -x "$JAVA" ] && [ -f "$RESOURCES/RAID_Admin.jar" ] || runtime_error
+# Validates startup/linking without opening the application or reading its saved targets.
+"$JAVA" -Djava.ext.dirs="$RUNTIME/jre/lib/ext" -Djava.endorsed.dirs= -Djava.library.path="$RUNTIME/jre/lib" -version >/dev/null 2>&1 || runtime_error
+# LaunchServices may supply a legacy process serial number before application arguments.
+# It is OS launch metadata; forwarding it makes the original Main select CLI mode.
+if [[ ${1-} =~ ^-psn_[0-9]+_[0-9]+$ ]]; then shift; fi
+GUI_MODE=false
+if [ "$#" -eq 0 ]; then GUI_MODE=true; fi
+exec "$JAVA" \
+    -Djava.ext.dirs="$RUNTIME/jre/lib/ext" \
+    -Djava.endorsed.dirs= \
+    -Djava.library.path="$RUNTIME/jre/lib" \
+    -Xmx256m \
+    -Xdock:name="RAID Admin" \
+    -Xdock:icon="$RESOURCES/AppIcon.png" \
+    -Dapple.laf.useScreenMenuBar=true \
+    -Dapple.awt.application.name="RAID Admin" \
+    -Dcom.apple.mrj.application.apple.menu.about.name="RAID Admin" \
+    -Draid.admin.gui="$GUI_MODE" \
+    -Djava.awt.headless=false \
+    -Dapple.awt.application.appearance=NSAppearanceNameAqua \
+    -Dswing.defaultlaf=com.apple.laf.AquaLookAndFeel \
+    -jar "$RESOURCES/RAID_Admin.jar" \
+    "$@"
