@@ -329,3 +329,28 @@ setters, request factory, transport, commands, crypt functions, polling and retr
 retain their existing bytecode. The local sixteen-gate suite passes; no real
 request or packet capture is added. HTTP remains plaintext. Hardware validation
 is deferred until actual need. See [evidence](audit/MODEL-DIAGNOSTIC.md).
+
+
+### Audit27 preference save lifetime — completed offline scope
+
+Clean product/fixture/build/package/archive/SPDX source `4735f41` passes seventeen
+candidate gates and 175 units. Clean evidence assembly `c7ea088` binds 39 records
+and 883 actual Git/source proofs. The only JAR delta from audit26 is an exactly
+reversible FileBasedPreferences.store window and one pinned helper. The original
+noninterruptible FileOutputStream, XML serializer, UTF-8, explicit flush, paths,
+file modes, links, interrupt flags, change counts, catch/monitor behavior remain.
+Eight candidate variants cover 18 cases each; eight original controls and sixteen
+specific behavioral negatives pass. Successful/Exception/Error stores show zero
+FD growth without GC. Valid original loads showed no growth; load is not patched.
+
+Paired ARM/x64 packages, repeated unsigned ZIPs, extracted vendor signatures and
+SPDX inventories pass. The original JAR and installed application remain unchanged.
+A NIO private-creation prototype was rejected because interrupts could truncate a
+file then abort a save the original would complete. Private creation, existing
+permissions/ACLs, atomic replacement and at-rest confidentiality remain open.
+New close errors and the Writer-allocation/OOM ordering edge are documented.
+Hardware is deferred until actual need, not passed. Full native GUI requires a
+known disposable macOS environment; physical Intel, signing/notarization and
+redistribution acceptance remain unverified. HTTP remains plaintext.
+See [scope](audit/PREFERENCE-IO.md), [ledger](audit/preference-final-integrity.json)
+and [archive map](audit/preference-archival-map.json).

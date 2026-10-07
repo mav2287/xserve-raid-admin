@@ -1,8 +1,8 @@
-# Preference save-stream preservation milestone (audit27 development)
+# Preference save-stream preservation milestone (audit27 qualified offline scope)
 
-Status: development gate passed; clean full candidate qualification and release
-artifact assembly are pending. Qualified audit26 artifacts and their frozen ledger
-remain unchanged. No real preference file, credential, controller, installed app
+Status: qualified local offline audit27 scope. Seventeen clean candidate gates,
+175 units, paired packages/archives/SPDX and clean evidence assembly pass. Frozen
+audit26 artifacts and their ledger remain unchanged. No real preference file, credential, controller, installed app
 or production/mounted RAID volume was accessed or modified.
 
 ## Facts and exact scope
@@ -130,3 +130,45 @@ Two ARM archive attempts failed before any archive/record publication because th
 new output parent directory was absent; creating that directory and reexecuting
 from the unchanged clean commit produced the four accepted archive records.
 No failed development/setup attempt is included as accepted execution evidence.
+
+
+## Frozen qualified evidence and local artifacts
+
+The [frozen ledger](preference-final-integrity.json), SHA256
+`f3547d5a17d0fe882417f9bf49d066302d54a9d7e18d854b09331c546aa63bce`,
+binds 39 records and 883 proofs to their actual execution commits. Evidence assembly
+first passed from clean `c7ea088eb95bc54c32a8be415be17f53c36c65d5`, after all product,
+fixture, build, package, archive and SPDX executions completed from clean
+`4735f4165340cbca6dc30a83f200f4a31ac6dc15`. The
+[archival map](preference-archival-map.json) locates 35 exact small-record copies;
+four large ZIPs remain local ignored artifacts. Do not overwrite these records.
+
+Bare bundle digest: `b8d411b10753658f6fb863963e77c2a52d7bdfc826563d310b9ff51d97089d86`.
+Paired bundle digests (bytes plus file/directory modes):
+ARM `072b273604d0dba0fe76ed96a11b2ca12cea56e3f5859b7c2c89ce0ee157cd18`;
+x64 `073b132814311cfbd94ea8d8d32167b4a6d9b224bc9705ed67333952412e7747`.
+
+| Artifact | SHA256 | ZIP bytes |
+|---|---|---:|
+| ARM ZIP | `94cb49fb06fea3c40b817aec4ae70d32cf831b8895427fbb2be065fac80e853a` | 220529948 |
+| x64 ZIP | `eef8054a43373ca5bca7fd5295f2d766f232f8637b4f137a6921b80afd216533` | 217114884 |
+| ARM SPDX | `f6a45592c68eb177c61cc6537d81360c943ac2647b5c20ca6698a0b99af28726` | — |
+| x64 SPDX | `c80588b7621145d11bc5964a0d4f8580c790a325ffd5735f6a7f4bf75ce6f748` | — |
+
+Each repeated ZIP/SPDX matches its architecture's first copy. SPDX creation input
+is fixed to `2026-10-07T07:00:55Z`; 3306 files/17 packages and twelve schema/semantic
+negative controls per document pass. CC0 metadata terms do not grant distribution
+rights to included software; NOASSERTION rights remain unresolved. Apps are unsigned
+and unnotarized. No installation or publishing occurred.
+
+Reproduction requires the recorded source commits, Python/JDK/runtime locks and
+historic reference JARs. Use baseline.py/verify_builds.py, the commands in
+preference-gate-commands.json, preference-unit-runner.py, bundle.py/verify_bundles.py,
+release_archive.py and isolated Python `-I -S` spdx.py `--self-test`, with new output
+directories and the pinned validator cache. Run the evidence assembler only from
+its recorded clean QA checkpoint, not a later archival/docs commit. The expected
+identity was established by paired development builds, then confirmed by two clean
+builds and the full clean gate suite; its development-generation metadata is not
+being presented as qualified execution. A documentation update initially used a
+nonexistent hardware-report filename; the correct existing report was subsequently
+updated, with no change to qualification records or artifacts.

@@ -1,0 +1,38 @@
+{
+  "application_notarization": "not performed",
+  "application_signing": null,
+  "architecture": "aarch64",
+  "archive_bytes": 220529948,
+  "archive_sha256": "94cb49fb06fea3c40b817aec4ae70d32cf831b8895427fbb2be065fac80e853a",
+  "bundle_provenance_sha256": "af6d4aa30a2a5d6304893bb529af1dff3819c33735b53f0344d5ff119b23241c",
+  "bundle_tree_sha256": "072b273604d0dba0fe76ed96a11b2ca12cea56e3f5859b7c2c89ce0ee157cd18",
+  "execution_state": {
+    "commit": "4735f4165340cbca6dc30a83f200f4a31ac6dc15",
+    "dirty": false
+  },
+  "extraction": "verified exact files/modes/directories and vendor signature",
+  "format": "ZIP_STORED; sorted POSIX names; 1980-01-01 timestamps; exact files and directory modes; no links or xattrs",
+  "limits": "Local unsigned distributable candidate; no Finder/Gatekeeper/controller or redistribution-rights acceptance",
+  "python": "3.14.8",
+  "schema": 1,
+  "source_hashes": {
+    "audit/expected-build.json": "b4384e326eff1e3b77f642ac64e8def3372914f2516aec31eb8059b61db75cf0",
+    "audit/help-patches.json": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752",
+    "audit/model-diagnostic-patches.json": "517e77418d56bcb7561ca8a33d24d077286cd91e0ab64bf1bfacb9838a2369a8",
+    "audit/preference-io-patches.json": "d0b9ff38f9cea4b60201b963686bd8cdf634fde43e8bc2bfbc8f526d740373e3",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "f150f742f21f6792c6fbe1ac89f6ec0bbac373f6b30e50ae1acaccffe1249c93",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/help_patch.py": "59113d1dea6a00ede5a9853907390b5c2379c7cded57a9a6d53568f8b1bdc44a",
+    "tools/model_diagnostic_patch.py": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7",
+    "tools/preference_io_patch.py": "2e10155e843710aa24c77c5d9bf396d1e43f013b81fcdb55e70bd235c82d3792",
+    "tools/release_archive.py": "a7ca4370af9cdb5c44d84954da6231bebd8b0dbf499d2758d7985f3b7db50c96",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/verify_bundles.py": "4fd91b343f568d927fb5c0dc2d5ac9c4712aafd4c7f428f215e38d7ed4c81544"
+  },
+  "source_provenance_sha256": "2a07e88d79089d701ebb91294af4bf557424f28114856cfa8b897cf34a29c9c6"
+}

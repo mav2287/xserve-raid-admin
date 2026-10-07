@@ -1,13 +1,15 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current qualified local candidate: **audit.26**. Product, fixtures, build, package
-and release artifact source is `46dec9e`; evidence assembly uses `809bdb2`.
-Sixteen candidate gates and 170 unit tests pass, with repeated unsigned archives
-and schema-validated SPDX inventories; see
-[qualified scope](audit/MODEL-DIAGNOSTIC.md) and
-[hash-bound evidence](audit/model-final-integrity.json).
-Hardware acceptance is deferred by user instruction; full native GUI workflows,
-physical Intel and signed-release acceptance remain unverified.
+Current qualified local candidate: **audit.27**. Product, fixtures, build, package
+and release artifact source is `4735f41`; evidence assembly uses `c7ea088`.
+Seventeen candidate gates and 175 unit tests pass, with paired packages, repeated
+unsigned archives and schema-validated SPDX inventories; see
+[qualified scope](audit/PREFERENCE-IO.md),
+[hash-bound evidence](audit/preference-final-integrity.json), and
+[archived records](audit/preference-archival-map.json).
+Offline repository intake/build qualification is complete for this scope. Hardware
+acceptance remains deferred by user instruction; full native GUI workflows,
+physical Intel, private file creation and signed-release acceptance remain open.
 
 Historical audit.17 clean fixture-qualified candidate: **audit.17**, source/fixture/package
 commit `47166ed`. See [synchronous callback guard](audit/SYNC-CALLBACK-PREENQUEUE.md),
@@ -19,7 +21,7 @@ native UI, firmware binding and hardware acceptance remain open.
 
 ## Result and scope
 
-**Fact:** repository intake and an offline observation harness are complete. The unchanged upstream build succeeds but is not byte-reproducible. A separate hash-locked audit builder now produces identical unsigned app contents on this machine. **Phase 0 is not closed:** no representative hardware session or packet capture has been taken. No controller was contacted, GUI app launched, production volume tested, firmware transmitted, or installed app modified.
+**Fact:** repository intake and an offline observation harness are complete. The unchanged upstream build succeeds but is not byte-reproducible. A separate hash-locked audit builder now produces identical unsigned app contents on this machine. **Offline Phase 0 intake/provenance/build scope is complete; hardware evidence is deferred by the user’s current instruction, not passed.** No representative real-controller session or packet capture has been taken. No controller was contacted, complete application Main launched, production volume tested, firmware transmitted, or installed app modified. Separate hidden native component probes remain development-only.
 
 Evidence labels in these reports: **Fact** means directly inspected source/artifact or observed fixture result; **Inference** means a conclusion from that evidence; **Unresolved** means it has not been established. Static method presence is not functional acceptance.
 
