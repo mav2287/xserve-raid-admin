@@ -1,0 +1,36 @@
+I found one remaining blocker in the code. The rest are things the handoff paperwork has to cover. I only read files: the four you named, plus `tools/audit_support.py` and directory listings of `tools/`, `audit/secure-release/` and `audit/claude-review/`.
+
+## Blocker: the packaged-fixture tool can't run under `python -I -S`
+
+- `tools/secure_release.py:4` adds its own directory to `sys.path`, and `:35` refuses to run without `-I -S`. `tools/check_secure_release.py` has neither.
+- `check_secure_release.py:5` imports `audit_support`, `runtime`, `secure_build` and `historical_secure` by bare name. Under `-I`, Python leaves the script's directory off `sys.path`, so `python -I -S tools/check_secure_release.py` would fail with `ImportError`.
+- That means the fresh packaged-fixture run at 6c5b3a5 must have been made without isolation. `PYTHONPATH`, user site-packages or the current directory could have supplied any of those modules or the standard library.
+- `verify_python()` (`audit_support.py:55`) checks only the Python version and implementation, not the flags.
+- So "QA invocation requires Python -I -S before output" is true for the packager. It is not true for the fixture QA, and the fixture record doesn't capture how Python was started.
+
+There are two ways out:
+- **Fix it:** copy the packager's `sys.path.insert` and flag check into `check_secure_release.py` before argument parsing or any output. Because of the `packager_commit==HEAD` rule (`:22`), that means repackaging and rerunning the fixtures at the new commit.
+- **Disclose it:** leave the code alone and say in the ledger that the packaged-fixture runs were not interpreter-isolated.
+
+## Not blockers, but needed for a truthful handoff
+
+1. **No final evidence is archived yet.** `audit/secure-release/` holds only `claude-current-review.txt`. For each architecture, archive the package `provenance.json`, `release-observations.json`, `SBOM.spdx.json`, the fixture `observations.json` and the ZIP's SHA-256 there, as `.json`/`.txt` files. The bridge accepts only those (`historical_secure.py:24`). A `.md` ledger, or any edit to a file that existed at e005, will make later bridge checks fail.
+2. **The evidence can't be rerun at the commit that stores it.** Committing it moves HEAD past 6c5b3a5. From then on, `check_secure_release.py:22` (`packager_commit==HEAD`) rejects these packages. The ledger should call the archived records frozen evidence from 6c5b3a5 that can be checked by hash only, not reproduced at the final commit.
+3. **The ZIP is linked to the fixtures only indirectly.** The fixtures ran against the package's unpacked app directory, not the extracted ZIP. The chain is: fixture `package_manifest_sha256` → manifest `files` (checked before and after the runs, `:28`) → `release-observations.json` `bundle_tree_sha256`/`archive_sha256` → the packager's check that the extracted ZIP equals the bundle (`secure_release.py:67-68`). That chain is sound, but the ledger should spell it out.
+4. **Execution context isn't recorded.**
+   - The fixture record's `architecture` (`:55`) is copied from the package manifest. The host CPU, and whether an x64 package ran under Rosetta, aren't recorded. If x64 fixtures were run, record them as translated, not native.
+   - The fixture record's `limits` leave out the other-macOS, filesystem, future-OS and binary-minimum wording that is now in `release-observations.json`. The ledger can carry it.
+5. **What to ship.** Hand off only `RAID-Admin-1.5.1-modern.audit.28-<arch>-unsigned.zip`, `SBOM.spdx.json`, `provenance.json` and `release-observations.json`. Leave out `repeated.zip`, `extracted/` and the fixture temporary directories.
+6. **Minor.** The fixture tool doesn't require `--package` to be inside `build/` or not to be a symlink. It also never re-checks the ZIP or SBOM itself and relies on the manifest binding. Neither is a correctness problem for this handoff.
+
+## Confirmed resolved since the last review
+
+- **Reference JARs:** both are hash-checked against `source` before the runs (`:15`) and after them (`:26`, in `verify()`), and both hashes are recorded (`:55`).
+- **Missing property:** `-Dfixture.apple.original` is now passed (`:34`).
+- **Product bytes:** the packager's change set is still limited to the launcher, plist, icon, native helper and runtime. The JAR and native helper are bound to e005 through the unmodified checker.
+- **Package records:** `release-observations.json` now includes `package_manifest_sha256` and the limit for other macOS versions, filesystems and future OS versions, with 11.0 described as a binary minimum only.
+- **Isolation in the packager:** the `-I -S` check runs before any output directory is created.
+
+Once the isolation gap is fixed or disclosed and items 1–4 are written into an allowed `audit/secure-release/*.txt` or `*.json` ledger, I don't see anything else in these files blocking a truthful offline unsigned handoff. Signing and notarization, Gatekeeper, the native GUI, physical Intel hardware, real controllers and Apple redistribution rights stay as stated limits.
+
+IMPLEMENTER RESOLUTION (not Claude text): packaged QA now inserts only its verified tools directory and requires Python -I -S before output; flags are recorded. New packages/fixtures/negative controls will be run at a fresh clean source commit. Old 6c5b3a5 packaged-fixture evidence used -E -s (ignores Python environment and user site, but permits system site); it remains development history, excluded from final packaged-fixture qualification. Final ledger will record frozen execution commits, actual host/translation, exact ZIP/extract/bundle/fixture chain and deferred scope.

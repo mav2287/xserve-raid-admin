@@ -2,13 +2,16 @@
 """Actual packaged CodeSource/runtime fixtures and launcher byte-copy stub; never Main."""
 import argparse,hashlib,json,os,subprocess,tempfile,sys
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from audit_support import ROOT,JAVA_FLAGS,isolated_env,sha,tree,modes,verify_python
 from runtime import verify_runtime,runtime_manifest,directory_modes
 from secure_build import state
 from historical_secure import check_historical_artifact
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--package',type=Path,required=True);p.add_argument('--fixtures',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--reference',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();verify_python();initial=state()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--package',type=Path,required=True);p.add_argument('--fixtures',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--reference',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();verify_python();
+ if not sys.flags.isolated or not sys.flags.no_site:raise ValueError('Use Python -I -S for packaged fixture QA')
+ initial=state()
  if initial['dirty'] or a.output.exists() or not a.output.resolve().is_relative_to((ROOT/'build').resolve()):raise ValueError('Clean source and new packaged fixture output required')
  identity,source,bridge=check_historical_artifact(a.build)
  apple=ROOT/'original/RAID_Admin_original.jar'
@@ -52,6 +55,6 @@ def main():
    stubrows.append({'supplied':supplied,'forwarded':expected,'gui_mode':gui,'java_is_stub':True})
  verify()
  if state()!=initial or any(sha(ROOT/n)!=h for n,h in expected_inputs.items()) or check_historical_artifact(a.build)[0]!=identity or {str(f.relative_to(classes)):sha(f) for f in classes.rglob('*.class')}!=fixture['probe_hashes']:raise ValueError('Packaged fixture inputs changed')
- record={'qualification':False,'scope':'Exact packaged JAR/native/runtime CodeSource fixtures and exact launcher bytes in dummy argv-stub layout; never Main','product_source_commit':source['source_commit'],'packager_commit':initial['commit'],'source_dirty':False,'historical_product_bridge':bridge,'architecture':arch,'reference_sha256':sha(a.reference),'apple_original_sha256':sha(apple),'package_manifest_sha256':sha(a.package/'provenance.json'),'fixture_manifest_sha256':sha(a.fixtures/'observations.json'),'jar_sha256':sha(jar),'native_sha256':sha(library),'launcher_sha256':sha(launcher),'observations':rows,'launcher_observations':stubrows,'limits':['No actual GUI, production profiles, network, controllers, quarantine/Gatekeeper or physical Intel','Stub launcher execution does not establish application startup/functional acceptance']}
+ record={'qualification':False,'scope':'Exact packaged JAR/native/runtime CodeSource fixtures and exact launcher bytes in dummy argv-stub layout; never Main','product_source_commit':source['source_commit'],'packager_commit':initial['commit'],'source_dirty':False,'historical_product_bridge':bridge,'architecture':arch,'interpreter_isolated':bool(sys.flags.isolated),'interpreter_no_site':bool(sys.flags.no_site),'reference_sha256':sha(a.reference),'apple_original_sha256':sha(apple),'package_manifest_sha256':sha(a.package/'provenance.json'),'fixture_manifest_sha256':sha(a.fixtures/'observations.json'),'jar_sha256':sha(jar),'native_sha256':sha(library),'launcher_sha256':sha(launcher),'observations':rows,'launcher_observations':stubrows,'limits':['No actual GUI, production profiles, network, controllers, quarantine/Gatekeeper or physical Intel','Stub launcher execution does not establish application startup/functional acceptance']}
  (a.output/'observations.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n');print('PASS packaged product fixtures; architecture='+arch+'; runs=10; launcher_stubs=5')
 if __name__=='__main__':main()
