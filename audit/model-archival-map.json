@@ -1,0 +1,160 @@
+{
+  "large_artifacts": {
+    "build/releases/audit26/RAID-Admin-aarch64-repeat.zip": {
+      "reason": "Large local release artifact remains in ignored build/releases/audit26; not a Git blob",
+      "sha256": "deadf08032822c09bb2694611d6fd09b98a9d50e433f3d63efc6aa4c13d6e4c8"
+    },
+    "build/releases/audit26/RAID-Admin-aarch64.zip": {
+      "reason": "Large local release artifact remains in ignored build/releases/audit26; not a Git blob",
+      "sha256": "deadf08032822c09bb2694611d6fd09b98a9d50e433f3d63efc6aa4c13d6e4c8"
+    },
+    "build/releases/audit26/RAID-Admin-x64-repeat.zip": {
+      "reason": "Large local release artifact remains in ignored build/releases/audit26; not a Git blob",
+      "sha256": "ff83388bdc1ad9a65c5bc427d7d341e6a17f157b4892e85235a4d8acedfde625"
+    },
+    "build/releases/audit26/RAID-Admin-x64.zip": {
+      "reason": "Large local release artifact remains in ignored build/releases/audit26; not a Git blob",
+      "sha256": "ff83388bdc1ad9a65c5bc427d7d341e6a17f157b4892e85235a4d8acedfde625"
+    }
+  },
+  "ledger_sha256": "c44fb23a7eb13d7f2c46d5ce0745c8cd1025057ec93f28347b0768c9ba92a655",
+  "mapping": {
+    "build/model-bundled-aarch64-1/provenance.json": {
+      "archived": "audit/model-records/model-bundled-aarch64-1/provenance.json",
+      "sha256": "aa91efe4b502c54116a86bcff4b3f7508a931e82e30f45cf5b670a54c554e91f"
+    },
+    "build/model-bundled-aarch64-2/provenance.json": {
+      "archived": "audit/model-records/model-bundled-aarch64-2/provenance.json",
+      "sha256": "8a5ed6cbf9a85528b87d014e357ffbf0b97541e4d54a6ed6099d534ca9f8aa46"
+    },
+    "build/model-bundled-x64-1/provenance.json": {
+      "archived": "audit/model-records/model-bundled-x64-1/provenance.json",
+      "sha256": "9766fe6fa7ed627e627bcccc6d9a414dd82dbade5c414e280f0c60bdc955dcc4"
+    },
+    "build/model-bundled-x64-2/provenance.json": {
+      "archived": "audit/model-records/model-bundled-x64-2/provenance.json",
+      "sha256": "7205f8eb87a1cae8ba0eaded1640b1d6337d0297533bfc76debdf563f55e5b7d"
+    },
+    "build/model-clean-1/provenance.json": {
+      "archived": "audit/model-records/model-clean-1/provenance.json",
+      "sha256": "ab23c451bc404fbe1d2a3f98a52bbb4afeb0286aeeb048c7445c99d56e3f291b"
+    },
+    "build/model-clean-2/provenance.json": {
+      "archived": "audit/model-records/model-clean-2/provenance.json",
+      "sha256": "ea6e7a39558e93462fe97f7f473090d1a91eb38ceea5c18fd31ed468911aa2ca"
+    },
+    "build/model-clean-admission.json": {
+      "archived": "audit/model-records/model-clean-admission.json",
+      "sha256": "aafd02ea38a23181d8b0ef680bec8b349bd1a869952b181cd37850ac2a50dd84"
+    },
+    "build/model-clean-connect.json": {
+      "archived": "audit/model-records/model-clean-connect.json",
+      "sha256": "c201298447d18170d10e64890637e5db915e8d63cd026c3036dd48dbf02994bc"
+    },
+    "build/model-clean-factory.json": {
+      "archived": "audit/model-records/model-clean-factory.json",
+      "sha256": "f3d0319d88cdf26ca7b5a1969e96adc1f2afb051be751fab85dbfaf4144dedad"
+    },
+    "build/model-clean-help-boundary/observations.json": {
+      "archived": "audit/model-records/model-clean-help-boundary/observations.json",
+      "sha256": "3a7f47c95f0a8b94375be8678b0bbc2419c35e0ca7f50df31ad420c157f53f72"
+    },
+    "build/model-clean-lock.json": {
+      "archived": "audit/model-records/model-clean-lock.json",
+      "sha256": "5fdd4eed22d4a6cb2abeff7d655ca9aa279f39ad97356658e649b5127681a8a9"
+    },
+    "build/model-clean-model-boundary/observations.json": {
+      "archived": "audit/model-records/model-clean-model-boundary/observations.json",
+      "sha256": "ca6b19fe58b6e39fa5d2897ac1787b6ddebb19b82ac51948138363f403e9cc1f"
+    },
+    "build/model-clean-posting.json": {
+      "archived": "audit/model-records/model-clean-posting.json",
+      "sha256": "7feb16a7adc008990fd5ebd885662625a53bc2bc4dabcddc58df4be7c7227fb3"
+    },
+    "build/model-clean-publication.json": {
+      "archived": "audit/model-records/model-clean-publication.json",
+      "sha256": "946b74c1496cb787a360b1e0cb7084c69c6de66202a58583d2c63f9926218c3e"
+    },
+    "build/model-clean-resources.json": {
+      "archived": "audit/model-records/model-clean-resources.json",
+      "sha256": "0c26f153c6218ad4746db148c78f040ab384a60d3e95d2c4baf02a1873aaafb8"
+    },
+    "build/model-clean-runtime.json": {
+      "archived": "audit/model-records/model-clean-runtime.json",
+      "sha256": "bb43d4a9601818cb9c48e7260800cd6ebeb9e4645bdfc6aaeca8534090e19d6b"
+    },
+    "build/model-clean-security.json": {
+      "archived": "audit/model-records/model-clean-security.json",
+      "sha256": "b9905902813a886eec87522700c2538ed1d2b69d81cba50975d9c6deb84bf574"
+    },
+    "build/model-clean-shared.json": {
+      "archived": "audit/model-records/model-clean-shared.json",
+      "sha256": "8c943ea9385960a793efe0cfbba605b12f0d300ad2ffb29dcde6ac199f4c92dc"
+    },
+    "build/model-clean-socket.json": {
+      "archived": "audit/model-records/model-clean-socket.json",
+      "sha256": "40d12999d039ad2fbcfbcaf58c54b9c001a6c7e8d952a980c44310084b02f4a5"
+    },
+    "build/model-clean-stop.json": {
+      "archived": "audit/model-records/model-clean-stop.json",
+      "sha256": "0269475cc917187fb22defc74e345bfea0755bd39a31bb66852fe67c68b6142d"
+    },
+    "build/model-clean-transport.json": {
+      "archived": "audit/model-records/model-clean-transport.json",
+      "sha256": "234f2a288c9cb3122125df8733d11a1527cddbbc6e2280122b93bd9f482a233e"
+    },
+    "build/model-clean-unit.json": {
+      "archived": "audit/model-records/model-clean-unit.json",
+      "sha256": "e2abaddf95b7c555de8864440632cf854ef27c201880dc4d6a8990adef629173"
+    },
+    "build/model-clean-unit.stderr": {
+      "archived": "audit/model-records/model-clean-unit.stderr",
+      "sha256": "772e4a12e1550544aa0de191c787f568142cf553029a94e383ab1b87a022df41"
+    },
+    "build/model-clean-unit.stdout": {
+      "archived": "audit/model-records/model-clean-unit.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build/model-clean-worker.json": {
+      "archived": "audit/model-records/model-clean-worker.json",
+      "sha256": "092a9d1094313e82c55c5633914d99718ac1845b2db3b0104e6daca2022177e8"
+    },
+    "build/model-gate-run-summary.json": {
+      "archived": "audit/model-records/model-gate-run-summary.json",
+      "sha256": "b6445570b17ea56286d650831634bc37ddb9627c102f429ee21957bda67fb636"
+    },
+    "build/releases/audit26/RAID-Admin-aarch64-repeat.archive.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-aarch64-repeat.archive.json",
+      "sha256": "b2b59e502b8a4447c02ce7824d262ae3679970fa39303a0f37887a3baf8d7707"
+    },
+    "build/releases/audit26/RAID-Admin-aarch64-repeat.spdx.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-aarch64-repeat.spdx.json",
+      "sha256": "6f119ab18bdeea27dd1b2bcbcc97571ca2212142c0fd083c05cc4b61ae0ce637"
+    },
+    "build/releases/audit26/RAID-Admin-aarch64.archive.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-aarch64.archive.json",
+      "sha256": "f8a707bf504f1eaf3d8c7bc264a57cb7f9983b2e8b0f02abc1bf32e24c7a2d23"
+    },
+    "build/releases/audit26/RAID-Admin-aarch64.spdx.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-aarch64.spdx.json",
+      "sha256": "6f119ab18bdeea27dd1b2bcbcc97571ca2212142c0fd083c05cc4b61ae0ce637"
+    },
+    "build/releases/audit26/RAID-Admin-x64-repeat.archive.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-x64-repeat.archive.json",
+      "sha256": "50cdf64d4ae9c4083035ca584b5051f447c49bade99f4707ee3e0bc8b7849955"
+    },
+    "build/releases/audit26/RAID-Admin-x64-repeat.spdx.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-x64-repeat.spdx.json",
+      "sha256": "472aba685b046fd6d8b09cf6b2f82062bd8755aa04e40313e507a716b680f19c"
+    },
+    "build/releases/audit26/RAID-Admin-x64.archive.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-x64.archive.json",
+      "sha256": "9a3ae26fb964c6296c7c0b044713ae24a481b5f516d543ccde0e3e7ef9635ae6"
+    },
+    "build/releases/audit26/RAID-Admin-x64.spdx.json": {
+      "archived": "audit/model-records/releases/audit26/RAID-Admin-x64.spdx.json",
+      "sha256": "472aba685b046fd6d8b09cf6b2f82062bd8755aa04e40313e507a716b680f19c"
+    }
+  },
+  "scope": "Exact archival copies of immutable audit26 input records; lookup paths do not change frozen ledger"
+}

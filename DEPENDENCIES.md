@@ -350,3 +350,14 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+
+## Audit26 dependency/SPDX qualification
+
+No runtime class or dependency is added by the model diagnostic override. The
+pinned compiler and both vendor runtimes are unchanged. Each architecture's
+repeated SPDX 2.3 documents match, with 3,305 physical/virtual files and 17 packages;
+all four pass pinned official schema/semantic validation and twelve negative
+controls each. NOASSERTION software licensing and unresolved redistribution
+rights remain. See [qualified scope](audit/MODEL-DIAGNOSTIC.md) and
+[archived inventories](audit/model-archival-map.json). x64 execution is Rosetta.

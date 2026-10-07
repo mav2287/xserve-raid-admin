@@ -16,3 +16,10 @@ No hardware test is queued or scheduled; deferred is not pass or unsupported.
 
 
 Audit25 local gates, unsigned archives and SPDX documents are complete. These are software/packaging evidence only. Hardware tests remain deferred by the user, with no controller contact or production/mounted-volume test. The installed app remains identical to intake. No destructive or setting-changing operation is queued.
+
+
+Audit26 adds sixteen passing local gates, 170 units, repeated packages/archives
+and SPDX inventories. It does not change hardware qualification: no controller
+contact, mounted/production-volume test or installed-app modification occurred.
+Hardware is deferred until actual operational need, with immediate confirmation
+still required before every restricted operation. HTTP is plaintext.

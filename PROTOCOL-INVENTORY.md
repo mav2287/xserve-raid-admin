@@ -319,3 +319,13 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+
+## Audit26 diagnostic-only delta
+
+All JAR entries except RaidSystem remain byte-identical to qualified audit25.
+Two named password reads in paramString become fixed diagnostic tokens; getters,
+setters, request factory, transport, commands, crypt functions, polling and retries
+retain their existing bytecode. The local sixteen-gate suite passes; no real
+request or packet capture is added. HTTP remains plaintext. Hardware validation
+is deferred until actual need. See [evidence](audit/MODEL-DIAGNOSTIC.md).

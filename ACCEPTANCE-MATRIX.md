@@ -496,3 +496,23 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+
+### Audit26 model diagnostics and offline qualification
+
+JAR `7c361034ec4deeec1741e49d3963c3dfd8e6dd07ea1b1fb7ab029d2aa3f74158`,
+clean application/fixture/build/package/release source `46dec9e`; assembler
+source `809bdb2`. Sixteen candidate gates and 170 units pass. Model diagnostics
+redact both credential fields, including null/empty values. Actual original
+differential, getter identity, saved flags and observer counts pass in child
+and product loaders; four runtime/mode runs each cover 40 cases. Sixteen
+behavioral controls fail at their intended assertion. All other audit25 JAR
+entries and controller protocol bytes remain unchanged.
+
+Repeated ARM/x64 packages, unsigned ZIPs, extracted runtime signatures and SPDX
+inventories pass. Hardware rows remain deferred, not passed. Full GUI, physical
+Intel, signing/notarization and redistribution acceptance remain unverified.
+Credential storage/crypt functions remain unchanged; HTTP remains plaintext.
+See [scope and reproduction](audit/MODEL-DIAGNOSTIC.md),
+[frozen evidence](audit/model-final-integrity.json) and
+[archival locations](audit/model-archival-map.json).

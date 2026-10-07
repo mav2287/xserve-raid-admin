@@ -2,13 +2,14 @@
 
 Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS, retaining its existing Apple silicon and Intel runtime support. This audit candidate is not yet operationally qualified.
 
-Current qualified local baseline is audit.25: fifteen candidate regression gates,
-165 unit tests, repeated ARM/x64 packages, deterministic unsigned ZIPs and
-schema-validated SPDX inventories. Product/build/package source is `82f9c4f`;
-the corrected stop comparator, final units and release postprocessing use
-`aee4580`. See [the qualified scope](audit/HELP-COMPATIBILITY.md) and the
-[integrity ledger](audit/help-final-integrity.json). Native GUI, physical Intel,
-controller compatibility and signed release acceptance remain unverified.
+Current qualified local baseline is audit.26: sixteen candidate regression gates,
+170 unit tests, repeated ARM/x64 packages, deterministic unsigned ZIPs and
+schema-validated SPDX inventories. Product, fixtures, builds, packages and release
+artifacts use clean source `46dec9e`; evidence assembly uses `809bdb2`.
+The only JAR change from audit25 redacts two model diagnostic password reads.
+See [the qualified scope](audit/MODEL-DIAGNOSTIC.md) and the
+[integrity ledger](audit/model-final-integrity.json). Full native GUI, physical
+Intel, controller compatibility and signed release acceptance remain unverified.
 Hardware validation is deferred until actual operational need, by user instruction.
 
 ## About

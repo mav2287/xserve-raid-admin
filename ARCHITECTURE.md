@@ -411,3 +411,15 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+
+## Audit26 model diagnostic boundary
+
+A hash-locked override changes only two four-byte password reads in RaidSystem's
+paramString to a fixed token, with two appended constants. Its original
+toString continues to delegate; no new runtime class, dependency or controller
+layer is added. All fields and other methods preserve their exact bytes.
+Sixteen gates and 170 units qualify the local artifact from clean `46dec9e`;
+[scope](audit/MODEL-DIAGNOSTIC.md) and [ledger](audit/model-final-integrity.json)
+state the constructor-bypass and native/hardware limits. This remains preservation
+through narrow boundaries and overrides, not an application rewrite.

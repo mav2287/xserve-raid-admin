@@ -418,3 +418,28 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+
+## Audit26 — diagnostic confidentiality and remaining local work
+
+The two RaidSystem password fields now render fixed tokens in public paramString
+and its toString wrapper. Four runtime/mode observations and sixteen behavioral
+controls qualify the exact two-window override. Sixteen full candidate gates,
+170 units and repeated packages/archives/SPDX inventories pass. Other audit25
+JAR entries remain identical. Credential memory/getters, crypt and saved-profile
+handling remain; this is not application-wide confidentiality. HTTP is plaintext.
+See [scope](audit/MODEL-DIAGNOSTIC.md) and [frozen ledger](audit/model-final-integrity.json).
+
+Claude's native-component review identified native AppKit preference access
+beyond Java guards and unreviewed transitive construction/paint paths. Existing
+hidden component probes remain development-only; full startup needs a disposable
+macOS environment without saved systems. Parallels CLI and a macOS SDK are present,
+but no existing VM/account has been established as disposable; none was started,
+modified or cloned. Hardware remains deferred until actual operational need.
+
+A new read-only persistence inspection confirms FileBasedPreferences.load opens
+an InputStreamReader without closing it, and store opens an OutputStreamWriter,
+serializes/flushes, and never closes it. The store method does not establish file
+permissions. This is source evidence, not a measurement of any real profile.
+Resource lifetime and synthetic file privacy are the next narrow local audit;
+no real saved profile or credential was read.

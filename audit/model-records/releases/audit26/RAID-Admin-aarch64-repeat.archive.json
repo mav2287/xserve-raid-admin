@@ -1,0 +1,36 @@
+{
+  "application_notarization": "not performed",
+  "application_signing": null,
+  "architecture": "aarch64",
+  "archive_bytes": 220528623,
+  "archive_sha256": "deadf08032822c09bb2694611d6fd09b98a9d50e433f3d63efc6aa4c13d6e4c8",
+  "bundle_provenance_sha256": "8a5ed6cbf9a85528b87d014e357ffbf0b97541e4d54a6ed6099d534ca9f8aa46",
+  "bundle_tree_sha256": "c062e67ba4930ec364b265225aa04e0f9682c9a8709b42e59035d4b6475fb571",
+  "execution_state": {
+    "commit": "46dec9e8cfba5b9de9ce49a59b05fd5f61b4b0a6",
+    "dirty": false
+  },
+  "extraction": "verified exact files/modes/directories and vendor signature",
+  "format": "ZIP_STORED; sorted POSIX names; 1980-01-01 timestamps; exact files and directory modes; no links or xattrs",
+  "limits": "Local unsigned distributable candidate; no Finder/Gatekeeper/controller or redistribution-rights acceptance",
+  "python": "3.14.8",
+  "schema": 1,
+  "source_hashes": {
+    "audit/expected-build.json": "5c3fa79ea3649cec1766c64c83966a3e92df8d8171d5f4c9d72db7ff54473812",
+    "audit/help-patches.json": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752",
+    "audit/model-diagnostic-patches.json": "517e77418d56bcb7561ca8a33d24d077286cd91e0ab64bf1bfacb9838a2369a8",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "788be3ab6e6b1d2d70cc5b14e49ff1d4400b9244a98d18b67604c9f2183efa5c",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/help_patch.py": "c78f19859786efa4f275464210a7b695de31a00f7ea4bf9d7d4ddf631926a738",
+    "tools/model_diagnostic_patch.py": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7",
+    "tools/release_archive.py": "c05ebb6c2891e0e558c42a5e359af9b8a491571e60eaee8e58875eb5de8bb36b",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/verify_bundles.py": "4fd91b343f568d927fb5c0dc2d5ac9c4712aafd4c7f428f215e38d7ed4c81544"
+  },
+  "source_provenance_sha256": "ea6e7a39558e93462fe97f7f473090d1a91eb38ceea5c18fd31ed468911aa2ca"
+}

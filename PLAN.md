@@ -846,3 +846,19 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+
+### Audit26 completed local milestone
+
+Clean `46dec9e` passes sixteen candidate gates and 170 units, paired builds and
+packages, repeated unsigned ZIPs and schema-validated SPDX inventories. Evidence
+assembly `809bdb2` binds 38 records and 753 source proofs. Only two RaidSystem
+diagnostic password reads change from audit25; all other JAR entries remain
+identical. See [scope](audit/MODEL-DIAGNOSTIC.md),
+[ledger](audit/model-final-integrity.json) and [archive map](audit/model-archival-map.json).
+Hardware remains deferred until actual need. Full native GUI requires a disposable
+macOS environment; user.home does not isolate native preferences. Existing native
+component probes remain development-only. Physical Intel, signing/notarization,
+redistribution and other documented gaps remain open. HTTP remains plaintext.
+Next safe local investigation: inspect preference resource lifetime and file
+privacy using only synthetic files; do not access real saved profiles.
