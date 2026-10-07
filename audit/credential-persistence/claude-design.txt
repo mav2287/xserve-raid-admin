@@ -1,0 +1,128 @@
+# Read-only design review: saved-credential path (no commands run, nothing modified)
+
+**Main correction:** based on static evidence only, the management password is not written to disk. The secret that does get saved is the **monitoring** password. Earlier records say whether anything is persisted is "unverified"; this narrows that down, and a bytecode trace plus a test run would settle it.
+
+## 1. What the static inventory shows (original JAR `5505d8d9…`)
+
+**How a save happens:**
+- `ManagementAuthenticationListener.handleResponse` reads the "save password" checkbox, runs `Utilities.crypt` (SimpleCryptCoder plus Base64), then calls `setManagementPassword` and `setManagementPasswordSaved` (`audit/static-inventory.json:26465-26486`).
+- `setManagementPasswordSaved` → `RaidSystem.setChanged` → `notifyObservers` (`:43842`, `:45136-45140`).
+- The observer is attached in `SystemRegistry.add` (`:27561`). `DefaultSystemRegistry.update` then calls `synchronizePrefs` (`:9960-9963`).
+- `synchronizePrefs` builds each entry with `SOMLocalizer.toPrefsContainer`, then calls `Preferences.setArray` and `synchronize` (`:9968-9980`).
+
+**What gets written:** `toPrefsContainer` (`:23039-23058`) reads only the primary/secondary host addresses, `getMonitoringPassword`, `getPollDelay` and `getName`. It reads neither `getManagementPassword` nor `getManagementPasswordSaved`.
+
+**What gets loaded:** the `DefaultSystemRegistry` constructor (`:9924-9946`) restores the name, poll delay, user message index and `setMonitoringPassword`. It then calls `RaidSystem.connect`, which opens a network connection.
+
+**Forget Password:** `ForgetPasswordAction.actionPerformed` (`:26392-26396`) only calls `setManagementPasswordSaved(false)`. As far as the calls show, the in-memory obfuscated management password is not cleared. The saved flag is what controls reuse (`showManagementAuthenticationSheet` at `:25450-25453` and `:25489-25492`).
+
+**All callers of the password accessors:**
+- `SystemMonitorController.showManagementAuthenticationSheet` (both overloads).
+- `SystemMonitorController.updateMenuActionStatus` (`:25585`).
+- `ManagementSessionAuthenticationListener.handleResponse` (`:26648-26652`): reads the saved password and calls `setManagementPasswordSaved`.
+- `ManagementController.handleSystemSetup` (`:13825-13828`): after a getter call to `getManagementPasswordSaved`, it re-saves the new admin password. It also always sets the monitoring password from the guest password, which a later save would then write to disk.
+- `SystemTable.buildContextualMenu` and `SystemTable$MessageRenderer` (`:28296`, `:28555`): read the saved flag for display.
+- `SystemMonitorController$15.run` (`:25869`) and the firmware updater (`:50371`): read the monitoring password.
+
+**What the inventory cannot show.** `tools/inventory.py:31-34` records only Method and InterfaceMethod references. It drops Field references, and it removes string constants for every class except the factory and firmware classes (`:107-109`). So these are still open:
+- Does `setManagementPasswordSaved` or `setChanged` write the `managementPassword` field directly?
+- What are the dictionary key names?
+- What are the field access flags? `SOMLocalizer` is in another package, so it can only read public fields.
+- Are there reflective lookups?
+
+The bytecode trace below answers these.
+
+## 2. Proposed bytecode trace (static only)
+
+- Reuse `disassemble_entries` (`tools/inventory.py:68-80`) with `javap -p -c -constants -v`, on explicitly extracted class bytes from both the original JAR and BF5.
+- Write a new, separate tool. Do not edit `inventory.py`, because frozen records pin its hash.
+- **Classes:**
+  - `RaidSystem`
+  - `SOMLocalizer`
+  - `DefaultSystemRegistry`
+  - `SystemRegistry`
+  - `AbstractSystemElement`
+  - the `SystemMonitorController` classes: the controller itself, `ForgetPasswordAction`, the two management-auth listeners, `ManagementAuthenticationSheet` and `$21`
+  - `AbstractForgetPassAction`
+  - `ManagementController`
+  - `Utilities`
+  - `SimpleCryptCoder`
+  - the Apple `Preferences`, `FileBasedPreferences` and `MacPreferences` classes, plus the product's `compat/PreferenceIO`
+- **Questions it should answer:**
+  1. Every get/put of `managementPassword`, `managementPasswordSaved` and `monitoringPassword`, with their access flags.
+  2. The `toPrefsContainer` key strings and the number of `put` calls.
+  3. Whether the private `RaidSystem.crypt` logs its input on error (`:45183-45192` appends something to a `StringBuffer` before calling `Logger.error`).
+  4. A scan of all 656 application classes for references to those three fields, and for reflection/`forName` calls on password-named strings.
+  5. Byte identity between original and BF5 for each class above. `RaidSystem` is known to differ only in the two `paramString` windows (`audit/MODEL-DIAGNOSTIC.md:20-25`).
+- **Output:** class hashes, PCs and counts only. No dumps.
+
+## 3. Proposed test run (separate JVM per scenario, original and current JARs)
+
+**Safe targets:**
+- Unsafe-created `RaidSystem` shells, using the existing pattern in `ModelDiagnosticObservation.java:42-58`.
+- An Unsafe-created `DefaultSystemRegistry`, with its systems list set via reflection and attached as the observer.
+- The real `setManagementPasswordSaved(true/false)`, which drives the real `update` → `synchronizePrefs` → writer path.
+- A direct `toPrefsContainer` call.
+- A read-back through `Preferences.getArray` only.
+
+**Hazards and how to avoid them:**
+
+| Hazard | Mitigation |
+|---|---|
+| `DefaultSystemRegistry()` and `RaidSystem(String)` start comms/agent and call `connect` | Never call them; Unsafe scope only, plus the deny-network guard |
+| `Preferences.getPreferences` → `MacPreferences` uses the `user.home` override, or on the original JAR may fall back to a **CWD-relative** filename (`PREFERENCE-SAVE-SITES.md:5-8`); `UnsatisfiedLinkError` is not an `Exception` | Don't go through the factory. Build the file-based backend on an explicit fake path, set CWD and `user.home` to the fake root, and have the file guard deny everything outside it |
+| `setMonitoringPassword` calls `RaidSystemAgent.getMessageFactory` (`:43814-43818`), which throws a null-pointer error on a shell | Set the field via reflection, as the existing fixture does |
+| Original `paramString` and `toString` print secrets | Never call them on synthetic secrets in this run |
+| `Logger.error` paths and exception text | Keep `log4j.defaultInitOverride`, no appenders; turn exceptions into fixed codes |
+| Synthetic secret ends up in the plist or a crash dump | Disable heap/core dumps, delete the fake root, don't archive the plist; emit only counts |
+
+**Scenarios.** Run each as current→current, original→original, original-written→current-read and current-written→original-read:
+- Save true or false, with management and monitoring secrets that are distinct, Unicode, punctuation, empty or null.
+- Forget after save.
+- Re-save after a change.
+- A no-change `synchronize`.
+
+**Results to emit:**
+- The number of written entries and their key set (keys are not secret).
+- Occurrence counts of the raw secret, `crypt(secret)` and the decoded form, for management and monitoring separately.
+- Whether the saved flag is present.
+- The in-memory getter result after Forget (same reference or not).
+- The file mode as octal.
+- Equal or not across the roundtrip.
+- Scenario, JAR and class identities.
+
+**Expected:** management count 0, monitoring count ≥1 as its obfuscated form, and Forget leaves the in-memory string unchanged. Treat these as predictions until the run confirms them.
+
+**Useful negative controls:**
+- A deliberately mutated `toPrefsContainer` that adds `getManagementPassword` must make the management count go above 0.
+- A wrong-destination path must be refused.
+- A network attempt must trip the guard.
+
+## 4. Should the product change?
+
+**No product change is justified at this point.**
+- If the run confirms the predictions, Forget not clearing the in-memory password is original behavior, and the stored monitoring password being only reversibly obfuscated is too.
+- Changing either would change behavior, and Keychain is out of scope.
+- The new 0600 writer already narrows file exposure. One documentation point: a plist written earlier by the original app keeps its old permissions until the first new save replaces it.
+
+Treat this as documentation, not code.
+
+## 5. Offline work that can be closed now
+
+1. The bytecode trace record (§2).
+2. The test fixture (§3), run as a standalone record at a new commit and tied to BF5 by hash. It does not re-qualify packages; the old fixtures correctly reject a later HEAD.
+3. The field-reference and reflection supplementary inventory.
+4. A sidecar correcting the "unresolved" entries in `keychain-scope.json` (`:107-110`) and `SECURE-PREFERENCES.md:125-135`, without changing frozen records.
+5. Re-running `verify.txt` after the evidence commit.
+
+**Still open and cannot be closed here:**
+- The real Swing checkbox, listener and authentication flow, and a real controller's authentication response.
+- Full startup on a disposable account or VM.
+- Physical Intel (x64 has run only under Rosetta).
+- Production RAID or mounted volumes.
+- Signing, notarization and Gatekeeper.
+- Apple redistribution rights.
+
+So this cannot be called a full or 100% qualification. The release stays unsigned and HTTP stays plaintext.
+
+I'd suggest doing §2 first, because its findings may change the fixture's expected counts. Should I go ahead with the trace tool?

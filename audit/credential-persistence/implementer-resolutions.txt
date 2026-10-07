@@ -1,0 +1,47 @@
+Implementer resolutions (not Claude's words)
+
+The actual reviews are archived as separate JSON and text files. Claude inspected
+source and evidence; Claude did not execute fixtures or provide human certification.
+
+Fixture review: fixed exact Integer-vs-Long reader semantics, 120-second child
+timeouts, output-root restrictions, omitted constant-field literals, JVM perf
+data disabled, full package file/mode checks, and moved the exact monitor-source
+assertion before key validation. The first runtime metadata lookup failed because
+the vendor bundle lacks Home/release; corrected to the verified vendor tree digest.
+
+Closure review: links pointed at evidence that was being archived while the review
+was running. Evidence and reviews are now archived, hash-bound and committed after
+execution. Final e74d373 source independently pins both package manifest hashes,
+captures macOS/Python architecture, asserts actual Java architecture, scans
+credential accessor references in every main-JAR class, and tests original and
+current same-entry wrong-getter mutants. Architecture claims distinguish recorded
+properties from the inference of Rosetta execution; physical Intel remains open.
+
+Only one assertion's sensitivity is established by those eight negatives. The
+current writer alone is asserted mode0600. Atomicity depends on frozen prior
+audit28 evidence. No management value is claimed absent from every conceivable
+application/native/reflection path. Full UI/authentication remains unqualified.
+Mutated JARs and synthetic profile contents are not archived or shipped.
+
+The complete earlier 27bb482 run remains separately attributed. The partial
+16e8947 attempt is explicitly excluded. Final product packages are unchanged;
+new records do not relabel or replace frozen product/release qualification.
+
+The parent acceptance matrix receives an additive boundary refinement, while
+historical snapshots and hash-bound child requirements remain frozen. No product
+change is justified by these confirmed original semantics. External GUI/hardware,
+physical Intel, signing, redistribution and future-OS requirements remain open.
+
+Final archival review: fixed exact archive contents and proof-set checks, pinned
+the original frozen verifier's bytes, and prevalidated all review inputs before
+copying. Archived review JSON contains only actual result text and raw-source
+digest; session/account/usage metadata stays outside Git. The readback count now
+says reader-combination, and the report says exercise the tested boundary rather
+than close every persistence requirement. Archive assembly is explicitly labeled
+untracked at execution; its exact source is hash-bound in this additive ledger.
+
+The first assembly's proof append was incorrectly outside its inner loop, yielding
+2proofs. The newly added exact20proof verifier rejected it. Preserved the entire
+failed directory in ignored build/post-audit28/failed-assembly-archive, corrected
+the append and added a pre-write unique20proof assertion. No fixture rerun or
+shipping change was needed; original actual run records remained unchanged.

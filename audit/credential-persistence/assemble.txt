@@ -1,0 +1,34 @@
+"""One-time additive evidence assembly; run from repository root with Python -I -S."""
+import hashlib,json,pathlib,subprocess
+root=pathlib.Path.cwd();out=root/'audit/credential-persistence'
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+if (out/'integrity.json').exists():raise ValueError('Evidence already frozen')
+base={'observations.json','observations-27bb482.json','cli-controls.json','cli-controls-driver.txt','assemble.txt','verify.py','implementer-resolutions.txt'}
+if {p.name for p in out.iterdir()}!=base or any(p.is_symlink() or not p.is_file() for p in out.iterdir()):raise ValueError('Unexpected archive contents')
+source=root/'build/credential-boundary-3/observations.json'
+if sha(source)!=sha(out/'observations.json'):raise ValueError('Archived observations differ')
+observation=json.loads(source.read_bytes());commit=observation['fixture_commit']
+env={'PATH':'/usr/bin:/bin','HOME':'/var/empty','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null'}
+proofs=[]
+for record in [observation,json.loads((out/'observations-27bb482.json').read_bytes())]:
+ for name,digest in record['inputs'].items():
+  data=subprocess.check_output(['/usr/bin/git','show',record['fixture_commit']+':'+name],cwd=root,env=env)
+  if hashlib.sha256(data).hexdigest()!=digest:raise ValueError('Fixture input differs from recorded Git')
+  proofs.append({'commit':record['fixture_commit'],'path':name,'sha256':digest})
+if len(proofs)!=20 or len({(p['commit'],p['path'],p['sha256']) for p in proofs})!=20:raise ValueError('Incomplete assembly proof set')
+frozen=root/'audit/secure-release/verify.txt'
+original_verifier=subprocess.check_output(['/usr/bin/git','show','08ddffbd7820fc4ceea8cd22522e8eba6479bdff:audit/secure-release/verify.txt'],cwd=root,env=env)
+if hashlib.sha256(original_verifier).hexdigest()!=sha(frozen):raise ValueError('Frozen verifier source changed')
+reviews=[]
+for suffix in ['design','fixture-review','fixture-final','runtime-binding','closure','repeat-design','final-evidence','assembler-correction']:
+ path=root.parent/'audit/claude-review'/('post-audit28-'+suffix+'.json')
+ data=path.read_bytes();value=json.loads(data)
+ if not value.get('result') or value.get('is_error'):raise ValueError('Incomplete actual Claude review')
+ reviews.append((suffix,value['result'],hashlib.sha256(data).hexdigest()))
+for suffix,result,digest in reviews:
+ target=out/('claude-'+suffix+'.json');text=out/('claude-'+suffix+'.txt')
+ target.write_text(json.dumps({'result':result,'actual_cli_source_sha256':digest,'metadata':'Actual Claude CLI result; session/account/usage metadata omitted. Original raw local output retained outside Git.'},indent=2)+'\n');text.write_text(result+'\n')
+files=sorted(p for p in out.iterdir() if p.is_file())+[root/'audit/CREDENTIAL-PERSISTENCE.md',root/'COMPLETION-STATUS.md']
+ledger={'fixture_commit':commit,'source_proofs':proofs,'records':{str(p.relative_to(root)):sha(p) for p in files},'scope':'Additive synthetic boundary records. No product rebuild or new qualification attribution for frozen audit28 packages.','assembly_source_tracked_at_execution':False,'excluded_attempts':['build/credential-boundary-1 at16e8947: first actual ARM run passed but report assembly failed; no complete record; excluded.','build/post-audit28/failed-assembly-archive: first assembler emitted only2proofs due indentation; standalone verifier rejected it; preserved and excluded.'],'frozen_audit28_ledger_sha256':sha(root/'audit/secure-release/final-integrity.json'),'frozen_verifier_sha256':sha(frozen)}
+(out/'integrity.json').write_text(json.dumps(ledger,indent=2)+'\n')
+print('Archived additive boundary records, actual Claude reviews and '+str(len(proofs))+' Git input proofs')

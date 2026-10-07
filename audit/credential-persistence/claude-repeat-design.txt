@@ -1,0 +1,21 @@
+I reviewed both diffs and the `AtomicCallerObservation` helpers they call. I ran nothing and edited nothing.
+
+## Execution blockers
+
+1. **The working tree must be clean, but it isn't yet.** `check_credential_persistence.py:79` stops the run if `git status --porcelain` shows any changes. Right now there are two modified files and three untracked paths: `COMPLETION-STATUS.md`, `audit/CREDENTIAL-PERSISTENCE.md` and `audit/credential-persistence/`. Since you plan to finalize those docs after the run, you'll need to either commit them first in their pre-run state or move them out of the tree. If you don't, the run fails before it compiles anything. The two code changes also need to be committed so that `fixture_commit` matches what actually runs.
+
+2. **The current-JAR mutant only works if the product's `SOMLocalizer` contains the getter name exactly once.** `mutate()` checks this at line 90 and stops safely if it's not true. I couldn't confirm it without reading the product JAR, so the first run will tell you. If the check fails, it's a clean stop, not a safety problem.
+
+## Safety and correctness: no issues found
+
+- **Both mutants fail at the first monitor-source check, as you intended.** The first case has a null monitor value and a non-null management value, so the mutant puts the management value into Attributes. `validate` checks monitor-source first (`CredentialPersistenceObservation.java:36`).
+  - Before that point, `origin()` loads `FileBasedPreferences` without initializing it (`AtomicCallerObservation.java:42`, `forName(..., false, ...)`), so it runs no static or native code.
+  - `Backend` is never created, so no file is written and nothing native is linked.
+  - For the current mutant in the reference slot, the CodeSource check compares against the mutant's own URL, so it passes. The Guard only blocks reads under `/Library/Preferences`, so reading the mutants from `build/` is allowed.
+- **Architecture check:** the expected values match what the JVM reports for `os.arch` (`aarch64` and `x86_64`), and the check runs before the SecurityManager is installed.
+- **Manifest pinning:** `verify_packages()` checks the manifest SHAs both before and after the runs. Recording `platform.machine()` and `sw_vers` uses the isolated environment, and neither is used in any assertion.
+- **Failure output:** for both negatives the script still checks the exact stdout line, the stderr marker and that the temp directory is empty. Raw output is still withheld when anything fails.
+
+## One thing to note (not a blocker)
+
+The two negative JARs are written straight into the output directory (`out/negative-reference.jar` and `out/negative-current.jar`, line 96), next to `observations.json`. They'll stay build-only only if nothing archives or copies that whole directory. To be safe, either delete them after line 121, or make sure your archiving step copies only `observations.json`. Their hashes are already recorded, so deleting them loses no evidence.

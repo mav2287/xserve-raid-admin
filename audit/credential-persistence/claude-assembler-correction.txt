@@ -1,0 +1,22 @@
+**There's nothing blocking the rerun.** I only read files; I didn't run, edit or touch anything else.
+
+**Archive directory**
+- It holds exactly the seven files the assembler expects in `base`. No `integrity.json` or `claude-*` files are left over from the failed attempt, so the checks at `assemble.txt:5` and `assemble.txt:7` will pass.
+
+**Indentation fix**
+- `proofs.append` is now inside the inner loop (`assemble.txt:17`).
+- The check for exactly 20 entries, all different (`assemble.txt:18`), runs before anything is written.
+
+**The other fixes are in place**
+- **Proof set:** `verify.py:20-25` rebuilds the expected proofs from both records' input maps and requires an exact match with the 20 in the ledger.
+- **Original verifier:** the frozen `verify.txt` is compared against the copy at the full commit `08ddffb…` before any write.
+- **Seven reviews:** all are loaded and checked before the first write. A missing file or an error stops the run with nothing written.
+- **What gets archived:** only the result text and the SHA of the original raw JSON. No session, account or usage data is kept.
+- **Exact names:** the directory names are matched exactly, and the failed run's directory is listed as excluded by its actual path.
+- **Wording:** the corrected wording appears in `implementer-resolutions.txt`.
+
+**Minor points, not blockers**
+- **Partial writes:** if something like a disk error happens after the claude files are written, the directory is left half-written and `base` will refuse a rerun. You'd have to clean it up by hand first. The checks themselves can't cause this, because they all run before any write.
+- **Failed directory not checked:** `verify.py` records the excluded failed directory but doesn't hash it, so the verifier can't prove it's untouched. That's fine as long as the ledger only claims it was preserved and excluded, which is all it says now.
+
+Next steps are to run the corrected assembler with `python -I -S` from the repo root, then run `verify.py`.

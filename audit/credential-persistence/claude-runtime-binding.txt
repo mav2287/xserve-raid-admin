@@ -1,0 +1,17 @@
+I found no concrete remaining blocker. The fix records the runtime metadata safely. I only read the code and ran nothing.
+
+**Runtime metadata (`tools/check_credential_persistence.py:99`)**
+- The recorded `runtime_tree_sha256` comes from `audit/runtime-lock.json`. Nothing is read from `Contents/Home/release`, so the failing file lookup is gone.
+- The value can't be stale or made up. `verify_runtime` (`tools/runtime.py:38-44`) checks two things: that the live tree and file modes match the lock's `files` and `file_modes`, and that `tree_sha256` really is the digest of those entries. It also checks directory modes when the lock lists them.
+- Runtime checks happen before and after the runs:
+  - **Before:** `verify_packages()` at line 66, plus a check of each runtime just before its runs at line 91.
+  - **After:** `verify_packages()` again at line 107, before the record is written at line 108.
+- `runtime-lock.json` is in `bound_inputs` (line 68). Its sha256 goes into `record['inputs']`, and line 106 confirms it hasn't changed. So all the `runtime_manifest()` reads in the run must see the same lock, or the record is never written.
+- The lock entry is chosen by `arch` from the same `packages` mapping as the binary that runs, so each run is matched to the right architecture.
+
+**Negative check (line 103)**
+The script now requires the exact `monitor-source` failure line on stdout and the assertion marker on stderr. A mutant that fails for some other reason can't pass as detected. Line 104 also confirms that no files were left behind.
+
+**Minor points, not blockers**
+- `runtime_manifest()` re-reads and re-parses the lock file on every call. Loading it once into a local variable would be tidier, but the input hash check already makes the current approach safe.
+- The record doesn't include `signature_team` or the identifier from the lock. They're still covered indirectly, because the lock file's hash is recorded.

@@ -1,0 +1,140 @@
+{
+  "fixture_commit": "e74d373e45e7466f2aad0fee4966025932962197",
+  "source_proofs": [
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "tests/java/credentialfixture/CredentialPersistenceObservation.java",
+      "sha256": "01d9e08e9e09d0cd3ecb5a3f7f38e8a1bbd92681600e4e7798c3fdd8fb2c8bfd"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "modernization/private-preferences/tests/AtomicCallerObservation.java",
+      "sha256": "efc75cbc7476352b2bb47dea6d0daa07384f4ad69732b875225381e58f9cf321"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "tools/check_credential_persistence.py",
+      "sha256": "e951a6cb77f1cbb223209116f74f9478e8823707830991368061435927f188a1"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "tools/audit_support.py",
+      "sha256": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "tools/inventory.py",
+      "sha256": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "tools/class_patch.py",
+      "sha256": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "tools/runtime.py",
+      "sha256": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "audit/jdk-lock.json",
+      "sha256": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "audit/runtime-lock.json",
+      "sha256": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+    },
+    {
+      "commit": "e74d373e45e7466f2aad0fee4966025932962197",
+      "path": "audit/python-lock.json",
+      "sha256": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "tests/java/credentialfixture/CredentialPersistenceObservation.java",
+      "sha256": "8d1389e833ab07c3dfbcf5c21ca653c11e8a7371c4e2474897bbeaaf31b1e63b"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "modernization/private-preferences/tests/AtomicCallerObservation.java",
+      "sha256": "efc75cbc7476352b2bb47dea6d0daa07384f4ad69732b875225381e58f9cf321"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "tools/check_credential_persistence.py",
+      "sha256": "b8366e628d7da97087fe810213eec8559097e7a81651bcbb8bae469503dd070f"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "tools/audit_support.py",
+      "sha256": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "tools/inventory.py",
+      "sha256": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "tools/class_patch.py",
+      "sha256": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "tools/runtime.py",
+      "sha256": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "audit/jdk-lock.json",
+      "sha256": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "audit/runtime-lock.json",
+      "sha256": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505"
+    },
+    {
+      "commit": "27bb48202ff76870d4dd450b6d4ffda218c0bb69",
+      "path": "audit/python-lock.json",
+      "sha256": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43"
+    }
+  ],
+  "records": {
+    "audit/credential-persistence/assemble.txt": "09b123def4d00d87def225e26c2e36c1f5b9a158b93b5cc10fb69c1fb62abb4a",
+    "audit/credential-persistence/claude-assembler-correction.json": "0863cff764f7eaabb2632f43fcd709088bfa3cb57899f99cbb363bc906485148",
+    "audit/credential-persistence/claude-assembler-correction.txt": "057902d299c9e3b085118e9952f0ddea10f56d0b6002e3b5a18b6374e7debe42",
+    "audit/credential-persistence/claude-closure.json": "d69bb2c2c67815e45ee07b13c1aa72ee8042c045db27226c03931e517b88e1ce",
+    "audit/credential-persistence/claude-closure.txt": "51ca2552e9b6bc664b3cc16dd74ef44186333bba78fee82276db73dcfd1cf3b7",
+    "audit/credential-persistence/claude-design.json": "4e8962d21c595913b15dec1b3b498e9c8676f25f429b638bf0ce0e65787677de",
+    "audit/credential-persistence/claude-design.txt": "1c5ec7597311e8b2cd6ff946ddb5f7eaa20bb2bb988e2ed22c71d070e256221d",
+    "audit/credential-persistence/claude-final-evidence.json": "55b9538303d5a641507c39284c53613c7dcbb6d598dd6dd115be443a77d6f8f4",
+    "audit/credential-persistence/claude-final-evidence.txt": "0833ab9b30a9421a750439aa2a16b0567b065d92e40658f51a0166cef8d0b044",
+    "audit/credential-persistence/claude-fixture-final.json": "d7fcb2cc764b2d093524abff6b7c897268cd1010b9cfde71e8c454d2fe8e077b",
+    "audit/credential-persistence/claude-fixture-final.txt": "827ce0103dc4f611a5ac961793620d26879e0da854ab20927e39ec87c45033d9",
+    "audit/credential-persistence/claude-fixture-review.json": "1c0f5dbb72b2ed92cfda9cfbdfc9775576a500984a022ddbf4190abd617d18fa",
+    "audit/credential-persistence/claude-fixture-review.txt": "24b2221419e4b9a14986f952fac5921f3dbd9dbd0b8fc3d932cd652d8cf1edde",
+    "audit/credential-persistence/claude-repeat-design.json": "6f4336d5ae020a6d2215251ccedbd825e622ec0ef47062c2d40f65f4a4beba91",
+    "audit/credential-persistence/claude-repeat-design.txt": "5400dfd7891b77f2d998f3c7759b0b2a76632ca6313fded00a6cf396922b8f5e",
+    "audit/credential-persistence/claude-runtime-binding.json": "b5aa03c641cd7a7aeeda7ff44c7ac7ca0c906432eecc4466cdb61acf49deaf9b",
+    "audit/credential-persistence/claude-runtime-binding.txt": "60d370453197babe24d80d9f8524e39998fe10aef8c6c79c0552d97324a2153a",
+    "audit/credential-persistence/cli-controls-driver.txt": "836146d7204f259fd4e97fd9a4d37a5756ea14161043556067b69666815de7ca",
+    "audit/credential-persistence/cli-controls.json": "2fc309692e5041122d12036a81c5d8be96091035c51375168b360e1a0012cb23",
+    "audit/credential-persistence/implementer-resolutions.txt": "9bdcac2b973bb36620acf2d4c43df6beaa1affe10093976a8ded3055e6c70762",
+    "audit/credential-persistence/observations-27bb482.json": "4c97ab9a1d71f5016b5ecbdb6fd6befc6a23a58c6f9ffcb0c19cabd97d15dd29",
+    "audit/credential-persistence/observations.json": "39cf604724a0155e08696bd516ed7146b6e55e9b8e36e73749902ff59c3df51c",
+    "audit/credential-persistence/verify.py": "bacd3ae7a6235b3e28a99ea5ab617e567eb9e03a6d2542e5fa36bd94b4902db7",
+    "audit/CREDENTIAL-PERSISTENCE.md": "19d70fa5fbe123149371fcec3fa7fb37d15a4db61929d47282eae6fca7e57e66",
+    "COMPLETION-STATUS.md": "858d4c17c1c561440c8db9abcd1401b2d07435900596dc744e050a2e4b2b663c"
+  },
+  "scope": "Additive synthetic boundary records. No product rebuild or new qualification attribution for frozen audit28 packages.",
+  "assembly_source_tracked_at_execution": false,
+  "excluded_attempts": [
+    "build/credential-boundary-1 at16e8947: first actual ARM run passed but report assembly failed; no complete record; excluded.",
+    "build/post-audit28/failed-assembly-archive: first assembler emitted only2proofs due indentation; standalone verifier rejected it; preserved and excluded."
+  ],
+  "frozen_audit28_ledger_sha256": "7672ea4ac8d44576643d86da4bcd573cd8a7efc7d4e6fa7a5a5b13d8560a9327",
+  "frozen_verifier_sha256": "53aa1211c946a438281891b527dfbff663bca797f994de80cd9d7780246e449b"
+}

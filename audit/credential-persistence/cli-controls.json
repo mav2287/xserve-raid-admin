@@ -1,0 +1,18 @@
+{
+  "fixture_commit": "27bb482",
+  "scope": "Actual CLI early rejection before clean-tree check or Java execution; new documentation is uncommitted during these controls.",
+  "controls": [
+    {
+      "output": "build/credential-boundary-2",
+      "rejected_at": "fresh-output-policy",
+      "exit_nonzero": true,
+      "output_existence_unchanged": true
+    },
+    {
+      "output": "build/secure-release-aarch64-6/RAID Admin.app/credential-boundary-negative",
+      "rejected_at": "fresh-output-policy",
+      "exit_nonzero": true,
+      "output_existence_unchanged": true
+    }
+  ]
+}

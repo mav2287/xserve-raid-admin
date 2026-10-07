@@ -1,0 +1,23 @@
+No blocker found. There are a few gaps to fix in the assembler and verifier, and two wording fixes, before the freeze. This was a read-only review: I ran nothing and edited nothing.
+
+## What checks out
+- **Run metadata** (`observations.json:14038-14078`): the fixture commit is the full `e74d373…` hash. There are four runs, aarch64 and x64, each in `-Xint` and `-Xcomp`. Each run records the Java architecture it checked (`aarch64` / `x86_64`), 80 readbacks, empty stderr, the runtime-tree SHA, and both wrong-getter negatives set to true. The host is recorded as `arm64` on macOS 26.6.2.
+- **Negative controls:** the original and current controls each list a source JAR SHA, a mutated JAR SHA, and exactly one changed entry, `SOMLocalizer.class`. The source SHAs match the JAR SHAs stated in the doc.
+- **20 Git proofs:** each record has 10 inputs (`e74d373` and `27bb482`), which gives 20 proofs.
+- **Provenance:** the `16e8947` attempt is excluded and the `27bb482` record is kept separately. The frozen ledger SHA is pinned, and `verify.py:22` calls the frozen verifier.
+- **Archive scope:** the assembler refuses to run if `integrity.json` already exists and only reads from `build/` or the review directory. Mutated JARs stay in `build/`.
+- **Limits are acknowledged:** both docs say GUI/startup, a disposable account or VM, physical Intel, real controllers, signing/notarization and redistribution rights are still open, and that offline evidence cannot pass them.
+
+## Recommended fixes before freezing
+1. **The verifier doesn't catch extra files.** `verify.py:13` hashes only the files listed in the ledger. A stray file added to `audit/credential-persistence/` later (a profile or a JAR copy) would still pass. Have it require that the directory contents, apart from `integrity.json`, exactly match the listed records. Have the assembler also refuse unexpected names or extensions such as `.jar` or `.plist` before hashing.
+2. **The verifier doesn't confirm the proofs are complete.** It checks the proofs that are listed but not that there are 20 of them, or that they match the inputs of both observation records. Cross-check the proof set against both records' `inputs`.
+3. **The frozen verifier itself isn't pinned.** `audit/secure-release/verify.txt` is executed, but its own hash is not checked here. Confirm it's listed in `final-integrity.json`, or pin its SHA in the new ledger.
+4. **A failed copy leaves partial output.** The assembler copies reviews one at a time (`assemble.txt:16-22`). If the 4th review is invalid, the first three copies remain and a rerun refuses with "already exists". Validate all seven reviews before writing any.
+5. **Full raw review JSON is copied.** `target.write_bytes(data)` copies the whole Claude CLI JSON, including the session ID, cost/usage and any paths, not just the review text. Before running the assembler, check the seven source files for synthetic literals, local paths or the account email. Alternatively, archive only `result` plus a SHA of the source file.
+
+## Wording fixes
+- `COMPLETION-STATUS.md:21` says "320 **cross-reader** readbacks". The total includes original/original and current/current, so say "reader-combination readbacks".
+- `CREDENTIAL-PERSISTENCE.md:71` says "close the model-to-file boundary". With constructors bypassed via Unsafe and no registry or factory path, "exercise" is more accurate than "close".
+
+## Sequencing
+Both docs are hashed into `records`, so make the edits above before running the assembler. Then commit the whole set together. The clean fixture attribution stays with `e74d373` as stated.

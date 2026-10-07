@@ -1,0 +1,9 @@
+import json,pathlib,subprocess
+root=pathlib.Path.cwd();out=root/'build/post-audit28/cli-controls.json';cmd=['/opt/homebrew/bin/python3','-I','-S','tools/check_credential_persistence.py','--jdk','/Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home','--output']
+paths=['build/credential-boundary-2','build/secure-release-aarch64-6/RAID Admin.app/credential-boundary-negative']
+rows=[]
+for path in paths:
+ p=root/path; before=p.exists();r=subprocess.run(cmd+[path],env={'PATH':'/usr/bin:/bin','LANG':'en_US.UTF-8','LC_ALL':'en_US.UTF-8','TZ':'UTC'},capture_output=True,timeout=30)
+ assert r.returncode!=0 and not r.stdout and b'Fresh direct build/credential-boundary-* output required' in r.stderr and p.exists()==before
+ rows.append({'output':path,'rejected_at':'fresh-output-policy','exit_nonzero':True,'output_existence_unchanged':True})
+out.write_text(json.dumps({'fixture_commit':'27bb482','scope':'Actual CLI early rejection before clean-tree check or Java execution; new documentation is uncommitted during these controls.','controls':rows},indent=2)+'\n');print('PASS actual CLI existing-output and bundle-nesting controls; no Java execution')

@@ -1,0 +1,43 @@
+I've finished reading all five files and spot-checked the cited bytecode. The run results hold up. The problems are in how the evidence is recorded, not in what the tests showed.
+
+## Confirmed by the evidence
+- `observations.json` matches commit `27bb482`. It has four passing runs (aarch64 and x64, each in `-Xint` and `-Xcomp`), each with its matching runtime-tree digest and a detected wrong-getter negative. The class counts are 2844 and 2877. Field references in both JARs appear only in `RaidSystem`, and the list of exact field-name string literals is empty in both.
+- The `Long` claim is supported: the `DefaultSystemRegistry` constructor calls `Long.intValue` on the stored `Rate` (`observations.json:800`).
+- The negative control is sound. It changes only one JAR entry, and it fails at `monitor-source` inside `validate`, before any backend write.
+- No secrets are exposed. Synthetic values exist only in the fixture source. Disassembly output is filtered down to the fixed schema keys, and failures print fixed codes only.
+- Nothing changed in the product or the frozen release. The JAR and dylib hashes are pinned, and package manifests are checked before and after the runs.
+
+## Overclaims and gaps
+1. **Broken links.** The report points to `audit/credential-persistence/observations.json` and says the reviews are archived under `credential-persistence/`. That directory doesn't exist. The only copy of the evidence is `build/credential-boundary-2/observations.json`, and `.gitignore` excludes all of `build/`. Fix: copy it into `audit/` and record its SHA-256 in the report, or reword both claims.
+2. **Nothing is committed yet.** Both documents are untracked. Saying "clean fixture commit `27bb482`" is accurate for the run, but the record itself has no commit yet.
+3. **"Native" vs "Rosetta" isn't recorded.** No host architecture, translation status or OS version is in `observations.json`. That claim rests only on the report's prose. Either label it as an operator statement or record those values in later runs.
+4. **"Full packaged bytes/modes … checked" is weaker than it sounds.** `verify_packages()` compares each package against its own `provenance.json`, and that file isn't hash-pinned to `audit/secure-release/final-integrity.json`. Only the JAR, the dylib and the runtime tree are pinned independently. Either pin that file's hash in the script or soften the wording.
+5. **The negative control covers less than "four behavioral negatives" suggests.** All four mutate only the original JAR and stop at the first case. They don't test the current-JAR path or the `keys`, management-absent and forget checks. That's fine as a sensitivity check for one assertion; say so.
+6. **The scan only looks for direct field access.** It doesn't find calls to the management getters and setters in other classes. That's the stronger static support for the claim that the management password is only kept for the session. It also covers only the main JAR, not any other bundled JARs.
+7. **An Apple-derived JAR copy sits in `build/`.** `negative-reference.jar` exists in both `credential-boundary-1` and `-2`. It's gitignored, but it should never go into `audit/`, a release ZIP or a handoff, because of redistribution rights.
+8. **Minor wording points.**
+   - "Original references occur only in RaidSystem" is also true of the current JAR; say both.
+   - The 0600 file mode was checked only for files written by the current JAR. The original JAR's writer wasn't checked.
+   - "Atomic" in `COMPLETION-STATUS.md` relies on earlier audit28 evidence, not this fixture.
+
+## Safe offline work still open
+- Commit the observations into `audit/` with their hash, and fix the two links (items 1–2).
+- An optional follow-up run with a new commit, output directory and results file. It would:
+  - record host architecture, translation status and OS version;
+  - pin the `provenance.json` hash;
+  - add a whole-JAR scan for getter/setter calls;
+  - add a current-JAR negative and a negative that leaks the password under an extra key.
+
+  This touches only test files and doesn't change commands, polling or retry.
+
+## Further implementation
+The evidence doesn't justify more product changes. Proactively tightening permissions on existing profiles, adding Keychain UI or adding encryption would each be a behaviour change that needs your decision. The controller protocol uses plain HTTP, so that can't be fixed in the app.
+
+## External acceptance (not implementation)
+These all stay correctly listed as open, and none of them can be closed offline:
+- **Credential confidentiality:** the monitoring password is only reversibly obfuscated, and lifecycle and in-memory protection are untested.
+- **Legal rights:** Apple and legacy dependency redistribution rights are unresolved.
+- **Future macOS versions:** they need future testing.
+- **Native GUI, startup and authentication:** these need a disposable account or VM.
+- **Physical Intel:** only Rosetta has been tested so far.
+- **Signing and notarization:** these need a Developer ID setup.
