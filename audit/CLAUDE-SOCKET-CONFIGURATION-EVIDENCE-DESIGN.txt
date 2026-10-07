@@ -1,0 +1,48 @@
+I've finished reading the files and am writing up the review. I didn't run anything.
+
+## Short answer
+
+**Yes, the prepared scanner fixes the evidence blocker from my last review.** But the current evidence set still can't pass the assembler: two records were made at the app commit `f9a5edb`, and the assembler requires them to come from the QA commit. One of these is a hard-coded value in a file you asked me to review.
+
+## Prior blocker: resolved by the prepared files
+
+- **Scanner version mismatch:** already fixed in the current clean record. `build/socket-configuration-clean-consumers.json:5222-5233` lists all 10 inputs, including `audit/expected-build.json`.
+- **No commit or dirty-state field:** fixed in the next scanner.
+  - `consumers-next.py:12-16` reads the commit and dirty state at the start.
+  - `:48` fails if either changed by the end.
+  - `:50` records them as `fixture_commit` and `fixture_dirty`.
+  - It records a dirty tree rather than refusing to run. That's fine because the assembler requires `False` (`assembler:74`).
+- **Counts not machine-checked:** fixed. `assembler:75` checks 2862/194/281/319/210 exactly. I counted the current clean record by hand and it matches: 319 selected classes (lines 3634–3952) and 210 call sites of 6 lines each (3956–5215).
+- **Bindings:**
+  - Source hashes are checked against both the QA commit and the working tree (`:74`, through `checked_sources`).
+  - The disassembly hash is checked (`:76`).
+  - The record's JAR hash must equal `2fccbee…` (`:74`), which in turn is tied to the paired clean builds (`:45-48`).
+
+## Blocker: two records are from the app commit, not the QA commit
+
+1. **Unit runner is pinned to the app commit.** `build/socket-configuration-unit-runner.py:7` hard-codes `QA='f9a5edb…'`, and the current test record says `execution_commit: f9a5edb` (`reviewed-tests-run.json:14`). At the real QA commit this fails twice:
+   - `assembler:78` requires `execution_commit==QA`.
+   - `:79` compares each hashed source against the QA commit. The record holds the old hashes for `tools/socket_configuration_mutants.py` (`8b7e4f…`) and `tools/socket_configuration_consumers.py` (`e396c5…`), and both files change in QA.
+   
+   **Fix:** set the runner's pin to the actual QA commit (the same value you substitute for `@QA@`) and rerun it from a clean QA checkout. `runner_sha256` will change too, which is fine because `:82` checks it against the current file.
+2. **The socket gate has to be rerun at QA.** `clean-socket.json:2` records `f9a5edb`. But `assembler:30` requires the socket record to come from QA, and its source map hashes the old mutants file (`:18`).
+
+None of the other app-commit gates hash either changed file. In the clean JSONs, the mutants file appears only in the socket record and the consumer scanner only in the consumer record. So those gates stay valid at QA, as long as the QA commit changes nothing else that they hash.
+
+## Checks with no problems found
+
+- **Mutants cleanup:** `mutants-next.py:22` is equivalent to the current `:22-27`. The key order and final values are the same, so the 24-row result is unchanged and the assembler's import at `:69` sees the same expected values.
+- **Lock gate:** the assembler reads the rerun (`:27`), and the first failed run appears in `excluded_runs`. One small labelling issue: the rerun is archived as `clean-lock.json` (`:102`). The ledger explains this, but naming it `clean-lock-rerun.json` would be clearer.
+- **Worker gate:** `clean-worker.json` already exists and says `qualification: true`. You said that gate is still running, so I didn't treat this file as evidence. The assembler checks the `.stderr` file is empty and that there are exactly 120 observations, so a partial run can't pass.
+- **Scope:**
+  - Diagnostics are checked only as metadata (`:91-92`).
+  - The ledger's `limits` doesn't claim the memory fixtures as release evidence.
+  - The installed app is only hashed, never changed (`:94`).
+  - Nothing launches the app's Main or controller code.
+- **Prototype vs final archive:** the assembler refuses to overwrite files, and it only writes after every check passes (`:96-101`). I treated the build files as prototypes, not as the final archive.
+
+## Order to run things
+1. Apply the two `-next` files and the runner pin, and commit them as QA.
+2. Fill in the assembler's `@QA@` with that commit.
+3. From a clean QA checkout, rerun the socket gate, the scanner (with output to `build/socket-configuration-qualified-consumers.json`) and the unit runner.
+4. Wait for the worker gate to finish with empty stderr, then run the assembler.

@@ -1,0 +1,18 @@
+{
+  "aarch64": {
+    "application_notarization": "not performed",
+    "application_signing": null,
+    "bundle_tree_sha256": "036cdfdd6fec1c86bda01c23bb55f2d3bccacfaa3190ca5ede0a99e6e2c267b6",
+    "packager_commit": "f9a5edb4b3e00aee80a1a76b1471a85a11ca8641",
+    "source_commit": "f9a5edb4b3e00aee80a1a76b1471a85a11ca8641",
+    "vendor_signature_verification": "vendor signature verified after byte-only copy; never re-signed"
+  },
+  "x64": {
+    "application_notarization": "not performed",
+    "application_signing": null,
+    "bundle_tree_sha256": "5bf2a38ea005427143d82b09a803a73613d7936cc8ad07380cb1099f8de2690d",
+    "packager_commit": "f9a5edb4b3e00aee80a1a76b1471a85a11ca8641",
+    "source_commit": "f9a5edb4b3e00aee80a1a76b1471a85a11ca8641",
+    "vendor_signature_verification": "vendor signature verified after byte-only copy; never re-signed"
+  }
+}

@@ -2,11 +2,13 @@
 
 Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS, retaining its existing Apple silicon and Intel runtime support. This audit candidate is not yet operationally qualified.
 
-Current local baseline is audit.22: thirteen regression gates, 137 unit tests
-and repeated ARM/x64 packages pass with pinned evidence. x64 execution uses
-Rosetta; native GUI, physical Intel and controller acceptance remain open. See
-[the qualified scope](audit/STOP-BEFORE-SEND.md). Transport prototypes are excluded
-from this application build.
+Current local baseline is audit.23: thirteen candidate regression gates, one
+historical characterization, 140 unit tests
+and repeated ARM/x64 packages verified locally. Initial socket read-timeout setup
+now fails closed while original DNS/TCP connection timing is retained. See
+[the qualified scope](audit/SOCKET-CONFIGURATION.md) and the
+[integrity ledger](audit/socket-configuration-final-integrity.json). Native GUI,
+physical Intel, controller compatibility and release acceptance remain open.
 
 ## About
 

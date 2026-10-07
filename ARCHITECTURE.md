@@ -12,6 +12,7 @@
 | `patches/com/apple/mrj/MRJFileUtils.java` | audit.2 single-method Desktop folder bridge | Other original stubs preserved; GUI callers not yet qualified |
 | `patches/sun/io/MalformedInputException.java` | Modernization: restores exception type required by legacy communications bytecode | Message constructor discards message; no controller implementation |
 | `patches/compat/SafePlistResolver.java` | Original local DTD with external-resolution rejection | XML resource limits and real response compatibility open |
+| `patches/compat/SocketConfiguration.java` | audit23 initial read-timeout validation before publication; fixed IO detail with standard categories | Original Socket(host,80) DNS/TCP timing retained; cached setter and native socket behavior remain open |
 | `patches/compat/SafeLogAppender.java` | Fixed severity signals without event rendering | Two synchronous writes maximum per process; GUI error states open |
 | `build.sh` | Delegates to the deterministic hash-locked audit builder | Refuses existing output; no signing, install, launch or cleanup |
 | `.gitignore` | Ignores generated builds/classes | New audit tooling also ignores Python caches |
@@ -334,3 +335,25 @@ See [qualification, corrections and limits](audit/STOP-BEFORE-SEND.md) and the
 Native GUI, physical Intel, controller behavior and release acceptance remain open.
 No controller contact, production-volume test or installed-app change occurred.
 HTTP remains plaintext. Earlier milestone records remain historical.
+
+
+### Audit23 initial socket setup (local qualification)
+
+Application source `f9a5edb`, QA source `96861bf`, JAR
+`2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad`.
+Thirteen candidate regression gates plus one historical audit17 characterization,
+140 unit tests, paired clean builds and repeated packages per architecture pass. Only HttpConnection.createSocket and one
+new helper differ from audit22; all other JAR entry bytes are preserved.
+Twenty-nine memory cases per runtime/mode and twelve mutants per architecture
+qualify refused publication after failed/mismatched initial read-timeout setup.
+Original Socket(host,80), ignored connect argument, DNS/TCP timing, command bytes,
+polling and retry policy are retained. Standard IO categories retain fixed safe
+error detail. This deliberately changes legacy error prose. HTTP remains plaintext.
+See [scope, exclusions and reproduction](audit/SOCKET-CONFIGURATION.md) and
+[record hashes](audit/socket-configuration-final-integrity.json). One first lock
+fixture mismatch is excluded; an unchanged reduced-concurrency rerun passes,
+with the first cause unresolved. x64 runs under Rosetta; native GUI, physical
+Intel, controller workflows and release acceptance remain open. Cached timeout
+setter, whole-operation/write bounds, mutable outbound inputs, status/empty-ack
+interpretation and firmware file binding remain separate gaps. No controller,
+production/mounted volume or installed-app modification occurred.

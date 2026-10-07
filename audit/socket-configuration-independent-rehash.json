@@ -1,0 +1,40 @@
+{
+  "execution_commit": "96861bf9edecf45aea6ffc78d570adb1c8383eb6",
+  "execution_worktree_dirty": true,
+  "frozen_ledgers": {
+    "audit/socket-configuration-final-integrity.json": "509f54f24919ac99ca0168508c1330410297d667fb000689f132f83954cc5137",
+    "audit/stop-admission-final-integrity.json": "df1e0ea85687dcabc1248d0abb15dabeb14c67b5c1b62c6e10ea018d978aec57",
+    "audit/worker-exit-final-integrity.json": "f53c325d0eadef855f1fdb777e6ebc2feab8d6d1588899738153280b003dfbb7"
+  },
+  "records": {
+    "audit/socket-configuration-clean-admission.json": "5c7443081720349577beb2ec17b132af6363ddc065e058016f05548a0eb4a273",
+    "audit/socket-configuration-clean-characterization.json": "002a5d60cd03fe7314f9da922be91e66876e0b67f8277baa4de6eae4d89f853b",
+    "audit/socket-configuration-clean-connect.json": "e343b2cb014e43a622aef61ee3fe4e53da74e2e5354a7084a2c0ccd0b2cc7b3c",
+    "audit/socket-configuration-clean-consumers.javap": "b7e7e1f334ea27ddd34b561a8ae6bae6c7223dd64501f45aad2ada10fa577be8",
+    "audit/socket-configuration-clean-consumers.json": "b3c7f7f0936feafd06cc42f4c0f53758218b006c471359c372908d59da999ef3",
+    "audit/socket-configuration-clean-diagnostics-aarch64.json": "70651dbb0f03e5cac0ae06f182521775b7885b999a0c6e2d6790ba17b3812fd4",
+    "audit/socket-configuration-clean-diagnostics-x64.json": "6c6c244e6e6014266286ff7a8d55b0c71175923185cffba6a62272c7648891e1",
+    "audit/socket-configuration-clean-factory.json": "daa8b71418e2d5a1e62a60bdab4d780ea96624bb74f2d3b504e352132b743080",
+    "audit/socket-configuration-clean-lock-rerun.json": "ce61a0517062ba66cb6c5549e053b9b0e1cfe8976a79987a21ac584a743cab04",
+    "audit/socket-configuration-clean-packages.json": "8f1e646c121b39d9feb47e1a921f11cef7ffd209ed2ec6534357d4fd42b52a93",
+    "audit/socket-configuration-clean-posting.json": "c48df353c838c7bcad57517bab57ad24a592dcf2ebece7dbd0e59a2432ec6715",
+    "audit/socket-configuration-clean-resources.json": "97b9fb277a8bd2ab6a2f8405331b62247c98946fa7e585ec12116fd186573542",
+    "audit/socket-configuration-clean-runtime.json": "f8935b144770240b5c16d9f1fc5576ec627b9297d14f487f4cea6b2bdc5a974c",
+    "audit/socket-configuration-clean-security.json": "72b67fcc9de4c4763df8335c5508e50835ceef3705c1b55d7c71dcf39feffb57",
+    "audit/socket-configuration-clean-shared.json": "29336a93380aca687f48e7010e5e7e74f274fd76cfbe2619d84c974470aff816",
+    "audit/socket-configuration-clean-socket.json": "63dd3826293e08b817f0f9fe527c6d7c47f0b76568df7c7a5c4807fbfc5a3296",
+    "audit/socket-configuration-clean-stop.json": "9d214ddc285bd76eb13af53cdd0354c2f2049c2215651d26e34a849713fc96fa",
+    "audit/socket-configuration-clean-tests.json": "1bafe724e3ec1ccbf8505c479dc4f6123694189d0ef76b8bcd16e6b6180880e7",
+    "audit/socket-configuration-clean-tests.stderr": "e76c0474361862f3710ce505a391b02642a84346a21a8f943a2b5f133ee88f1d",
+    "audit/socket-configuration-clean-tests.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit/socket-configuration-clean-transport.json": "74a2800e3f00e026cfac1a9c71e0aca4901ff04c9136e9fe56209ae5c25e8672",
+    "audit/socket-configuration-clean-worker.json": "fed0ba6bb3e3005c050285a3a6be02a75dcedd5abc7d70c1ee17a5238d7a0619",
+    "audit/socket-configuration-evidence-assembler.py": "133285c982d318bcdb44762e05961a86388bb3bb8cd6c31654daf4f8682f8378",
+    "audit/socket-configuration-sbom.json": "da24f2cc6e48e95e2e62bf3474501b7cf36bb7c50c913ba7e1eba9b63fd8691e",
+    "audit/socket-configuration-unit-runner.py": "d144cb962bfab212865d3beba15394b50a62cd686d0a926b7df566096713d203"
+  },
+  "result": "PASS",
+  "scope": "Separate tool invocation after assembly. Byte hashes only; no feature/hardware/GUI qualification. Documentation/archival worktree may be dirty; measured feature execution commits remain recorded in frozen ledger.",
+  "verified_record_count": 25,
+  "verifier_sha256": "fc3aa7ab4004a003c4fbb149bb1e86dc0ad6497337116e72b7ff7573fff91147"
+}

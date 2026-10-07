@@ -1,8 +1,8 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current local candidate: **audit.22**, application `1e659d5`, QA `73ffa4e`.
-Thirteen gates and 137 unit tests pass; see [final scope](audit/STOP-BEFORE-SEND.md)
-and [hash-bound evidence](audit/stop-admission-final-integrity.json). Native GUI,
+Current local candidate: **audit.23**, application `f9a5edb`, QA `96861bf`.
+Thirteen candidate gates, one historical characterization and 140 unit tests pass; see [qualified scope](audit/SOCKET-CONFIGURATION.md)
+and [hash-bound evidence](audit/socket-configuration-final-integrity.json). Native GUI,
 physical Intel, controller and signed-release acceptance remain open.
 
 Historical audit.17 clean fixture-qualified candidate: **audit.17**, source/fixture/package
@@ -409,3 +409,25 @@ See [qualification, corrections and limits](audit/STOP-BEFORE-SEND.md) and the
 Native GUI, physical Intel, controller behavior and release acceptance remain open.
 No controller contact, production-volume test or installed-app change occurred.
 HTTP remains plaintext. Earlier milestone records remain historical.
+
+
+### Audit23 initial socket setup (local qualification)
+
+Application source `f9a5edb`, QA source `96861bf`, JAR
+`2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad`.
+Thirteen candidate regression gates plus one historical audit17 characterization,
+140 unit tests, paired clean builds and repeated packages per architecture pass. Only HttpConnection.createSocket and one
+new helper differ from audit22; all other JAR entry bytes are preserved.
+Twenty-nine memory cases per runtime/mode and twelve mutants per architecture
+qualify refused publication after failed/mismatched initial read-timeout setup.
+Original Socket(host,80), ignored connect argument, DNS/TCP timing, command bytes,
+polling and retry policy are retained. Standard IO categories retain fixed safe
+error detail. This deliberately changes legacy error prose. HTTP remains plaintext.
+See [scope, exclusions and reproduction](audit/SOCKET-CONFIGURATION.md) and
+[record hashes](audit/socket-configuration-final-integrity.json). One first lock
+fixture mismatch is excluded; an unchanged reduced-concurrency rerun passes,
+with the first cause unresolved. x64 runs under Rosetta; native GUI, physical
+Intel, controller workflows and release acceptance remain open. Cached timeout
+setter, whole-operation/write bounds, mutable outbound inputs, status/empty-ack
+interpretation and firmware file binding remain separate gaps. No controller,
+production/mounted volume or installed-app modification occurred.

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/tools/check_stop_lock.py", line 88, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/tools/check_stop_lock.py", line 82, in main
+    for mode in ('pc18','pc45'):observe(jar,mode,not(label=='pc45' and mode=='pc18'),'-Xint','audit18-Manager-restored' if label=='both' else label+'-getter-restored')
+                                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/tools/check_stop_lock.py", line 77, in observe
+    if output.splitlines()!=expected(mode,deadlock):raise ValueError('Lock observation differs; verifier/error/timeout never count as evidence')
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Lock observation differs; verifier/error/timeout never count as evidence

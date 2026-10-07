@@ -1,0 +1,34 @@
+I found no problems with counts or commit provenance: the ledger matches what the assembler checks. I did find two claims that the evidence doesn't support, one gap in what was recorded about the failed lock run, and gaps in the reproduction steps that would stop a third party from replaying it. I didn't run anything, so I haven't recomputed any hashes; this is a reading of the files only.
+
+## Checked and consistent
+- **Commits:** app `f9a5edb` and QA `96861bf`. Only the socket gate's fixture is at QA; the other 13 are at the app commit (assembler line 30, ledger `fixture_commits`).
+- **Observation counts:** the per-gate counts are hard-coded in the assembler (line 24) and match `gate_observation_counts`. The lock count comes from the rerun file.
+- **Socket gate:** 29 cases in each of 4 runtime/mode combinations, with uniqueness enforced (lines 66–67). The 24 negatives are 12 mutants × 2 architectures, Xint only, with exact frames and assertions (68–71). This matches `SOCKET-CONFIGURATION.md:31-32`.
+- **Consumer inventory:** fixture commit is QA, dirty is false, the JAR matches, and the counts 2862/194/281/319/210 are machine-checked. The disassembly is bound by hash (73–76).
+- **Unit tests:** 140 run at QA with a clean worktree, verified by an exact-match pattern on stderr. Stdout hash `e3b0…` is the empty-file hash, which is consistent. Runner hash `d144…` is the same in `clean-tests.json:95` and the ledger.
+- **JAR contents:** the change from audit22 is exactly two entries, and the SBOM lists 3062 entries.
+- **Packages:** signing is null and notarization is "not performed". README and the doc make no release claim.
+- **Next work:** the cached AcpxConnection item is described as the next separate fix (`SOCKET-CONFIGURATION.md:55-59`). That matches what you said.
+
+## Claims to fix before committing
+1. **The characterization gate tests an older build, and the docs don't say so.** `clean-characterization.json:3,7` uses `source_commit` `47166ed` and candidate `948c1d…`. That is the audit.17 build (`SYNC-CALLBACK-PREENQUEUE.md:63-65`), not audit23. The assembler expects this (lines 35, 37). But `SOCKET-CONFIGURATION.md:38-39` says the "other gates and packages use clean application source `f9a5edb`", and the ledger shows only `f9a5edb` for it. One sentence would fix this: its fixture runs at `f9a5edb` against the historical audit.17 candidate.
+2. **"Actual Claude reviews" (`SOCKET-CONFIGURATION.md:41`) has nothing behind it.** There's no socket file in `audit/claude-review/`. The only candidate is the untracked `audit/CLAUDE-SOCKET-CONFIGURATION-EVIDENCE-DESIGN.txt`, which no doc links to and the ledger doesn't hash. Either commit and link it, describing it accurately (one design review, outside the ledger), or remove the phrase.
+3. **The record hashes weren't independently rehashed.** Line 115 is the generator checking its own writes straight after writing them. If you rehashed separately, nothing records it. Also, the audit23 ledger's own hash is only printed to the console. Pin it in the doc or the commit message, the same way this ledger pins the audit22 one.
+
+## The failed first lock run
+- `build/socket-configuration-clean-lock.json` is empty. Its stderr only shows the `ValueError` from `tools/check_stop_lock.py:77`, which raises without printing what it actually observed. So the "unexpected observation" was never captured anywhere.
+- No record holds that run's commit or dirty state. "Unchanged rerun" is therefore your account of the session, not machine evidence. The rerun itself is verified clean at `f9a5edb`.
+- The current wording ("cause unresolved", "excluded") is honest. It should also say the observed output wasn't captured, and that "unchanged" rests on session history.
+- Suggested follow-up, not part of this patch: make the lock checker print the lines that differ.
+
+## Gaps in the reproduction steps (`SOCKET-CONFIGURATION.md:87-97`)
+- **Script location:** the assembler and runner must run from `build/`, which git ignores. Run from `audit/`, the assembler fails the clean-checkout check and refuses to overwrite its own archived copy. The runner path is also hard-coded as `build/socket-configuration-unit-runner.py` (line 82). The doc says neither.
+- **Audit22 build needed:** replay needs `build/stop-admission-clean-1` with audit22 JAR `202c9e…` (lines 51–52). The doc doesn't mention it.
+- **Tied to this machine:** line 94 compares `/Applications/RAID Admin.app` against the intake record, so replay only works where that exact installed bundle exists.
+
+## Minor points
+- **Normalized copies:** the archived packages and diagnostics are re-serialized (`sort_keys`), not byte copies, and the raw build-file hashes aren't recorded. Gate, consumer and unit records are byte copies.
+- **Old ledgers:** "untouched" rests on the clean status at QA plus git history. The assembler records `df1e…` but doesn't compare it to a fixed value.
+- **Unit inputs:** the runner hashes only `.py` files under `tools/` and `tests/`. Other inputs are covered only by git status, which doesn't cover ignored files.
+
+None of this undermines what was measured. Items 1–3 and the lock-run wording are text-only fixes. The ledger can't be regenerated anyway, because the assembler refuses to overwrite, so these should go in docs or the commit message.

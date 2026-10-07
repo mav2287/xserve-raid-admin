@@ -1,0 +1,618 @@
+{
+  "fixture_commit": "96861bf9edecf45aea6ffc78d570adb1c8383eb6",
+  "fixture_dirty": false,
+  "source_commit": "f9a5edb4b3e00aee80a1a76b1471a85a11ca8641",
+  "source_dirty": false,
+  "candidate_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+  "reference_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "sources": {
+    "tests/java/socketfixture/ConfigurationPublicationObservation.java": "f5f6961b480dd9948bc61189ff5577a5d442bd6e1eb81457354c269df03e95ee",
+    "tests/java/socketfixture/ConfigurationObservation.java": "78b9ad77785c8fc8088ee69a24fafadddd513701b9ccbaa8589ef267803ceae2",
+    "tests/java/socketfixture/ConfigurationRunner.java": "de45872f819d29eedd76932ca1fb5724919e504fd2bcbb342cc28bba2dc99660",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/fixture/FixtureIdentity.java": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a",
+    "tools/check_socket_configuration.py": "54134902fec1627b7bb912597d645d6965c49828408bab92e5701f489d6264af",
+    "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+    "tools/socket_configuration_structure.py": "efb2bfa6d6046824ab2b9d7037f18daa1d3114f581e23eaa73e4e6253d3c64be",
+    "tools/socket_configuration_mutants.py": "bbef26a498cbdc7ca66e4cdae9b60916ec1d01fb38477da4a32c1cad94af47c2",
+    "tools/class_patch.py": "aaa47b78234a5307fb98abbc0dc37f520c8670d941d03da605b6338c4e438c72",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6",
+    "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "5376e02eecc2a408bd2240144aaa49018f4b35952897d464dcf6dc7f61325dc0",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "patches/compat/SocketConfiguration.java": "76e748f7e05e8d631afbae0ea26ae884d44257a1c5830b01c0f75d8cf3fd32e8",
+    "audit/expected-build.json": "61b4aabe42be07aa4ea4e900654d6cb5bfc7340649cd674ed0b7ffecb0b27cca",
+    "audit/security-patches.json": "62ca5f719e7cecb344b8129394bccd717c20ee550df9be7312a43c91b006ef21",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "tests/test_socket_configuration.py": "33470969bf248e3f7027fc344a2675a32a6d863139380c53e0bddc6e02f89b26",
+    "tests/fixtures/socket-configuration-candidate-http.javap": "52542cf3a6a1b55870f23b386afc5ec24c0bf560dbb103987dc10a39f16cdfef"
+  },
+  "compiled_fixture_hashes": {
+    "ConfigurationRunner.class": "dd8d9051045222d9b94ad9d4fd67f8c771386cd9c326f217e1ec7b38050cf37a",
+    "ConfigurationPublicationObservation$MemoryImpl.class": "19e9f14e2e62e6952ff10cc85f284602a2eb5e0888e6d455505d590aa644e7e8",
+    "ConfigurationPublicationObservation$1.class": "3c1a9702563a9df66c1f1b9f8de11e8651c71ac026926e718c882263b9b92137",
+    "ConfigurationPublicationObservation.class": "081b7e205890d7fcad78d7393ed2a36d484bac9ce282332e746a5934b2f71a7a",
+    "ConfigurationPublicationObservation$MemoryGuard.class": "1a468efa6f94e8cbd62080c45d0b74afe50820061f179eb8aec92a25d8d2e1e8",
+    "compat/ConfigurationObservation.class": "d0526973db0c9a3b5ca114b24d9acc2f831bea6c5f16c7e5681e48fe205bc13b",
+    "compat/ConfigurationObservation$Fake.class": "059fc7781ac2c80785c6fb637244cbb90b46f7d618f1196fbc0ce3463651f7fc",
+    "compat/ConfigurationObservation$Fake$1.class": "66a5a1e0d9f19148a5e0e788ff90914365e275234ee78321201fb790074a9dd3",
+    "compat/ConfigurationObservation$HostileSocket.class": "5cc636edf765bbec30c1aca544484d57162cc3c2f7432d29e957e1d4a77bf65f",
+    "fixture/FixtureIdentity.class": "f77279e6a7b3cc365f0a6639e89055472dae5d196a7ca1882443a5db3f914f38",
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be"
+  },
+  "product_class_hashes": {
+    "com/apple/xsr/net/HttpConnection.class": "5e86901259dc34bf86ac6d2a9c842f11337f46d4df9081f22a1df2772155cc66",
+    "compat/BoundedHeaderStream.class": "39b1577ff65d0773f7f0b49d15d2f4b799b170812dc4e6b58377d3f72f33c68c",
+    "compat/BoundedResponseBuffer.class": "5ff49327d25fbbc6b2eacf2477abdedf662002658a556a3162d2a4f6907478e4",
+    "compat/RejectionRecovery.class": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+    "compat/ResponseFraming.class": "6f83388bf50d9c1666e63c9faf69cfc6a4d356581eeb1e9bfe5b5f04212f7e28",
+    "compat/SafeLogAppender.class": "ecb43d65cce4bfd37a4026c65385a33641353b07388382e73e80fea1341f5447",
+    "compat/SafePlistParser.class": "d6dd672caf979b6139fe0793fae057fb8fcd594e8a51a51786da0f6182af9d1d",
+    "compat/SafePlistResolver.class": "cd71056f9471cfa06b3eff2ab3bb2b3534980587944a0424757250dcf89cdd53",
+    "compat/SocketConfiguration.class": "dc61c25925a8213e33779e7282b31485cae4cefb1dfa99f3853f28f054ebb397",
+    "compat/StoppedDelivery$Callback.class": "ddc04c262b0e304157035c3f478f80583b405c8892001ba0cc439c0ffeaa49c4",
+    "compat/StoppedDelivery.class": "2e49f0b0f07d903f703685e3467d54bb5ea434b92d865396b3a7e1818c6ca5c9",
+    "compat/UntrustedResponseException.class": "c2909835e4ebf76df1c45fe4303fa0836d30382de7d7bdeb8934d019ba82bbfb",
+    "compat/WorkerExit$CallbackBatch.class": "c1cae890bdeb26cc59b4b65a3e8decf7da9e37abbe1e02350f79a6f4119f002c",
+    "compat/WorkerExit$Entry.class": "5f7a28df87df17ecc4a27d715cfcc27701e1833d980b6d2bc0471fe2f3bfc9e5",
+    "compat/WorkerExit.class": "70a784e0f3b908c2d41d8975015247d71b64ec44700109a886256b7f7fe29b05"
+  },
+  "class_identity_manifest_sha256": "f6f34651c90db935d5e418ad8802a2aaa4ab3bf856635782770422968554b3cd",
+  "helper_source_recompiled_identically": true,
+  "whole_original_class_reconstructed": true,
+  "independent_javap_structure": "PASS",
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "results": [
+        {
+          "fixture": "publication",
+          "cases": 15,
+          "result": "PASS actual read-timeout configuration prototype; cases=15; native_sockets=0",
+          "execution_flags": [
+            "-Xint",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "publication"
+          ]
+        },
+        {
+          "fixture": "direct",
+          "cases": 14,
+          "result": "PASS direct configuration prototype; cases=14; guarded_operations=0",
+          "execution_flags": [
+            "-Xint",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "direct"
+          ]
+        }
+      ],
+      "runtime_tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187"
+    },
+    {
+      "architecture": "aarch64",
+      "execution_mode": "-Xcomp",
+      "results": [
+        {
+          "fixture": "publication",
+          "cases": 15,
+          "result": "PASS actual read-timeout configuration prototype; cases=15; native_sockets=0",
+          "execution_flags": [
+            "-Xcomp",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "publication"
+          ]
+        },
+        {
+          "fixture": "direct",
+          "cases": 14,
+          "result": "PASS direct configuration prototype; cases=14; guarded_operations=0",
+          "execution_flags": [
+            "-Xcomp",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "direct"
+          ]
+        }
+      ],
+      "runtime_tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187"
+    },
+    {
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "results": [
+        {
+          "fixture": "publication",
+          "cases": 15,
+          "result": "PASS actual read-timeout configuration prototype; cases=15; native_sockets=0",
+          "execution_flags": [
+            "-Xint",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "publication"
+          ]
+        },
+        {
+          "fixture": "direct",
+          "cases": 14,
+          "result": "PASS direct configuration prototype; cases=14; guarded_operations=0",
+          "execution_flags": [
+            "-Xint",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "direct"
+          ]
+        }
+      ],
+      "runtime_tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    },
+    {
+      "architecture": "x64",
+      "execution_mode": "-Xcomp",
+      "results": [
+        {
+          "fixture": "publication",
+          "cases": 15,
+          "result": "PASS actual read-timeout configuration prototype; cases=15; native_sockets=0",
+          "execution_flags": [
+            "-Xcomp",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "publication"
+          ]
+        },
+        {
+          "fixture": "direct",
+          "cases": 14,
+          "result": "PASS direct configuration prototype; cases=14; guarded_operations=0",
+          "execution_flags": [
+            "-Xcomp",
+            "-Xverify:all",
+            "-Djava.awt.headless=true",
+            "-Duser.home=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu",
+            "-Dfixture.identitymanifest=/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/identity.tsv",
+            "-cp",
+            "/Users/mav2287/Repositories/mav2287/RAID-Admin/xserve-raid-admin/build/socket-configuration-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar:/var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-socket-configuration-zi45oevu/classes",
+            "ConfigurationRunner",
+            "direct"
+          ]
+        }
+      ],
+      "runtime_tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+    }
+  ],
+  "negative_controls": [
+    {
+      "mutation": "attached-cause",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "dd59aeacb4a129bdad3b22d5a68161a1bbe19503b49001acb7183dd03137d47d",
+      "class_identity_manifest_sha256": "6b6ee690ad803ca13164d96003e17640026424c6e6f2ab19038e9787f33c6864",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.fixed(ConfigurationObservation.java:38)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:50)"
+      ],
+      "stderr_sha256": "93505cdac9a017940bf3e86b0df807339cc5fa9a02110605ac53157ea2e5de52",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "attached-cause",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "dd59aeacb4a129bdad3b22d5a68161a1bbe19503b49001acb7183dd03137d47d",
+      "class_identity_manifest_sha256": "6b6ee690ad803ca13164d96003e17640026424c6e6f2ab19038e9787f33c6864",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.fixed(ConfigurationObservation.java:38)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:50)"
+      ],
+      "stderr_sha256": "93505cdac9a017940bf3e86b0df807339cc5fa9a02110605ac53157ea2e5de52",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "ignored-timeout-error",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "5aac3cbd61c8f42cc37993c7f02446ef720413934465958e52991984f4fdf74a",
+      "class_identity_manifest_sha256": "78eba9fb6a56767444c1d29a18997f82603053f1397e97362e2849cd10f67bf4",
+      "fixture": "direct",
+      "assertion": "Setup failure ignored",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:49)"
+      ],
+      "stderr_sha256": "76be03e246abffcfc73bc149e4ebfdee232897df8eafa5b17078bf978e6dfa95",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "ignored-timeout-error",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "5aac3cbd61c8f42cc37993c7f02446ef720413934465958e52991984f4fdf74a",
+      "class_identity_manifest_sha256": "78eba9fb6a56767444c1d29a18997f82603053f1397e97362e2849cd10f67bf4",
+      "fixture": "direct",
+      "assertion": "Setup failure ignored",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:49)"
+      ],
+      "stderr_sha256": "76be03e246abffcfc73bc149e4ebfdee232897df8eafa5b17078bf978e6dfa95",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "missing-close",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "ec148642e0e0073f2676c65296b5a11f639ff2d67a4443881a1317d52d801d57",
+      "class_identity_manifest_sha256": "f48010b1d9a91153c55647474043cafa683b3d21e9ce8214a24cf34edfe0fa0c",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:52)"
+      ],
+      "stderr_sha256": "1bd06143ba90b2db38ddc0c85ec2efece0f1a39f3c1af8c62a93682102111edf",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "missing-close",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "ec148642e0e0073f2676c65296b5a11f639ff2d67a4443881a1317d52d801d57",
+      "class_identity_manifest_sha256": "f48010b1d9a91153c55647474043cafa683b3d21e9ce8214a24cf34edfe0fa0c",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:52)"
+      ],
+      "stderr_sha256": "1bd06143ba90b2db38ddc0c85ec2efece0f1a39f3c1af8c62a93682102111edf",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "lost-connect-category",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "1482c419b09caf097e5d87ae9cf84dfb7e562ad8dd0aee2ced0a6b0404dc98ff",
+      "class_identity_manifest_sha256": "dba8097813ead284243c15c5f72a8bf3fb8c5e38f24e043e2fa02ca219ea0afd",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.main(ConfigurationPublicationObservation.java:115)"
+      ],
+      "stderr_sha256": "32b05bd6da5fd25456dc3cac0b3a1390bda50776c667f706071a8c17f93d2c3d",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "lost-connect-category",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "1482c419b09caf097e5d87ae9cf84dfb7e562ad8dd0aee2ced0a6b0404dc98ff",
+      "class_identity_manifest_sha256": "dba8097813ead284243c15c5f72a8bf3fb8c5e38f24e043e2fa02ca219ea0afd",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.main(ConfigurationPublicationObservation.java:115)"
+      ],
+      "stderr_sha256": "32b05bd6da5fd25456dc3cac0b3a1390bda50776c667f706071a8c17f93d2c3d",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "wrapped-security",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "010f543757859337850494b950ac9a8bb1d307f427f7ca4c44f155ab0844de54",
+      "class_identity_manifest_sha256": "1b5301495f32b13198cb807eeb7cee36592fa2f043dc12bfc0cdf6329c2f40b8",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:66)"
+      ],
+      "stderr_sha256": "d47e0485ba75de4d6d73f971a0e550b0b0b00af8318e351deaf64a5a4b270c1b",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "wrapped-security",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "010f543757859337850494b950ac9a8bb1d307f427f7ca4c44f155ab0844de54",
+      "class_identity_manifest_sha256": "1b5301495f32b13198cb807eeb7cee36592fa2f043dc12bfc0cdf6329c2f40b8",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:66)"
+      ],
+      "stderr_sha256": "d47e0485ba75de4d6d73f971a0e550b0b0b00af8318e351deaf64a5a4b270c1b",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "escaped-runtime",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "29d7b31a52206e6a8284c0fca6339a43d559f7f8ef32243376bcf651320fb39e",
+      "class_identity_manifest_sha256": "8347feaf03d75123dddcabd89b94def7fc7c10b2c596fd3bea070787ba6a921c",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:67)"
+      ],
+      "stderr_sha256": "3775788b1c3e3c5084392c9a02dfb4b12d5d61a7a76540666963cbd0bc76b649",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "escaped-runtime",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "29d7b31a52206e6a8284c0fca6339a43d559f7f8ef32243376bcf651320fb39e",
+      "class_identity_manifest_sha256": "8347feaf03d75123dddcabd89b94def7fc7c10b2c596fd3bea070787ba6a921c",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:67)"
+      ],
+      "stderr_sha256": "3775788b1c3e3c5084392c9a02dfb4b12d5d61a7a76540666963cbd0bc76b649",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "lost-setup-category",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "60fd812f2d5ac5ec4d446edf37a4e7de13c8f2b10c93cf4549ca63fc923a545e",
+      "class_identity_manifest_sha256": "02cc2d450d902577388cc904898c4565669af968202429e5869345f1209ff8ec",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:50)"
+      ],
+      "stderr_sha256": "e9dfa1e2ebd8545c877ee8c49700fdcd9fad32be6a40cc62c13cf056a6f733dd",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "lost-setup-category",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "60fd812f2d5ac5ec4d446edf37a4e7de13c8f2b10c93cf4549ca63fc923a545e",
+      "class_identity_manifest_sha256": "02cc2d450d902577388cc904898c4565669af968202429e5869345f1209ff8ec",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:50)"
+      ],
+      "stderr_sha256": "e9dfa1e2ebd8545c877ee8c49700fdcd9fad32be6a40cc62c13cf056a6f733dd",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "narrow-close-catch",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "02053c52e396ec9cc6bafa8a80695f7f7b907af3e7cae3b8cc904a794f0d5377",
+      "class_identity_manifest_sha256": "e828946f5e448e29bdfe00589aa2bd8c5aef69df1a9c0e3f685c808a4a8b8317",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:74)"
+      ],
+      "stderr_sha256": "d507ff1572b32e12f7a6ecd91624d981b0d58989938639803ab1bc8723ba2022",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "narrow-close-catch",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "02053c52e396ec9cc6bafa8a80695f7f7b907af3e7cae3b8cc904a794f0d5377",
+      "class_identity_manifest_sha256": "e828946f5e448e29bdfe00589aa2bd8c5aef69df1a9c0e3f685c808a4a8b8317",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:74)"
+      ],
+      "stderr_sha256": "d507ff1572b32e12f7a6ecd91624d981b0d58989938639803ab1bc8723ba2022",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "wrapped-error",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "5939392c86b68e955ebaac35f91c3390c12bbb45b0205416f661ac343e195351",
+      "class_identity_manifest_sha256": "1c447a0d84aa6d7596a735de7db1e78eaf53b7192503829a3d1244b9f1424803",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:66)"
+      ],
+      "stderr_sha256": "d47e0485ba75de4d6d73f971a0e550b0b0b00af8318e351deaf64a5a4b270c1b",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "wrapped-error",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "5939392c86b68e955ebaac35f91c3390c12bbb45b0205416f661ac343e195351",
+      "class_identity_manifest_sha256": "1c447a0d84aa6d7596a735de7db1e78eaf53b7192503829a3d1244b9f1424803",
+      "fixture": "direct",
+      "assertion": "Configuration assertion",
+      "expected_failing_frames": [
+        "compat.ConfigurationObservation.check(ConfigurationObservation.java:9)",
+        "compat.ConfigurationObservation.main(ConfigurationObservation.java:66)"
+      ],
+      "stderr_sha256": "d47e0485ba75de4d6d73f971a0e550b0b0b00af8318e351deaf64a5a4b270c1b",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "constant-read-timeout",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "929f5fb36aef7a7e156e496957003ea41367b675f0d4879aa24728e7f9faeb50",
+      "class_identity_manifest_sha256": "491c20e03ee3d30993a239bc5b6c7d6d94bafb70ec299f52f2e2327668cb45ac",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.main(ConfigurationPublicationObservation.java:93)"
+      ],
+      "stderr_sha256": "75fadfad53e013fe6e7404dff7481de113723588d0f26811aa22cdb19961581c",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "constant-read-timeout",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "929f5fb36aef7a7e156e496957003ea41367b675f0d4879aa24728e7f9faeb50",
+      "class_identity_manifest_sha256": "491c20e03ee3d30993a239bc5b6c7d6d94bafb70ec299f52f2e2327668cb45ac",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.main(ConfigurationPublicationObservation.java:93)"
+      ],
+      "stderr_sha256": "75fadfad53e013fe6e7404dff7481de113723588d0f26811aa22cdb19961581c",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "wrong-read-field",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "6ba395c2e50fd574e818b507c2f101a4a4b62893faf60e2c0f8e9fdd31cf6780",
+      "class_identity_manifest_sha256": "eba300f4578e11c993f579674322d59b43b4f31106d9b56fabf473eb141a1136",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.main(ConfigurationPublicationObservation.java:102)"
+      ],
+      "stderr_sha256": "b6da122cc61ab324d874a87ef17a317e06f78e465a761fd4f8a8375578a35e0d",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "wrong-read-field",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "6ba395c2e50fd574e818b507c2f101a4a4b62893faf60e2c0f8e9fdd31cf6780",
+      "class_identity_manifest_sha256": "eba300f4578e11c993f579674322d59b43b4f31106d9b56fabf473eb141a1136",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.main(ConfigurationPublicationObservation.java:102)"
+      ],
+      "stderr_sha256": "b6da122cc61ab324d874a87ef17a317e06f78e465a761fd4f8a8375578a35e0d",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "publish-before-configuration",
+      "architecture": "aarch64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "efd97d95ebc489ffb77f256caad9e8f95cb6e2f9d8a451ef59fb9932f6ca3b95",
+      "class_identity_manifest_sha256": "033891e019f42411f498532e5629eb9737e5ff6fdabdce35405fa90f25b09361",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.unpublished(ConfigurationPublicationObservation.java:20)",
+        "ConfigurationPublicationObservation$MemoryImpl.connect(ConfigurationPublicationObservation.java:32)"
+      ],
+      "stderr_sha256": "f3f47c0b30620c3b94ca4203407db74d13c960ac1639f8723e3b5209e4b9a38f",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    },
+    {
+      "mutation": "publish-before-configuration",
+      "architecture": "x64",
+      "execution_mode": "-Xint",
+      "mutant_jar_sha256": "efd97d95ebc489ffb77f256caad9e8f95cb6e2f9d8a451ef59fb9932f6ca3b95",
+      "class_identity_manifest_sha256": "033891e019f42411f498532e5629eb9737e5ff6fdabdce35405fa90f25b09361",
+      "fixture": "publication",
+      "assertion": "Publication assertion",
+      "expected_failing_frames": [
+        "ConfigurationPublicationObservation.check(ConfigurationPublicationObservation.java:18)",
+        "ConfigurationPublicationObservation.unpublished(ConfigurationPublicationObservation.java:20)",
+        "ConfigurationPublicationObservation$MemoryImpl.connect(ConfigurationPublicationObservation.java:32)"
+      ],
+      "stderr_sha256": "f3f47c0b30620c3b94ca4203407db74d13c960ac1639f8723e3b5209e4b9a38f",
+      "rejected_by_fixture_assertion": true,
+      "verifier_or_timeout_failure": false
+    }
+  ],
+  "limits": "29 memory cases per architecture/mode. Actual candidate classes, class origins and bytes checked before guards. No app Main, native sockets, controller, profiles or credentials. x64 uses Rosetta, not physical Intel. Xcomp is a requested execution policy; compilation of every method is not asserted. DNS, real TCP, timing, native GUI, controller availability and nonstandard exception subclasses remain unqualified. Original Socket(host,80), unused connect argument, commands, polling and retry policy retained. Initial read-timeout failure refuses publication and closes best effort; known IO categories retained with fixed detail. HTTP remains plaintext. Prototype wording in exact fixture output describes the memory harness, not a launch or release qualification."
+}

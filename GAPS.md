@@ -342,3 +342,25 @@ DNS/connect/write/whole-operation bounds, HTTP status and empty-ack interpretati
 and mutable outbound inputs. Caller/GUI recovery, firmware file binding and cache
 error handling, native GUI, physical Intel and controller/release checks remain open.
 A successful launch or memory reply does not establish those features.
+
+
+### Audit23 initial socket setup (local qualification)
+
+Application source `f9a5edb`, QA source `96861bf`, JAR
+`2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad`.
+Thirteen candidate regression gates plus one historical audit17 characterization,
+140 unit tests, paired clean builds and repeated packages per architecture pass. Only HttpConnection.createSocket and one
+new helper differ from audit22; all other JAR entry bytes are preserved.
+Twenty-nine memory cases per runtime/mode and twelve mutants per architecture
+qualify refused publication after failed/mismatched initial read-timeout setup.
+Original Socket(host,80), ignored connect argument, DNS/TCP timing, command bytes,
+polling and retry policy are retained. Standard IO categories retain fixed safe
+error detail. This deliberately changes legacy error prose. HTTP remains plaintext.
+See [scope, exclusions and reproduction](audit/SOCKET-CONFIGURATION.md) and
+[record hashes](audit/socket-configuration-final-integrity.json). One first lock
+fixture mismatch is excluded; an unchanged reduced-concurrency rerun passes,
+with the first cause unresolved. x64 runs under Rosetta; native GUI, physical
+Intel, controller workflows and release acceptance remain open. Cached timeout
+setter, whole-operation/write bounds, mutable outbound inputs, status/empty-ack
+interpretation and firmware file binding remain separate gaps. No controller,
+production/mounted volume or installed-app modification occurred.

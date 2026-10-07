@@ -1,0 +1,5237 @@
+{
+  "fixture_commit": "96861bf9edecf45aea6ffc78d570adb1c8383eb6",
+  "fixture_dirty": false,
+  "jar_sha256": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad",
+  "reference_jar_sha256": "202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd",
+  "class_entries_scanned": 2862,
+  "exception_type_classes": [
+    {
+      "entry": "JLex/CEmit.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "JLex/CInput.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "JLex/CLexGen.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "JLex/CMakeNfa.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "JLex/Main.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/eio/FileManager.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/gui/MenuManager.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/mrj/MRJFileUtils.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/net/SocketUtilities$SocketThread.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/net/SocketUtilities.class",
+      "types": [
+        "java/io/IOException",
+        "java/io/InterruptedIOException"
+      ]
+    },
+    {
+      "entry": "com/apple/net/acp/SimpleCryptInputStream.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/net/acp/SimpleCryptOutputStream.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/util/plist/PropertyList.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/util/plist/PropertyListUtilities.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementController$LunMapper.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementController$RecognizeArrayAction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementController.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/RendezvousPanel$RendezvousBrowserPanel$RendezvousListModel.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/SystemTable$Model$SystemComparator.class",
+      "types": [
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandDispatcher$15.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandDispatcher$DefaultHandler.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandHandler.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandLineInterface.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/eventlog/EventLogPane$SaveAction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/AbstractRequestMessage.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/AcpxConnection.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/CommShutdownException.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/CommunicationsManager$SyncSender.class",
+      "types": [
+        "java/io/InterruptedIOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/CommunicationsManager.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/ConnectException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpConnection$SocketProducer.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/SocketException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpConnection.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/SocketException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpRequest$HttpOutputStream.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpRequest.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpResponse$HttpInputStream.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpResponse.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/IPAddress.class",
+      "types": [
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/ObservableSocket$1.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/ObservableSocket$2.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/ObservableSocket.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/RequestMessage.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/UpdateFirmwareRequest.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/NetworkInterface.class",
+      "types": [
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/RaidSystem.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/RaidSystemAgent$AuthenticationException.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/RaidSystemAgent.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/ConnectException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/SystemController.class",
+      "types": [
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/update/FirmwareBundleConnection.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/update/FirmwareUpdater.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/chaotic/PropertyList.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "com/chaotic/rendezvous/Browser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "compat/BoundedHeaderStream.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "compat/SafePlistResolver.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "compat/SocketConfiguration.class",
+      "types": [
+        "java/io/IOException",
+        "java/io/InterruptedIOException",
+        "java/net/BindException",
+        "java/net/ConnectException",
+        "java/net/NoRouteToHostException",
+        "java/net/SocketException",
+        "java/net/SocketTimeoutException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "edu/stanford/ejalbert/BrowserLauncher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "java_cup/Main.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "java_cup/lexer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSIncoming.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSOutgoing.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSRecord$Address.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSRecord$Pointer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSRecord$Service.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSRecord$Text.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/DNSRecord.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/JmDNS$ServiceBrowser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/JmDNS$SocketListener.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/JmDNS.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/jmdns/ServiceInfo.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/xml/parsers/DocumentBuilder.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "javax/xml/parsers/SAXParser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/Repository.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Attribute.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ClassParser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Code.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/CodeException.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Constant.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantCP.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantClass.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantDouble.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantFieldref.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantFloat.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantInteger.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantInterfaceMethodref.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantLong.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantMethodref.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantNameAndType.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantPool.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantString.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantUtf8.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ConstantValue.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Deprecated.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/ExceptionTable.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Field.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/FieldOrMethod.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/InnerClass.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/InnerClasses.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/JavaClass.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/LineNumber.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/LineNumberTable.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/LocalVariable.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/LocalVariableTable.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Method.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/PMGClass.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Signature.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/SourceFile.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/StackMap.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/StackMapEntry.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/StackMapType.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Synthetic.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Unknown.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Utility$JavaReader.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Utility$JavaWriter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/classfile/Utility.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/BIPUSH.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/BranchInstruction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/CPInstruction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/GOTO.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/GOTO_W.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/IINC.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/INVOKEINTERFACE.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/Instruction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/InstructionList.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/JSR.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/JSR_W.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/LDC.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/LDC_W.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/LOOKUPSWITCH.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/LocalVariableInstruction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/MULTIANEWARRAY.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/NEWARRAY.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/RET.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/SIPUSH.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/Select.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/TABLESWITCH.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/AttributeHTML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/Class2HTML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath$2.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath$3.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath$ClassFile.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath$Dir.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath$PathEntry.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath$Zip.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ClassPath.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/CodeHTML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/ConstantHTML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/util/MethodHTML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/DailyRollingFileAppender.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/FileAppender.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/PropertyConfigurator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/RollingFileAppender.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/WriterAppender.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/LoadXMLAction.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/LoggingReceiver$Slurper.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/SocketException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/LoggingReceiver.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/Main.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/helpers/CountingQuietWriter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/helpers/QuietWriter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/helpers/SyslogWriter.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/SocketException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/DefaultLF5Configurator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/LogRecord.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/util/LogFileParser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/util/StreamUtils.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/LogBrokerMonitor.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/configure/ConfigurationManager.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/configure/MRUFileManager.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketAppender$Connector.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/ConnectException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketAppender.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketHubAppender$ServerMonitor.class",
+      "types": [
+        "java/io/IOException",
+        "java/io/InterruptedIOException",
+        "java/net/SocketException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketHubAppender.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketNode.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/SocketException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/TelnetAppender$SocketHandler.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/spi/LoggingEvent.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/varia/Roller.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/xml/DOMConfigurator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/regexp/ReaderCharacterIterator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/regexp/StreamCharacterIterator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/client/XSLTProcessorApplet.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandler.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandlerGeneral.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandlerJavaClass.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandlerJavaPackage.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/XSLProcessorContext.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/lib/PipeDocument.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/lib/Redirect.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/lib/sql/DTMDocument.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/ProcessorInclude.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/TransformerFactoryImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/DOMSerializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/Serializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/SerializerToHTML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/SerializerToText.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/SerializerToXML.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/WriterToASCI.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/WriterToUTF8.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/WriterToUTF8Buffered.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/templates/FuncDocument.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/templates/OutputProperties.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/templates/Stylesheet.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/SerializerSwitcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/TrAXFilter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/TransformerHandlerImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/TransformerIdentityImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/TransformerImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/cmdline/Transform.class",
+      "types": [
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/compiler/Parser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/compiler/XPathLexer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/compiler/XSLTC.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/dom/BitArray.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/dom/DOMImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/runtime/DefaultRun.class",
+      "types": [
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/runtime/DefaultSAXOutputHandler.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/runtime/TextOutput.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/DOM2SAX.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/TemplatesImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/TransformerImpl.class",
+      "types": [
+        "java/io/IOException",
+        "java/net/UnknownHostException"
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/XSLTCSource.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/dom/AttrImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/dom/NodeImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/dom/ParentNode.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDTDScannerImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentFragmentScannerImpl$Dispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentFragmentScannerImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentScannerImpl$ContentDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentScannerImpl$DTDDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentScannerImpl$PrologDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentScannerImpl$TrailingMiscDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentScannerImpl$XMLDeclDispatcher.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLDocumentScannerImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLEntityManager$EntityScanner.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLEntityManager$RewindableInputStream.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLEntityManager.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLEntityScanner.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/XMLScanner.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/io/ASCIIReader.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/io/UCSReader.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/io/UTF8Reader.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xs/traversers/XSDHandler$LocationResolver.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xs/traversers/XSDHandler.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/jaxp/DocumentBuilderImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/AbstractSAXParser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/BasicParserConfiguration.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/DOMASBuilderImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/DOMParser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/StandardParserConfiguration.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/XMLGrammarCachingConfiguration.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/XMLParser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/DOMEntityResolverWrapper.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/EntityResolverWrapper.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/URI$MalformedURIException.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/parser/XMLDTDScanner.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/parser/XMLDocumentScanner.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/parser/XMLEntityResolver.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/parser/XMLParserConfiguration.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/parser/XMLPullParserConfiguration.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/ref/DTMDefaultBase.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/ref/IncrementalSAXSource_Filter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/ref/IncrementalSAXSource_Xerces.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/BaseMarkupSerializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/DOMSerializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/HTMLSerializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/IndentPrinter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/Printer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/Serializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/SieveEncodingInfo.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/TextSerializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/XMLSerializer.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xml/utils/URI$MalformedURIException.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/DOM2Helper.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/SourceTreeManager.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/axes/LocPathIterator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/axes/PredicatedNodeTest.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/axes/UnionPathIterator.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/xml/sax/EntityResolver.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/xml/sax/Parser.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/xml/sax/XMLReader.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/xml/sax/helpers/ParserAdapter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/xml/sax/helpers/XMLFilterImpl.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    },
+    {
+      "entry": "org/xml/sax/helpers/XMLReaderAdapter.class",
+      "types": [
+        "java/io/IOException"
+      ]
+    }
+  ],
+  "getMessage_reference_classes": [
+    {
+      "entry": "JLex/Main.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/gui/AlternatingTable.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/gui/HyperTextPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/gui/MenuManager.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/util/plist/PropertyList.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/io/UnsupportedEncodingException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "javax/xml/parsers/ParserConfigurationException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "javax/xml/parsers/FactoryConfigurationError",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/text/ParseException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/AbstractManagementPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/AquaAlert.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ArrayOperationModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ArraySelectionPanel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/CreateArrayModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/CreateArrayPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/DeleteArrayPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/DrivePanel$1.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/DriveSelectionPanelEx.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/Main.class",
+      "references": [
+        {
+          "owner": "java/lang/Exception",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementController.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementFibreModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementNetworkModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementNetworkPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementPerformanceModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementPerformancePane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ManagementSystemModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/NotificationsModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/OperationManager.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/ShutdownAction.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/SystemMonitorController.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/SystemRegistry.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/SystemTable.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/Utilities.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/advanced/AdvancedExpansionPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/advanced/AdvancedMaskingModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/advanced/AdvancedMaskingPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/advanced/AdvancedParityModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/advanced/AdvancedSlicingModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/advanced/AdvancedSlicingPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandDispatcher$15.class",
+      "references": [
+        {
+          "owner": "com/apple/util/plist/PropertyListException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandDispatcher$DefaultHandler.class",
+      "references": [
+        {
+          "owner": "com/apple/util/plist/PropertyListException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/cli/CommandLineException.class",
+      "references": [
+        {
+          "owner": "java/lang/Exception",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "com/apple/xsr/cli/CommandLineException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/eventlog/EventLocalizer.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "com/apple/net/acp/AcpEventLog$Event",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/eventlog/EventLog.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/eventlog/EventLogPane.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/eventlog/EventMessageFormat.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/firstaid/FirstAidDataModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/AcpxConnection.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "com/apple/util/plist/PropertyListException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class",
+      "references": [
+        {
+          "owner": "com/apple/util/plist/PropertyListException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/CommunicationsManager.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Exception",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "com/apple/xsr/net/CommunicationsManager$Transaction",
+          "descriptor": "()Lcom/apple/xsr/net/RequestMessage;"
+        },
+        {
+          "owner": "java/io/IOException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpConnection.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/net/SocketException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpRequest.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/net/HttpResponse.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/AbstractSystemElement.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/RaidSystem.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/som/RaidSystemAgent.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "com/apple/xsr/update/FirmwareUpdater.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "edu/stanford/ejalbert/BrowserLauncher.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/NoSuchFieldException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/NoSuchMethodException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/SecurityException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/IllegalAccessException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/reflect/InvocationTargetException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/InstantiationException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/IllegalArgumentException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/InterruptedException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "java_cup/internal_error.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/parsers/DocumentBuilderFactory.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/parsers/FactoryConfigurationError.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/parsers/FactoryFinder.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/parsers/SAXParserFactory.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/transform/FactoryFinder.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/transform/TransformerException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/transform/TransformerFactory.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "javax/xml/transform/TransformerFactoryConfigurationError.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/ExceptionConstants$1.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/generic/InstructionHandle.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/VerifierAppFrame.class",
+      "references": [
+        {
+          "owner": "org/apache/bcel/verifier/VerificationResult",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/statics/Pass1Verifier.class",
+      "references": [
+        {
+          "owner": "org/apache/bcel/verifier/exc/VerifierConstraintViolatedException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/statics/Pass2Verifier$CPESSC_Visitor.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/apache/bcel/verifier/exc/VerifierConstraintViolatedException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/statics/Pass2Verifier.class",
+      "references": [
+        {
+          "owner": "org/apache/bcel/verifier/exc/VerifierConstraintViolatedException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/statics/Pass3aVerifier$InstOperandConstraintVisitor.class",
+      "references": [
+        {
+          "owner": "org/apache/bcel/verifier/VerificationResult",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/statics/Pass3aVerifier.class",
+      "references": [
+        {
+          "owner": "org/apache/bcel/verifier/exc/VerifierConstraintViolatedException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/bcel/verifier/structurals/Pass3bVerifier.class",
+      "references": [
+        {
+          "owner": "org/apache/bcel/verifier/exc/VerifierConstraintViolatedException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/html/dom/HTMLDocumentImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/Category.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/CategoryKey.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/Logger.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/PropertyConfigurator.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/ControlPanel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/DetailPanel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/apache/log4j/chainsaw/EventDetails",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/ExitAction.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/LoadXMLAction.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Exception",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/LoggingReceiver.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/Main.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/chainsaw/MyTableModel.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/apache/log4j/chainsaw/EventDetails",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/config/PropertyGetter.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/config/PropertySetter.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/beans/IntrospectionException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/config/PropertySetterException.class",
+      "references": [
+        {
+          "owner": "java/lang/Exception",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/helpers/Loader.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/helpers/OptionConverter.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/helpers/PatternParser.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/jmx/Agent.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/jmx/AppenderDynamicMBean.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/jmx/HierarchyDynamicMBean.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/jmx/LayoutDynamicMBean.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/jmx/LoggerDynamicMBean.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/DefaultLF5Configurator.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/FilteredLogTableModel.class",
+      "references": [
+        {
+          "owner": "org/apache/log4j/lf5/LogRecord",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/LogBrokerMonitor.class",
+      "references": [
+        {
+          "owner": "org/apache/log4j/lf5/LogRecord",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/categoryexplorer/CategoryAbstractCellEditor.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/lf5/viewer/configure/ConfigurationManager.class",
+      "references": [
+        {
+          "owner": "java/lang/Exception",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/JMSSink.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SMTPAppender.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SimpleSocketServer.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketNode.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/net/SocketServer.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/or/RendererMap.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/spi/LoggingEvent.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/varia/Roller.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/xml/DOMConfigurator.class",
+      "references": [
+        {
+          "owner": "java/lang/ClassNotFoundException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/log4j/xml/SAXErrorHandler.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXParseException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXParseException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/regexp/REDemo.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/regexp/RETest.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/regexp/ReaderCharacterIterator.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/regexp/StreamCharacterIterator.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/wml/dom/WMLDocumentImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/client/XSLTProcessorApplet.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandler.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandlerGeneral.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/apache/xpath/XPathException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandlerJavaClass.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/ExtensionHandlerJavaPackage.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/extensions/MethodResolver.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/lib/sql/DTMDocument.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/lib/sql/PooledConnection.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/ProcessorInclude.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/ProcessorLRE.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/ProcessorOutputElem.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/StylesheetHandler.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/TransformerFactoryImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/XSLTAttributeDef.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/processor/XSLTSchema.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/CharInfo.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/Encodings.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/serialize/SerializerToXML.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/templates/ElemExtensionCall.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/templates/FuncDocument.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/templates/OutputProperties.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/ResultTreeHandler.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/TransformerIdentityImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/transformer/TransformerImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xslt/EnvironmentCheck.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xslt/Process.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/cmdline/Transform.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/compiler/Parser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/apache/xalan/xsltc/compiler/CompilerException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/compiler/XPathParser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/compiler/XSLTC.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/runtime/DefaultRun.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/TransformerFactoryImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/TransformerHandlerImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xalan/xsltc/trax/TransformerImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/dom/DOMErrorImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/dtd/XMLDTDValidator.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/dv/dtd/DatatypeValidatorFactoryImpl.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xpath/XPath.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xpath/regex/REUtil.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xpath/regex/RegexParser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xs/traversers/XSDComplexTypeTraverser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/impl/xs/traversers/XSDHandler.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/jaxp/DefaultValidationErrorHandler.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/jaxp/DocumentBuilderFactoryImpl.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/jaxp/DocumentBuilderImpl.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/jaxp/SAXParserFactoryImpl.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/jaxp/SAXParserImpl.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/AbstractDOMParser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/AbstractSAXParser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/parsers/DOMParser.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/DOMErrorHandlerWrapper.class",
+      "references": [
+        {
+          "owner": "org/apache/xerces/dom3/DOMError",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/DefaultErrorHandler.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/ErrorHandlerWrapper.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/util/ObjectFactory.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/XNIException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xerces/xni/parser/XMLParseException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/DTMException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/DTMManager.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/ref/DTMManagerDefault.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/ref/IncrementalSAXSource_Xerces.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/dtm/ref/sax2dtm/SAX2DTM.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/BaseMarkupSerializer.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/HTMLdtd.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/serialize/XMLSerializer.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/utils/DefaultErrorHandler.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/utils/ListingErrorHandler.class",
+      "references": [
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/utils/StringBufferPool.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xml/utils/WrappedRuntimeException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/SourceTreeManager.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        },
+        {
+          "owner": "org/xml/sax/SAXException",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/XPath.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/XPathException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/axes/FilterExprWalker.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/axes/MatchPatternIterator.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/axes/PredicatedNodeTest.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/compiler/Compiler.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/functions/FuncSystemProperty.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/objects/XNodeSet.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/apache/xpath/patterns/StepPattern.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    },
+    {
+      "entry": "org/xml/sax/SAXException.class",
+      "references": [
+        {
+          "owner": "java/lang/Throwable",
+          "descriptor": "()Ljava/lang/String;"
+        }
+      ]
+    }
+  ],
+  "selected_class_entries": [
+    "JLex/CEmit.class",
+    "JLex/CInput.class",
+    "JLex/CLexGen.class",
+    "JLex/CMakeNfa.class",
+    "JLex/Main.class",
+    "com/apple/eio/FileManager.class",
+    "com/apple/gui/AlternatingTable.class",
+    "com/apple/gui/HyperTextPane.class",
+    "com/apple/gui/MenuManager.class",
+    "com/apple/mrj/MRJFileUtils.class",
+    "com/apple/net/SocketUtilities$SocketThread.class",
+    "com/apple/net/SocketUtilities.class",
+    "com/apple/net/acp/SimpleCryptInputStream.class",
+    "com/apple/net/acp/SimpleCryptOutputStream.class",
+    "com/apple/util/plist/PropertyList.class",
+    "com/apple/util/plist/PropertyListUtilities.class",
+    "com/apple/xsr/AbstractManagementPane.class",
+    "com/apple/xsr/AquaAlert.class",
+    "com/apple/xsr/ArrayOperationModel.class",
+    "com/apple/xsr/ArraySelectionPanel.class",
+    "com/apple/xsr/CreateArrayModel.class",
+    "com/apple/xsr/CreateArrayPane.class",
+    "com/apple/xsr/DeleteArrayPane.class",
+    "com/apple/xsr/DrivePanel$1.class",
+    "com/apple/xsr/DriveSelectionPanelEx.class",
+    "com/apple/xsr/Main.class",
+    "com/apple/xsr/ManagementController$LunMapper.class",
+    "com/apple/xsr/ManagementController$RecognizeArrayAction.class",
+    "com/apple/xsr/ManagementController.class",
+    "com/apple/xsr/ManagementFibreModel.class",
+    "com/apple/xsr/ManagementNetworkModel.class",
+    "com/apple/xsr/ManagementNetworkPane.class",
+    "com/apple/xsr/ManagementPerformanceModel.class",
+    "com/apple/xsr/ManagementPerformancePane.class",
+    "com/apple/xsr/ManagementSystemModel.class",
+    "com/apple/xsr/NotificationsModel.class",
+    "com/apple/xsr/OperationManager.class",
+    "com/apple/xsr/RendezvousPanel$RendezvousBrowserPanel$RendezvousListModel.class",
+    "com/apple/xsr/ShutdownAction.class",
+    "com/apple/xsr/SystemMonitorController.class",
+    "com/apple/xsr/SystemRegistry.class",
+    "com/apple/xsr/SystemTable$Model$SystemComparator.class",
+    "com/apple/xsr/SystemTable.class",
+    "com/apple/xsr/Utilities.class",
+    "com/apple/xsr/advanced/AdvancedExpansionPane.class",
+    "com/apple/xsr/advanced/AdvancedMaskingModel.class",
+    "com/apple/xsr/advanced/AdvancedMaskingPane.class",
+    "com/apple/xsr/advanced/AdvancedParityModel.class",
+    "com/apple/xsr/advanced/AdvancedSlicingModel.class",
+    "com/apple/xsr/advanced/AdvancedSlicingPane.class",
+    "com/apple/xsr/cli/CommandDispatcher$15.class",
+    "com/apple/xsr/cli/CommandDispatcher$DefaultHandler.class",
+    "com/apple/xsr/cli/CommandDispatcher.class",
+    "com/apple/xsr/cli/CommandHandler.class",
+    "com/apple/xsr/cli/CommandLineException.class",
+    "com/apple/xsr/cli/CommandLineInterface.class",
+    "com/apple/xsr/eventlog/EventLocalizer.class",
+    "com/apple/xsr/eventlog/EventLog.class",
+    "com/apple/xsr/eventlog/EventLogPane$SaveAction.class",
+    "com/apple/xsr/eventlog/EventLogPane.class",
+    "com/apple/xsr/eventlog/EventMessageFormat.class",
+    "com/apple/xsr/firstaid/FirstAidDataModel.class",
+    "com/apple/xsr/net/AbstractRequestMessage.class",
+    "com/apple/xsr/net/AcpxConnection.class",
+    "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class",
+    "com/apple/xsr/net/CommShutdownException.class",
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class",
+    "com/apple/xsr/net/CommunicationsManager.class",
+    "com/apple/xsr/net/HttpConnection$SocketProducer.class",
+    "com/apple/xsr/net/HttpConnection.class",
+    "com/apple/xsr/net/HttpRequest$HttpOutputStream.class",
+    "com/apple/xsr/net/HttpRequest.class",
+    "com/apple/xsr/net/HttpResponse$HttpInputStream.class",
+    "com/apple/xsr/net/HttpResponse.class",
+    "com/apple/xsr/net/IPAddress.class",
+    "com/apple/xsr/net/ObservableSocket$1.class",
+    "com/apple/xsr/net/ObservableSocket$2.class",
+    "com/apple/xsr/net/ObservableSocket.class",
+    "com/apple/xsr/net/RequestMessage.class",
+    "com/apple/xsr/net/UpdateFirmwareRequest.class",
+    "com/apple/xsr/som/AbstractSystemElement.class",
+    "com/apple/xsr/som/NetworkInterface.class",
+    "com/apple/xsr/som/RaidSystem.class",
+    "com/apple/xsr/som/RaidSystemAgent$AuthenticationException.class",
+    "com/apple/xsr/som/RaidSystemAgent.class",
+    "com/apple/xsr/som/SystemController.class",
+    "com/apple/xsr/update/FirmwareBundleConnection.class",
+    "com/apple/xsr/update/FirmwareUpdater$UpdateThread.class",
+    "com/apple/xsr/update/FirmwareUpdater.class",
+    "com/chaotic/PropertyList.class",
+    "com/chaotic/rendezvous/Browser.class",
+    "compat/BoundedHeaderStream.class",
+    "compat/SafePlistResolver.class",
+    "compat/SocketConfiguration.class",
+    "edu/stanford/ejalbert/BrowserLauncher.class",
+    "java_cup/Main.class",
+    "java_cup/lexer.class",
+    "javax/jmdns/DNSIncoming.class",
+    "javax/jmdns/DNSOutgoing.class",
+    "javax/jmdns/DNSRecord$Address.class",
+    "javax/jmdns/DNSRecord$Pointer.class",
+    "javax/jmdns/DNSRecord$Service.class",
+    "javax/jmdns/DNSRecord$Text.class",
+    "javax/jmdns/DNSRecord.class",
+    "javax/jmdns/JmDNS$ServiceBrowser.class",
+    "javax/jmdns/JmDNS$SocketListener.class",
+    "javax/jmdns/JmDNS.class",
+    "javax/jmdns/ServiceInfo.class",
+    "javax/xml/parsers/DocumentBuilder.class",
+    "javax/xml/parsers/SAXParser.class",
+    "org/apache/bcel/Repository.class",
+    "org/apache/bcel/classfile/Attribute.class",
+    "org/apache/bcel/classfile/ClassParser.class",
+    "org/apache/bcel/classfile/Code.class",
+    "org/apache/bcel/classfile/CodeException.class",
+    "org/apache/bcel/classfile/Constant.class",
+    "org/apache/bcel/classfile/ConstantCP.class",
+    "org/apache/bcel/classfile/ConstantClass.class",
+    "org/apache/bcel/classfile/ConstantDouble.class",
+    "org/apache/bcel/classfile/ConstantFieldref.class",
+    "org/apache/bcel/classfile/ConstantFloat.class",
+    "org/apache/bcel/classfile/ConstantInteger.class",
+    "org/apache/bcel/classfile/ConstantInterfaceMethodref.class",
+    "org/apache/bcel/classfile/ConstantLong.class",
+    "org/apache/bcel/classfile/ConstantMethodref.class",
+    "org/apache/bcel/classfile/ConstantNameAndType.class",
+    "org/apache/bcel/classfile/ConstantPool.class",
+    "org/apache/bcel/classfile/ConstantString.class",
+    "org/apache/bcel/classfile/ConstantUtf8.class",
+    "org/apache/bcel/classfile/ConstantValue.class",
+    "org/apache/bcel/classfile/Deprecated.class",
+    "org/apache/bcel/classfile/ExceptionTable.class",
+    "org/apache/bcel/classfile/Field.class",
+    "org/apache/bcel/classfile/FieldOrMethod.class",
+    "org/apache/bcel/classfile/InnerClass.class",
+    "org/apache/bcel/classfile/InnerClasses.class",
+    "org/apache/bcel/classfile/JavaClass.class",
+    "org/apache/bcel/classfile/LineNumber.class",
+    "org/apache/bcel/classfile/LineNumberTable.class",
+    "org/apache/bcel/classfile/LocalVariable.class",
+    "org/apache/bcel/classfile/LocalVariableTable.class",
+    "org/apache/bcel/classfile/Method.class",
+    "org/apache/bcel/classfile/PMGClass.class",
+    "org/apache/bcel/classfile/Signature.class",
+    "org/apache/bcel/classfile/SourceFile.class",
+    "org/apache/bcel/classfile/StackMap.class",
+    "org/apache/bcel/classfile/StackMapEntry.class",
+    "org/apache/bcel/classfile/StackMapType.class",
+    "org/apache/bcel/classfile/Synthetic.class",
+    "org/apache/bcel/classfile/Unknown.class",
+    "org/apache/bcel/classfile/Utility$JavaReader.class",
+    "org/apache/bcel/classfile/Utility$JavaWriter.class",
+    "org/apache/bcel/classfile/Utility.class",
+    "org/apache/bcel/generic/BIPUSH.class",
+    "org/apache/bcel/generic/BranchInstruction.class",
+    "org/apache/bcel/generic/CPInstruction.class",
+    "org/apache/bcel/generic/GOTO.class",
+    "org/apache/bcel/generic/GOTO_W.class",
+    "org/apache/bcel/generic/IINC.class",
+    "org/apache/bcel/generic/INVOKEINTERFACE.class",
+    "org/apache/bcel/generic/Instruction.class",
+    "org/apache/bcel/generic/InstructionList.class",
+    "org/apache/bcel/generic/JSR.class",
+    "org/apache/bcel/generic/JSR_W.class",
+    "org/apache/bcel/generic/LDC.class",
+    "org/apache/bcel/generic/LDC_W.class",
+    "org/apache/bcel/generic/LOOKUPSWITCH.class",
+    "org/apache/bcel/generic/LocalVariableInstruction.class",
+    "org/apache/bcel/generic/MULTIANEWARRAY.class",
+    "org/apache/bcel/generic/NEWARRAY.class",
+    "org/apache/bcel/generic/RET.class",
+    "org/apache/bcel/generic/SIPUSH.class",
+    "org/apache/bcel/generic/Select.class",
+    "org/apache/bcel/generic/TABLESWITCH.class",
+    "org/apache/bcel/util/AttributeHTML.class",
+    "org/apache/bcel/util/Class2HTML.class",
+    "org/apache/bcel/util/ClassPath$2.class",
+    "org/apache/bcel/util/ClassPath$3.class",
+    "org/apache/bcel/util/ClassPath$ClassFile.class",
+    "org/apache/bcel/util/ClassPath$Dir.class",
+    "org/apache/bcel/util/ClassPath$PathEntry.class",
+    "org/apache/bcel/util/ClassPath$Zip.class",
+    "org/apache/bcel/util/ClassPath.class",
+    "org/apache/bcel/util/CodeHTML.class",
+    "org/apache/bcel/util/ConstantHTML.class",
+    "org/apache/bcel/util/MethodHTML.class",
+    "org/apache/log4j/DailyRollingFileAppender.class",
+    "org/apache/log4j/FileAppender.class",
+    "org/apache/log4j/PropertyConfigurator.class",
+    "org/apache/log4j/RollingFileAppender.class",
+    "org/apache/log4j/WriterAppender.class",
+    "org/apache/log4j/chainsaw/LoadXMLAction.class",
+    "org/apache/log4j/chainsaw/LoggingReceiver$Slurper.class",
+    "org/apache/log4j/chainsaw/LoggingReceiver.class",
+    "org/apache/log4j/chainsaw/Main.class",
+    "org/apache/log4j/helpers/CountingQuietWriter.class",
+    "org/apache/log4j/helpers/QuietWriter.class",
+    "org/apache/log4j/helpers/SyslogWriter.class",
+    "org/apache/log4j/lf5/DefaultLF5Configurator.class",
+    "org/apache/log4j/lf5/LogRecord.class",
+    "org/apache/log4j/lf5/util/LogFileParser.class",
+    "org/apache/log4j/lf5/util/StreamUtils.class",
+    "org/apache/log4j/lf5/viewer/LogBrokerMonitor.class",
+    "org/apache/log4j/lf5/viewer/configure/ConfigurationManager.class",
+    "org/apache/log4j/lf5/viewer/configure/MRUFileManager.class",
+    "org/apache/log4j/net/SocketAppender$Connector.class",
+    "org/apache/log4j/net/SocketAppender.class",
+    "org/apache/log4j/net/SocketHubAppender$ServerMonitor.class",
+    "org/apache/log4j/net/SocketHubAppender.class",
+    "org/apache/log4j/net/SocketNode.class",
+    "org/apache/log4j/net/TelnetAppender$SocketHandler.class",
+    "org/apache/log4j/spi/LoggingEvent.class",
+    "org/apache/log4j/varia/Roller.class",
+    "org/apache/log4j/xml/DOMConfigurator.class",
+    "org/apache/regexp/ReaderCharacterIterator.class",
+    "org/apache/regexp/StreamCharacterIterator.class",
+    "org/apache/xalan/client/XSLTProcessorApplet.class",
+    "org/apache/xalan/extensions/ExtensionHandler.class",
+    "org/apache/xalan/extensions/ExtensionHandlerGeneral.class",
+    "org/apache/xalan/extensions/ExtensionHandlerJavaClass.class",
+    "org/apache/xalan/extensions/ExtensionHandlerJavaPackage.class",
+    "org/apache/xalan/extensions/XSLProcessorContext.class",
+    "org/apache/xalan/lib/PipeDocument.class",
+    "org/apache/xalan/lib/Redirect.class",
+    "org/apache/xalan/lib/sql/DTMDocument.class",
+    "org/apache/xalan/processor/ProcessorInclude.class",
+    "org/apache/xalan/processor/TransformerFactoryImpl.class",
+    "org/apache/xalan/serialize/DOMSerializer.class",
+    "org/apache/xalan/serialize/Serializer.class",
+    "org/apache/xalan/serialize/SerializerToHTML.class",
+    "org/apache/xalan/serialize/SerializerToText.class",
+    "org/apache/xalan/serialize/SerializerToXML.class",
+    "org/apache/xalan/serialize/WriterToASCI.class",
+    "org/apache/xalan/serialize/WriterToUTF8.class",
+    "org/apache/xalan/serialize/WriterToUTF8Buffered.class",
+    "org/apache/xalan/templates/FuncDocument.class",
+    "org/apache/xalan/templates/OutputProperties.class",
+    "org/apache/xalan/templates/Stylesheet.class",
+    "org/apache/xalan/transformer/SerializerSwitcher.class",
+    "org/apache/xalan/transformer/TrAXFilter.class",
+    "org/apache/xalan/transformer/TransformerHandlerImpl.class",
+    "org/apache/xalan/transformer/TransformerIdentityImpl.class",
+    "org/apache/xalan/transformer/TransformerImpl.class",
+    "org/apache/xalan/xsltc/cmdline/Transform.class",
+    "org/apache/xalan/xsltc/compiler/Parser.class",
+    "org/apache/xalan/xsltc/compiler/XPathLexer.class",
+    "org/apache/xalan/xsltc/compiler/XSLTC.class",
+    "org/apache/xalan/xsltc/dom/BitArray.class",
+    "org/apache/xalan/xsltc/dom/DOMImpl.class",
+    "org/apache/xalan/xsltc/runtime/DefaultRun.class",
+    "org/apache/xalan/xsltc/runtime/DefaultSAXOutputHandler.class",
+    "org/apache/xalan/xsltc/runtime/TextOutput.class",
+    "org/apache/xalan/xsltc/trax/DOM2SAX.class",
+    "org/apache/xalan/xsltc/trax/TemplatesImpl.class",
+    "org/apache/xalan/xsltc/trax/TransformerImpl.class",
+    "org/apache/xalan/xsltc/trax/XSLTCSource.class",
+    "org/apache/xerces/dom/AttrImpl.class",
+    "org/apache/xerces/dom/NodeImpl.class",
+    "org/apache/xerces/dom/ParentNode.class",
+    "org/apache/xerces/impl/XMLDTDScannerImpl.class",
+    "org/apache/xerces/impl/XMLDocumentFragmentScannerImpl$Dispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentFragmentScannerImpl.class",
+    "org/apache/xerces/impl/XMLDocumentScannerImpl$ContentDispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentScannerImpl$DTDDispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentScannerImpl$PrologDispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentScannerImpl$TrailingMiscDispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentScannerImpl$XMLDeclDispatcher.class",
+    "org/apache/xerces/impl/XMLDocumentScannerImpl.class",
+    "org/apache/xerces/impl/XMLEntityManager$EntityScanner.class",
+    "org/apache/xerces/impl/XMLEntityManager$RewindableInputStream.class",
+    "org/apache/xerces/impl/XMLEntityManager.class",
+    "org/apache/xerces/impl/XMLEntityScanner.class",
+    "org/apache/xerces/impl/XMLScanner.class",
+    "org/apache/xerces/impl/io/ASCIIReader.class",
+    "org/apache/xerces/impl/io/UCSReader.class",
+    "org/apache/xerces/impl/io/UTF8Reader.class",
+    "org/apache/xerces/impl/xs/traversers/XSDHandler$LocationResolver.class",
+    "org/apache/xerces/impl/xs/traversers/XSDHandler.class",
+    "org/apache/xerces/jaxp/DocumentBuilderImpl.class",
+    "org/apache/xerces/parsers/AbstractSAXParser.class",
+    "org/apache/xerces/parsers/BasicParserConfiguration.class",
+    "org/apache/xerces/parsers/DOMASBuilderImpl.class",
+    "org/apache/xerces/parsers/DOMParser.class",
+    "org/apache/xerces/parsers/StandardParserConfiguration.class",
+    "org/apache/xerces/parsers/XMLGrammarCachingConfiguration.class",
+    "org/apache/xerces/parsers/XMLParser.class",
+    "org/apache/xerces/util/DOMEntityResolverWrapper.class",
+    "org/apache/xerces/util/EntityResolverWrapper.class",
+    "org/apache/xerces/util/URI$MalformedURIException.class",
+    "org/apache/xerces/xni/parser/XMLDTDScanner.class",
+    "org/apache/xerces/xni/parser/XMLDocumentScanner.class",
+    "org/apache/xerces/xni/parser/XMLEntityResolver.class",
+    "org/apache/xerces/xni/parser/XMLParserConfiguration.class",
+    "org/apache/xerces/xni/parser/XMLPullParserConfiguration.class",
+    "org/apache/xml/dtm/ref/DTMDefaultBase.class",
+    "org/apache/xml/dtm/ref/IncrementalSAXSource_Filter.class",
+    "org/apache/xml/dtm/ref/IncrementalSAXSource_Xerces.class",
+    "org/apache/xml/serialize/BaseMarkupSerializer.class",
+    "org/apache/xml/serialize/DOMSerializer.class",
+    "org/apache/xml/serialize/HTMLSerializer.class",
+    "org/apache/xml/serialize/IndentPrinter.class",
+    "org/apache/xml/serialize/Printer.class",
+    "org/apache/xml/serialize/Serializer.class",
+    "org/apache/xml/serialize/SieveEncodingInfo.class",
+    "org/apache/xml/serialize/TextSerializer.class",
+    "org/apache/xml/serialize/XMLSerializer.class",
+    "org/apache/xml/utils/URI$MalformedURIException.class",
+    "org/apache/xpath/DOM2Helper.class",
+    "org/apache/xpath/SourceTreeManager.class",
+    "org/apache/xpath/axes/LocPathIterator.class",
+    "org/apache/xpath/axes/PredicatedNodeTest.class",
+    "org/apache/xpath/axes/UnionPathIterator.class",
+    "org/xml/sax/EntityResolver.class",
+    "org/xml/sax/Parser.class",
+    "org/xml/sax/XMLReader.class",
+    "org/xml/sax/helpers/ParserAdapter.class",
+    "org/xml/sax/helpers/XMLFilterImpl.class",
+    "org/xml/sax/helpers/XMLReaderAdapter.class"
+  ],
+  "selected_disassembly_sha256": "b7e7e1f334ea27ddd34b561a8ae6bae6c7223dd64501f45aad2ada10fa577be8",
+  "message_invocations": [
+    {
+      "class": "JLex.Main",
+      "method": "public static void main(java.lang.String[]) throws java.io.IOException;",
+      "offset": 81,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "com.apple.gui.AlternatingTable",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.gui.HyperTextPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.gui.MenuManager",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.InputStream) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 65,
+      "target": "java/io/UnsupportedEncodingException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.InputStream) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 96,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.InputStream) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 127,
+      "target": "javax/xml/parsers/ParserConfigurationException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.InputStream) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 158,
+      "target": "javax/xml/parsers/FactoryConfigurationError.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.InputStream) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 189,
+      "target": "java/text/ParseException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.Reader) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 47,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.Reader) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 78,
+      "target": "javax/xml/parsers/ParserConfigurationException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.Reader) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 109,
+      "target": "javax/xml/parsers/FactoryConfigurationError.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "public com.apple.util.plist.PropertyList(java.io.Reader) throws java.io.IOException, com.apple.util.plist.PropertyListException;",
+      "offset": 140,
+      "target": "java/text/ParseException.getMessage"
+    },
+    {
+      "class": "com.apple.util.plist.PropertyList",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.AbstractManagementPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.AquaAlert",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ArrayOperationModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ArraySelectionPanel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.CreateArrayModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.CreateArrayPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.DeleteArrayPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.DrivePanel$1",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.DriveSelectionPanelEx",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.Main",
+      "method": "private static void setLookAndFeel(java.lang.String);",
+      "offset": 100,
+      "target": "java/lang/Exception.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementController",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementFibreModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementNetworkModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementNetworkPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementPerformanceModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementPerformancePane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ManagementSystemModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.NotificationsModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.OperationManager",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.ShutdownAction",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.SystemMonitorController",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.SystemRegistry",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.SystemTable",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.Utilities",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.advanced.AdvancedExpansionPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.advanced.AdvancedMaskingModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.advanced.AdvancedMaskingPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.advanced.AdvancedParityModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.advanced.AdvancedSlicingModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.advanced.AdvancedSlicingPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.cli.CommandDispatcher$15",
+      "method": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+      "offset": 410,
+      "target": "com/apple/util/plist/PropertyListException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.cli.CommandDispatcher$DefaultHandler",
+      "method": "public void handle(java.lang.String[], java.lang.String[], java.io.OutputStream) throws com.apple.xsr.cli.OptionException, java.io.IOException;",
+      "offset": 174,
+      "target": "com/apple/util/plist/PropertyListException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.cli.CommandLineException",
+      "method": "public com.apple.xsr.cli.CommandLineException(java.lang.Exception);",
+      "offset": 2,
+      "target": "java/lang/Exception.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.cli.CommandLineException",
+      "method": "public java.lang.String toString();",
+      "offset": 89,
+      "target": "getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventLocalizer",
+      "method": "public java.lang.String localize(com.apple.net.acp.AcpEventLog$Event);",
+      "offset": 48,
+      "target": "com/apple/net/acp/AcpEventLog$Event.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventLocalizer",
+      "method": "public java.lang.String localize(com.apple.net.acp.AcpEventLog$Event);",
+      "offset": 188,
+      "target": "com/apple/net/acp/AcpEventLog$Event.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventLocalizer",
+      "method": "public java.lang.String localize(com.apple.net.acp.AcpEventLog$Event);",
+      "offset": 320,
+      "target": "com/apple/net/acp/AcpEventLog$Event.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventLocalizer",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventLog",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventLogPane",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.eventlog.EventMessageFormat",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.firstaid.FirstAidDataModel",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "public com.apple.util.plist.PropertyList send(com.apple.xsr.net.RequestMessage) throws java.io.IOException;",
+      "offset": 305,
+      "target": "com/apple/util/plist/PropertyListException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxConnection",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate",
+      "method": "public void writeTo(java.io.OutputStream) throws java.io.IOException;",
+      "offset": 60,
+      "target": "com/apple/util/plist/PropertyListException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "public com.apple.xsr.net.Response postMessage(com.apple.xsr.net.RequestMessage) throws java.io.IOException;",
+      "offset": 97,
+      "target": "java/lang/Exception.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "private void dispatchLoop();",
+      "offset": 555,
+      "target": "java/io/IOException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "private void doConnect(com.apple.xsr.net.CommunicationHandler);",
+      "offset": 555,
+      "target": "java/io/IOException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.CommunicationsManager",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public void setTimeout(int) throws java.io.IOException;",
+      "offset": 56,
+      "target": "java/net/SocketException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "public int getTimeout() throws java.io.IOException;",
+      "offset": 26,
+      "target": "java/net/SocketException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpConnection",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpRequest",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.net.HttpResponse",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.som.AbstractSystemElement",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystem",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.som.RaidSystemAgent",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "com.apple.xsr.update.FirmwareUpdater",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 177,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 187,
+      "target": "java/lang/NoSuchFieldException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 197,
+      "target": "java/lang/NoSuchMethodException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 207,
+      "target": "java/lang/SecurityException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 217,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 304,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 314,
+      "target": "java/lang/NoSuchMethodException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 324,
+      "target": "java/lang/reflect/InvocationTargetException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 334,
+      "target": "java/lang/InstantiationException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 344,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 404,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadClasses();",
+      "offset": 414,
+      "target": "java/lang/NoSuchMethodException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadMRJ20Classes();",
+      "offset": 265,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadMRJ20Classes();",
+      "offset": 275,
+      "target": "java/lang/NoSuchMethodException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadMRJ20Classes();",
+      "offset": 285,
+      "target": "java/lang/NoSuchFieldException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static boolean loadMRJ20Classes();",
+      "offset": 295,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 158,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 174,
+      "target": "java/lang/InstantiationException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 190,
+      "target": "java/lang/reflect/InvocationTargetException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 230,
+      "target": "java/lang/IllegalArgumentException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 246,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 287,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 420,
+      "target": "java/lang/IllegalArgumentException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 434,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "private static java.lang.Object locateBrowser();",
+      "offset": 475,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 196,
+      "target": "java/lang/reflect/InvocationTargetException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 227,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 258,
+      "target": "java/lang/InstantiationException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 479,
+      "target": "java/lang/reflect/InvocationTargetException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 512,
+      "target": "java/lang/IllegalAccessException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 672,
+      "target": "java/lang/InterruptedException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "public static void openURL(java.lang.String) throws java.io.IOException;",
+      "offset": 793,
+      "target": "java/lang/InterruptedException.getMessage"
+    },
+    {
+      "class": "edu.stanford.ejalbert.BrowserLauncher",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.PropertyConfigurator",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.chainsaw.LoadXMLAction",
+      "method": "public void actionPerformed(java.awt.event.ActionEvent);",
+      "offset": 139,
+      "target": "java/lang/Exception.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.chainsaw.LoadXMLAction",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.chainsaw.LoggingReceiver",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.chainsaw.Main",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.lf5.DefaultLF5Configurator",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.lf5.viewer.LogBrokerMonitor",
+      "method": "protected boolean matches(org.apache.log4j.lf5.LogRecord, java.lang.String);",
+      "offset": 1,
+      "target": "org/apache/log4j/lf5/LogRecord.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.lf5.viewer.configure.ConfigurationManager",
+      "method": "protected void load();",
+      "offset": 97,
+      "target": "java/lang/Exception.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.net.SocketNode",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.spi.LoggingEvent",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.varia.Roller",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.log4j.xml.DOMConfigurator",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/ClassNotFoundException.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.ReaderCharacterIterator",
+      "method": "public char charAt(int);",
+      "offset": 20,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.ReaderCharacterIterator",
+      "method": "public boolean isEnd(int);",
+      "offset": 41,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.ReaderCharacterIterator",
+      "method": "public java.lang.String substring(int);",
+      "offset": 22,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.ReaderCharacterIterator",
+      "method": "public java.lang.String substring(int, int);",
+      "offset": 26,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.StreamCharacterIterator",
+      "method": "public char charAt(int);",
+      "offset": 20,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.StreamCharacterIterator",
+      "method": "public boolean isEnd(int);",
+      "offset": 41,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.StreamCharacterIterator",
+      "method": "public java.lang.String substring(int);",
+      "offset": 22,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.regexp.StreamCharacterIterator",
+      "method": "public java.lang.String substring(int, int);",
+      "offset": 26,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.client.XSLTProcessorApplet",
+      "method": "public java.lang.String getHtmlText();",
+      "offset": 47,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.client.XSLTProcessorApplet",
+      "method": "public java.lang.String getTreeAsText(java.lang.String) throws java.io.IOException;",
+      "offset": 60,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandler",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerGeneral",
+      "method": "public java.lang.Object callFunction(java.lang.String, java.util.Vector, java.lang.Object, org.apache.xalan.extensions.ExpressionContext) throws javax.xml.transform.TransformerException;",
+      "offset": 135,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerGeneral",
+      "method": "public void processElement(java.lang.String, org.apache.xalan.templates.ElemTemplateElement, org.apache.xalan.transformer.TransformerImpl, org.apache.xalan.templates.Stylesheet, java.lang.Object) throws javax.xml.transform.TransformerException, java.io.IOException;",
+      "offset": 67,
+      "target": "org/apache/xpath/XPathException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerGeneral",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerJavaClass",
+      "method": "public void processElement(java.lang.String, org.apache.xalan.templates.ElemTemplateElement, org.apache.xalan.transformer.TransformerImpl, org.apache.xalan.templates.Stylesheet, java.lang.Object) throws javax.xml.transform.TransformerException, java.io.IOException;",
+      "offset": 73,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerJavaClass",
+      "method": "public void processElement(java.lang.String, org.apache.xalan.templates.ElemTemplateElement, org.apache.xalan.transformer.TransformerImpl, org.apache.xalan.templates.Stylesheet, java.lang.Object) throws javax.xml.transform.TransformerException, java.io.IOException;",
+      "offset": 140,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerJavaClass",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.extensions.ExtensionHandlerJavaPackage",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.lib.sql.DTMDocument",
+      "method": "protected int addElement(int, int, int, int);",
+      "offset": 168,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.lib.sql.DTMDocument",
+      "method": "protected int addAttributeToNode(java.lang.Object, int, int);",
+      "offset": 153,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.processor.ProcessorInclude",
+      "method": "public void startElement(org.apache.xalan.processor.StylesheetHandler, java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes) throws org.xml.sax.SAXException;",
+      "offset": 132,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.processor.ProcessorInclude",
+      "method": "protected void parse(org.apache.xalan.processor.StylesheetHandler, java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes) throws org.xml.sax.SAXException;",
+      "offset": 370,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.processor.TransformerFactoryImpl",
+      "method": "public javax.xml.transform.Templates newTemplates(javax.xml.transform.Source) throws javax.xml.transform.TransformerConfigurationException;",
+      "offset": 406,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.processor.TransformerFactoryImpl",
+      "method": "public javax.xml.transform.Templates newTemplates(javax.xml.transform.Source) throws javax.xml.transform.TransformerConfigurationException;",
+      "offset": 462,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.processor.TransformerFactoryImpl",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.serialize.SerializerToXML",
+      "method": "public boolean canConvert(char);",
+      "offset": 124,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.FuncDocument",
+      "method": "int getDoc(org.apache.xpath.XPathContext, int, java.lang.String, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 40,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.FuncDocument",
+      "method": "int getDoc(org.apache.xpath.XPathContext, int, java.lang.String, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 116,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.FuncDocument",
+      "method": "int getDoc(org.apache.xpath.XPathContext, int, java.lang.String, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 310,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.FuncDocument",
+      "method": "int getDoc(org.apache.xpath.XPathContext, int, java.lang.String, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 348,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.FuncDocument",
+      "method": "int getDoc(org.apache.xpath.XPathContext, int, java.lang.String, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 531,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.FuncDocument",
+      "method": "int getDoc(org.apache.xpath.XPathContext, int, java.lang.String, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 545,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.templates.OutputProperties",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.transformer.TransformerIdentityImpl",
+      "method": "public void startDocument() throws org.xml.sax.SAXException;",
+      "offset": 25,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.transformer.TransformerImpl",
+      "method": "private void fatalError(java.lang.Throwable) throws javax.xml.transform.TransformerException;",
+      "offset": 16,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.transformer.TransformerImpl",
+      "method": "public void transformNode(int) throws javax.xml.transform.TransformerException;",
+      "offset": 282,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.transformer.TransformerImpl",
+      "method": "public void transformNode(int) throws javax.xml.transform.TransformerException;",
+      "offset": 348,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.transformer.TransformerImpl",
+      "method": "public void run();",
+      "offset": 46,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.transformer.TransformerImpl",
+      "method": "public void run();",
+      "offset": 118,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.cmdline.Transform",
+      "method": "private void doTransform();",
+      "offset": 321,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.cmdline.Transform",
+      "method": "private void doTransform();",
+      "offset": 375,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.cmdline.Transform",
+      "method": "private void doTransform();",
+      "offset": 735,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.cmdline.Transform",
+      "method": "private void doTransform();",
+      "offset": 749,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.cmdline.Transform",
+      "method": "private void doTransform();",
+      "offset": 800,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode parse(org.xml.sax.XMLReader, org.xml.sax.InputSource);",
+      "offset": 45,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode parse(org.xml.sax.XMLReader, org.xml.sax.InputSource);",
+      "offset": 99,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode parse(org.xml.sax.XMLReader, org.xml.sax.InputSource);",
+      "offset": 136,
+      "target": "org/apache/xalan/xsltc/compiler/CompilerException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode parse(org.xml.sax.XMLReader, org.xml.sax.InputSource);",
+      "offset": 173,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode parse(org.xml.sax.InputSource);",
+      "offset": 67,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode parse(org.xml.sax.InputSource);",
+      "offset": 93,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.Parser",
+      "method": "public org.apache.xalan.xsltc.compiler.SyntaxTreeNode makeInstance(java.lang.String, java.lang.String, java.lang.String);",
+      "offset": 139,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.XSLTC",
+      "method": "public boolean compile(java.net.URL);",
+      "offset": 43,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.XSLTC",
+      "method": "public boolean compile(java.net.URL, java.lang.String);",
+      "offset": 43,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.XSLTC",
+      "method": "public boolean compile(org.xml.sax.InputSource, java.lang.String);",
+      "offset": 241,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.compiler.XSLTC",
+      "method": "public boolean compile(org.xml.sax.InputSource, java.lang.String);",
+      "offset": 281,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.runtime.DefaultRun",
+      "method": "private void doTransform();",
+      "offset": 446,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.runtime.DefaultRun",
+      "method": "private void doTransform();",
+      "offset": 503,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private org.apache.xalan.xsltc.dom.DOMImpl getDOM(javax.xml.transform.Source, int) throws javax.xml.transform.TransformerException;",
+      "offset": 528,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private org.apache.xalan.xsltc.dom.DOMImpl getDOM(javax.xml.transform.Source, int) throws javax.xml.transform.TransformerException;",
+      "offset": 555,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private org.apache.xalan.xsltc.dom.DOMImpl getDOM(javax.xml.transform.Source, int) throws javax.xml.transform.TransformerException;",
+      "offset": 583,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private org.apache.xalan.xsltc.dom.DOMImpl getDOM(javax.xml.transform.Source, int) throws javax.xml.transform.TransformerException;",
+      "offset": 611,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private void transform(javax.xml.transform.Source, org.xml.sax.ContentHandler, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 82,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private void transform(javax.xml.transform.Source, org.xml.sax.ContentHandler, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 110,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "private void transform(javax.xml.transform.Source, org.xml.sax.ContentHandler, java.lang.String) throws javax.xml.transform.TransformerException;",
+      "offset": 138,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "public org.apache.xalan.xsltc.dom.DOMImpl retrieveDocument(java.lang.String, int, org.apache.xalan.xsltc.Translet);",
+      "offset": 42,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "public void fatalError(javax.xml.transform.TransformerException) throws javax.xml.transform.TransformerException;",
+      "offset": 53,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xalan.xsltc.trax.TransformerImpl",
+      "method": "public void warning(javax.xml.transform.TransformerException) throws javax.xml.transform.TransformerException;",
+      "offset": 53,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.impl.xs.traversers.XSDHandler",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.jaxp.DocumentBuilderImpl",
+      "method": "public boolean isNamespaceAware();",
+      "offset": 16,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.jaxp.DocumentBuilderImpl",
+      "method": "public boolean isValidating();",
+      "offset": 16,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public void parse(java.lang.String) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 81,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public void parse(java.lang.String) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 148,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public void parse(org.xml.sax.InputSource) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 109,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public void parse(org.xml.sax.InputSource) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 168,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public void setFeature(java.lang.String, boolean) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 155,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public boolean getFeature(java.lang.String) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 65,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public void setProperty(java.lang.String, java.lang.Object) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 259,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.AbstractSAXParser",
+      "method": "public java.lang.Object getProperty(java.lang.String) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 105,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public void parse(java.lang.String) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 81,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public void parse(java.lang.String) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 148,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public void parse(org.xml.sax.InputSource) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 109,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public void parse(org.xml.sax.InputSource) throws org.xml.sax.SAXException, java.io.IOException;",
+      "offset": 168,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public void setFeature(java.lang.String, boolean) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 16,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public boolean getFeature(java.lang.String) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 13,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public void setProperty(java.lang.String, java.lang.Object) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 16,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xerces.parsers.DOMParser",
+      "method": "public java.lang.Object getProperty(java.lang.String) throws org.xml.sax.SAXNotRecognizedException, org.xml.sax.SAXNotSupportedException;",
+      "offset": 78,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xml.dtm.ref.IncrementalSAXSource_Xerces",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xml.serialize.BaseMarkupSerializer",
+      "method": "static java.lang.Class class$(java.lang.String);",
+      "offset": 11,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xml.serialize.XMLSerializer",
+      "method": "public java.lang.String writeToString(org.w3c.dom.Node) throws org.w3c.dom.DOMException;",
+      "offset": 112,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xpath.SourceTreeManager",
+      "method": "public int getSourceTree(java.lang.String, java.lang.String, javax.xml.transform.SourceLocator, org.apache.xpath.XPathContext) throws javax.xml.transform.TransformerException;",
+      "offset": 27,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xpath.SourceTreeManager",
+      "method": "public int parseToNode(javax.xml.transform.Source, javax.xml.transform.SourceLocator, org.apache.xpath.XPathContext) throws javax.xml.transform.TransformerException;",
+      "offset": 65,
+      "target": "java/lang/Throwable.getMessage"
+    },
+    {
+      "class": "org.apache.xpath.SourceTreeManager",
+      "method": "public static org.xml.sax.XMLReader getXMLReader(javax.xml.transform.Source, javax.xml.transform.SourceLocator) throws javax.xml.transform.TransformerException;",
+      "offset": 126,
+      "target": "org/xml/sax/SAXException.getMessage"
+    },
+    {
+      "class": "org.apache.xpath.axes.PredicatedNodeTest",
+      "method": "public short acceptNode(int);",
+      "offset": 78,
+      "target": "java/lang/Throwable.getMessage"
+    }
+  ],
+  "changed_entries": [
+    "com/apple/xsr/net/HttpConnection.class",
+    "compat/SocketConfiguration.class"
+  ],
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "sources": {
+    "tools/socket_configuration_consumers.py": "66e81e3f9d1ac4f4ec399aa8d69a6d860f87f76fdca9501b2619b492c9352b0d",
+    "tools/class_patch.py": "aaa47b78234a5307fb98abbc0dc37f520c8670d941d03da605b6338c4e438c72",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/baseline.py": "5376e02eecc2a408bd2240144aaa49018f4b35952897d464dcf6dc7f61325dc0",
+    "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+    "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
+    "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
+    "audit/expected-build.json": "61b4aabe42be07aa4ea4e900654d6cb5bfc7340649cd674ed0b7ffecb0b27cca"
+  },
+  "scope": "All candidate class constant pools scanned. Full javap for every standard setup exception-type reference and every Apple getMessage reference class. String-returning invocation sites include unqualified same-class calls. Other library references listed without complete disassembly. This is static source evidence; reachability, native UI/CLI rendering and external extensions remain unqualified."
+}
