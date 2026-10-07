@@ -1,0 +1,6 @@
+{
+  "entry": "com/apple/xsr/som/RaidSystem.class",
+  "original_sha256": "870f5f3ee880f1bfa1875a87f1dd3b4904f24cbd016a2eb4742c2cf4d627c632",
+  "patched_sha256": "f2b2c2f5b7c3e3eb941c16436cb41f2a64b0630a6dabf722fb36470e11858f2c",
+  "scope": "Only diagnostic reads of two password fields become fixed tokens. Two four-byte windows, two appended constant-pool entries and updated pool count; all fields, getters, setters, saved flags, observers, persistence and controller protocol bytecode unchanged."
+}

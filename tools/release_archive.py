@@ -91,7 +91,7 @@ def main():
     source,bundle,output,record=[path.resolve() for path in (a.source,a.bundle,a.output,a.record)]
     if output==record or any(path.is_relative_to(root) for path in (output,record) for root in (source,bundle)):raise ValueError('Release paths overlap inputs or each other')
     initial=clean_state()
-    paths=[ROOT/n for n in ('tools/release_archive.py','tools/audit_support.py','tools/runtime.py','tools/verify_bundles.py','tools/verify_builds.py','tools/baseline.py','tools/help_patch.py','tools/class_patch.py','tools/sync_ownership_patch.py','audit/runtime-lock.json','audit/python-lock.json','audit/expected-build.json','audit/help-patches.json')]
+    paths=[ROOT/n for n in ('tools/release_archive.py','tools/audit_support.py','tools/runtime.py','tools/verify_bundles.py','tools/verify_builds.py','tools/baseline.py','tools/help_patch.py','tools/model_diagnostic_patch.py','audit/model-diagnostic-patches.json','tools/class_patch.py','tools/sync_ownership_patch.py','audit/runtime-lock.json','audit/python-lock.json','audit/expected-build.json','audit/help-patches.json')]
     sources={str(path.relative_to(ROOT)):sha(path) for path in paths}
     manifests={path:path.read_bytes() for path in (bundle/'provenance.json',source/'provenance.json')}
     if any(json.loads(data).get('source_dirty') is not False for data in manifests.values()) or json.loads(manifests[bundle/'provenance.json']).get('packager_dirty') is not False:raise ValueError('Clean source artifacts required')

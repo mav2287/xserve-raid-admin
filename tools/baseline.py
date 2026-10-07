@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from audit_support import sha, tree, modes, digest, verify_jdk, verify_python, run_jdk, isolated_env
 
 from help_patch import TARGETS as HELP_TARGETS, plan as help_plan
+from model_diagnostic_patch import ENTRY as MODEL_ENTRY, ORIGINAL_SHA as MODEL_ORIGINAL, PATCHED_SHA as MODEL_PATCHED, plan as model_plan
 
 from class_patch import CURRENT_TARGETS as TARGETS, transform_current as transform, embedded_dtd
 
@@ -31,9 +32,9 @@ PATCH_CLASSES = {
     'com/apple/mrj/MRJFileUtils.class', 'compat/SafePlistResolver.class', 'compat/SafeLogAppender.class',
     'compat/SafePlistParser.class', 'compat/BoundedResponseBuffer.class', 'compat/BoundedHeaderStream.class', 'compat/UntrustedResponseException.class', 'compat/RejectionRecovery.class', 'compat/ResponseFraming.class',
 }
-ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | set(HELP_TARGETS) | {'compat/PropertyList.dtd', 'log4j.properties'}
-VERSION = '1.5.1-modern.audit.25'
-BUNDLE_VERSION = '25'
+ALLOWED_JAR_CHANGES = PATCH_CLASSES | set(TARGETS) | set(HELP_TARGETS) | {MODEL_ENTRY, 'compat/PropertyList.dtd', 'log4j.properties'}
+VERSION = '1.5.1-modern.audit.26'
+BUNDLE_VERSION = '26'
 
 
 def tree_hash(files):
@@ -100,6 +101,10 @@ def main():
             entries[name] = help_plan(name, entries[name])
             if hashlib.sha256(entries[name]).hexdigest() != help_lock['classes'][name]['patched_sha256']:raise ValueError('UI override differs')
         if {name:hashlib.sha256(patches[name]).hexdigest() for name in help_lock['helpers']} != help_lock['helpers']:raise ValueError('Browser helper differs from reviewed bytes')
+        model_lock = json.loads((ROOT / 'audit/model-diagnostic-patches.json').read_text())
+        if model_lock['entry'] != MODEL_ENTRY or model_lock['original_sha256'] != MODEL_ORIGINAL or model_lock['patched_sha256'] != MODEL_PATCHED:
+            raise ValueError('Model diagnostic pins disagree')
+        entries[MODEL_ENTRY] = model_plan(entries[MODEL_ENTRY])
         logging_lock = json.loads((ROOT / 'audit/logging-patches.json').read_text())
         config = entries['log4j.properties']
         if hashlib.sha256(config).hexdigest() != logging_lock['original_sha256'] or config.count(b'log4j.rootLogger=OFF\n') != 1:
@@ -137,7 +142,7 @@ def main():
         files = tree(app)
         file_modes = modes(app)
         commit = subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD'], cwd=ROOT, env=isolated_env(), text=True).strip()
-        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'tools/sync_ownership_patch.py', ROOT / 'tools/worker_exit_patch.py', ROOT / 'tools/stop_admission_patch.py', ROOT / 'tools/socket_configuration_patch.py', ROOT / 'tools/connection_publication_patch.py', ROOT / 'tools/help_patch.py', ROOT / 'audit/help-patches.json', ROOT / 'audit/security-patches.json', ROOT / 'audit/logging-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
+        inputs = {str(p.relative_to(ROOT)): sha(p) for p in [ROOT / 'build.sh', Path(__file__).resolve(), ROOT / 'audit/jdk-lock.json', ROOT / 'audit/python-lock.json', ROOT / 'tools/audit_support.py', ROOT / 'tools/class_patch.py', ROOT / 'tools/sync_ownership_patch.py', ROOT / 'tools/worker_exit_patch.py', ROOT / 'tools/stop_admission_patch.py', ROOT / 'tools/socket_configuration_patch.py', ROOT / 'tools/connection_publication_patch.py', ROOT / 'tools/help_patch.py', ROOT / 'tools/model_diagnostic_patch.py', ROOT / 'audit/model-diagnostic-patches.json', ROOT / 'audit/help-patches.json', ROOT / 'audit/security-patches.json', ROOT / 'audit/logging-patches.json', ROOT / 'packaging/audit-Info.plist', ROOT / 'packaging/audit-launcher'] + sources + sorted((ROOT / 'original').glob('*.icns'))}
         provenance = {
             'schema': 2, 'purpose': 'unsigned offline audit build; not a qualified release',
             'apple_version': '1.5.1', 'compatibility_version': VERSION,

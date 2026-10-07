@@ -31,9 +31,11 @@ def normalize(entry, data):
     return old
 
 def strip_entries(entries):
-    """Comparator only: reverse exactly the locked UI extension, retain all other bytes."""
+    """Comparator only: reverse exact locked diagnostic/UI extensions."""
     import json
     from pathlib import Path
+    from model_diagnostic_patch import strip_entries as strip_model
+    entries=strip_model(entries)
     lock=json.loads((Path(__file__).resolve().parents[1]/'audit/help-patches.json').read_text())
     helpers=lock['helpers'];present=set(helpers)&set(entries)
     if not present:return dict(entries)

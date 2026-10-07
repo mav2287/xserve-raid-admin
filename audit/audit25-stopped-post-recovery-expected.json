@@ -1,6 +1,5 @@
 {
-  "audit26_reason": "Only candidate identity changes: exact model diagnostic redaction, all 143 recovery lines remain byte-for-byte audit25.",
-  "candidate_jar_sha256": "7c361034ec4deeec1741e49d3963c3dfd8e6dd07ea1b1fb7ab029d2aa3f74158",
+  "candidate_jar_sha256": "59087dceed5865b08cef4db0b554a0822837618a07e59b6fd92a2b25880e6393",
   "lines": [
     "ordinary logger owner=CommunicationsManager method=run; terminal=-102; sends=1; connected=false; stop=true",
     "length gates: runtime parseInt parity, malformed/overflow/negative fixed markers; no-input-or-cause",

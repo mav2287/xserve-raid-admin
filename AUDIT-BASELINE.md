@@ -1,9 +1,11 @@
 # Phase 0 baseline audit — 2026-10-05
 
-Current local candidate: **audit.24**, clean application/fixture/package source
-`8c246e1`. Fourteen candidate gates and 146 unit tests pass; see
-[qualified scope](audit/CONNECTION-PUBLICATION.md) and
-[hash-bound evidence](audit/connection-publication-final-integrity.json).
+Current qualified local candidate: **audit.25**. Product/build/package source
+is `82f9c4f`; corrected stop comparison, final units and release postprocessing
+use `aee4580`. Fifteen candidate gates and 165 unit tests pass, with repeated
+unsigned archives and schema-validated SPDX inventories; see
+[qualified scope](audit/HELP-COMPATIBILITY.md) and
+[hash-bound evidence](audit/help-final-integrity.json).
 Hardware acceptance is deferred by user instruction; native GUI workflows,
 physical Intel and signed-release acceptance remain unverified.
 

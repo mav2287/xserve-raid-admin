@@ -13,17 +13,16 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "23c0955c76fc3dd0326656c21202eeb636a743e9763889391c3e8d718e649e91",
+      "Contents/Info.plist": "fd23e246c6f84ec140b4332089946d3eca9b3b96d53ef01f59fb3971b840e661",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "7c361034ec4deeec1741e49d3963c3dfd8e6dd07ea1b1fb7ab029d2aa3f74158"
+      "Contents/Resources/RAID_Admin.jar": "59087dceed5865b08cef4db0b554a0822837618a07e59b6fd92a2b25880e6393"
     },
     "input_hashes": {
       "audit/help-patches.json": "f5f34c3d6fafc291fca7bbfe40d2b221bf9600616ff216833385aefb2d920752",
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
-      "audit/model-diagnostic-patches.json": "517e77418d56bcb7561ca8a33d24d077286cd91e0ab64bf1bfacb9838a2369a8",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
       "audit/security-patches.json": "0259a81d4160216481b3c6a045c9945a3de8207e9c3f9f73e65c0fc44f46a2a6",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
@@ -49,11 +48,10 @@
       "patches/compat/WorkerExit.java": "10473b5eb8eb610fdc54df9a34f50035ac266048a73d45bed5f3cb8d2ebcb0b2",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
-      "tools/baseline.py": "788be3ab6e6b1d2d70cc5b14e49ff1d4400b9244a98d18b67604c9f2183efa5c",
+      "tools/baseline.py": "599289f3ebd2ee9ea4a742276bb6c48910292b5f12f08c994a4d338e771c798d",
       "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
       "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
-      "tools/help_patch.py": "c78f19859786efa4f275464210a7b695de31a00f7ea4bf9d7d4ddf631926a738",
-      "tools/model_diagnostic_patch.py": "1d2213c42cf3bec1951d736477a1e5888fe0a9c5d0af0aa39558d4ab0fc07ee7",
+      "tools/help_patch.py": "afd6ed4c5f1e2d08c4a44271b067599c6efc51fc7a75f893c36fa231f8aa0d40",
       "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
       "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
       "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
@@ -67,9 +65,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "44358a0d44138f1555a457315b5d4c2fb8f55b9856f4691df354c83d874048a5",
-  "reason": "Audit26: exact two-window RaidSystem diagnostic redaction; all other audit25 JAR entries unchanged; version 26, compiler/runtime unchanged. Development goldens precede clean qualification.",
+  "previous_record_sha256": "2c4ef9c8e199eea643fb1332397607e0d0ea76f017a9e7b641cb750b780ef25e",
+  "reason": "Audit25 clean source build: original two UI call operands and seven pinned Java8 helper classes; core bytes identical to audit24. Historical golden retained; clean qualification follows.",
   "schema": 1,
-  "source_commit": "d8d94fa9000c422f0788e30827d95417255cecbd",
-  "source_dirty": true
+  "source_commit": "d4900b497d4b4becdf6215d5c38871bbc681ec5b",
+  "source_dirty": false
 }
