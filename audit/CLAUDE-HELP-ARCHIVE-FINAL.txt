@@ -1,0 +1,33 @@
+I found four blockers that need fixing before the clean rerun, plus two smaller gaps. I read the 13 files you listed, plus `tools/verify_bundles.py` and `audit/expected-build.json` and a few searches to check things. I ran nothing and wrote nothing, so none of this is test evidence.
+
+## Confirmed as you described
+- **Scanner self-entry:** `check_help.py:47-49` requires the list of reflection-string entries to be exactly `['edu/stanford/ejalbert/BrowserLauncher.class']`. That matches `observations.json:14-16`.
+- **Comparator:** `help_patch.strip_entries` (`help_patch.py:33-44`) only acts on all seven hash-locked helpers together. `normalize` then requires the original pin, an exact rebuild through `plan()`, and the exact appended pool bytes. Anything else fails closed further downstream.
+- **Network mutants:** they use the actual candidate entries (`check_connection_publication.py:72`, `check_socket_configuration.py:127`, `stop_admission_fixtures.py:41`).
+- **Build allowlist:** `baseline.py` covers the help targets and helpers (lines 24, 34, 97-102) and records `help_patch.py` and `help-patches.json` as inputs.
+- **Case count:** the 62 cases in `HelpObservation` add up exactly (36 + 3 + 4 + 7 + 1 + 1 + 3 + 1 + 4 + 1 + 1).
+- **NFC/NFD test:** the `é` scenario really pairs the composed and decomposed forms.
+
+## Concrete blockers
+1. **No audit25 full-suite runner or evidence assembler.** The existing unit runners pin the full suite at 146 tests (e.g. `audit/connection-publication-unit-runner.py:20`). Adding `test_help_patch.py` (5) and `test_release_archive.py` (8) changes that count. A search for audit25 or help evidence assemblers only matches `baseline.py`. Nothing yet:
+   - pins the new total,
+   - runs the release-archive tests in a gate,
+   - or ties `observations.json` and the 14 gate outputs to one clean commit.
+2. **`release_archive.py` doesn't require clean source.**
+   - Git state is read once, after verification (line 99). It isn't compared before and after, and a dirty tree isn't refused.
+   - `check_bundle` (`verify_bundles.py:13-45`) never checks `source_dirty` in the source or bundle provenance.
+   - So a development bundle gets a record that looks like a release one. It should require a clean initial state equal to the final state, and `source_dirty == false` in both provenance files.
+3. **The release archive doesn't hash everything it runs.** `help_patch.py:3-4` imports `class_patch.py` and `sync_ownership_patch.py` at load time, via `baseline` and `verify_builds`. Neither file is in the hashed list at `release_archive.py:86`, so "binds all relevant source hashes" doesn't fully hold.
+4. **Help scanner coverage is narrower than its error message suggests.** `check_help.py:42-48` only checks field and method references (tags 9/10/11) and exact class-name strings. It doesn't check:
+   - class constants (tag 7), which cover `checkcast`, `instanceof`, `ldc` class literals and catch types,
+   - field or method descriptors that mention `Ledu/stanford/ejalbert/BrowserLauncher;`.
+
+   A reference of those kinds would get past the "Uncovered legacy browser reference" check. Expected set for tag 7: the two targets plus the self-entry.
+
+## Smaller gaps (not blocking on their own)
+- **Rollback test missing:** the record-link failure path that undoes the published archive (`release_archive.py:103-106`) has no test. The eighth test only covers a signature failure before either link.
+- **Cleanup can fail:** extraction only rejects modes matching `0o7022`, so directory modes like `0o000` or `0o300` get through. Cleanup at lines 76-78 can't list such a directory, so `rmtree` fails, hides the original error and leaves partial output.
+- **Unicode check is slightly off:** line 54 looks up `root.casefold()` without NFD normalization. Also, NFD followed by casefold isn't a fully canonical key (it should be NFD of casefold of NFD). This is harmless for `RAID Admin.app` but doesn't quite match the claim.
+- **URL scheme assumption:** `HelpLauncher` accepts any absolute URI scheme (the tests deliberately accept `custom:`). That's fine only if `UnsupportedOperationDialog.url` always comes from the bundled resources. I didn't check where the constructor gets it, since the constructor is skipped in the test.
+- **Rebuild record:** `audit/expected-build.json:72` still says `source_dirty: true`, so it has to be regenerated from the clean rebuild.
+- **Real-bundle run needed:** the archive tests are unit-level only. The real bundled runtime still has to go through archive, extract and `verify_runtime` once, to confirm the vendor signature survives without xattrs or symlinks. If the runtime contained symlinks, `tree()` would reject it.

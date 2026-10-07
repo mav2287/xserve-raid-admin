@@ -1,0 +1,77 @@
+## Verdict
+
+The design is narrow. Nothing in this path signs, installs, launches, uploads or uses the network; the `urllib` import in `runtime.py` is never reached. The format choices hold up: STORED, sorted names, 1980 timestamps, `create_system=3`, exact file and directory modes, and nothing from symlinks or xattrs in the archive. The final `snapshot(extracted) == identity` check plus the codesign re-check on the extracted runtime would catch any writer bug.
+
+I found **one real blocker** and a few cheap fixes you should make before treating the output as a release candidate. I haven't run anything; this is from reading the code only.
+
+## Blocker
+
+**1. A failed run leaves an archive at `--output` that looks valid.** `write_archive` writes straight to the final path (`tools/release_archive.py:19`). When something raises inside the `with` block (for example "Source changed while archiving" at `:25`), `ZipFile.__exit__` still calls `close()` and writes the central directory. That leaves a well-formed but partial ZIP at the release path.
+
+The same thing happens after a full write if any later check fails:
+- the source snapshot changes afterwards (`:27`)
+- `measured != identity` (`:62`)
+- the extracted copy differs (`:67`)
+- `verify_runtime`/codesign fails (`:68`)
+- the final re-hash fails (`:69`)
+
+The only sign of failure is that the record file is missing.
+
+**Fix:** write to a temp file next to the output (opened with `x`), run every check against it, then publish with `os.link(tmp, output)` (refuses to overwrite) and unlink the temp. Delete the temp in a `finally`.
+
+## Should fix (cheap, concrete)
+
+**2. Output and record paths can collide or land inside the inputs.**
+- **Same path:** `--output X --record X` passes the `a.record.exists()` check at `:60`. The archive is then written, verified and hashed, and `a.record.write_text` at `:70` overwrites it with JSON. The result is a record whose `archive_sha256` matches no file on disk.
+- **Record written without exclusive create:** `write_text` replaces the file if it appeared since the check, and follows a symlink. Use `open(..., 'x')`.
+- **Output inside the app:** the archive gets written into the bundle being archived. The snapshot check catches this, but only after the bundle has been changed.
+- **Record inside the bundle:** it's written after the last snapshot (`:69`), so it silently breaks the bundle's match with its provenance.
+
+**Fix:** resolve all four paths, require output ≠ record, and require that neither is under `--bundle` or `--source`.
+
+**3. The record doesn't bind the verification logic it vouches for.** `tool_sha256` only hashes `release_archive.py`. The checks it relies on live in `audit_support.py`, `runtime.py`, `verify_bundles.py`, `verify_builds.py` and the lock files (`runtime-lock.json`, `python-lock.json`, the expected-build file). Record their hashes (or the git commit plus a clean-tree status) and the Python version.
+
+**4. `provenance.json` is read three separate times:** inside `check_bundle`, for `arch` at `:64`, and for the record hash at `:70`. A swapped architecture would fail `verify_runtime` anyway, but `bundle_provenance_sha256` isn't guaranteed to describe the manifest that was actually checked. Read the bytes once and parse and hash those same bytes (e.g. have `check_bundle` return them).
+
+**5. The archive is verified by path and re-opened three times** (`sha`, extract, `sha`). If the file is swapped and then restored in between, every check still passes. This matters little for local-only use, but reading the bytes once and extracting from `io.BytesIO` closes the gap at no cost. It also fits naturally with the temp-file fix in #1.
+
+## `extract_archive` as a standalone validator
+
+These gaps aren't reachable through `main`, because there the archive is self-produced and snapshot-compared. They matter if the function is ever reused on an archive you didn't just write:
+- **Missing parent-directory entries are accepted.** `mkdir(parents=True)` (`:52`) creates them with umask-dependent modes. Require an explicit directory entry for every parent.
+- **Unicode normalization isn't handled.** `seen` uses `casefold()` without NFD normalization. An NFC and an NFD spelling of the same directory both pass, and on APFS `mkdir(exist_ok=True)` silently merges them. Key on `unicodedata.normalize('NFD', s).casefold()`.
+- **Mid-extraction failures** (a CRC error raising `BadZipFile`, or `PermissionError`) leave a partial `destination` behind and aren't raised as `ValueError`.
+- **The `chmod` pass (`:55`) depends on archive order.** If a parent directory without `x` comes later in the archive, it gets locked down before its children are chmodded. Sorting by path depth, deepest first, removes the dependency.
+
+Two writer-side checks are also inconsistent with the reader:
+- The writer's case-collision check (`:18`) includes the trailing `/`, so a file `a` and a directory `A/` don't collide.
+- The writer doesn't reject `0o7022` mode bits up front. It fails closed later, but should fail earlier.
+
+## High-value missing tests
+
+**Existing negative tests are weak.** Each bad archive in `test_unsafe_archive_entries_refused_before_extraction` lacks the `A.app/` root entry, and the test never checks which error fired. Build every case on an otherwise-valid archive and assert the specific message, so each check is proven on its own.
+
+Add:
+1. **Determinism that doesn't depend on how the tree was made:** build the same tree in a different order, with different mtimes and umask, and assert identical bytes. Also assert the header fields of every entry: `date_time`, `compress_type`, `create_system`, `flag_bits == 0`, no `extra` or comment, and the `0x10` attribute on directories.
+2. **Round trips** for an empty directory, a `0o555` directory and a `0o444` file.
+3. **One case per refusal path:**
+   - duplicate names and case-variant names
+   - a file used as a parent (`A.app/f` then `A.app/f/g`)
+   - directory mode on a name without trailing `/`, and the reverse
+   - `ZIP_DEFLATED` entries and the encrypted flag
+   - non-Unix `create_system` (mode bits are 0)
+   - backslash names, and non-canonical names (`A.app//x`, `A.app/./x`)
+   - wrong root name, or root in different case
+   - setuid and sticky bits
+   - a directory entry with non-zero size
+4. **The two gaps above:** an implicit parent directory and an NFC/NFD alias. Both should be refused; today they're accepted.
+5. **Source changing mid-archive:** patch `Path.read_bytes` to return different content, and separately change a mode after the first snapshot. Assert both raise *and* that no output file remains. This test fails today because of #1.
+6. **A corrupted stored file** (flip one data byte): assert the error type and that no partial output remains.
+7. **`main` tests with `check_bundle` and `verify_runtime` stubbed:**
+   - output == record
+   - output or record inside the bundle
+   - record already exists
+   - extraction or signature failure leaves neither the archive nor the record behind
+   - the record's fields match the archive
+
+None of this needs hardware. Once #1 and #2 are fixed and the tests above exist, the remaining hardware-free release prep is done.
