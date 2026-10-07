@@ -118,3 +118,11 @@ Development run `build/atomic-preferences-development-12/observations.json` pass
 the expanded matrix at dirty experimental source. Its tracked copy is
 `audit/atomic-preference-development.json`. The clean reproduction record is a
 separate next step; neither record qualifies product integration.
+
+
+Clean experimental reproduction at `ff84e6a` passes the same expanded matrix
+with `source_dirty=false`, all source bytes verified against that Git commit,
+repeated native outputs, and compiler/runtime/probe/native-input/output hashes
+checked before and after. Record: [atomic-preference-clean.json](../../audit/atomic-preference-clean.json).
+`qualification=false` remains explicit: this qualifies the nonshipping experiment
+only, not FileBasedPreferences caller integration or the application release.

@@ -576,3 +576,11 @@ Hardware is deferred until actual need. No disposable VM/account or signing setu
 is available; continue offline and finish unsigned local packages. The immutable
 Apple JAR and installed app remain unchanged. HTTP remains plaintext; no stored
 credential encryption claim is made.
+
+
+Clean experimental reproduction at `ff84e6a` passes the same expanded matrix
+with `source_dirty=false`, all source bytes verified against that Git commit,
+repeated native outputs, and compiler/runtime/probe/native-input/output hashes
+checked before and after. Record: [atomic-preference-clean.json](audit/atomic-preference-clean.json).
+`qualification=false` remains explicit: this qualifies the nonshipping experiment
+only, not FileBasedPreferences caller integration or the application release.
