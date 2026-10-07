@@ -96,7 +96,7 @@ def main():
                 result = subprocess.run(argv, cwd=root, env=env, capture_output=True, timeout=120, preexec_fn=no_core)
                 if result.returncode or result.stdout != expected or result.stderr: raise ValueError('Credential fixture failed; raw output withheld')
                 if list(root.iterdir()): raise ValueError('Unexpected fixture files remain')
-                record['runs'].append({'architecture': arch, 'mode': mode, 'stdout': expected.decode().strip(), 'empty_stderr': True, 'runtime_release_sha256': sha(runtime / 'release')})
+                record['runs'].append({'architecture': arch, 'mode': mode, 'stdout': expected.decode().strip(), 'empty_stderr': True, 'runtime_tree_sha256': runtime_manifest()['architectures'][arch]['tree_sha256']})
                 print('PASS credential boundary ' + arch + ' ' + mode, flush=True)
                 negative = [('-Dfixture.apple.original=' + str(mutant)) if arg.startswith('-Dfixture.apple.original=') else arg for arg in argv]
                 result = subprocess.run(negative, cwd=root, env=env, capture_output=True, timeout=120, preexec_fn=no_core)
