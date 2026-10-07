@@ -19,6 +19,9 @@ runtime_error() {
 [ -x "$JAVA" ] && [ -f "$RESOURCES/RAID_Admin.jar" ] || runtime_error
 # Validates startup/linking without opening the application or reading its saved targets.
 "$JAVA" -Djava.ext.dirs="$RUNTIME/jre/lib/ext" -Djava.endorsed.dirs= -Djava.library.path="$RUNTIME/jre/lib" -version >/dev/null 2>&1 || runtime_error
+# LaunchServices may supply a legacy process serial number before application arguments.
+# It is OS launch metadata; forwarding it makes the original Main select CLI mode.
+if [[ ${1-} =~ ^-psn_[0-9]+_[0-9]+$ ]]; then shift; fi
 exec "$JAVA" \
     -Djava.ext.dirs="$RUNTIME/jre/lib/ext" \
     -Djava.endorsed.dirs= \

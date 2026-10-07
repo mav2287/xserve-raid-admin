@@ -1,0 +1,111 @@
+# RAID Admin: what's left to do without hardware
+
+## Summary
+
+I only read files. I didn't run, change, or launch anything, and I didn't touch credentials, saved profiles, the installed app or any controller. The transport and security work (audit.4 to audit23) has reached the point where further local refinement adds little. The most useful remaining local work is three things:
+
+1. **Lifecycle repairs** at the shell-launcher and OS boundary. These are small, can be tested locally, and change no app bytes.
+2. **A GUI qualification run** in an isolated macOS VM that has no network adapter.
+3. **Release packaging:** a deterministic unsigned archive and an SPDX SBOM.
+
+Keychain support is optional convenience, not essential login. A sound version depends on a signing identity, so it can't be finished locally.
+
+## Concrete gaps, in priority order
+
+### 1. Any launch argument sends the app into CLI mode
+From the disassembly, `Main.main` treats any non-empty `args` (other than `-version` or `-laf X`) as a CLI command, runs `CommandLineInterface.execute`, then calls `System.exit`. `packaging/RAIDAdmin:36` passes `"$@"` through unfiltered.
+
+If LaunchServices ever passes a `-psn_…` argument, the app silently runs the CLI and exits instead of opening the GUI. Older macOS always did this; some Gatekeeper first-launch paths have been reported to do it too. Whether it happens on current macOS is **unknown**.
+
+- **Fix:** in the bundle launcher only, drop arguments that match `-psn_*`. No app bytes change.
+- **Check:** a shell-level test using a stub `java` that records its argv. This needs no GUI and no network.
+
+### 2. Shared preferences file, so test isolation is unproven
+`RaidAdmin.loadPreferences` hard-codes `com.apple.RAIDAdmin.plist`. The folder comes from the JDK's built-in `FileManager` (the packaged replacement is overridden by it, per G02). So this build reads and writes the **same** preferences file as the installed original app, including saved production targets and license acceptance.
+
+- I don't know whether `-Duser.home` or `HOME=` redirects the JDK's native folder lookup. Until a probe shows the redirected path, assume it does **not**.
+- `packaging/audit-Info.plist` still declares `com.apple.RAIDAdmin`. `tools/baseline.py:116` overrides this to `org.xserve-raid-admin.audit` for the audit bundle. I didn't confirm which identifier the pinned-runtime bundle ships. A `com.apple.*` identifier shouldn't go into a signed release.
+
+### 3. Open-document, quit and license-flow interactions (G03)
+These are readable from the code but not yet qualified:
+- **Order of setup:** the open-document handler is registered only inside `runApplication`, which runs after license acceptance and after `SystemMonitorController.getInstance()`. Files opened during a cold launch rely on the runtime queuing the event until a handler exists. I believe JDK's macOS event handler queues open-file events, but that is unverified on Corretto 8.
+- **Firmware file opened before the window exists:** `handleOpenFile` passes `monitorController.monitorWindow` to `showSheet`. If the window is null at that point, the result is unknown.
+- **Quit:** the bridge always calls `cancelQuit` after the original `handleQuit` (`MRJApplicationUtils.java:113-114`). That's correct when the original handler exits, but a failing save will block logout or restart, and the user only sees it on stderr. stderr isn't visible when launched from Finder.
+- **Help menu:** I didn't trace `HelpListener`. If it depends on Apple Help Book registration (`CFBundleHelpBookFolder`), it may be a feature that worked originally and is broken now.
+- **Print / open-application stubs:** these had no caller in the original. Keeping them as no-ops is correct. Don't add behavior that never existed.
+
+### 4. macOS Local Network privacy (macOS 15 and later; this host runs 26)
+This is essential for discovery and any controller connection. `NSLocalNetworkUsageDescription` is present. However, the app is a shell script that `exec`s the Amazon-signed `java` binary, so which app macOS credits with the network request is **unknown**. If permission is denied, connections fail as "host unreachable". Proving it needs a real local network target, so it's only partly testable without hardware.
+
+## PasswordManager / Keychain: essential vs optional
+
+Bytecode facts:
+- The class's static setup tries to load a native `PasswordManager` library and catches only `UnsatisfiedLinkError`.
+- If loading fails, `getPassword` throws `PasswordManagerAccessException("PasswordManagerLibraryNotLoaded")` and `setPassword` returns `-1`.
+- `isPasswordManagerAvailable()` returns `-1` until the shared instance exists, and `-2` if the library didn't load.
+- A non-zero native result prints only `error = N` to stdout. No secret is printed.
+
+How to read that:
+- **Essential login** is the monitor/admin password typed into a dialog and sent in the ACP header. It must work with no native library. EVIDENCE.md says callers catch the failure. **I haven't checked the callers myself.** The next safe step is a read-only trace of every `PasswordManager` call site, covering connect, the "remember" option, Forget Password and password change. It should confirm that no path blocks login or leaves a dialog stuck.
+- **Keychain "remember password"** is optional. Restoring it means writing new native code, not preserving old behavior. Any library from 2005 would be PPC/i386 and couldn't load in an arm64 or x86_64 JVM anyway. Whether Apple's 1.5.1 package even shipped one can be checked offline against the pinned download.
+- **Why to wait on Keychain:** with a classic keychain, item access is tied to the code signature of whatever is running. Here that is the Amazon-signed `java` binary, not RAID Admin. That would effectively trust any program run through that same `java` binary. The modern data-protection keychain needs team-signed entitlements. So a safe Keychain design depends on the signing identity.
+  - **For now:** qualify the "unavailable" fallback, both statically and in the GUI run.
+  - **Later:** write one small universal JNI library implementing the two native methods with the macOS generic-password API. Load it from an app-owned path the launcher adds, not from the vendor runtime directory, which `java.library.path` currently points at. Never use `/usr/bin/security -w`, because that puts the password in process arguments.
+
+## Bounded GUI test plan (no controller contact)
+
+**Environment:** a macOS VM on this Apple silicon Mac (Virtualization.framework) **with no network adapter**, with snapshots and a fresh user. That gives separate preferences, keychain and LaunchServices state, physically prevents controller contact, and doubles as a clean-install Gatekeeper host. Before each run, confirm that only `lo0` exists.
+
+**Second safeguard:** a test-only wrapper (never shipped) that installs a Java 8 SecurityManager. It refuses connect, listen, accept, multicast and DNS lookups, and records only fixed codes. Run each case both with and without it, because JmDNS discovery starts at launch and blocking it may itself change behavior.
+
+**Synthetic profile:**
+- (a) No preferences file at all, to cover the first-run license flow.
+- (b) A generated plist containing only license acceptance plus saved targets at RFC 5737 TEST-NET addresses (192.0.2.x), so connection failures happen locally.
+- Never copy real preferences or keychain items.
+- Later stage: render status views from the existing in-memory connection fixtures (`tests/java/connectionfixture`) instead of any network connection.
+
+**Cases:**
+1. First launch from Finder with no arguments. Check license Decline (should exit) and Accept.
+2. A `-psn_` argument, once the launcher fix is in.
+3. About, Preferences and Cmd-Q from the app menu; Dock Quit; Quit during logout.
+4. Preferences persist across relaunch.
+5. Open a `.xfb` cold, warm, via Dock drop, and before the license is accepted. Expect the alert sheet only; nothing can be transferred.
+6. Firmware and event-log Save dialogs default to Desktop (G11).
+7. Direct-IP add to 192.0.2.10. Expect a visible failure, no hang, and Keychain-unavailable behavior in the password dialog and Forget Password.
+8. Help menu; Edit menu cut/copy/paste in text fields.
+9. Retina, system Dark mode while the app forces the light Aqua appearance, basic VoiceOver.
+10. A copy of the bundle with its runtime removed shows the runtime-error dialog.
+11. A quarantined unsigned launch: record Gatekeeper behavior. Expect a block.
+
+**Evidence and pass rules:** screenshots, the guard's denial codes, and hashes in the acceptance matrix's evidence format. A pass only fills the "macOS" and "Startup" rows. It doesn't fill discovery, connection or Local Network privacy rows.
+
+## Release deliverables you can do locally
+
+- **Deterministic unsigned archive:** feasible. Build it with Python `zipfile` or `tarfile`, the same pattern as `write_jar`: sorted entries, fixed timestamps and modes, symlinks kept (the Corretto bundle uses them), no extended attributes or `._` files. Don't use `ditto`, and don't treat a DMG as the reproducible artifact. After extracting, re-verify the vendor runtime's signature. Signed and stapled outputs will differ in bytes later, so record their hashes separately.
+- **SPDX SBOM:** `audit/sbom.json` says outright that it is "not asserted SPDX/CycloneDX conformant". Generate SPDX 2.3 JSON from it:
+  - A fixed creation time and a document namespace derived from the artifact hash, so the output is deterministic.
+  - Concluded licenses set to `NOASSERTION` for the Apple JAR and vendored libraries. Corretto's license only as vendor-declared.
+  - Validate offline with a pinned validator.
+  - The SBOM will flag log4j 1.x CVEs. Record whether they're exploitable here as an open question rather than claiming "not affected".
+- **Can't be assumed:** redistribution rights and notices for Apple's code, Developer ID signing, the hardened runtime and entitlements, notarization and stapling, and Gatekeeper behavior on a real clean install.
+
+## What genuinely needs outside identity or hardware
+
+- **Signing identity (Developer ID + notarization):** signing, entitlements, the Keychain trust design, and Gatekeeper acceptance.
+- **Legal decision:** whether Apple's JAR may be redistributed, and which dependency notices are needed.
+- **A physical Intel Mac**, for the Intel startup and support rows.
+- **Real controllers:** discovery, authentication, polling, firmware, the Local Network permission with a real target, and response compatibility.
+- **Second-machine rebuild:** the VM gives a partial independent reproduction. A second physical machine is still better.
+
+## Recommendation
+
+Freeze transport refinements. The remaining items there (write and whole-operation deadlines, status and empty-acknowledgement handling) can only be judged against real controller behavior.
+
+Next steps, in order:
+1. Trace the `PasswordManager`, `HelpListener` and preferences callers (read-only).
+2. Run a probe that shows whether the preferences folder can be redirected.
+3. Add the `-psn` filter to the launcher.
+4. Do the VM GUI run.
+5. Build the deterministic archive and SPDX SBOM.
+
+Hold Keychain and signing until you decide on an identity.

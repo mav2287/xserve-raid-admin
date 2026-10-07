@@ -1,4 +1,6 @@
 import os
+import json
+import sys
 from pathlib import Path
 import subprocess
 import tempfile
@@ -40,3 +42,28 @@ printf '%s\\n' "$@"
             self.assertIn(str(resource / 'RAID_Admin.jar'),args)
             self.assertFalse((Path(tmp) / 'executed').exists())
             self.assertNotIn('/tmp/RAIDAdmin_icon.png',result.stdout)
+
+    def observe_application_arguments(self, arguments):
+        with tempfile.TemporaryDirectory(prefix='raid argv ') as temporary:
+            contents=Path(temporary).resolve()/'RAID Admin.app/Contents'
+            launch=contents/'MacOS/RAIDAdmin';launch.parent.mkdir(parents=True)
+            launch.write_bytes((ROOT/'packaging/RAIDAdmin').read_bytes());launch.chmod(0o755)
+            jar=contents/'Resources/RAID_Admin.jar';jar.parent.mkdir();jar.write_bytes(b'fixture')
+            java=contents/'PlugIns/Runtime.jdk/Contents/Home/bin/java';java.parent.mkdir(parents=True)
+            java.write_text('#!'+sys.executable+' -I\nimport json,sys\nif "-version" in sys.argv and "-jar" not in sys.argv:sys.exit(0)\nprint(json.dumps(sys.argv[1:]))\n');java.chmod(0o755)
+            result=subprocess.run([str(launch)]+arguments,env={'PATH':'/unavailable'},capture_output=True,text=True,timeout=10)
+            self.assertEqual((result.returncode,result.stderr),(0,''))
+            argv=json.loads(result.stdout);index=argv.index('-jar');self.assertEqual(argv[index+1],str(jar))
+            return argv[index+2:]
+
+    def test_launchservices_metadata_does_not_enter_cli(self):
+        self.assertEqual(self.observe_application_arguments(['-psn_0_123456']),[])
+        self.assertEqual(self.observe_application_arguments([]),[])
+
+    def test_remaining_arguments_preserve_exact_bytes_and_order(self):
+        arguments=['path with spaces','', 'é', 'line\nbreak', '-psn_2_3']
+        self.assertEqual(self.observe_application_arguments(['-psn_1_2']+arguments),arguments)
+
+    def test_cli_and_noncanonical_metadata_are_preserved(self):
+        for arguments in [['-psn_custom'],['-psn_1'],['-psn_1_2extra'],['-psn_-1_2'],['command','-psn_1_2'],['-psn_1_2\n']]:
+            with self.subTest(arguments=arguments):self.assertEqual(self.observe_application_arguments(arguments),arguments)
