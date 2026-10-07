@@ -1,7 +1,7 @@
-# Failed-open connection publication — development audit24 proposal
+# Failed-open connection publication — qualified local audit24
 
-Audit23 remains the qualified application baseline until the clean build and
-regression evidence for this proposal is recorded. This is a private compatibility
+Audit24 is locally qualified at clean application/fixture/package commit
+8c246e188929522c5420a3a3b88aed79ec80bb8e. Audit23 remains an immutable historical baseline. This is a private compatibility
 repair, not an application rewrite or controller qualification.
 
 ## Facts
@@ -58,3 +58,43 @@ current Manager/CLI retirement is not complete extension/API recovery proof.
 Reverification of historical audit23 artifacts uses commit 68a84a5 and its own
 goldens/records. Current gates require the new private override and must not be
 used to relabel an old artifact as the current baseline.
+
+## Clean qualification and reproduction
+
+JAR: `9592145c933f611888a00cb159340a86f99d427672483701212023078f823553`.
+Product implementation commit is `530dcc9`; clean execution commit `8c246e1` adds
+only the separately reviewed package launcher safeguard, its tests and scope.
+All fourteen gates, both paired builds and four runtime packages use clean
+`8c246e1`. The frozen ledger is
+`858b677798af63904a2ea0c87477761db7e2367224a7717519fe88b5675e942f`. It binds 23 archival records and 290 gate source-map entries.
+146 unit tests additionally bind every Python tool/test input to that commit,
+with complete stdout/stderr and runner bytes archived. No clean gate failed.
+The scheduling-sensitive lock gate ran last after other gates completed.
+
+The publication gate has four actual candidate observations and four actual
+audit23 predecessor observations. Each candidate observation covers 26 cases,
+34 failed-send attempts and successful-open marker cases; the reference shows
+the original three-call stale-cache failure. Eight negative controls run Xint.
+The socket gate retains 29 cases per runtime/mode and 24 negative controls.
+Original 143 recovery lines are unchanged; all other candidate regression gates
+were rerun, rather than relabeled from an older version. Historical audit17
+characterization is not rerun or counted as a current candidate gate.
+
+For replay, check out clean `8c246e1`, use the pinned compiler/Python and the
+locked runtime archives, and choose fresh build output directories. Recreate
+the existing historical audit20/21/22/23 fixture references at their own commits
+with their own goldens, never with current gates. `build.sh --jdk <locked-home>
+--output <new-directory>` creates the product; `tools/verify_builds.py` compares
+two builds. `tools/check_connection_publication.py --help` lists the publication
+gate inputs; the recorded execution flags/source maps identify other fixtures.
+Copy the archived unit runner and assembler to their documented ignored build
+paths. The assembler's fixed paths require corresponding clean builds/packages,
+test outputs, pinned historical references and installed-intake bytes on this
+host; it refuses to overwrite archived records. New replay time/temp-path hashes
+may differ, but artifact identities, assertion outcomes and input hashes must
+match. The metadata-only diagnostic never launches Java or discovery.
+
+Independent rehashing of this ledger and all record files is recorded separately.
+The original JAR remains mode 0444; the installed application's intake hash map
+is unchanged. Legacy HTTP is plaintext. Signing/notarization, physical Intel,
+native event workflows and controller behavior are outside local qualification.

@@ -1,0 +1,615 @@
+{
+  "qualification": true,
+  "source_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "source_dirty": false,
+  "fixture_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "fixture_dirty": false,
+  "candidate_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/connectfixture/AcpxConnection.java": "9cf1eac695ba14892c63240032eadb8d188d3a36f291332d58ffad17869533bb",
+    "tests/java/com/apple/xsr/net/ConnectFailureObservation.java": "bff3f7fa01417b3bdc2037dd9ce710e310d3970aaf93b076ac26f1646dfbb992",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
+    "tools/check_connect_stop.py": "506ac0fc6787e3cdb0bfb84f8924e725b0b5be743fda17637a3f62f6f5f1f712",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/baseline.py": "28bfd66a7b7f919fcce0b1b52a6f9cc1fd63228875b3b57edefa954873bd6e25",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+    "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6",
+    "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+    "tools/stop_admission_structure.py": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "audit/expected-build.json": "68f7a2deaecf15d5dba43a8cc22fd62497e6e8c6381f8736afcacdd973509b98",
+    "audit/stopped-post-recovery-expected.json": "6d99db5488f68ac81ed8826303cf7a05ee88eaace602de6d229cdb5df7849730",
+    "audit/connect-stop-reference-derivation.json": "6064508362b19ffef7acbc6f1d4692628ed9666ca2ab0c9648eeabdc116e3f60",
+    "audit/sync-preenqueue-final-integrity.json": "22034b0f12291e3a43832b4f60067bfaf8fe4c304293473874bc3c120d10da5b"
+  },
+  "stub_class_hashes": {
+    "com/apple/xsr/net/AcpxConnection.class": "b56d41082c703269932b0d12b34a74307e38caba6889de261e90128c6f4be76a",
+    "com/apple/xsr/net/AcpxConnection$1.class": "0376929fd98e8714682df5c6a9ff7f0bdf95680c9a9cddc47f781c6d01776df1"
+  },
+  "fixture_class_hashes": {
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be",
+    "com/apple/xsr/net/ConnectFailureObservation$8.class": "086eb65c47e632b1227b488b3c88489d802bfa095948677f9f92666049a6fcd9",
+    "com/apple/xsr/net/ConnectFailureObservation$4.class": "e826f4cee767413a6aa465cb7ededbd851a47b070849f1e252508a50f468bdde",
+    "com/apple/xsr/net/ConnectFailureObservation$6.class": "31df6060f14d92bad472445b20f75b3e50c2467d0dbefccf5ea2c67e2f3f816d",
+    "com/apple/xsr/net/ConnectFailureObservation$FixtureAssertionDetected.class": "a3924f3c0e0404eeefbfc778bea7cae88f18aba5db84dcc657c662f5a55e6b8f",
+    "com/apple/xsr/net/ConnectFailureObservation.class": "2adf69c453d50f0cacf62f2017cdb95edf4d27df3744ca1f07a27e2c65f061e3",
+    "com/apple/xsr/net/ConnectFailureObservation$2.class": "f3ad5811c8725da1252f444ea095f88e2cd1938bbb1fe554d891041982ffde6e",
+    "com/apple/xsr/net/ConnectFailureObservation$7.class": "c8b987f0b5beb81aa9c233ec6b7e144c90f2e59f85b0e9a4858d8007e875322a",
+    "com/apple/xsr/net/ConnectFailureObservation$FakeSystem.class": "63d3763e377de776cec21f867129ad7ec1537a209e788c60c0c98c5dac80a701",
+    "com/apple/xsr/net/ConnectFailureObservation$5.class": "0032675ef06058b29a25c8c121e2750b9d69b039e2b737ab532e3c7b48c1c700",
+    "com/apple/xsr/net/ConnectFailureObservation$1.class": "3aae96ffada5470ca745bcfc9cde1ebcc5e615f77fb2016de0434a6a41d43609",
+    "com/apple/xsr/net/ConnectFailureObservation$3.class": "664a6b86833021589a81998a7e9a3b38079e29316b44cc80f6da4975527b3de7",
+    "sun/io/MalformedInputException.class": "44b95d1fccc6e95d338e262b580c2712667d76b585911c1ca3a8ff6f83b6ae50"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single",
+      "lines": [
+        "connect_failure single reported=ConnectException then_sent=0 constructors=1 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual",
+      "lines": [
+        "connect_failure dual reported=ConnectException then_sent=0 constructors=2 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost",
+      "lines": [
+        "connect_failure nohost constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-null",
+      "lines": [
+        "connect_failure nohost-null constructors=0 sends=0 connects=0 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-throw",
+      "lines": [
+        "connect_failure nohost-throw constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-null",
+      "lines": [
+        "connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async",
+      "lines": [
+        "connect_failure single-async stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual-async",
+      "lines": [
+        "connect_failure dual-async stop_inside_callback=true constructors=2 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async-throw",
+      "lines": [
+        "connect_failure single-async-throw stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single",
+      "lines": [
+        "connect_failure single reported=ConnectException then_sent=0 constructors=1 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual",
+      "lines": [
+        "connect_failure dual reported=ConnectException then_sent=0 constructors=2 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost",
+      "lines": [
+        "connect_failure nohost constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-null",
+      "lines": [
+        "connect_failure nohost-null constructors=0 sends=0 connects=0 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-throw",
+      "lines": [
+        "connect_failure nohost-throw constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-null",
+      "lines": [
+        "connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async",
+      "lines": [
+        "connect_failure single-async stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual-async",
+      "lines": [
+        "connect_failure dual-async stop_inside_callback=true constructors=2 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async-throw",
+      "lines": [
+        "connect_failure single-async-throw stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "mode": "verify-callback-assertions",
+      "fixture_assertion_control": true,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "mode": "verify-callback-assertions",
+      "fixture_assertion_control": true,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "mode": "verify-nohost",
+      "semantic_negative_control": "nohost",
+      "jar_sha256": "12c9539e3f390f4d534bbba7385e27ce0da061c27e0440b878470840893b0269",
+      "manager_class_sha256": "605f47ede8d88f37a3d59dd2d8a3b5a9074075bafa792c76c341459b72100e33",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "PASS verified no-host bypass reports before stop; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "mode": "single",
+      "semantic_negative_control": "reported",
+      "jar_sha256": "2adfbaffcfc676b35dc22408e074ce780d62035cf66a827daaa9244fca7364c8",
+      "manager_class_sha256": "1b0106d21cf240b68385bea88b0152d063c45e8767646cb9896e1441d5d71369",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "connect_failure single reported=ConnectException then_sent=1 constructors=2 held_request_identity=true held_body_equal=true polling_enable_calls=1",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "mode": "single-async",
+      "semantic_negative_control": "late-stop",
+      "jar_sha256": "04437a073ad3109f3be435989b9e441c8123bc4a5a875a89f84d777dcb90deb4",
+      "manager_class_sha256": "58ab36869f39a666e99d1e0d06b153ef7c55ef9fd5b67511f38e781533445056",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "connect_failure single-async stop_inside_callback=false constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single",
+      "lines": [
+        "connect_failure single reported=ConnectException then_sent=0 constructors=1 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual",
+      "lines": [
+        "connect_failure dual reported=ConnectException then_sent=0 constructors=2 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost",
+      "lines": [
+        "connect_failure nohost constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-null",
+      "lines": [
+        "connect_failure nohost-null constructors=0 sends=0 connects=0 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-throw",
+      "lines": [
+        "connect_failure nohost-throw constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-null",
+      "lines": [
+        "connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async",
+      "lines": [
+        "connect_failure single-async stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual-async",
+      "lines": [
+        "connect_failure dual-async stop_inside_callback=true constructors=2 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async-throw",
+      "lines": [
+        "connect_failure single-async-throw stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single",
+      "lines": [
+        "connect_failure single reported=ConnectException then_sent=0 constructors=1 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual",
+      "lines": [
+        "connect_failure dual reported=ConnectException then_sent=0 constructors=2 stopped=true polling_enable_calls=0",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost",
+      "lines": [
+        "connect_failure nohost constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-null",
+      "lines": [
+        "connect_failure nohost-null constructors=0 sends=0 connects=0 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "nohost-throw",
+      "lines": [
+        "connect_failure nohost-throw constructors=0 sends=0 connects=1 commands=1 stopped=true late_async_stranded=1",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-null",
+      "lines": [
+        "connect_failure single-null unpublished_failure=true constructors=2 sends=1 retry_preserved=true",
+        "PASS constructor-stub terminal extras; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async",
+      "lines": [
+        "connect_failure single-async stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "dual-async",
+      "lines": [
+        "connect_failure dual-async stop_inside_callback=true constructors=2 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "mode": "single-async-throw",
+      "lines": [
+        "connect_failure single-async-throw stop_inside_callback=true constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "mode": "verify-callback-assertions",
+      "fixture_assertion_control": true,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "mode": "verify-callback-assertions",
+      "fixture_assertion_control": true,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "PASS fixture detects swallowed callback assertion outside worker; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "mode": "verify-nohost",
+      "semantic_negative_control": "nohost",
+      "jar_sha256": "12c9539e3f390f4d534bbba7385e27ce0da061c27e0440b878470840893b0269",
+      "manager_class_sha256": "605f47ede8d88f37a3d59dd2d8a3b5a9074075bafa792c76c341459b72100e33",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "PASS verified no-host bypass reports before stop; guarded_operations=0"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "mode": "single",
+      "semantic_negative_control": "reported",
+      "jar_sha256": "2adfbaffcfc676b35dc22408e074ce780d62035cf66a827daaa9244fca7364c8",
+      "manager_class_sha256": "1b0106d21cf240b68385bea88b0152d063c45e8767646cb9896e1441d5d71369",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "connect_failure single reported=ConnectException then_sent=1 constructors=2 held_request_identity=true held_body_equal=true polling_enable_calls=1",
+        "PASS constructor-stub characterization; guarded_operations=0; production_transport=unqualified"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "mode": "single-async",
+      "semantic_negative_control": "late-stop",
+      "jar_sha256": "04437a073ad3109f3be435989b9e441c8123bc4a5a875a89f84d777dcb90deb4",
+      "manager_class_sha256": "58ab36869f39a666e99d1e0d06b153ef7c55ef9fd5b67511f38e781533445056",
+      "recovery_class_sha256": "2a369abbc1e9a34fc7dd3441c334a601308d535c0a896fad586281c3c85eb36d",
+      "lines": [
+        "connect_failure single-async stop_inside_callback=false constructors=1 sends=0 commands=1 exception_identity=true",
+        "PASS constructor-stub async ordering; guarded_operations=0; production_transport=unqualified"
+      ]
+    }
+  ],
+  "limits": "Real Manager and SyncSender with strict test-only Acpx constructor/send shadow, CodeSource/resource hash assertions and class allowlists. No real transport/controller, app launch, profile or production volume. Fake polling setter counts do not prove agent behavior. Parent 35-second watchdog; worker shutdown uses preserved queue notification, no fixture interrupt. Positive no-host and callback-before-stop mutants demonstrate unsafe ordering. Reported-continuation control first restores exact audit.20 Manager and Sender, then bypasses reported-stop; current ownership independently blocks completed Sender continuation. Verifier/errors/timeouts never count as rejection. Dual first silent failure and unpublished single-handler retry remain. Late-post completion and ownership are qualified separately by admission/guarded-worker gates. VM failure completion, stop-versus-active-send and GUI reconnect recovery remain unqualified."
+}

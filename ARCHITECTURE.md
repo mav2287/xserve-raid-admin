@@ -357,3 +357,34 @@ Intel, controller workflows and release acceptance remain open. Cached timeout
 setter, whole-operation/write bounds, mutable outbound inputs, status/empty-ack
 interpretation and firmware file binding remain separate gaps. No controller,
 production/mounted volume or installed-app modification occurred.
+
+
+### Audit24 failed-open publication and LaunchServices arguments (local qualification)
+
+Clean application, fixture and package source `8c246e1`, JAR
+`9592145c933f611888a00cb159340a86f99d427672483701212023078f823553`.
+Fourteen candidate regression gates and 146 unit tests pass; 290 gate source hash
+entries are checked against their recorded clean Git commit and current bytes.
+Only private AcpxConnection.createConnection changes inside the JAR from audit23:
+open a local candidate once, publish only after success. Public timeout handling,
+command bytes, polling and retries remain unchanged. Each candidate runtime/mode
+covers 26 cases and 34 explicit failed-send attempts; four additional observations
+characterize the actual audit23 reference. Eight interpreted negative controls
+fail at their exact intended assertions. Direct post-newRequest failure recovery
+remains unchanged and is not qualified by this fix.
+
+The pinned-runtime launcher strips only one leading canonical legacy process
+serial number, preventing that metadata from selecting CLI mode. All other
+arguments remain exact. Its shell tests use a synthetic executable, not app Main.
+Paired builds and repeated packages match bytes and file/directory modes on both
+architectures; vendor runtime signatures verify. x64 execution is Rosetta, not
+physical Intel. Apps remain unsigned and unnotarized. See
+[audit scope and reproduction](audit/CONNECTION-PUBLICATION.md) and
+[hash-bound evidence](audit/connection-publication-final-integrity.json).
+
+Real hardware acceptance is deferred by the user's latest instruction, until an
+actual operational need arises. No controller, production/mounted-volume test,
+firmware transfer or installed-app modification occurred. Native GUI workflows,
+physical Intel, signed release acceptance and controller behavior are unverified.
+Separate offscreen native component probes are development-only, with no windows
+shown or app Main/profile/controller access. HTTP remains plaintext.

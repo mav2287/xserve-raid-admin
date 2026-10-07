@@ -1,0 +1,28 @@
+{
+  "purpose": "Independent separate-invocation byte rehash; no fixture/app/controller execution",
+  "execution_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "execution_worktree_dirty": true,
+  "script_sha256": "698bddbb1cfc1c25924f3b4a9189b98bf5918202c8d8c99b6d979a69645a9479",
+  "ledgers": [
+    {
+      "ledger": "audit/connection-publication-final-integrity.json",
+      "sha256": "858b677798af63904a2ea0c87477761db7e2367224a7717519fe88b5675e942f",
+      "records_verified": 23
+    },
+    {
+      "ledger": "audit/socket-configuration-final-integrity.json",
+      "sha256": "509f54f24919ac99ca0168508c1330410297d667fb000689f132f83954cc5137",
+      "records_verified": 25
+    },
+    {
+      "ledger": "audit/stop-admission-final-integrity.json",
+      "sha256": "df1e0ea85687dcabc1248d0abb15dabeb14c67b5c1b62c6e10ea018d978aec57",
+      "records_verified": 21
+    },
+    {
+      "ledger": "audit/worker-exit-final-integrity.json",
+      "sha256": "f53c325d0eadef855f1fdb777e6ebc2feab8d6d1588899738153280b003dfbb7",
+      "records_verified": 17
+    }
+  ]
+}

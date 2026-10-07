@@ -1,0 +1,122 @@
+{
+  "fixture_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "fixture_dirty": false,
+  "source_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "source_dirty": false,
+  "request_inventory": {
+    "request_types": 7,
+    "diagnostic_overrides": [
+      "com.apple.xsr.net.AbstractRequestMessage",
+      "com.apple.xsr.net.AcpxMessageFactory$AcpxRequestTemplate"
+    ]
+  },
+  "http_reference_inventory": {
+    "class_count": 2844,
+    "methodrefs": [
+      {
+        "class": "com/apple/xsr/net/AcpxConnection.class",
+        "owner": "com/apple/xsr/net/HttpConnection",
+        "method": "getResponse",
+        "descriptor": "()Lcom/apple/xsr/net/HttpResponse;"
+      },
+      {
+        "class": "com/apple/xsr/net/AcpxConnection.class",
+        "owner": "com/apple/xsr/net/HttpResponse",
+        "method": "getInputStream",
+        "descriptor": "()Ljava/io/InputStream;"
+      },
+      {
+        "class": "com/apple/xsr/net/HttpConnection.class",
+        "owner": "com/apple/xsr/net/HttpResponse",
+        "method": "<init>",
+        "descriptor": "(Lcom/apple/xsr/net/HttpConnection;)V"
+      }
+    ],
+    "scope": "Exact constant-pool Methodrefs; reflection and invocation reachability are not established."
+  },
+  "independent_preservation": "PASS",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "candidate_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+  "jdk_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "verifier_sources": {
+    "tools/check_security.py": "2767dd7b6908d15d173eb4bfa76eaf33d3325b11eda03bcd7d068af6ce219292",
+    "tools/inventory.py": "7c5d75049d983227e2a296269699af2fa2f8fddc40d844cb459501f0cfb72c59",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+    "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+    "tools/connection_publication_structure.py": "42aa9f581770e159b3ec2b8232fb918eb6cd66618b6c327d18831af09c313ca0",
+    "tests/test_connection_publication.py": "a9a5354cf780e8b6ef18385c29112c90aaa810ad4333533d8a7484a21ed1ff28",
+    "tests/fixtures/connection-publication-candidate-acpx.javap": "129b213b442a594795aee9f66c529c87bbebb73e86f858613d7f4b3830343b05",
+    "tools/socket_configuration_structure.py": "efb2bfa6d6046824ab2b9d7037f18daa1d3114f581e23eaa73e4e6253d3c64be",
+    "patches/compat/SocketConfiguration.java": "76e748f7e05e8d631afbae0ea26ae884d44257a1c5830b01c0f75d8cf3fd32e8",
+    "tests/test_socket_configuration.py": "33470969bf248e3f7027fc344a2675a32a6d863139380c53e0bddc6e02f89b26",
+    "tests/fixtures/socket-configuration-candidate-http.javap": "52542cf3a6a1b55870f23b386afc5ec24c0bf560dbb103987dc10a39f16cdfef",
+    "tools/stopped_post_structure.py": "f1b6cf23da3043f2ddd45a198c6145a75d5337a254ca36945a7774c5bd20b96c",
+    "tools/worker_exit_structure.py": "f00c3df31919ff67be7b4dba1bb57a28099333e9b522e3c44987d6b68a864a93",
+    "tools/stop_admission_structure.py": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486",
+    "tools/sync_ownership_structure.py": "ab27e5ff1076414415066e0e817c55b082db292c7929755c62b28ec0367864af",
+    "tests/fixtures/guarded-worker-candidate-manager.javap": "72baf5afd5770a4068190df49b5d8eba73236e3d8f2a68bb5fe89371f9e3dbeb",
+    "tests/fixtures/sync-ownership-candidate-manager.javap": "86aebc2d839bbab959dfcea1befbaa1349baf53f64bf1f1ba2b01c77ae3d2a8f",
+    "tests/fixtures/sync-ownership-reference-manager.javap": "dbba63fa559f71c1b507bdffa695af05d9b928830627a0e99ed41a813747ee6e",
+    "tests/fixtures/sync-ownership-reference-sender.javap": "dd4058119dbfbbf8c666baaf6356bcc6d9f1c45b9da694882518ed8e01ede3a2"
+  },
+  "fixture_sources": {
+    "tests/java/SecurityProbe.java": "52ed9a9bc12fc3c60d600574ede4c5a0ec5af86ba66c59ae2e17e3a00a214241",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec"
+  },
+  "javap_verified_methods": {
+    "com/apple/xsr/net/CommunicationsManager$SyncSender.class": "Exact preenqueue guard retained; ownership claim, interrupt wait and first-reply guards independently normalized to reviewed predecessor",
+    "com/apple/xsr/net/CommunicationsManager.class": "Exact doConnect stop windows/tail and unchanged run report/null-IO/prefix-stop windows and typed handler reroute independently verified; retry and superseded handler/test regions unreachable; original handler ranges/types and prefix result/log retained",
+    "com/apple/xsr/net/AcpxConnection.class": "Private createConnection publishes only after successful open; independent exact instructions and preserved non-Code metadata. Appended exact-marker send handler and exception row independently verified; original send instructions and handlers retained",
+    "com/apple/xsr/net/HttpResponse.class": "Length lookup at 5, parse operand at 14, allocation operands at 23/28, header assignment at parseHeaders 93, terminal fixed invalid-header block130..156 and exact constructor wrapper insertion; independent complete disassembly comparisons",
+    "com/apple/util/plist/PropertyListUtilities.class": [
+      "invokestatic",
+      "areturn"
+    ],
+    "com/apple/util/plist/PropertyListUtilities$Handler.class": [
+      "aload_1",
+      "aload_2",
+      "invokestatic",
+      "areturn"
+    ],
+    "com/apple/xsr/net/AbstractRequestMessage.class": [
+      "ldc_w",
+      "areturn"
+    ],
+    "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class": [
+      "ldc_w",
+      "areturn"
+    ],
+    "com/apple/xsr/net/HttpConnection.class": "Exact host/current read-timeout delegate before socket publication, no use of connect argument; full original pool and all unrelated methods/metadata preserved"
+  },
+  "observations": [
+    [
+      "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+      "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+      "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+      "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+      "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+      "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+      "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+      "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+      "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+      "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+      "PASS fixed=false; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+    ],
+    [
+      "embedded_dtd_sha256=c01ade409d6b0b608716e7f59d8488bba72de9085c6dd43c6848c5f9e2355656",
+      "plist_fixture_0=6e242d49eb63a3cf09f4187d79195201c9e1a47544d8f4c1e88db4c7bb23fb10",
+      "plist_fixture_1=a82a90801a27163a733e57a4e33e916f0b1f4ee62eb1049c5f4f05a90167f561",
+      "plist_fixture_2=07dd472214acbef5e6c2b7ce381d4fc54dc325d6f263fb2965400cb47adcffe9",
+      "plist_fixture_3=4a20608a19aa58336ac595518519cd84f546b9b4a16b6703a99b542063f9b2cb",
+      "plist_fixture_4=62bb84f276ccc87aeca4a1634184c7a17c2855434c1cbe1c8e28d8644b28a9ab",
+      "plist_fixture_5=da6c727eb77e6b5d686aa466a16c9a90b045878a5af0a9d0b9eae6915dd1b725",
+      "plist_fixture_6=9dfd76717e755a720257805cbd78c26093b0024039488cb104832cb1673dd5a6",
+      "plist_fixture_7=de7675c0ada20a72e1cf6398921004d49a81115e58b18df5cf177485a578830e",
+      "plist_fixture_8=21142966d7c6d0e0f1375850bf23d8e9dbee326ea42e87910875d64e5b5e3d19",
+      "PASS fixed=true; Reader/InputStream roundtrips and malformed input; request formatting; guarded operations=0"
+    ]
+  ],
+  "limits": "Manager.run null-message trampoline and non-prefix IO branch to the fixed marker block independently verified; original retry-region bytes retained but exactly that region is unreachable; prefix response, initial connection/queue and exit-close paths remain reachable; typed malformed-input handler and generic faults stop the worker session; runtime behavior is separately recorded by transport/recovery tools. Independent preservation of resolver, parser construction delegate, two request diagnostics, response lengthHeader/getBody parse/allocation edits, parseHeaders setHeader assignment, fixed invalid-header terminal block and constructor header wrapper. Whitespace before a colon still allows an empty trimmed header name through original setHeader behavior. Static framing linkage and fixed signals checked; runtime framing behavior separately recorded. Narrow NumberFormatException catch, fixed invalid marker and negative gate are independently checked. Helper class version, 16 MiB ceiling, comparison and preallocation constructor order checked. Small allowed/malformed/external-resource XML and diagnostic fixtures only. Explicit XML quota behavior and allocation boundary/queue behavior are separately recorded by resource and transport tools. Header constructor insertion is independently verified; header budget behavior is separately recorded by the header/transport fixtures. No runtime framing or connection recovery qualification in this tool, real controller data, full application output or GUI qualification."
+}

@@ -1,0 +1,409 @@
+{
+  "qualification": true,
+  "source_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "source_dirty": false,
+  "fixture_commit": "8c246e188929522c5420a3a3b88aed79ec80bb8e",
+  "fixture_dirty": false,
+  "candidate_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+  "original_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "compiler_tree_sha256": "da86c7dfbdcc7b593e6871732c3a14de55bc410938cde2081d9a136bac21a376",
+  "source_hashes": {
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/com/apple/xsr/net/StopLockObservation.java": "fd9af7d0961c18962f2fc6657d780e90cb9ae98571d24c51b1be28adc24c6a72",
+    "tools/check_stop_lock.py": "35bcc5cb4a2a3859aee4d111ea4131327fcab6cd67093a60bd4caec5132e24c2",
+    "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
+    "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
+    "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+    "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
+    "tools/worker_exit_patch.py": "078a49bc92d0099c5da5d100c42fb452c427a2c7817a6fefa6244b704e766dd6",
+    "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
+    "tools/stop_admission_structure.py": "09cbf297f16e1920c8dd9770e7be4c9548443d70cffd9060520dbc50b7e20486",
+    "tools/baseline.py": "28bfd66a7b7f919fcce0b1b52a6f9cc1fd63228875b3b57edefa954873bd6e25",
+    "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
+    "tools/runtime.py": "47a23b279d924a0aa72bb9a0ef2c86cf15640778d322ae1ad9cc4221e2b2b9f4",
+    "tools/verify_builds.py": "75ab3f342a197e0e80f9bef93f0a4239ec427694115cc97702bf2decaa3afae6",
+    "audit/expected-build.json": "68f7a2deaecf15d5dba43a8cc22fd62497e6e8c6381f8736afcacdd973509b98",
+    "audit/stopped-post-recovery-expected.json": "6d99db5488f68ac81ed8826303cf7a05ee88eaace602de6d229cdb5df7849730",
+    "audit/runtime-lock.json": "8b6e9c27662617405bb65a5d9c9bfb7d0e9417461ca1015946b6cd0e7f033505",
+    "audit/connect-stop-final-integrity.json": "3e59d807f3ac22fef16eeba047b7414b125fd247c00a584604b70262d9532b67"
+  },
+  "fixture_class_hashes": {
+    "fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be",
+    "com/apple/xsr/net/StopLockObservation.class": "a7fa59ba0b4dc6cc1cb97e74485fab48eabbc40e43dbb185a50707cb2d6707ce",
+    "com/apple/xsr/net/StopLockObservation$1.class": "77ef4ff72c29e9e7df393dea86ca04981597e8da6ed4a9c840bba93c5cadb9ab",
+    "com/apple/xsr/net/StopLockObservation$2.class": "3d1a83372537cdbbc15b3d1ed00bfa81d1d54b0b99889a7ea53fad062d66b9e0"
+  },
+  "runtime_trees": {
+    "aarch64": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+    "x64": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9"
+  },
+  "subclass_inventory": {
+    "original": {
+      "jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+      "class_count": 2844,
+      "manager_subclasses": []
+    },
+    "candidate": {
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "class_count": 2862,
+      "manager_subclasses": []
+    },
+    "aarch64-vendor-extension-classpath": {
+      "Contents/Home/jre/lib/ext/cldrdata.jar": {
+        "jar_sha256": "bd875e066a9a1115ad15d5df06bc3a79f576184140397e39235aa143ab089cbb",
+        "class_count": 1134,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/dnsns.jar": {
+        "jar_sha256": "57c535fc9381bb2a09c365903c5081178ab7fc3417c38507b10d202a6c33f0bd",
+        "class_count": 5,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/jaccess.jar": {
+        "jar_sha256": "711a0c6a002a4bc55b8622c1a03e388576b1ea3bbc05e78ddf7839c97b5cb57d",
+        "class_count": 24,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/localedata.jar": {
+        "jar_sha256": "39ae9124d1786dbbbeb6c95f5b4b8dea79b776d3d36d4d531383b3dffe67fcc1",
+        "class_count": 434,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/nashorn.jar": {
+        "jar_sha256": "f300adf74eac5e0a3fd2d3aa42d4bc86468ecb8f2b5e74e9c87ba798cbaf6034",
+        "class_count": 1029,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/sunec.jar": {
+        "jar_sha256": "3a8b607271e6494e4363e38b64dd8bcc7b63067a080bb18a82353525a558c6fd",
+        "class_count": 27,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/sunjce_provider.jar": {
+        "jar_sha256": "406def150fb7c17ef571dbabe29d6adf91d7cace199e36de2e354447b73aae8e",
+        "class_count": 202,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/sunpkcs11.jar": {
+        "jar_sha256": "14e97f865c4dd4738d951e1595d740e5002a1b9881db873b1c6ddf1a1c9b710d",
+        "class_count": 123,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/zipfs.jar": {
+        "jar_sha256": "5541ed3c8d8202e433f057421558ddadb23c14ca34aadb68f1ca3f0140cc9197",
+        "class_count": 30,
+        "manager_subclasses": []
+      }
+    },
+    "x64-vendor-extension-classpath": {
+      "Contents/Home/jre/lib/ext/cldrdata.jar": {
+        "jar_sha256": "658c3e2b59773a291a6f39a8109152b01b41eccca3094c50ae5f5ee914915706",
+        "class_count": 1134,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/dnsns.jar": {
+        "jar_sha256": "728ee326ee4f9dc0288a75da42908225daeba0a5f2d33828a248716223899023",
+        "class_count": 5,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/jaccess.jar": {
+        "jar_sha256": "bc04b14193fe50296f8075dded61068f221ef06eaaf2b0e70769384068a96cd4",
+        "class_count": 24,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/localedata.jar": {
+        "jar_sha256": "825eb104ebdb8767d39d09f9dc8e357273de43d77d05421b85f903b3cd37b18e",
+        "class_count": 434,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/nashorn.jar": {
+        "jar_sha256": "4726d0323717fe745b9f9ec6c3acb436578850f5ed74eaf7c3da61493d45b267",
+        "class_count": 1029,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/sunec.jar": {
+        "jar_sha256": "a205f62c99aba728917e09e4001c83c5968880546980ab5d59ab8a0a53d8a548",
+        "class_count": 27,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/sunjce_provider.jar": {
+        "jar_sha256": "7b2753602ca39dd334496227ae37619f761c1997ed87510338617bcec3e78827",
+        "class_count": 202,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/sunpkcs11.jar": {
+        "jar_sha256": "84b4ee6163f618546886a3f18847e40e020ec885bc10a226ecb7404ed937c9c8",
+        "class_count": 123,
+        "manager_subclasses": []
+      },
+      "Contents/Home/jre/lib/ext/zipfs.jar": {
+        "jar_sha256": "58e497ff715a9672232c60110fd7ac4532e097e8b4488bf7fb972331ba76d6e9",
+        "class_count": 30,
+        "manager_subclasses": []
+      }
+    }
+  },
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "pc18",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc18 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "pc45",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc45 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "pc18",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc18 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "pc45",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc45 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "pc18-getter-restored",
+      "scenario": "pc18",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "682be3c741ab22882ea08dc017d71e399d886fa5815bd800087a451145eb2149",
+      "manager_class_sha256": "6e07295c9be417d33c5305586089ed3c15a03c5e776cb38a274bcfca9e52c078",
+      "lines": [
+        "stop_lock pc18 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "pc18-getter-restored",
+      "scenario": "pc45",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "682be3c741ab22882ea08dc017d71e399d886fa5815bd800087a451145eb2149",
+      "manager_class_sha256": "6e07295c9be417d33c5305586089ed3c15a03c5e776cb38a274bcfca9e52c078",
+      "lines": [
+        "stop_lock pc45 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "pc45-getter-restored",
+      "scenario": "pc18",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "304cca9b2b9b6a03dfd0f156dad2d55753f177a1872b16f55eee2e499ccc5555",
+      "manager_class_sha256": "8bf471116dddceefe8f202918256c3d14b224d598735bfd64dec1332c65c5d46",
+      "lines": [
+        "stop_lock pc18 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "pc45-getter-restored",
+      "scenario": "pc45",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "304cca9b2b9b6a03dfd0f156dad2d55753f177a1872b16f55eee2e499ccc5555",
+      "manager_class_sha256": "8bf471116dddceefe8f202918256c3d14b224d598735bfd64dec1332c65c5d46",
+      "lines": [
+        "stop_lock pc45 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "audit18-Manager-restored",
+      "scenario": "pc18",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "0d5c592695130d3da13a7dbf7f95ef95d3bb48dcc2feda477f9a177393c052f1",
+      "manager_class_sha256": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893",
+      "lines": [
+        "stop_lock pc18 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "aarch64",
+      "execution": "-Xint",
+      "variant": "audit18-Manager-restored",
+      "scenario": "pc45",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "0d5c592695130d3da13a7dbf7f95ef95d3bb48dcc2feda477f9a177393c052f1",
+      "manager_class_sha256": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893",
+      "lines": [
+        "stop_lock pc45 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "pc18",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc18 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "candidate",
+      "scenario": "pc45",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc45 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "pc18",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc18 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xcomp",
+      "variant": "candidate",
+      "scenario": "pc45",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553",
+      "manager_class_sha256": "f2960fbf802500891e23a916441f8b7c586d9ae70d6dba5760d40bc9acf04059",
+      "lines": [
+        "stop_lock pc45 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "pc18-getter-restored",
+      "scenario": "pc18",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "682be3c741ab22882ea08dc017d71e399d886fa5815bd800087a451145eb2149",
+      "manager_class_sha256": "6e07295c9be417d33c5305586089ed3c15a03c5e776cb38a274bcfca9e52c078",
+      "lines": [
+        "stop_lock pc18 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "pc18-getter-restored",
+      "scenario": "pc45",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "682be3c741ab22882ea08dc017d71e399d886fa5815bd800087a451145eb2149",
+      "manager_class_sha256": "6e07295c9be417d33c5305586089ed3c15a03c5e776cb38a274bcfca9e52c078",
+      "lines": [
+        "stop_lock pc45 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "pc45-getter-restored",
+      "scenario": "pc18",
+      "exact_deadlock_pair": false,
+      "jar_sha256": "304cca9b2b9b6a03dfd0f156dad2d55753f177a1872b16f55eee2e499ccc5555",
+      "manager_class_sha256": "8bf471116dddceefe8f202918256c3d14b224d598735bfd64dec1332c65c5d46",
+      "lines": [
+        "stop_lock pc18 outcome=completed guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "pc45-getter-restored",
+      "scenario": "pc45",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "304cca9b2b9b6a03dfd0f156dad2d55753f177a1872b16f55eee2e499ccc5555",
+      "manager_class_sha256": "8bf471116dddceefe8f202918256c3d14b224d598735bfd64dec1332c65c5d46",
+      "lines": [
+        "stop_lock pc45 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "audit18-Manager-restored",
+      "scenario": "pc18",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "0d5c592695130d3da13a7dbf7f95ef95d3bb48dcc2feda477f9a177393c052f1",
+      "manager_class_sha256": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893",
+      "lines": [
+        "stop_lock pc18 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    },
+    {
+      "architecture": "x64",
+      "execution": "-Xint",
+      "variant": "audit18-Manager-restored",
+      "scenario": "pc45",
+      "exact_deadlock_pair": true,
+      "jar_sha256": "0d5c592695130d3da13a7dbf7f95ef95d3bb48dcc2feda477f9a177393c052f1",
+      "manager_class_sha256": "a928b493ecf796ab90415339a20f8f7cd4914afaa3add052bdff1796cad70893",
+      "lines": [
+        "stop_lock pc45 outcome=exact-deadlock-pair guarded_operations=0; requests=0",
+        "PASS stop lock observation; no profiles, sockets or production transport"
+      ]
+    }
+  ],
+  "limits": "Real empty-queue worker and original shutdown with synthetic Manager allocated without constructor; no requests, polling, GUI, profiles, sockets or controller transport. Two direct-read windows and private volatile field statically reconstruct exact audit.18 class. Exact lock identity/owner/state and ThreadMXBean exact two-thread deadlock pair are observed, never inferred from timeout. Negative leftover threads are daemon and process exits naturally; no interrupts. Restored PC45 alone must still pass PC18 scenario. Launcher uses -jar with no manifest Class-Path, so application Manager subclasses must be in the candidate JAR. Vendor extension inventories are supplemental; parent bootstrap/extension loaders cannot link an application-loader superclass. External plugins unqualified. Both-restored control uses the exact audit.18 Manager class in the otherwise current candidate JAR, not the full historical app. Atomic posting, abnormal callback/interrupt exit, GUI callbacks and production/mounted volumes remain unqualified; x64 is Rosetta."
+}
