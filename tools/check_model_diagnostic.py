@@ -6,6 +6,7 @@ from audit_support import ROOT,JAVA_FLAGS,isolated_env,verify_python,verify_jdk,
 from baseline import write_jar
 from class_patch import ClassFile,u2,word
 from sync_ownership_patch import method_code
+from preference_io_patch import strip_entries as strip_preference
 from model_diagnostic_patch import ENTRY,ORIGINAL_SHA,PATCHED_SHA,TOKEN,plan,normalize
 from model_diagnostic_structure import check_disassembly
 from inventory import disassemble_entries
@@ -30,7 +31,7 @@ def main():
     reference=ROOT/'build/help-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar'
     if sha(reference)!=REFERENCE_SHA:raise ValueError('Pinned qualified audit25 reference required')
     # Include every local Python tool dependency, not just direct imports.
-    inputs=sorted((ROOT/'tools').glob('*.py'))+sorted((ROOT/'patches').rglob('*.java'))+[ROOT/n for n in ('tests/java/modelfixture/ModelDiagnosticObservation.java','tests/java/fixture/OfflineGuard.java','tests/java/fixture/FixtureIdentity.java','tests/test_model_diagnostic.py','audit/jdk-lock.json','audit/python-lock.json','audit/runtime-lock.json','audit/expected-build.json','audit/help-patches.json','audit/model-diagnostic-patches.json','original/RAID_Admin_original.jar')]
+    inputs=sorted((ROOT/'tools').glob('*.py'))+sorted((ROOT/'patches').rglob('*.java'))+[ROOT/n for n in ('tests/java/modelfixture/ModelDiagnosticObservation.java','tests/java/fixture/OfflineGuard.java','tests/java/fixture/FixtureIdentity.java','tests/test_model_diagnostic.py','audit/jdk-lock.json','audit/python-lock.json','audit/runtime-lock.json','audit/expected-build.json','audit/help-patches.json','audit/model-diagnostic-patches.json','audit/preference-io-patches.json','original/RAID_Admin_original.jar')]
     sources={str(f.relative_to(ROOT)):sha(f) for f in inputs}
     state=lambda:(subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip(),bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env())))
     initial=state()
@@ -44,7 +45,8 @@ def main():
         artifact_identity,product=check_artifact(a.build)
         if artifact_identity!=json.loads(EXPECTED_BUILD.read_text())['expected'] or product['source_commit']!=initial[0] or (product['source_dirty'] and not a.development):raise ValueError('Integrated model build differs')
         jar=(a.build/'RAID Admin.app/Contents/Resources/RAID_Admin.jar').resolve()
-        if sha(jar)!=sha(overlay) or read_entries(jar)!=entries:raise ValueError('Integrated candidate is not exact audit25 model overlay')
+        if strip_preference(read_entries(jar))!=entries:raise ValueError('Integrated candidate differs beyond exact model and preference extensions')
+        entries=read_entries(jar)
     artifact_sha=sha(jar);overlay_sha=sha(overlay)
     old=disassemble_entries(a.jdk,reference,[ENTRY],verbose=True);new=disassemble_entries(a.jdk,jar,[ENTRY],verbose=True);check_disassembly(old,new)
     disassemblies={}
@@ -112,7 +114,7 @@ def main():
     if sha(reference)!=REFERENCE_SHA or sha(jar)!=artifact_sha or sha(overlay)!=overlay_sha or sha(manifest)!=manifest_sha or read_entries(jar)!=entries or probehashes!={str(f.relative_to(probes)):sha(f) for f in probes.rglob('*.class')}:raise ValueError('Model artifact/probe changed')
     if initial!=state() or sources!={str(f.relative_to(ROOT)):sha(f) for f in inputs}:raise ValueError('Model source state changed')
     if a.build and check_artifact(a.build)!=(artifact_identity,product):raise ValueError('Integrated model build changed')
-    record={'qualification':not a.development,'source_commit':initial[0],'source_dirty':initial[1],'candidate_source_commit':product['source_commit'] if product else None,'candidate_source_dirty':product['source_dirty'] if product else None,'sources':sources,'candidate_sha256':artifact_sha,'qualified_baseline_sha256':REFERENCE_SHA,'original_model_sha256':ORIGINAL_SHA,'patched_model_sha256':PATCHED_SHA,'compiled_probe_hashes':probehashes,'class_identity_manifest_sha256':manifest_sha,'disassemblies':disassemblies,'nested_model_hashes':nested_hashes,'nested_diagnostic_field_reads':nested_reads,'observations':rows,'negative_controls':negative,'unit_tests':5,'unit_stderr_sha256':hashlib.sha256(units.stderr).hexdigest(),'compiler_tree_sha256':compiler['tree_sha256'],'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for arch in ('aarch64','x64')},'scope':'Only two diagnostic password reads redacted; all other qualified audit25 JAR entries identical','limits':['Unsafe constructor bypass; manually initialized Observable and five model maps','Only synthetic password values; no credential store reads','Actual nested model diagnostics statically inventoried, fixture child map values are controlled stubs','Candidate single product loader and candidate/reference child SOM loaders exercised; parent net/log4j dependencies remain candidate bytes','No agents, Main, native GUI, profiles, persistence or sockets','Plain password memory, getters, copy constructors and HTTP unchanged','Direct password-getter logging elsewhere is outside this diagnostic repair','x64 executed under Rosetta, not physical Intel; Xcomp requested only']}
+    record={'qualification':not a.development,'source_commit':initial[0],'source_dirty':initial[1],'candidate_source_commit':product['source_commit'] if product else None,'candidate_source_dirty':product['source_dirty'] if product else None,'sources':sources,'candidate_sha256':artifact_sha,'qualified_baseline_sha256':REFERENCE_SHA,'original_model_sha256':ORIGINAL_SHA,'patched_model_sha256':PATCHED_SHA,'compiled_probe_hashes':probehashes,'class_identity_manifest_sha256':manifest_sha,'disassemblies':disassemblies,'nested_model_hashes':nested_hashes,'nested_diagnostic_field_reads':nested_reads,'observations':rows,'negative_controls':negative,'unit_tests':5,'unit_stderr_sha256':hashlib.sha256(units.stderr).hexdigest(),'compiler_tree_sha256':compiler['tree_sha256'],'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for arch in ('aarch64','x64')},'scope':'Two diagnostic password reads redacted; exact locked preference extension independently reversed for audit25 comparison','limits':['Unsafe constructor bypass; manually initialized Observable and five model maps','Only synthetic password values; no credential store reads','Actual nested model diagnostics statically inventoried, fixture child map values are controlled stubs','Candidate single product loader and candidate/reference child SOM loaders exercised; parent net/log4j dependencies remain candidate bytes','No agents, Main, native GUI, profiles, persistence or sockets','Plain password memory, getters, copy constructors and HTTP unchanged','Direct password-getter logging elsewhere is outside this diagnostic repair','x64 executed under Rosetta, not physical Intel; Xcomp requested only']}
     (a.output/'observations.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n');print('PASS model diagnostic gate; four runtime/mode variants; sixteen behavioral negative controls; no controller/profile')
 
 if __name__=='__main__':main()

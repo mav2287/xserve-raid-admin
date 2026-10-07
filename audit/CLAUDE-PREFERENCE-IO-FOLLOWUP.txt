@@ -1,0 +1,87 @@
+## Verdict
+
+I found no code defect that blocks clean-source qualification. Each item from the previous review is either fixed or closed by the version 47 facts below. What's left is a list of small hardening items that don't block, plus the conditions the clean run itself requires. Everything here comes from reading the files you listed. I ran nothing, so none of it has been tested.
+
+## Version 47 facts compared with my earlier version 50 inference
+
+**Facts, enforced by the code:**
+- `shape()` (`preference_io_patch.py:11-15`) and `check_disassembly` (`preference_io_structure.py:42`) require major version 47 and 62 bytes of code.
+- They require the exact three-row exception table: `7 47 50 Exception`, `7 53 56 any`, `56 59 56 any`.
+- They require `stack=7, locals=4` and no `StackMapTable` in either class.
+- Both handlers that cover the window contain all of [7,47), and the third doesn't overlap it. That is the containment rule I asked for, and the exact rows now pin it.
+- Slot 2 is never loaded at pc ≥ 47. In the original it is only stored, by `astore_2` at pc 50 inside the handler.
+
+**Inference from how the JDK 8 HotSpot verifier works:**
+- Classes below version 50 are always checked by the old type-inference verifier. The split verifier and `FailOverToOldVerifier` never run for them; that failover only exists for version 50.
+- So my earlier advice to add `-XX:-FailOverToOldVerifier` doesn't apply here. I based it on version 50, but the class is actually version 47.
+- With no `StackMapTable`, there's no stale frame that could still declare slot 2 as an `OutputStreamWriter`. The inference verifier works out the local types itself, and `-Xverify:all` already runs the only verifier that applies.
+- If there is a `LineNumberTable` or `LocalVariableTable`, it stays byte-identical. Entries that now point inside 8–46 are debug metadata. The old verifier only checks that they're in range.
+
+**Empirical:** under `-Xverify:all`, all 16 positive runs pass. All 16 negative controls fail at the expected `AssertionError`, with stderr matching exactly, so none of them failed with a `VerifyError`.
+
+**Doc fix:** `PREFERENCE-IO.md:93-96` links the prototype and interrupt-design reviews but not the integration review. If you archive `CLAUDE-PREFERENCE-IO-INTEGRATION.txt`, add a note that its defect 1 verifier advice assumed version 50 and doesn't apply to the version 47 class.
+
+## Remaining defects (none block; ranked)
+
+1. **The helper's method-call list misses interface calls.**
+   - The regex at `check_preference_io.py:61` needs the form `invoke\w+ #N // Method`. javap prints `invokeinterface #N, k // InterfaceMethod …`, so those calls never match.
+   - A mutant calling `((Closeable)writer).close()` or `Flushable.flush` would get past both the required check and the forbidden check (`:63` only names `Writer` and `OutputStreamWriter` `.close`).
+   - The helper's hash (`51d208`) and the behaviour tests already cover this, so it's an extra layer, not a gap.
+   - *Fix:* capture `(?:Method|InterfaceMethod)` with an optional `, k`, then assert that the whole multiset of calls equals a literal expected list. That one assertion replaces the separate required, close and forbidden checks.
+
+2. **The new guards in `check_disassembly` have no unit negatives, and they check more than `store`.**
+   - *Scope:* the version, `StackMapTable`, branch-into-window and slot-2 guards scan from `store` to the end of the class (`:49`), not just the `Code` of `store`. That direction fails closed, so it's safe.
+   - *Opcodes:* the branch regex skips `jsr`, `jsr_w`, `tableswitch` and `lookupswitch`.
+   - *No negatives:* `test_preference_io.py:40` damages only `after`, so failures there come from the comparison of the two disassemblies, not from the new guards. Nothing shows the new guards match real javap output and actually fire.
+   - *Fix:* in `test_independent_complete_disassembly`, add these cases:
+     - `before`/`after` both containing `47: goto 20`;
+     - both containing `51: aload_2`;
+     - `major version: 50`;
+     - a `StackMapTable:` line.
+
+   Keep them inside the existing method. A new test method would change `Ran 5`, `unit_tests:5`, the printed `units=5` and "Five units" in the doc, all of which assume five. Optionally, limit the scan to the lines between `public void store();` and the next method signature.
+
+3. **Mutations that do several replacements aren't checked one replacement at a time.**
+   - `text==source` (`:106`) only shows that at least one replacement happened. The exact-frame check catches a partial mutation indirectly, because it would fail at a different code.
+   - `.replace('writer.flush();','writer.flush();')` at `:99` does nothing.
+   - The `'        }\n    }'` replacement has no count check. I didn't read `PreferenceIO.java`.
+   - *Fix:* assert `source.count(old)==1` for every pattern you replace, and delete the no-op replacement.
+
+4. **Interrupt coverage only tests one direction.**
+   - `clear-interrupt` clears the flag at entry, so only `interrupt-candidate-true` is proven to detect a cleared flag. Nothing shows that `interrupt-candidate-false` (flag set during serialization) can detect anything.
+   - The ban on `java/lang/Thread` in the helper's javap check covers this structurally, so it doesn't block.
+   - *Optional:* add a mutant that calls `Thread.interrupted()` after `writer.flush()`, and run it with the pre-set iteration disabled. If that's awkward, document that only one direction is tested.
+
+5. **Some checks still use the generic `"general"` code.**
+   - These are in `PreferenceWriteObservation.java:23, 36, 42, 56` (twice), `57, 76` (twice) and `78` (twice).
+   - No negative control targets them, so the claim "case-specific codes" is true only for the assertions the controls target. Either say that in the doc or add codes.
+
+6. **The candidate JAR hash isn't enforced.**
+   - `candidate_sha` is recorded but never compared to `e0fe515d…` or to an expected-build value. The contents are pinned (`strip_entries(after)==before`, `PATCHED_SHA`, helper hash), but the ZIP container isn't.
+   - *Fix:* compare it against a constant or the lock, so the hash quoted in the doc is actually checked.
+
+7. **`class_major_version=47` is a literal** (`:123`). It's correct because `shape()` asserts it, but deriving it from `after[ENTRY][6:8]` would match how the other values are recorded.
+
+## Conditions for the clean run (procedure, not code)
+
+- **Clean tree:** `git status --porcelain` counts untracked files. Before the run, commit everything currently untracked, including:
+  - the `CLAUDE-*.txt` reviews and any saved copy of this one;
+  - `audit26-*.json`;
+  - the gate and unit runners;
+  - `tests/java/preferencefixture/`.
+
+  `--output` must be ignored by git or outside the repo. If it isn't, `state()` will differ at the end and the run fails with "inputs changed".
+- **Rebuild from the committed HEAD:** rebuild the candidate from that commit, because `:36` requires `product['source_commit']==HEAD` and a non-dirty product. In clean mode the commit itself binds every tracked file. That also settles my earlier open question about whether `verify_builds` reads untracked JSON.
+- **Expected after the clean run:** the helper hash should still be `51d208` (the identity compile at `:88-90` and `check_help.py:78` both enforce it). The JAR should still be `e0fe515d` if `write_jar` is deterministic, but per item 6 nothing currently enforces that. The unit stderr hash includes test timing, so it will differ between runs; treat it as a record of that run, not something to compare.
+
+## Confirmed fixed
+
+- Distinct codes and exact stderr: the frame line numbers come from `line_for`, and the check is at line 12.
+- 16 negative controls (8 mutants × 2 architectures) and 16 rows, asserted with the exact set of keys.
+- The identity compile through the mutation pipeline.
+- Sources are hashed before the artifact is used.
+- `pool_counts`, `store_window` and the helper set are enforced in `strip_entries`.
+- Real reference runs for the existing-file, link, dangling-link, directory, missing-parent and fatal cases.
+- The helper's major version is 52, and the required single calls are checked.
+- `check_help.py:32` ties the product commit to HEAD.
+- Both new limitations are named in the record and in `PREFERENCE-IO.md:72`.

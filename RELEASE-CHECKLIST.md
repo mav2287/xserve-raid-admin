@@ -79,3 +79,25 @@ milestone; its current prototype is not shipping qualification. HTTP is plaintex
 See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
 [the frozen ledger](audit/help-final-integrity.json), and
 [archived record locations](audit/help-archival-map.json).
+
+### Audit26 diagnostic confidentiality and offline release evidence
+
+Qualified JAR `7c361034ec4deeec1741e49d3963c3dfd8e6dd07ea1b1fb7ab029d2aa3f74158`.
+Product, build, package and execution source `46dec9e`; reviewed evidence assembler
+source `809bdb2`. Sixteen candidate gates and 170 unit tests pass. Paired builds,
+packages, repeated unsigned ZIPs, extracted vendor runtime signatures and SPDX
+inventories pass for both architecture artifacts. The only JAR delta from audit25
+is the exact two-window RaidSystem diagnostic password redaction. Getters,
+persistence, controller protocol, polling and retries are preserved.
+
+See [the qualified scope](audit/MODEL-DIAGNOSTIC.md),
+[frozen ledger](audit/model-final-integrity.json), and
+[archived record map](audit/model-archival-map.json). Native full startup, actual
+browser presentation, physical Intel execution, signing/notarization and unresolved
+redistribution rights remain unverified. Hardware acceptance is deferred until
+actual operational need. No controller contact, production/mounted-volume tests
+or installed application modifications occurred. HTTP remains plaintext.
+
+A subsequent preference-write prototype is development work only, separate from
+the qualified audit26 artifacts. It is not release evidence until integrated and
+qualified with a new candidate and its own complete regression record.

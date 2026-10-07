@@ -10,6 +10,7 @@ from audit_support import ROOT,verify_jdk,verify_python,sha,run_jdk
 from baseline import write_jar
 from verify_builds import check_artifact, EXPECTED as EXPECTED_BUILD
 from help_patch import TARGETS,plan,normalize
+from preference_io_patch import ENTRY as PREF_ENTRY, plan as pref_plan
 from model_diagnostic_patch import ENTRY as MODEL_ENTRY, plan as model_plan
 from runtime import verify_runtime,runtime_manifest
 from inventory import disassemble_entries
@@ -21,14 +22,14 @@ def main():
     if a.output.exists():raise ValueError('Output exists')
     base=ROOT/'build/connection-publication-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar'
     if sha(base)!=BASE_SHA:raise ValueError('Immutable qualified audit24 required')
-    inputs=[Path(__file__).resolve(),ROOT/'tools/help_patch.py',ROOT/'tools/model_diagnostic_patch.py',ROOT/'audit/model-diagnostic-patches.json',ROOT/'tools/help_structure.py',ROOT/'tools/class_patch.py',ROOT/'tools/sync_ownership_patch.py',ROOT/'tools/baseline.py',ROOT/'tools/audit_support.py',ROOT/'tools/runtime.py',ROOT/'tools/inventory.py',ROOT/'tests/test_help_patch.py',ROOT/'patches/compat/HelpLauncher.java',ROOT/'tests/java/helpfixture/HelpObservation.java',ROOT/'tests/java/fixture/OfflineGuard.java',ROOT/'tests/java/fixture/FixtureIdentity.java',ROOT/'audit/jdk-lock.json',ROOT/'audit/python-lock.json',ROOT/'audit/runtime-lock.json',ROOT/'original/RAID_Admin_original.jar']
+    inputs=[Path(__file__).resolve(),ROOT/'tools/help_patch.py',ROOT/'tools/model_diagnostic_patch.py',ROOT/'tools/preference_io_patch.py',ROOT/'audit/preference-io-patches.json',ROOT/'patches/compat/PreferenceIO.java',ROOT/'audit/model-diagnostic-patches.json',ROOT/'tools/help_structure.py',ROOT/'tools/class_patch.py',ROOT/'tools/sync_ownership_patch.py',ROOT/'tools/baseline.py',ROOT/'tools/audit_support.py',ROOT/'tools/runtime.py',ROOT/'tools/inventory.py',ROOT/'tests/test_help_patch.py',ROOT/'patches/compat/HelpLauncher.java',ROOT/'tests/java/helpfixture/HelpObservation.java',ROOT/'tests/java/fixture/OfflineGuard.java',ROOT/'tests/java/fixture/FixtureIdentity.java',ROOT/'audit/jdk-lock.json',ROOT/'audit/python-lock.json',ROOT/'audit/runtime-lock.json',ROOT/'original/RAID_Admin_original.jar']
     inputs += [ROOT/'audit/help-patches.json',ROOT/'audit/expected-build.json',ROOT/'tools/verify_builds.py']
     sources={str(f.relative_to(ROOT)):sha(f) for f in inputs}
     state=lambda:(subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=ROOT,env=isolated_env(),text=True).strip(),bool(subprocess.check_output(['/usr/bin/git','status','--porcelain'],cwd=ROOT,env=isolated_env())))
     initial=state()
     if initial[1] and not a.development:raise ValueError('Clean source required')
     identity,product=check_artifact(a.build)
-    if identity!=json.loads(EXPECTED_BUILD.read_text())['expected'] or (product['source_dirty'] and not a.development):raise ValueError('Integrated build differs')
+    if identity!=json.loads(EXPECTED_BUILD.read_text())['expected'] or product['source_commit']!=initial[0] or (product['source_dirty'] and not a.development):raise ValueError('Integrated build differs')
     unit=subprocess.run([sys.executable,'-E','-s','-m','unittest','discover','-s','tests','-p','test_help_patch.py'],cwd=ROOT,env=isolated_env(),capture_output=True,timeout=60)
     if unit.returncode or unit.stdout or not re.search(rb'Ran 5 tests in [0-9.]+s\n\nOK\n$',unit.stderr):raise ValueError('Help unit gate failed; output withheld')
 
@@ -68,8 +69,14 @@ def main():
     with zipfile.ZipFile(jar) as z:
         if len(z.namelist())!=len(entries) or {n:z.read(n) for n in z.namelist()}!=entries:raise ValueError('Serialized overlay differs')
     if {n for n in entries if entries[n]!=before.get(n)}!=set(TARGETS)|set(additions):raise ValueError('Unexpected overlay change')
-    # The next baseline adds only the exact pinned model diagnostic override.
-    entries[MODEL_ENTRY]=model_plan(entries[MODEL_ENTRY]);write_jar(jar,entries)
+    # Preserve the exact model and preference extensions in the integrated candidate.
+    entries[MODEL_ENTRY]=model_plan(entries[MODEL_ENTRY])
+    preference_helpers=a.output/'preference-helper';preference_helpers.mkdir()
+    run_jdk(a.jdk,'javac',['-source','8','-target','8','-cp',str(base),'-d',str(preference_helpers),str(ROOT/'patches/compat/PreferenceIO.java')])
+    preference_lock=json.loads((ROOT/'audit/preference-io-patches.json').read_text())
+    pref_additions={str(f.relative_to(preference_helpers)):f.read_bytes() for f in preference_helpers.rglob('*.class')}
+    if set(pref_additions)&set(entries) or {n:hashlib.sha256(v).hexdigest() for n,v in pref_additions.items()}!=preference_lock['helpers']:raise ValueError('Preference overlay helper differs')
+    entries[PREF_ENTRY]=pref_plan(entries[PREF_ENTRY]);entries.update(pref_additions);write_jar(jar,entries)
     actual=a.build/'RAID Admin.app/Contents/Resources/RAID_Admin.jar'
     if sha(actual)!=sha(jar):raise ValueError('Integrated candidate differs from exact qualified-core overlay')
     jar=actual.resolve()
@@ -110,6 +117,6 @@ def main():
     if sha(jar)!=artifact_sha or sha(manifest)!=manifest_sha or probehashes!={str(f.relative_to(probes)):sha(f) for f in probes.rglob('*.class')}:raise ValueError('Fixture/artifact changed')
     if initial!=state():raise ValueError('Source state changed')
     if sources!={str(f.relative_to(ROOT)):sha(f) for f in inputs} or sha(base)!=BASE_SHA:raise ValueError('Inputs changed')
-    record={'unit_stderr_sha256':hashlib.sha256(unit.stderr).hexdigest(),'qualification':not a.development,'source_commit':initial[0],'source_dirty':initial[1],'candidate_source_commit':product['source_commit'],'candidate_source_dirty':product['source_dirty'],'scope':'Integrated Help actions and helper; exact qualified audit24 core except pinned model diagnostic redaction; not controller or release acceptance','candidate_sha256':sha(jar),'qualified_baseline_sha256':BASE_SHA,'sources':sources,'compiled_helper_hashes':{n:hashlib.sha256(b).hexdigest() for n,b in additions.items()},'compiled_probe_hashes':probehashes,'browser_class_reference_entries':browser_classes,'browser_descriptor_reference_entries':browser_descriptors,'browser_constant_pool_references':browser_refs,'browser_reflection_string_entries':reflection_strings,'hypertext_disassembly_sha256':sha(hypertext_file),'resource_bundle_sha256':resources,'class_identity_manifest_sha256':sha(manifest),'disassemblies':disassemblies,'observations':rows,'negative_controls':negative,'limits':['x64 executed under Rosetta, not physical Intel','No Desktop.browse invocation or browser launch','No complete application startup or production profile access','UnsupportedOperationDialog constructor bypassed using Unsafe; only hyperlink method exercised','Old BrowserLauncher references retained in unused constant pool; loading denied in child action loader','Xcomp requested, no full-VM compilation claim','Remote content availability unverified'],'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for arch in ('aarch64','x64')},'compiler_tree_sha256':compiler['tree_sha256']}
+    record={'unit_stderr_sha256':hashlib.sha256(unit.stderr).hexdigest(),'qualification':not a.development,'source_commit':initial[0],'source_dirty':initial[1],'candidate_source_commit':product['source_commit'],'candidate_source_dirty':product['source_dirty'],'scope':'Integrated Help actions and helper; exact qualified audit24 core except pinned model diagnostic and preference stream extensions; not controller or release acceptance','candidate_sha256':sha(jar),'qualified_baseline_sha256':BASE_SHA,'sources':sources,'compiled_helper_hashes':{n:hashlib.sha256(b).hexdigest() for n,b in additions.items()},'compiled_probe_hashes':probehashes,'browser_class_reference_entries':browser_classes,'browser_descriptor_reference_entries':browser_descriptors,'browser_constant_pool_references':browser_refs,'browser_reflection_string_entries':reflection_strings,'hypertext_disassembly_sha256':sha(hypertext_file),'resource_bundle_sha256':resources,'class_identity_manifest_sha256':sha(manifest),'disassemblies':disassemblies,'observations':rows,'negative_controls':negative,'limits':['x64 executed under Rosetta, not physical Intel','No Desktop.browse invocation or browser launch','No complete application startup or production profile access','UnsupportedOperationDialog constructor bypassed using Unsafe; only hyperlink method exercised','Old BrowserLauncher references retained in unused constant pool; loading denied in child action loader','Xcomp requested, no full-VM compilation claim','Remote content availability unverified'],'runtime_trees':{arch:lock['architectures'][arch]['tree_sha256'] for arch in ('aarch64','x64')},'compiler_tree_sha256':compiler['tree_sha256']}
     (a.output/'observations.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n');print('PASS integrated Help boundary; four runtime/mode variants; no browser/controller')
 if __name__=='__main__':main()

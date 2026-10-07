@@ -1,0 +1,83 @@
+# Audit27 PreferenceIO integration review (read-only)
+
+I read only the files you listed. I ran nothing and edited nothing. I didn't read `verify_builds.py`, `class_patch.py`, `audit_support.py`, `expected-build.json` or the other callers of the comparator, so anything that depends on them is listed under open questions.
+
+**Verdict:** The Milestone A helper matches the original store semantics, apart from the two expected changes and one allocation-order edge case. Most problems are in the evidence: the structural pin, how specific the negative controls are, and two behaviours that no negative control proves the tests can detect.
+
+## The helper compared with the original window (facts from source and pinned bytes)
+- The original bytes in `preference_io_patch.py:21` decode to 40 bytes at pc 7–47. They do `new OutputStreamWriter(new FileOutputStream(new File(identifier)), "UTF-8")`, `astore_2`, `writeXML(dictionary, w)`, `flush`. That matches `OLD` in `preference_io_structure.py:12-30`. `WINDOW` is 11 bytes of code plus 29 `nop`s, which matches `NEW`. The new pool entries #82–#87 match `POOL`.
+- `PreferenceIO.java:14-20` uses the same constructors, charset, serializer and explicit flush, and closes only the raw stream. On failure, buffered partial XML is dropped as before. A trailing lone surrogate held by `StreamEncoder` is also dropped as before, because the original never closes the writer either.
+- **Expected change:** `close()` can now throw on the success path. That exception goes to the unchanged handler. On the failure and `Error` paths, a close exception is attached as suppressed to the original one.
+- **Small change in order (fact):** the original allocates the `OutputStreamWriter` *before* the open. The helper opens (and truncates) the file first, then allocates the writer. So an `OutOfMemoryError` at that point now leaves a truncated file where the original left it intact. This is covered by "JVM exhaustion not qualified", but the limits don't name it.
+- **Interrupts (inference, JDK 8 knowledge):** the stream isn't a channel stream, so nothing in this path calls `begin()`/`end()`, and the interrupt flag isn't touched.
+
+## Defects, most important first
+
+1. **The structural pin can't see exception-handler or branch boundaries inside the collapsed window.**
+   - *Fact:* `check_disassembly` requires everything outside the window to be identical, including the exception table, `LineNumberTable` and `StackMapTable`. That proves the tables are unchanged. It doesn't prove they still make sense now that the instructions at pc 7–46 have collapsed to a call at pc 15.
+   - *Inference:* if any handler's start or end, or any branch target, falls strictly inside 8–46, the coverage or verification changes without anything flagging it.
+   - Also, if `local 2` (the writer) is used after pc 47, or a `StackMapTable` frame lists it as `OutputStreamWriter`, verification depends on the class version. Under major version 50, JDK 8 falls back to the old verifier (`FailOverToOldVerifier`), so even `-Xverify:all` could hide a type-check failure.
+   - *Fix:* in `plan`/`normalize` and in the javap check, assert that every handler range either contains [7,47) completely or doesn't overlap it, that no branch target or frame lies in 8–46, and that slot 2 isn't loaded after pc 47. Record the major version. If it is 50, add `-XX:-FailOverToOldVerifier` to the candidate runs.
+
+2. **The helper class itself has no structural evidence.**
+   - *Fact:* `check_preference_io.py` pins the helper by hash only (`strip_entries`). There is no javap of it and no class-version check. `check_help.py:66` does check the version for HelpLauncher.
+   - *Fix:* record `javap -v -p` of `compat/PreferenceIO` and assert:
+     - version 52;
+     - exactly one each of `FileOutputStream.<init>(File)`, `OutputStreamWriter.<init>(OutputStream,String)`, `writeXML(Object,Writer)` and `OutputStreamWriter.flush`;
+     - a close only on the raw stream;
+     - no `Writer.close`, `java/nio`, `Thread.interrupted` or `Channels`.
+
+3. **The negative-control stack frames only identify a line, and several lines hold more than one check.**
+   - *Fact:* `check_preference_io.py:88,98` match on `main` line N. Lines 47, 51, 64, 69, 70 and 72 of `PreferenceWriteObservation.java` each contain 2–4 `check(...)` calls. Lines 47 and 64 also run inside loops.
+   - `no-close` (line 69) can't tell an fd-leak failure apart from an unrelated failure of `gc()==collections`.
+   - `close-writer-on-error` is meant to exercise failure kinds 5 and 6, but it can't be told apart from a failure at kind 0.
+   - `append` on line 51 can't be told apart from a permissions failure.
+   - *Fix:* give each check a distinct message code (as `PreferenceLifetimeObservation` already does) and include the case index. Then match the message as well as the frame.
+
+4. **Two claimed properties have no negative control proving the tests detect them.**
+   - *Error-path leak:* `no-close-on-failure` leaks only on `Exception` and fails at line 70, before line 72 runs. No mutation that leaks only on `Error` exists (for example, closing inside `catch (Exception)`). So line 72 and the "error fd delta 0" claim are unproven.
+   - *Interrupt flag:* `interruptible-stream` fails on content at line 64. Nothing shows that the flag checks on lines 62–63 fail if the helper clears the flag (for example, by calling `Thread.interrupted()`). `interrupts_preserved=true` therefore has no negative behind it.
+   - Adding `error-only-leak` and `clear-interrupt` would make 16 negative controls.
+
+5. **The negative-control pipeline has no identity control.**
+   - *Fact:* the unmutated source isn't compiled through the same path (`-cp reference`, in the negative folder) and checked against `51d208…`. `baseline.py` and `check_help.py` each prove that for their own compile path, not for this one.
+   - *Fix:* add an "identity" compile and require its hash to equal the lock.
+
+6. **The reported counts are hard-coded, not asserted.**
+   - *Fact:* `print(...runs=8...negative_controls=12; units=5)` at `check_preference_io.py:106` is a literal string. Nothing asserts `len(rows)==16` or `len(controls)==12`.
+   - Also, unlike `check_model_diagnostic`, the record doesn't store a hash of the unit-test stderr.
+
+7. **Source provenance is captured late.**
+   - *Fact:* the tool modules are imported at line 7, but `sources` is hashed only at line 39, after `check_artifact`, `strip_entries` and `normalize` have already run. An edit made between those points would be recorded as the new content even though the old code ran.
+   - *Fix:* hash the sources first, as `check_help.py:27` does earlier.
+   - *Coverage itself (fact):* `tools/*.py`, `patches/**/*.java`, both fixtures, `FixtureIdentity`, the unit test, the locks and the original JAR are all included. Two untracked files are not: `audit/audit26-*.json` and the design text. That is fine unless `verify_builds` reads them (open question).
+
+8. **Some lock fields are never enforced.**
+   - *Fact:* nothing reads `pool_counts` or `store_window` in `preference-io-patches.json`.
+   - *Fact:* `strip_entries` doesn't cross-check the lock's `entry`/`original_sha256`/`patched_sha256` against the module constants. `baseline.py:110` does.
+   - *Fix:* enforce them or remove them.
+
+9. **Some cases aren't compared against the original.**
+   - *Fact:* the cases for the directory, missing parent, existing file, symlink and dangling link only check candidate properties against `original-0` or `original-1` content. The reference backend never runs on them.
+   - The behaviour is the same constructor, so the risk is low. But the claim "path/link preserved" in `scope` rests on inference.
+
+10. **The evidence text is stale.**
+    - *Fact:* the design file's Facts section describes the earlier NIO `PreferenceIO.java:21-25`, not the current Milestone A source.
+    - *Fix:* if it gets archived, label it as superseded or bind it to the hash of the source it reviewed.
+    - Separately, `limits` should name two things: that `close()` can throw on the success path, and the open-before-allocate order change.
+
+## Checked and found sound (facts)
+- **Reverse pin:** `normalize` rebuilds the original, then requires both `sha==ORIGINAL` and `plan(old)==data`. Together with the test that flips every byte, this fully pins the class.
+- **Original class origin:**
+  - The reference loader has a `null` parent, and its `CodeSource` is checked (line 41).
+  - `FixtureIdentity` binds the hash and location of every `compat/`, `prefs/` and `plist/` class, for both the reference and candidate runs and every negative-control JAR. That includes the `PreferenceIO$1` classes the mutations create.
+  - Probes are checked against the candidate entries so they can't shadow them.
+- **Comparator chain:** `help_patch.strip_entries` reverses preference, then model, then help. `check_model_diagnostic.py:48` reverses preference only. `strip_entries` fails closed when the backend is present without the helper, the helper is present without the backend, or a helper is altered. `check_help.py:79` rebuilds the full audit27 JAR and compares it byte for byte.
+- **Build:** `baseline.py` checks the helper against the allowlist and its hash, pins `plan`, records `preference_io_patch.py` and the lock in `inputs`, and includes `PreferenceIO.java` through `sources`.
+
+## Open questions
+- What does the `catch` in `store()` do with the exception: `System.err`, log4j, or nothing? If it writes anything, the positive runs with `require_empty_stderr` and the exact-stderr negative controls would fail on kinds 5 and 6, the directory and the missing-parent cases. For example, log4j 1.x prints a "No appenders" warning when `defaultInitOverride=true`.
+- What is the major version of `FileBasedPreferences`, and does it have a `StackMapTable` or `LocalVariableTable`? This decides how much defect 1 matters.
+- Does `expected-build.json` pin the JAR at `e0fe515d…`? The tool doesn't pin the candidate hash directly.
+- Other callers of `help_patch.strip_entries` may need `preference_io_patch.py` and `preference-io-patches.json` in their source provenance. Possible candidates are the modified `check_stop_admission_experiment.py`, `check_connection_publication.py` and `check_socket_configuration.py`. I didn't read them.
+- Before these changes existed, `check_help.py:32` didn't tie `product['source_commit']` to HEAD, unlike the preference and model gates. Should audit27 tighten that?

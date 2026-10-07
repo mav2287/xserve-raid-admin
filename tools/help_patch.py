@@ -35,7 +35,8 @@ def strip_entries(entries):
     import json
     from pathlib import Path
     from model_diagnostic_patch import strip_entries as strip_model
-    entries=strip_model(entries)
+    from preference_io_patch import strip_entries as strip_preference
+    entries=strip_model(strip_preference(entries))
     lock=json.loads((Path(__file__).resolve().parents[1]/'audit/help-patches.json').read_text())
     helpers=lock['helpers'];present=set(helpers)&set(entries)
     if not present:return dict(entries)

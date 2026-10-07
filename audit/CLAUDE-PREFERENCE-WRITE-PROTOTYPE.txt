@@ -1,0 +1,101 @@
+# Read-only review: FileBasedPreferences store-window patch and PreferenceIO helper
+
+I read only the eight files you listed. Nothing was run or edited, and I opened no home or real preference files. I did not see any output from the corrected re-run, so I make no claim about whether it passes.
+
+**Verdict:** The bytecode window and constant-pool entries are exact, and `normalize` reverses them back to the pinned class. Don't promote yet. The helper adds one real data-loss risk the original doesn't have (thread interrupts), the truncate flag is never tested, and the test harness has no in-run evidence that it can catch a regression.
+
+---
+
+## Facts (checked directly against the bytes and javap)
+
+1. **The 40 original bytes are correct.** The hex in `patch.py:17` decodes to exactly the javap `store` instructions at PCs 7–46 (`preference-storage.javap:199-217`): the `new`/`dup` chain, `ldc #12`, `astore_2`, `getfield #16`, `invokestatic #25`, and `invokevirtual #26`. The last byte is at PC 46, and `goto 51` at PC 47 is left alone.
+2. **The replacement window is also 40 bytes:**
+   - `aload_0; getfield #4` (identifier)
+   - `aload_0; getfield #16` (dictionary)
+   - `invokestatic #87`
+   - 29 `nop`s from PC 18 to 46
+
+   The stack peaks at 2, under the declared maximum of 7. Locals stay at 4, because `astore_2` at PC 50 still uses slot 2. The exception table is unchanged, and the nops sit inside the 7–47 `Exception` range. The class is version 47, so there is no StackMapTable to update.
+3. **The pool is correct.** The original count is 82 and the last entry is #81. `EXTRA` adds:
+   - #82 Utf8 `compat/PreferenceIO`
+   - #83 Class→82
+   - #84 `write`
+   - #85 `(Ljava/lang/String;Ljava/lang/Object;)V`
+   - #86 NameAndType 84:85
+   - #87 Methodref 83.86
+
+   That makes the new count 88.
+4. **The offsets assume a header layout I couldn't check.** `b+21..b+61` equals code offset 7–47 only if `method_code` returns the start of the Code attribute (a 14-byte header).
+5. **Reversal is checked at whole-class level.** `normalize` rebuilds the class, compares its SHA to `ORIGINAL_SHA`, and requires `plan(old)==data`. If `compose` behaves as named, everything outside the window and pool tail, including `load`, is byte-identical.
+6. **What the helper does:**
+   - Open flags are `WRITE|CREATE|TRUNCATE_EXISTING|NOFOLLOW_LINKS`, with mode `rw-------` applied only at creation (umask still applies).
+   - It uses the same `OutputStreamWriter(…,"UTF-8")` constructor, the existing `writeXML`, and an explicit `flush`.
+   - On failure the Writer is deliberately not closed, so buffered partial XML is dropped. That matches the original, which never closed it either.
+7. **Exceptions are still swallowed.** Every `Exception` from the helper (I/O errors, the symlink refusal, `InvalidPathException`, `SecurityException`) is caught by the unchanged 7–47 handler, exactly as before. `Error`s still propagate after `monitorexit`.
+8. **Both probe `main` methods are now `public`.**
+9. **`check.py` compiles `PreferenceLifetimeObservation` but never runs it against the candidate.** The probe is only used for its `Guard`.
+10. **`original-observation.json` is mislabelled.** Its key `candidate_sha256` holds the reference JAR pin (`7c3610…`). It also doesn't hash its runner (`observe.py`). The new `observations.json` doesn't record `identity_sha256` or the probe class hashes, although the original observation did.
+
+## Semantic hazards (inferences)
+
+1. **Interrupts can wipe the file (high severity).** `Files.newByteChannel` returns an interruptible `FileChannel`; `FileOutputStream` is not interruptible.
+   - If `store()` runs on a thread whose interrupt flag is set, or is interrupted mid-write, the write throws `ClosedByInterruptException` *after* `O_TRUNC` has already emptied the file.
+   - The handler swallows the exception, so the file is left empty or partial with no message.
+   - On the next launch `load` fails to parse, falls back to an empty `HashMap`, and the saved Systems list is lost.
+
+   The original would have written successfully. `synchronizePrefs` is called from `update`/`remove` (Observer callbacks), possibly on polling or connection threads.
+
+   **Fix:** In the helper, save and clear the interrupt flag (`Thread.interrupted()`) before opening and restore it in `finally`. An interrupt that arrives mid-write would remain a documented gap.
+2. **Symlinked prefs stop saving, with no message.** Reads still follow a final-component symlink, but writes now silently refuse it. A user whose plist is a symlink (for example from a dotfile or preference-sync tool) will see the target's settings load while every change silently fails to save. This is your intended restriction, but it fails without any message, so put it in the release notes and consider adding a log line.
+3. **`File` and `Paths` resolve paths differently.**
+   - Relative paths: `File` uses `user.dir`, while NIO uses the process's real working directory. The two diverge if `-Duser.dir` is set, which matters for the `""` + name fallback in `MacPreferences` when `findFolder` fails.
+   - Unmappable characters: `File` substitutes `?`, while `UnixPath` throws `InvalidPathException` (swallowed, so the save is skipped).
+
+   Both are low risk.
+4. **Same as the original:** no fsync, no atomic replace, and a failed serialization still truncates the file. Anything else writing this file directly (it's in a cfprefsd-visible location) can still replace its mode.
+
+## Test fixture credibility
+
+**Strong points:**
+- Each case compares the original and candidate output byte-for-byte, using a separate `URLClassLoader` with no parent and a codesource check.
+- The test data covers Unicode, lone surrogates, a large payload over 8 KB, nested values, and partial-failure output for both small and over-8 KB failures.
+- The umask is fixed at 022, so the 644-vs-600 mode check actually distinguishes the two.
+- The FD loops check that no GC ran, so a finalizer can't hide a leak.
+- `require_empty_stderr` is set, and the guard's denial count is checked at the end (needed because store swallows `SecurityException`).
+
+**Weak points:**
+- **Truncation is never exercised.** The "existing" case starts with a 1-byte file that gets overwritten by longer content, and every other case creates a new file. Dropping `TRUNCATE_EXISTING` would still pass.
+- **The "existing" case checks only mode and count**, not content.
+- **No in-run positive controls.** The probe never shows that it *can* fail. The original's 32-FD leak and 644 mode were measured only in a separate earlier run.
+- **The `Error` path isn't covered for FDs or the lock.** The `fatal` case doesn't check FD delta, doesn't check the monitor was released, and isn't compared against the original.
+- **The directory and missing-parent cases check only `count==3`.** They don't assert that nothing was created.
+- **Candidate identity depends on code I couldn't review.** That the patched class was actually loaded rests on `FixtureIdentity` and `compose`/`method_code`/`utf`, which were out of scope.
+- **The helper could silently replace an existing class.** `entries.update(helpers)` would overwrite an existing `compat/PreferenceIO.class` without complaint; add an assertion that it isn't already there.
+
+## Negative controls and offline cases to add before promotion
+
+1. **Mutation runs that must fail:**
+   - Run the write probe with the reference JAR in the candidate slot (it should fail on 644 and on the symlink case).
+   - Run it with helpers missing `TRUNCATE_EXISTING`, then `NOFOLLOW_LINKS`, then the mode attribute; each should fail.
+2. **In the same harness:** the original backend's FD loop, expecting a delta of 32 with no GC, and the original following a symlink and creating the target of a dangling link.
+3. **Existing file longer than the new content:** the result must match the original byte-for-byte.
+4. **Interrupts:** a store on a pre-interrupted thread and a store interrupted mid-write. Compare file bytes against the original and check that the interrupt flag is preserved.
+5. **`Error` path:** FD delta is 0, `Thread.holdsLock(lock)` is false afterwards, and the result is compared with the original.
+6. **Umask 000 and 077:** the candidate creates 600 in both cases; the original creates 666 under 000.
+7. **Other targets:**
+   - A read-only (0444) existing file: both versions fail and the content is unchanged.
+   - A final-component symlink to a directory.
+   - A hard link: document that it still writes through, as a stated residual.
+   - A relative identifier.
+   - A FIFO only with a hard timeout, because both versions block on open.
+8. **Directory and missing-parent:** assert that no file or directory was created.
+9. **Byte-level diff** of `candidate.javap` against `preference-storage.javap`, limited to the store window and pool tail.
+
+## Unresolved
+
+- Whether `compose`, `method_code`, `utf`, `pool_boundary` and `FixtureIdentity` behave as their names suggest (outside the review set).
+- Whether the javap file (MD5 `08c1bc…`, 1349 bytes) is the same class as SHA `9a9a41…`.
+- Which threads call `synchronizePrefs`/`store`, and whether any of them are ever interrupted. This decides how serious the interrupt risk is.
+- The version of the bundled `Runtime.jdk`.
+- Results of the corrected `candidate-2` run (not seen).
+- Whether `load` leaks a descriptor on a malformed plist. This is out of scope for this milestone, but the measured `load0` covered only a valid file.

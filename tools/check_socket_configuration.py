@@ -20,7 +20,7 @@ JAVA = ('tests/java/socketfixture/ConfigurationPublicationObservation.java',
         'tests/java/socketfixture/ConfigurationObservation.java',
         'tests/java/socketfixture/ConfigurationRunner.java',
         'tests/java/fixture/OfflineGuard.java', 'tests/java/fixture/FixtureIdentity.java')
-SOURCES = JAVA + ('tools/check_socket_configuration.py', 'tools/socket_configuration_patch.py','tools/connection_publication_patch.py','tools/help_patch.py','tools/model_diagnostic_patch.py','audit/model-diagnostic-patches.json','audit/help-patches.json',
+SOURCES = JAVA + ('tools/check_socket_configuration.py', 'tools/socket_configuration_patch.py','tools/connection_publication_patch.py','tools/help_patch.py','tools/model_diagnostic_patch.py','tools/preference_io_patch.py','audit/preference-io-patches.json','audit/model-diagnostic-patches.json','audit/help-patches.json',
     'tools/socket_configuration_structure.py', 'tools/socket_configuration_mutants.py', 'tools/class_patch.py', 'tools/sync_ownership_patch.py',
     'tools/worker_exit_patch.py', 'tools/stop_admission_patch.py', 'tools/audit_support.py',
     'tools/baseline.py', 'tools/runtime.py', 'tools/inventory.py', 'tools/verify_builds.py',

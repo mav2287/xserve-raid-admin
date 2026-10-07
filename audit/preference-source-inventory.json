@@ -1,0 +1,266 @@
+{
+  "class_count": 2869,
+  "profile_identifier_literals": [
+    {
+      "entry": "com/apple/xsr/DefaultSystemRegistry.class",
+      "index": 2,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/ManagementSystemPane$SystemInformationPanel.class",
+      "index": 101,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/PreferencesWindow$1.class",
+      "index": 3,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/PreferencesWindow$2.class",
+      "index": 3,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/PreferencesWindow$3.class",
+      "index": 3,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/PreferencesWindow.class",
+      "index": 14,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/RaidAdmin.class",
+      "index": 22,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/Resources.class",
+      "index": 2102,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/StatusIcon.class",
+      "index": 51,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/SystemMonitorController.class",
+      "index": 123,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/SystemMonitorWindow.class",
+      "index": 49,
+      "literal": "com.apple.RAIDAdmin.plist"
+    },
+    {
+      "entry": "com/apple/xsr/eventlog/EventLogPane.class",
+      "index": 112,
+      "literal": "com.apple.RAIDAdmin.plist"
+    }
+  ],
+  "qualification": false,
+  "reference_sha256": "7c361034ec4deeec1741e49d3963c3dfd8e6dd07ea1b1fb7ab029d2aa3f74158",
+  "references": [
+    {
+      "descriptor": "(Ljava/lang/Object;Ljava/io/Writer;)V",
+      "entry": "com/apple/util/plist/PropertyList.class",
+      "entry_sha256": "52a3d16972cf813b393eea58c89f3444958842867afb0f8b60084ecce2e475c2",
+      "member": "writeXML",
+      "owner": "com/apple/util/plist/PropertyListUtilities",
+      "pool_index": 54
+    },
+    {
+      "descriptor": "(Ljava/lang/Object;Ljava/io/Writer;)V",
+      "entry": "com/apple/util/prefs/FileBasedPreferences.class",
+      "entry_sha256": "9a9a41cf9982b5413dddec7f73c84bd644617b417e4602b53a551589de968d6d",
+      "member": "writeXML",
+      "owner": "com/apple/util/plist/PropertyListUtilities",
+      "pool_index": 25
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/util/prefs/Preferences.class",
+      "entry_sha256": "5739037b1ba404d03b4b1c797c953b62c06ed30799bbdb73432e973827209cfb",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/PreferencesFactory",
+      "pool_index": 1
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/util/prefs/Preferences.class",
+      "entry_sha256": "5739037b1ba404d03b4b1c797c953b62c06ed30799bbdb73432e973827209cfb",
+      "member": "store",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 52
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/util/prefs/Preferences.class",
+      "entry_sha256": "5739037b1ba404d03b4b1c797c953b62c06ed30799bbdb73432e973827209cfb",
+      "member": "load",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 54
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/DefaultSystemRegistry.class",
+      "entry_sha256": "af1f303e4a86133a50aef3268fc34343b17b3966a216a39ff8dd8c1b794042c6",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 3
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/xsr/DefaultSystemRegistry.class",
+      "entry_sha256": "af1f303e4a86133a50aef3268fc34343b17b3966a216a39ff8dd8c1b794042c6",
+      "member": "synchronize",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 43
+    },
+    {
+      "descriptor": "(Ljava/lang/Object;Ljava/io/Writer;)V",
+      "entry": "com/apple/xsr/ManagementController.class",
+      "entry_sha256": "c1e417a9e060b4cbd50841305a597b5141ebcbf95e2f2701b4aa48b9fe2d78ac",
+      "member": "writeXML",
+      "owner": "com/apple/util/plist/PropertyListUtilities",
+      "pool_index": 374
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/ManagementSystemPane$SystemInformationPanel.class",
+      "entry_sha256": "38693d928846d16d7976d339edc972e9dab561bb794f398aa469f93f073f0d5d",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 102
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/PreferencesWindow$1.class",
+      "entry_sha256": "fadb0f9a49c4e8758b711357088d10b61a72b6d31474cf30e2926f9e635395f7",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 4
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/xsr/PreferencesWindow$1.class",
+      "entry_sha256": "fadb0f9a49c4e8758b711357088d10b61a72b6d31474cf30e2926f9e635395f7",
+      "member": "synchronize",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 9
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/PreferencesWindow$2.class",
+      "entry_sha256": "b867f52dea3474f3d899d50648bd0239c4de56ccef8a110febc53e38dc4c05e0",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 4
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/xsr/PreferencesWindow$2.class",
+      "entry_sha256": "b867f52dea3474f3d899d50648bd0239c4de56ccef8a110febc53e38dc4c05e0",
+      "member": "synchronize",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 10
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/PreferencesWindow$3.class",
+      "entry_sha256": "1010cfac55420057234f688f362a7b22931d5af37db03dbd9a2063167e538220",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 4
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/xsr/PreferencesWindow$3.class",
+      "entry_sha256": "1010cfac55420057234f688f362a7b22931d5af37db03dbd9a2063167e538220",
+      "member": "synchronize",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 21
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/PreferencesWindow.class",
+      "entry_sha256": "6afe981c2a8097412970df9dd05a00fc4714a731939060f1f7a70ba19d7e507c",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 15
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/xsr/RaidAdmin$1.class",
+      "entry_sha256": "800b73746354a27065cae8f0261256531f8225af99e99410512749ac54c203d0",
+      "member": "synchronize",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 8
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/RaidAdmin.class",
+      "entry_sha256": "0db7e8981ce25df52e32c76aa0864adbbb051202cdc99d0586abad18bd15a804",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 23
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/StatusIcon.class",
+      "entry_sha256": "2ace0860269bf717002f27049d78e112ae688d0b768825d38bb25629e4ed855d",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 52
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/SystemMonitorController.class",
+      "entry_sha256": "1251600090f9441a97042a6e1669b5ad16455de91cb4891129e301735f422537",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 124
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/SystemMonitorWindow.class",
+      "entry_sha256": "b7cc713a3112c7675a884ab03c3b2e7f54346f89ee8d2f737af6698f9479dddc",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 50
+    },
+    {
+      "descriptor": "()V",
+      "entry": "com/apple/xsr/SystemMonitorWindow.class",
+      "entry_sha256": "b7cc713a3112c7675a884ab03c3b2e7f54346f89ee8d2f737af6698f9479dddc",
+      "member": "synchronize",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 65
+    },
+    {
+      "descriptor": "(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;",
+      "entry": "com/apple/xsr/eventlog/EventLogPane.class",
+      "entry_sha256": "3f11c43498bd618e8b7332e161e2ddcbda1d9906562cc0c0008a870ba42ff042",
+      "member": "getPreferences",
+      "owner": "com/apple/util/prefs/Preferences",
+      "pool_index": 113
+    }
+  ],
+  "scope": "Complete constant-pool member-reference and direct superclass inventory; not execution/dataflow/reflection proof",
+  "subclasses": [
+    {
+      "entry": "com/apple/util/prefs/FileBasedPreferences.class",
+      "sha256": "9a9a41cf9982b5413dddec7f73c84bd644617b417e4602b53a551589de968d6d",
+      "superclass": "com/apple/util/prefs/Preferences"
+    },
+    {
+      "entry": "com/apple/util/prefs/MacPreferences.class",
+      "sha256": "239af83c4189ec87e15de6a316bef401bda8bf06611c57160cd896353d6601b6",
+      "superclass": "com/apple/util/prefs/FileBasedPreferences"
+    }
+  ]
+}

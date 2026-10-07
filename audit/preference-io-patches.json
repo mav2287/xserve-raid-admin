@@ -1,0 +1,17 @@
+{
+  "entry": "com/apple/util/prefs/FileBasedPreferences.class",
+  "original_sha256": "9a9a41cf9982b5413dddec7f73c84bd644617b417e4602b53a551589de968d6d",
+  "patched_sha256": "76935f031ec1555f7e2f267d74d32be46de8f39257d84f1fc34ae102fbdf3b5a",
+  "helpers": {
+    "compat/PreferenceIO.class": "51d208b2a0aa3a1607b53fce1050bbbfe5687ec3c7df983d975b921718eb90a3"
+  },
+  "pool_counts": [
+    82,
+    88
+  ],
+  "store_window": [
+    7,
+    47
+  ],
+  "scope": "Close original noninterruptible raw save stream; preserve original serializer, flush, paths, modes, links, interrupts, monitor and exceptions. No load modification."
+}

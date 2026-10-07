@@ -1,0 +1,56 @@
+I read only the three files you named. I ran nothing, edited nothing, and didn't open any real profile.
+
+**Recommendation:** Promote **A** for this milestone. Treat **B** as a separate milestone that can't be promoted until the gates listed under "Gates for B" pass on both pinned architectures. Don't count clearing the interrupt flag toward either option.
+
+## Facts (from the files)
+
+- `PreferenceIO.java:21-25` writes through `Channels.newOutputStream(Files.newByteChannel(...))`. That stream is interruptible and the open uses `O_TRUNC`, so the interrupt hazard from my earlier review applies.
+- `runtime-lock.json` pins Corretto **8.504.04.1** for `aarch64` and `x64`. Its `rt.jar` hashes are **different** on the two architectures (`c48e6e…` at line 436 and `2bb5d0…` at line 941), and so are `libnio`, `libjava` and `libjvm`. A check of class or field layout on one architecture tells you nothing about the other.
+- The lock says `"qualification": "Offline fixtures only; release/native GUI not qualified"` (line 1015). My earlier review also left the bundled `Runtime.jdk` version unresolved. Nothing in these files shows that the shipped app runs this runtime.
+- Each pinned tree includes `src.zip`, so the Java-level internals can be checked offline. The native close behaviour isn't in `src.zip` and can only be confirmed by running a fixture.
+
+## Inferences (from my knowledge of OpenJDK 8; not checked against the pinned binaries)
+
+1. **Closing order is safety-critical in B.** On close, `FileOutputStream` calls `fileClose` (in `io_util_md.c`), which I believe sets `FileDescriptor.fd = -1` *before* calling `close(2)`. I believe `FileDispatcherImpl.close0` (used by the channel) does **not** set it to -1, and skips `-1`.
+   - Closing the stream first, then the channel, should give a single close plus a no-op.
+   - The reverse order would close the same descriptor number twice. If another thread (for example a RAID connection) reused that number in between, its descriptor would be closed. That's worse than the bug being fixed.
+2. **Attachment.** I believe the channel's `FileDescriptor` (created by `UnixChannelFactory`) has no parent, and `new FileOutputStream(fd)` attaches the stream as its only parent. `closeAll` would then close only that stream. Never call `getChannel()` on the wrapping stream.
+3. **Interrupts in B.** Once the stream is wrapped, the work is the stream's native `write` plus closes. None of these go through `begin()`/`end()`, so an interrupt has nothing to close and the interrupt flag is left alone. This holds only if **no** channel I/O (`truncate`, `position`, `force`, `write`) happens after the descriptor is shared. If a channel operation were interrupted, the channel would close the descriptor while the stream still held the stale number, and the stream could then write into an unrelated file.
+4. **GC.** I believe JDK 8's `FileChannelImpl` has no finalizer or Cleaner, while `FileOutputStream` has a finalizer (the original relies on it). If you declare the channel first and the stream second in try-with-resources, the stream closes first and both objects stay reachable until then. Don't count on a local variable keeping an object alive after its last use.
+5. **Security manager.** `FileOutputStream(FileDescriptor)` checks `RuntimePermission("writeFileDescriptor")`, not a path write. Under the fixture's `Guard`, that check could be denied **after** truncation, which is new data loss. Production probably runs without a security manager, but the fixture and denial counts would change.
+6. **Serialization is preserved in both A and B.** The same Writer constructor, `writeXML`, flush and native `FileOutputStream.write` are used, and on failure the buffered partial XML is dropped as before.
+
+## Option A: raw `FileOutputStream` in try-with-resources
+
+- **Preserved:** It uses the original's open behaviour: the same constructor as the original bytecode, `O_TRUNC`, mode 0666 minus umask, symlinks followed, and `File`/`user.dir` path resolution. It isn't interruptible. Reading and writing behave the same, and the `File`-versus-`Paths` difference goes away.
+- **Gained:** It fixes the descriptor leak (the 32-descriptor delta you measured).
+- **New behaviour:** `close()` can now throw (for example on network filesystems). That exception goes to the same unchanged handler, so the user sees no difference.
+- **Not gained:** Files aren't created with mode 0600, and symlinks are still followed. Both stay as residual risks.
+
+## Option B: reflection wrap
+
+- **Can fail before truncation:** Do these checks before the open:
+  - The Java version is 1.8 (or the exact pinned runtime).
+  - `Class.forName("sun.nio.ch.FileChannelImpl")` is loaded by the bootstrap class loader.
+  - Its field `fd` exists, has type `FileDescriptor`, and `setAccessible` succeeds.
+  - The default filesystem provider's class name matches exactly.
+  - `System.getSecurityManager() == null`.
+- **Can't be checked before truncation:** The class of the returned channel is only known after the `O_TRUNC` open. The provider check shrinks this case, but a mismatch would still mean truncating and then refusing to write.
+- **Truncating later doesn't help.** Opening without truncation and calling `channel.truncate(0)` afterwards brings back an interruptible step. On a thread that's already interrupted, the save would be refused where the original would have succeeded.
+- **Unsupported runtime:** Decide before the open: either skip the save and leave the file intact, or fall back to A's behaviour and log it. The fallback avoids an operational regression but silently loses the security gain. Never fall back after the channel is open.
+
+## Gates for B (offline, run on **each** pinned `rt.jar`/native set)
+
+- Use `javap -p` to confirm the `FileChannelImpl.fd` field and that there's no `finalize` method or Cleaner. Check `FileDescriptor`'s parent attachment in `src.zip`.
+- **Descriptor-reuse test:** after closing the stream, read the descriptor and expect -1. Open a sentinel file that's likely to reuse the number, close the channel, and confirm the sentinel is still valid. Add a mutation that closes the channel first, which must make this test fail.
+- Interrupt tests: a thread that's already interrupted, and an interrupt mid-write over more than 8 KB. The output must match the original byte for byte, and the interrupt flag must be preserved.
+- Run with a security manager present, run with an unsupported provider or field stubbed, and confirm in both cases that the existing file is unchanged and nothing was opened.
+- The descriptor delta must be 0 with no GC, in both the success and `Error` paths.
+- Note that if you run `x64` under Rosetta, that doesn't qualify real Intel hardware.
+
+## Open questions
+
+- Which runtime the release actually ships. B's pin means nothing until that's settled.
+- Whether `~/Library` (or `~/Library/Preferences`) is already closed to other users on your target systems. If so, B adds less security over A than it seems.
+- Which threads call `store()`, and whether any of them get interrupted. With A this stops mattering.
+- Whether, on an unsupported runtime, B should skip the save or fall back to A's behaviour. That's your call on the policy.

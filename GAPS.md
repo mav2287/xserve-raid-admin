@@ -437,9 +437,13 @@ macOS environment without saved systems. Parallels CLI and a macOS SDK are prese
 but no existing VM/account has been established as disposable; none was started,
 modified or cloned. Hardware remains deferred until actual operational need.
 
-A new read-only persistence inspection confirms FileBasedPreferences.load opens
-an InputStreamReader without closing it, and store opens an OutputStreamWriter,
-serializes/flushes, and never closes it. The store method does not establish file
-permissions. This is source evidence, not a measurement of any real profile.
-Resource lifetime and synthetic file privacy are the next narrow local audit;
-no real saved profile or credential was read.
+A read-only persistence inspection confirms that FileBasedPreferences.load has
+no explicit reader close, while store opens a writer, serializes/flushes, and has
+no explicit close. The XML serializer does not close or flush its argument.
+Development measurements against audit26 on both runtimes, in interpreted and
+compiled modes, found 32 extra descriptors after 32 stores, no growth after 32
+valid loads, and new-file mode 0644 under umask 022, with no collection during
+measurement. This establishes a store leak in these fixtures; it does not establish
+a load leak or the permissions of a real profile. The next narrow milestone is
+store-stream ownership and private creation of new synthetic files. No real saved
+profile or credential was read. Existing permissions and ACLs remain unresolved.
