@@ -1,0 +1,61 @@
+I read both sources and the dev-4 record, and checked `PreferenceIO.java` and the `audit_support` helpers they depend on. I ran and edited nothing.
+
+## Verdict
+
+I found no blockers in the 22-case scope. The 22 names in `CASES` match the Java map's names and order exactly. Each case's result is checked against a hard-coded expected outcome, and all four runs (two architectures × `-Xint`/`-Xcomp`) must agree. When something goes wrong, the run stops with an error rather than passing silently. The one requirement before this counts as evidence is the clean rerun you already planned. The dev-4 record has `source_dirty: true` and `clean_experimental_execution: false`, so it isn't evidence yet.
+
+## Review points
+
+**Write allowlist (`PathObservation.java:48`, `:14`)**
+- The allowlist holds exact strings: each raw path plus its `File.getPath()` form. In JDK 8, `FileOutputStream(File)` runs `checkWrite(file.getPath())` before its NUL check (`isInvalid()`). So `nul` and `empty` reach the guard and are allowed, and the `nul` failure comes from Java's NUL check, not from the OS.
+- The raw `slashes///` and `trailing/` strings in the allowlist are never checked because Java normalizes them first. That's harmless.
+- **Should fix:** nothing records which strings actually reached `checkWrite`. If a write skipped the guard entirely, a passing run would look the same. Record the `checkWrite` arguments for each case and require exactly one call equal to `new File(path).getPath()`.
+- **Hardening:** `checkPermission` (`:17-19`) allows a direct `FilePermission` write or delete, which skips the allowlist. The helper can't reach this path today, so it isn't a blocker. Denying write and delete actions that aren't on the allowlist would close it.
+
+**Disposable working directory**
+- Python sets `cwd=root`, and Java compares its canonical root with the canonical `.` (`:29`). `user.home` points to a `fake-home` that doesn't exist, and the top-level contents check would catch it if anything created it. This part is sound.
+
+**Relative paths and `..`**
+- Every `..` stays inside its own case folder. `child` is a real empty directory and `blocker` is a real file, and both are checked afterwards (`check.py:65-68`).
+- Finding: `java.io.File` does not collapse `..` itself, so the OS resolves it against what's actually on disk. That's why `missing/../profile` and `blocker/../profile` fail even though, written out, they reduce to `profile`. An atomic design that collapses `..` before writing (for example with `Path.normalize()`) would succeed where the original fails, so it wouldn't match the original's behavior.
+
+**Encoding**
+- `sun.jnu.encoding` is asserted on both the Java and Python sides. The `file.encoding` check proves nothing because it's forced by `-Dfile.encoding=UTF-8` in `JAVA_FLAGS`.
+- **Should fix:** the encoding line is checked but not saved in the record, and neither is the locale (`LANG`/`LC_ALL`). Add both.
+
+**Python raw filenames**
+- Python lists folders as bytes using `os.fsencode` and `os.listdir(bytes)`, and compares the names byte for byte against expected values. Python's raw listing is the source of truth here. Java's listing is recorded but never asserted, which is fine because they can differ (see `decomposed` below).
+
+**Exact recursive output checks**
+- Each case folder must contain exactly the expected entries, symlinks are rejected, the `child` and `blocker` fixtures are checked, and the top-level set must equal `CASES` (`:82`).
+- Small gaps:
+  - Nothing checks `a.output` before the record is written. It should contain only `classes`.
+  - `xml=data` (`:79`) relies on `data` left over from the inner loop. It's correct today but fragile; use the file's recorded hash instead.
+  - `umask` in the record is the value requested, not observed. Record the created file's actual permission bits.
+
+**Immutable inputs and provenance**
+- The sources are hashed and, with `--require-clean`, compared against the files in the Git commit. The reference jar is pinned by hash, which also pins the helper class. The bundled runtimes and the JDK are verified both before and after. The compiled probe classes are re-hashed at the end. This is good.
+- Note: `PreferenceIO.java` is hashed but the run uses the class from the jar, so that hash is informational only.
+- **Should fix:** record the volume's filesystem type and whether it's case-sensitive. The expected values are specific to this volume: `é` stored as `c3a9`, the NFD name stored as given, and a 258-byte name accepted. A different volume would fail visibly, but the archived record can't currently say which volume it described.
+
+## Behaviour the 22 cases show (helper only)
+
+- **`high` and `low` both write a file named `a?b`, and `reversed` writes `a??b`.** Two different Java strings end up on the same file, and `?` is a legal filename character, so they can also clash with a real `a?b` file. NIO's `toPath()` rejects these inputs with `InvalidPathException`. This backs your no-fallback rule: falling back to the raw stream would silently write the wrong file for exactly these inputs.
+- **`decomposed` is stored on disk as NFD bytes (`65cc81`), but Java's `File.list()` returns the NFC form (`00e9`).** Any check that compares Java strings will report a mismatch. Checks need to compare bytes or account for normalization.
+- **`multi258` succeeded with a 258-byte name, while the ASCII `long256` failed.** On this volume the length limit isn't 255 bytes.
+- **Trailing and repeated slashes are removed by `java.io.File` before the file is opened.**
+- **All seven failures report the same exception, `FileNotFoundException`.** Those cases are `nul`, `empty`, `long256`, `missingdotdot`, `filedotdot`, `basedot` and `basedotdot`. The underlying system error isn't captured, so the record shouldn't claim a specific cause.
+
+## Remaining exclusions
+
+These are separate from the larger case list you've proposed. None of them are covered by the current 22 cases.
+
+- **Callers:** the original backend, factory, Main and GUI callers, real preferences, the native preference database, hardware, and any shipping atomic helper or native binding.
+- **Target state:**
+  - An existing target file: truncate-in-place, read-only, ownership and permissions, ACLs and extended attributes, hard links.
+  - A symlinked target or parent directory.
+  - `..` reaching outside the root.
+  - Relative paths when `user.dir` differs from the working directory.
+- **Filesystems:** HFS+, case-sensitive APFS, network and FAT volumes, overall path-length (`PATH_MAX`) limits, and case-insensitive name collisions.
+- **Environment:** locales other than UTF-8, and physical Intel hardware (x64 ran under Rosetta).
+- **Failure modes:** concurrency, fault injection, which system error caused each failure, and dictionaries that aren't empty (all writes used an empty dictionary).

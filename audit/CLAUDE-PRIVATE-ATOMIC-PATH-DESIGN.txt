@@ -1,0 +1,113 @@
+I've reviewed the plan. Nothing was executed or edited. I read the four requested files, the native `begin_native` path handling (`atomic_file.c:205-249`), both experiment READMEs, `audit/PREFERENCE-IO.md`, and an earlier triage note on the product's identifier. Statements about JDK 8 internals below are things the probe should measure, not things I verified.
+
+## Verdict
+
+The step is the right next one and is narrow enough. Three problems would make its results wrong as proposed, so fix them first (B1–B3). After that, add a few cases where `java.io` and the kernel resolve a path differently from `Path`.
+
+## Blocking problems in the proposed probe
+
+**B1. The existing guard hides the malformed-name cases.** `Guard.writable` and `checkRead` call `Paths.get(name)` (`AtomicCallerObservation.java:19,24`). In JDK 8, `FileOutputStream(File)` runs `checkWrite` *before* `File.isInvalid()`. So for a name containing NUL or an unpaired surrogate:
+- `Paths.get` throws `InvalidPathException` inside the guard.
+- The original store handler swallows it as an ordinary Exception.
+- The `denied` counter never increments.
+- The result looks like a clean "no file written", which is not what production does, because production has no SecurityManager.
+
+**Fix:** never parse untrusted names in the guard. Precompute an exact set of `File.getPath()` strings per fixture label and compare by String equality. Any other name calls `fail()`. Keep `Path`-based checks only in the Python harness, where they apply to bytes.
+
+**B2. The guard's lexical `normalize()` is not containment for `..` paths.** `toAbsolutePath().normalize()` (`:19`) resolves `..` lexically. The kernel, and the native `open(parent)` at `atomic_file.c:226`, resolve it physically, following symlinks. The allowlist in B1 fixes the guard. The `..` cases also need the bounds listed below.
+
+**B3. `cwd` and `user.dir` must be the disposable root.** `check.py:111,124` runs with `cwd=ROOT` (the repository). For relative cases:
+- java.io `open()` resolves against the process cwd.
+- `File.getAbsolutePath()` and `Path.toAbsolutePath()` resolve against `user.dir`.
+
+Run with `cwd=<disposable root>`, never pass `-Duser.dir`, and assert in the probe that `realpath(user.dir) == fixture.directory`. Also check that `git status --porcelain` and the parent of the output directory are unchanged afterwards.
+
+## Separating the three encoding layers
+
+For every label, record four things:
+1. Input code points.
+2. `File.getPath()` code points. On Unix this collapses repeated slashes and strips a trailing slash, but leaves `.` and `..` untouched.
+3. `File.toPath()` result, as code points or exception class. This measures NIO. JDK 8's macOS `MacOSXFileSystem` is believed to apply Unicode normalization (NFD toward native), so check that against the hash-bound runtime source.
+4. The actual directory-entry bytes from a Python `os.scandir(b'...')` recursive walk.
+
+Do not use Java `File.list`/`Files.list` for listings. JDK 8 on macOS is believed to convert names returned by the OS to NFC, which would hide what was actually stored.
+
+Also:
+- Assert `sun.jnu.encoding == "UTF-8"` and record `file.encoding`.
+- Run under `LANG=C` and a UTF-8 locale to show the result doesn't depend on locale.
+- Record the volume type and case/normalization sensitivity on the harness side. Testing a case-sensitive volume would require creating a disk image; leave that out and list it as a limit.
+
+The original swallows Exceptions in `synchronize`, so it can't show failures. In the same JVM, also call `new FileOutputStream(new File(id))` directly and the audit27 `PreferenceIO.write`. Record only the exception class and, after confirming the message equals `getPath() + " (" + reason + ")"`, the reason suffix. Raw messages contain the absolute disposable path, which includes your account name.
+
+## Cases, safe bounds and assertions
+
+Every case asserts four things:
+- `synchronize` returns null, or the Error identity for Errors.
+- `changeCount == 7`.
+- The monitor is released.
+- The exact recursive byte listing matches. On success, content equals the Apple bytes for an empty dict.
+
+On top of that:
+
+| Case | Bound / setup | Assertions |
+|---|---|---|
+| Absolute / relative | Plain ASCII inside root | Same entry is created by both; relative resolves to cwd |
+| Interior `.` (`a/./x`) | `a` is a real directory created by the fixture | Success; `getPath` keeps `.`; entry is `a/x` |
+| `..` through a real directory (`a/../x`) | No symlinks under root; never more `..` than the depth below root; Python checks `realpath == normpath` before and after | Success at `x` |
+| `..` through a **missing** directory (`missing/../x`) | — | Original **fails** (ENOENT) even though lexical normalization says `x`. This guards against any future Java-side normalization |
+| `..` through a regular file (`f/../x`) | — | Fails with ENOTDIR; nothing created |
+| Basename `..` or `.` (`a/..`, `a/.`) | — | Original fails (expected EISDIR); no entry changes. The native rejection at `atomic_file.c:223` is then only acceptable because the original also fails |
+| Optional: `..` through a symlink | Link and target are sibling directories inside root at the same depth, so the physical parent stays inside root | Records the physical vs lexical difference |
+| Redundant slash (`a//x`, leading `//`) | — | `getPath` collapsed; success |
+| Trailing slash (`x/`) | — | `getPath` is `x` and the original **succeeds** (Java strips the slash before `open`). `dir/` on an existing directory fails |
+| Empty | — | Original fails (expected ENOENT); `File("").getAbsolutePath()` equals root but nothing is created |
+| NFC / NFD / non-BMP | Each in its own subdirectory | Record stored bytes. Non-BMP shows whether java.io encodes true UTF-8 or modified UTF-8/CESU (6 bytes, likely rejected by APFS) |
+| Pre-existing NFC entry, written via an NFD identifier (and the reverse); same for case (`Foo` vs `foo`) | — | Original truncates in place, so stored name bytes are **unchanged**. A rename-based save may rewrite the stored form. Record the bytes for comparing a future candidate |
+| Unpaired surrogates (lone high, lone low, reversed pair) | Only in the final component, inside `malformed-<label>/` | Record the bytes. The likely result is `?` substitution, a different filename than requested, but measure it |
+| NUL (`a\0b`) | Inside `malformed-nul/`, and the prefix before NUL is itself an allowlisted in-root name | Expected `FileNotFoundException("Invalid file path")` with **no** entry. If NUL truncation happens instead, the damage stays inside that directory |
+| Basename length | 255 ASCII bytes; 256; multibyte straddling 255 bytes (e.g. 85×3-byte vs 86×3-byte) | Record success or ENAMETOOLONG without assuming APFS's counting unit |
+| Full path near PATH_MAX | Directories nested by the harness so the full path is ≥1024 bytes while the parent is <1024 | Record the original's result. The native code opens the parent then calls `openat` on the basename, so it could **succeed where the original fails**. Name this difference before removing the restrictions |
+
+General rule for malformed names: build each identifier so that any plausible lossy transformation stays in a fresh directory created for that label. Transformations to consider: NUL truncation, `?` or U+FFFD substitution, CESU, dropped surrogates. Never put malformed characters in directory components.
+
+Descriptor accounting is a cheap addition: the Apple original should grow by exactly the number of successful opens (it leaks), and audit27 should grow by 0.
+
+Optionally run the current candidate as a third, non-gating column. It records exactly which labels hit `atomic-fixture-path` or the strict encoder (`AtomicPreferenceFile.java:58-69`), which is the list of differences the next step must resolve.
+
+## Preservation pitfalls when the restrictions are removed
+
+1. **Strict UTF-8 vs java.io encoding** (`:61`). If java.io substitutes `?`, the original writes to an aliased name. I recommend the candidate refuse instead (fail closed, old file kept) and record this as an accepted difference. On APFS and HFS+ it can't be reached from OS-supplied paths.
+2. **`..` handling.** Don't normalize in Java. Pass `getPath()` bytes through so the kernel resolves the parent physically, as the original does. Delete the component loop at `:59-60`.
+3. **Fixture boundary and hook** (`:64-69`, `writeWithHook`) must not ship. Add a test that the shipped helper has no `fixture.*` property reads.
+4. **Parent/basename split changes the PATH_MAX behaviour** (table above).
+5. **Rename can rewrite the stored name's case or normalization form**, while the original keeps the existing entry's form.
+
+## changeCount / synchronize: what the evidence shows
+
+**Established:**
+- `synchronize` calls `store` under `lock` only when `changeCount > 0`.
+- `store` never resets the count; `load` resets it to 0 (`PREFERENCE-IO.md:16-17`).
+- Exceptions are swallowed; Errors propagate after the monitor is released.
+- The caller probe confirms the count stays at 7 on every path and that a count of 0 writes nothing (`AtomicCallerObservation.java:58,157-158`).
+
+**Consequence:** after the first change, every later `synchronize` re-stores until the next load. With atomic saving, each sync means a new temp file, a new inode, a rename, and an `fsync` on remote volumes. Failures repeat silently every time.
+
+**Not established:**
+- What increments the count (the probe sets it by reflection).
+- Whether anything other than `load` resets it.
+- Who calls `synchronize`, and how often.
+
+## Minimal safe requirements for the next integration step
+
+1. **Read-only identifier and caller inventory** from the pinned JAR bytecode (javap, no execution):
+   - Every `FileBasedPreferences` constructor site and where its identifier comes from. An earlier triage note says `com.apple.RAIDAdmin.plist` is hard-coded under a FileManager-supplied folder, so the reachable basename is ASCII and only the folder path varies.
+   - Every `synchronize` call site and what triggers it.
+   - Every write to `changeCount`.
+2. **Path rule:**
+   - Wherever the original succeeds, the candidate writes the same directory-entry bytes and the same content. Any APFS-equivalent difference is listed by label.
+   - Wherever the original fails before opening, the candidate creates nothing, including no `.xra-*.tmp` file.
+   - Each remaining difference (lossy encoding, PATH_MAX, rename name form) is explicitly accepted or fixed.
+3. **Library unavailable:** today it throws, the handler swallows the Exception, and **saves silently stop**. You need to decide between falling back to the original stream (my recommendation, with a diagnostic) and failing visibly. Don't ship the current behaviour.
+4. **Visible failures:** add a rate-limited diagnostic with a fixed code and no path, without changing how the store handler's exceptions flow.
+5. **Leave count semantics unchanged** in this step. Measure the replacement frequency from item 1 before considering skipping unchanged writes. That would be a separate reviewed change, because it changes when failures happen.
+6. Then native packaging and loading from the bundle, and a rerun of the full candidate and release gates. The open limits stay: real profiles, Main/factory, GUI, physical Intel (x64 is Rosetta), remote and ownership-disabled filesystems.

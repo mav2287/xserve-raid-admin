@@ -1,0 +1,28 @@
+**Verdict: no blockers.** I found nothing in the three files that makes them unsafe, breaks provenance, or makes a claim the code doesn't back up, as long as the run uses `--require-clean` after the source commit. This is a static review only. I didn't execute or edit anything.
+
+**Your stated changes, checked against the code**
+- **One write check per case:** `PathObservation.java:63` asserts exactly one `checkWrite` per case, matching `File.getPath()`. `FileOutputStream` calls `checkWrite` before its invalid-path check, so the `nul` and `empty` cases are covered too.
+- **Direct FilePermission:** direct `FilePermission` write requests for unlisted paths, and all delete/execute requests, are denied (`:21`). `checkDelete` always fails. Any denial also fails the run (`:72` and the result allowlist in check.py).
+- **Recorded conditions:** encodings are asserted and recorded, and `file.encoding_forced_by_flags: true` is stated (`check.py:92`). The requested umask, each file's actual mode (asserted 0644), the filesystem name/type, and the observed case and normalization sensitivity are all recorded. The volume probe runs on the same volume as the test cases and is cleaned up. `check.py:96` checks that only `classes` is left in the output.
+- **Metadata tools:** `/bin/df` and `/usr/sbin/diskutil` are hashed, and the hashes are checked again at the end.
+- **inventory.py doesn't run app code:** it parses the class bytes in Python and runs `javap` on extracted copies. The cached inventory is tied to the original JAR's hash and every entry hash, and the counts are pinned at 22/23/7.
+
+**Non-blocking issues (worth a one-line fix or a note)**
+1. **Unscoped field name:** `candidate_changed_entries` (`inventory.py:57`) only compares the 22 selected classes. It doesn't cover classes audit27 adds (e.g. `compat/PreferenceIO.class`) or changes elsewhere. Readers could take it as the whole-JAR diff. I'd rename it (e.g. `selected_candidate_changed_entries`) or add a sentence to `scope`.
+2. **Original-only field writes:** `changeCount_field_writes` comes from the *original* JAR's disassembly. audit27 changed `FileBasedPreferences`, so its write sites aren't described. It also only matches `putfield … changeCount:I`, not `putstatic` or reflection.
+3. **Name-based caller matching:** callers are selected by method-name substring, regardless of which class owns the method. For example, it picks up `SystemMonitorWindow.updatePreferences`. "23 caller methods" means 23 methods calling a matching name, not a verified set of preference-API calls.
+4. **Incomplete sources list:** inventory.py's `sources` leaves out code it imports indirectly. `tools/baseline.py` imports `preference_io_patch`, `help_patch`, `model_diagnostic_patch`, plus whatever those import. The clean check plus the recorded commit cover this, but the per-file hash map is incomplete.
+5. **Locale is the requested value:** `locale` records the requested `LANG`/`LC_ALL` from `isolated_env()`, not what the JVM observed. `user.language`/`user.country` are forced by `JAVA_FLAGS` and aren't recorded.
+6. **Minor:**
+   - Tool hashes are taken after `df`/`diskutil` run, not before.
+   - `df -P … split()[-1]` would break on a mount point containing spaces. It would fail rather than mislead.
+   - `PreferenceIO.java` is hashed as a source, but nothing ties it to the class that was actually tested. That link is `helper_sha256` from the pinned JAR.
+   - The "x64 uses Rosetta" limit is asserted, not checked in this script.
+
+**Remaining limits (as you framed it: bounded characterization, `qualification: false`)**
+- It covers audit27's raw-stream `PreferenceIO.write` only. It doesn't cover the factory, `Main`, the GUI, or an atomic or shipping helper.
+- Loading the class runs static initialisers from the pinned JAR under the guard. "No app execution" is true of inventory.py, not check.py.
+- Runs are limited to known disposable directories on one local volume (with its observed case and normalization behaviour). No symlinks, other owners, remote, or other filesystems.
+- `file.encoding` and locale are fixed, not varied.
+- The x64 runs are under Rosetta. No physical Intel, real profiles, native preference database or hardware.
+- Static selection says nothing about how often a call runs at runtime, or about reflective or native call paths.
