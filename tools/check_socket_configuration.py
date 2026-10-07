@@ -20,7 +20,7 @@ JAVA = ('tests/java/socketfixture/ConfigurationPublicationObservation.java',
         'tests/java/socketfixture/ConfigurationObservation.java',
         'tests/java/socketfixture/ConfigurationRunner.java',
         'tests/java/fixture/OfflineGuard.java', 'tests/java/fixture/FixtureIdentity.java')
-SOURCES = JAVA + ('tools/check_socket_configuration.py', 'tools/socket_configuration_patch.py',
+SOURCES = JAVA + ('tools/check_socket_configuration.py', 'tools/socket_configuration_patch.py','tools/connection_publication_patch.py',
     'tools/socket_configuration_structure.py', 'tools/socket_configuration_mutants.py', 'tools/class_patch.py', 'tools/sync_ownership_patch.py',
     'tools/worker_exit_patch.py', 'tools/stop_admission_patch.py', 'tools/audit_support.py',
     'tools/baseline.py', 'tools/runtime.py', 'tools/inventory.py', 'tools/verify_builds.py',
@@ -63,8 +63,10 @@ def main():
     old, new, apple = entries(reference), entries(candidate), entries(original)
     if set(new)-set(old) != {HELPER} or set(old)-set(new):
         raise ValueError('Reference entry set differs beyond socket helper')
-    if {n for n in old if old[n] != new[n]} != {ENTRY}:
-        raise ValueError('Reference bytes differ beyond socket override')
+    from connection_publication_patch import ENTRY as ACPX,normalize as normalize_publication
+    if normalize_publication(new[ACPX])!=old[ACPX]:raise ValueError('Private Acpx predecessor differs')
+    if {n for n in old if old[n] != new[n]} != {ENTRY,ACPX}:
+        raise ValueError('Reference bytes differ beyond socket and private connection overrides')
     if old[ENTRY] != apple[ENTRY] or plan(apple[ENTRY]) != new[ENTRY] or normalize(new[ENTRY]) != apple[ENTRY]:
         raise ValueError('Whole original class reconstruction differs')
     check_socket_setup(disassemble_entries(args.jdk, candidate, [ENTRY], verbose=True))

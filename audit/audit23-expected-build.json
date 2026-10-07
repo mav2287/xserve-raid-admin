@@ -13,17 +13,17 @@
       "Contents/Resources/RAID_Admin.jar": 420
     },
     "files": {
-      "Contents/Info.plist": "1c7e92ed079484b4943b900be30370ca54052260e88a25b5e42ffab138b4cab3",
+      "Contents/Info.plist": "4a46dabc5a931b5f725f2126f4f91c13246881109e90e512b49e38061efdd269",
       "Contents/MacOS/RAIDAdmin": "ae9ce9188e2bb977a46c63ac501b91ecec92c4f4b2cd1c56cb88291b8e0cc1b8",
       "Contents/Resources/AppIcon.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "Contents/Resources/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
-      "Contents/Resources/RAID_Admin.jar": "9592145c933f611888a00cb159340a86f99d427672483701212023078f823553"
+      "Contents/Resources/RAID_Admin.jar": "2fccbee50eb868a04b415085511e0b52e6a13682543858d6f653b7f1f5fcadad"
     },
     "input_hashes": {
       "audit/jdk-lock.json": "5f00ed60232c848c2edf0b2f9cb6480340064203ca9c98b74974eba2f086407e",
       "audit/logging-patches.json": "759498600cb856d5a072f1ee31d4e92c64e9db111dbc5e463f205a7a397e83f0",
       "audit/python-lock.json": "690889757424f13e60bb61b69369f3dbeea9521c39b8d3b1e7909deec77edb43",
-      "audit/security-patches.json": "0259a81d4160216481b3c6a045c9945a3de8207e9c3f9f73e65c0fc44f46a2a6",
+      "audit/security-patches.json": "62ca5f719e7cecb344b8129394bccd717c20ee550df9be7312a43c91b006ef21",
       "build.sh": "ace201cbdc032d8eb4d91aadc1e94e175fbc50c4b9fe6e54f51a25fc0de3eb56",
       "original/RAIDAdmin.icns": "a2f0c44c8cba51ab0088712324ee1220ad6c58aeeebd4fd0252c66aff5d88eb9",
       "original/RAIDAdminFirmware.icns": "6f5f3e7b01530cb9ba062d07a4322ac3aafe7396f510cc9ad5ad1a3f7da55218",
@@ -46,9 +46,8 @@
       "patches/compat/WorkerExit.java": "10473b5eb8eb610fdc54df9a34f50035ac266048a73d45bed5f3cb8d2ebcb0b2",
       "patches/sun/io/MalformedInputException.java": "7b4a3c0be6b01a343004553db1276682d2560271dbcaf22746ad10d8e0ba260f",
       "tools/audit_support.py": "fc5ba6323757afdaaaecccfdb43a0438bb749b69591c4112a4357ef4d6b73875",
-      "tools/baseline.py": "28bfd66a7b7f919fcce0b1b52a6f9cc1fd63228875b3b57edefa954873bd6e25",
-      "tools/class_patch.py": "928490792494b1d25c3ff2f9b34594e8baa6ef3e632b2bd588286cf838df7ba3",
-      "tools/connection_publication_patch.py": "ec708aa3cd4e1249931e39e4442eb0965d2642080b23dfe12fb7311c14ac3662",
+      "tools/baseline.py": "5376e02eecc2a408bd2240144aaa49018f4b35952897d464dcf6dc7f61325dc0",
+      "tools/class_patch.py": "aaa47b78234a5307fb98abbc0dc37f520c8670d941d03da605b6338c4e438c72",
       "tools/socket_configuration_patch.py": "614bd78706d88e1e72d5d56316af5246299483350db7d8a8c4cc33b3d4b6dca3",
       "tools/stop_admission_patch.py": "1e17bd3d53d49667413950b4f0b9f70a47b0b2075fe6d37ae5aa1f45fdbd0a33",
       "tools/sync_ownership_patch.py": "4dfa14b86d30f29e7aec639e63e59c94f3710b14a33c1650011389e2c1ce8e11",
@@ -62,9 +61,9 @@
     },
     "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449"
   },
-  "previous_record_sha256": "dc5b2e73b1f44fac346e3bbf4751dab1be91ec401a15c28fc1a6a1307962ed22",
-  "reason": "Private Acpx publication after open succeeds, static Claude reviews and actual memory fixtures; scope metadata refined. Audit23 golden preserved separately. Development expected artifact is not clean qualification.",
+  "previous_record_sha256": "670e22048e22f045440fe8459f6b87e49848da7d26f2f5ee597700439b79b23e",
+  "reason": "Audit23 initial read-timeout setup fails closed before publication; exact original Socket(host,80) DNS/TCP timing retained, fixed IO detail with standard categories. Development pair only; clean full qualification pending.",
   "schema": 1,
-  "source_commit": "68a84a563ef8a2ac40110aed21ad65e41cdd581a",
+  "source_commit": "a57893ae13fc60b6a28eea06d41e0db3b6bf4919",
   "source_dirty": true
 }

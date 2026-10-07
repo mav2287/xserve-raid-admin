@@ -114,6 +114,9 @@ def transform_current(entry, data):
         from worker_exit_patch import plan
         from stop_admission_patch import plan as stop_plan
         result=stop_plan(plan(transform_manager(result)))
+    elif entry=='com/apple/xsr/net/AcpxConnection.class':
+        from connection_publication_patch import plan as publication_plan
+        result=publication_plan(result)
     elif entry=='com/apple/xsr/net/CommunicationsManager$SyncSender.class':
         from sync_ownership_patch import transform_sender
         result=transform_sender(result)
@@ -337,6 +340,9 @@ def _transform_reference(entry, data):
 
 
 def assert_preserved(before, after, name, descriptor):
+    if name=='send':
+        from connection_publication_patch import PIN,normalize as normalize_publication
+        if hashlib.sha256(after).hexdigest()!=PIN:after=normalize_publication(after)
     if name in ('run','<init>'):after=normalize_current_extensions(after)
     if name=='run':after=normalize_stopped_admission(after)
     if name=='run':after=assert_stop_lock_order(before,after)

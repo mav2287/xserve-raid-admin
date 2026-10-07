@@ -30,6 +30,10 @@
     "patched_sha256": "6719802c1092e94eb99bde9dc8329b3f84f9ca014b370288691fdf70289caa39"
   },
   "com/apple/xsr/net/AcpxConnection.class": {
+    "additional_private_override": [
+      "createConnection",
+      "()V"
+    ],
     "method": [
       "send",
       "(Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;"
@@ -37,8 +41,8 @@
     "original_major_version": 47,
     "original_sha256": "f10e7f1c5acf9c03281915ae9ce77adb9f2db9e10f7ed392845f46f6fd8cf125",
     "patched_major_version": 47,
-    "patched_sha256": "5506cd12209500212af4af4810a5a7ac0245939f89b4b0df1bc5950778f12a0e",
-    "scope": "Appended exact-marker handler; original instructions and handler entries preserved"
+    "patched_sha256": "26dc0d7ae466eb5a708dbedeaf7706f222df595d116e115af7ee38b0e98fc9d9",
+    "scope": "Original send exact-marker handler retained. Only private createConnection Code additionally changes: local HttpConnection, original host/persistent forwarding, open once before field publication. No pool/member/other-method change from audit23; exact whole-class reversal required."
   },
   "com/apple/xsr/net/AcpxMessageFactory$AcpxRequestTemplate.class": {
     "method": [

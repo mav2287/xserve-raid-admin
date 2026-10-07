@@ -26,12 +26,14 @@ def write_fixture(path,entries,manager):
    z.writestr(info,manager if name==ENTRY else value)
 def select_basis(entries,guarded,basis):
  from socket_configuration_patch import ENTRY as HTTP,normalize as normalize_socket
+ from connection_publication_patch import ENTRY as ACPX,normalize as normalize_publication
  helper='compat/SocketConfiguration.class'
  with zipfile.ZipFile(basis) as z:
   names=z.namelist()
   if len(names)!=len(set(names)):raise ValueError('Duplicate candidate basis entries')
   candidate={n:z.read(n) for n in names}
- if set(candidate)-set(entries)!={helper} or set(entries)-set(candidate) or {n for n in entries if entries[n]!=candidate[n]}!={ENTRY,HTTP}:raise ValueError('Candidate basis changes unrelated entries')
+ if set(candidate)-set(entries)!={helper} or set(entries)-set(candidate) or {n for n in entries if entries[n]!=candidate[n]}!={ENTRY,HTTP,ACPX}:raise ValueError('Candidate basis changes unrelated entries')
+ if normalize_publication(candidate[ACPX])!=entries[ACPX]:raise ValueError('Candidate Acpx predecessor differs')
  if candidate[ENTRY]!=guarded or normalize_socket(candidate[HTTP])!=entries[HTTP]:raise ValueError('Candidate basis predecessor differs')
  if hash(candidate[helper])!='dc61c25925a8213e33779e7282b31485cae4cefb1dfa99f3853f28f054ebb397':raise ValueError('Candidate basis helper differs')
  return candidate

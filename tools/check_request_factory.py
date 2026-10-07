@@ -93,7 +93,7 @@ def main():
     else:
         expected,expected_sha=read_json(EXPECTED)
     sources=[ROOT/'tests/java/com/apple/xsr/net/RequestFactoryObservation.java',ROOT/'tests/java/fixture/OfflineGuard.java',ROOT/'patches/sun/io/MalformedInputException.java']
-    helpers=[Path(__file__),CATALOG,ROOT/'audit/expected-build.json',ROOT/'tools/audit_support.py',ROOT/'tools/baseline.py',ROOT/'tools/class_patch.py',ROOT/'tools/socket_configuration_patch.py',ROOT/'tools/runtime.py']
+    helpers=[Path(__file__),CATALOG,ROOT/'audit/expected-build.json',ROOT/'tools/audit_support.py',ROOT/'tools/baseline.py',ROOT/'tools/class_patch.py',ROOT/'tools/socket_configuration_patch.py',ROOT/'tools/connection_publication_patch.py',ROOT/'tools/runtime.py']
     if not args.bootstrap_output:helpers.append(EXPECTED)
     identities={str(p.relative_to(ROOT)):sha(p) for p in sources+helpers}
     if identities[str(CATALOG.relative_to(ROOT))]!=catalog_sha or (not args.bootstrap_output and identities[str(EXPECTED.relative_to(ROOT))]!=expected_sha):raise ValueError('Parsed inventory identity changed')

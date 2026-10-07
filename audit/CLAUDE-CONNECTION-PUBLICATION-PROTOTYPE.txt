@@ -1,0 +1,57 @@
+I reviewed the prototype without running anything. The `createConnection` rewrite looks correct from the bytecode, and I'd support promoting it once the evidence binding and a few test gaps are fixed. One thing first: the tree changed while I was reviewing. `prepare.py` had already copied the patch into `tools/connection_publication_patch.py` (I read it; only the docstring differs) and the test class into `tests/java/connectionfixture/` (I didn't compare that copy).
+
+## What I verified by reading (static evidence)
+
+I hand-decoded the `OLD` and `CODE` bytes in `connection_publication_patch.py:7-8`. They match the audited original (`exception-message-consumers.javap:29505-29530`) and the candidate (`candidate-acpx.javap:654-681`).
+
+- **Method stack:** the new code is 48 bytes (was 52). Max stack 3 and max locals 2 are correct for the bytecode (the original was 4 and 1). There is still no exception handler and no other attributes. No constants are added, and only `createConnection`'s code is replaced. `normalize()` checks that the change reverses exactly.
+- **Call order is unchanged:** new HttpConnection → `setPersistent(this.persistent)` → `open()`. The only difference is that the new object is held in a local until `open()` returns, and only then stored in `connection` (offsets 31–33).
+- **Branches:** the "connection already exists" warning branch is the same apart from shifted offsets. Its jump targets (39 and 47) decode correctly.
+- **Exceptions and publication:** a failure anywhere in setup (constructor, `setPersistent`, `open`) passes the same exception object up. The field stays null, as it was when the method was entered. `HttpConnection` has no finalizer and its constructor does no I/O, so the unstored object is simply garbage. `SocketConfiguration` still produces the fixed "Connection setup failed" errors and closes the socket on configure failure.
+- **Protocol, timeout and retry:**
+  - The rest of `send` matches the audited javap, including the `RejectionRecovery` handler and its exception-table order. I compared the other methods by eye; I only partly compared `addHeaders`.
+  - Port 80, connect deadline 0, the initial 30000 timeout via `SocketConfiguration.open`, and the single attempt in `HttpRequest.send` are all unchanged. No retry is added.
+  - The intended change (setup failures no longer reach the `send` error log, finally block or stuck state) matches the design review.
+
+## What was executed, but not by me
+
+`run.stdout` shows PASS, and `observations.json` has four PASS rows (both architectures, `-Xint` and `-Xcomp`). `negative-observations.json` records the deliberately broken builds (mutants) failing with "Publication assertion". The stack-frame line numbers in it (28, 30, 43, 114, 137, 143) match the current `ConnectionPublicationObservation.java`. I couldn't recompute any hashes, so these are recorded claims, not evidence I checked.
+
+One useful indirect link: the "early-publication" mutant jar (the reconstructed original) hashes to `2fccbee5…`. That is the same hash as the audit23 jar used in the earlier `cached-connection-prototype` run.
+
+## Problems to fix before promotion
+
+1. **Nothing checks that `prototype.jar` is the output of `plan()`.** `run.py` checks the jar's hash but never compares it to `plan(audit23 Acpx)`. It also doesn't hash `connection_publication_patch.py`, `make_fixture.py` or `negative.py`. And `candidate-acpx.javap` came from a temp directory with only an MD5, so it isn't tied to the jar either.
+   - **Fix:** in `run.py`, assert `plan(audit23[ENTRY]) == prototype[ENTRY]` and that every other jar entry is identical. Add those three scripts to the hashed `sources`. Regenerate the javap from the extracted class and record its SHA-256.
+   - The javap header also says "Last modified Oct 7, 2026", while the session date is Oct 6. Don't rely on that timestamp.
+
+2. **The exact exception isn't checked.** For faults 1, 2 and 3, `failure()` (lines 115–119) and the constructor case (line 140) only check the exception's type.
+   - **Fix:** also assert the exact class, the message "Connection setup failed", and `getCause()==null`. That proves `createConnection` passes `SocketConfiguration`'s fixed exception through unchanged.
+
+3. **Fault 4 is never run.** It's defined at lines 57 and 66, but the fault list at line 152 is `{1,3,5,6}`, and `failure()` has no catch branch that would accept it.
+   - **Fix:** either run fault 4 (close throws during configure; expect `IOException`, `closes==n`, nothing stored) or delete it.
+
+4. **A SecurityException from the security manager isn't tested.** Fault 5 throws from `MemoryImpl.connect`, but a real denial comes from `checkConnect` before `impl.connect` runs.
+   - **Fix:** add a case where `MemoryGuard` denies once. Expect `connections==0`, the same exception object, and nothing stored.
+
+5. **Logging-related behaviour can't be observed.** Logging is turned off (line 134), so the test can't see the warning branch or the intended loss of `HttpRequest`'s "Failed to send request." log.
+   - **Fix:** attach an appender that only counts events and assert the counts are zero during setup failures.
+
+6. **The PASS line's numbers are partly hard-coded.** `explicit_failure_attempts=30`, `native_sockets=0` and `native_output=0` are fixed text (line 154). Only `cases` is actually counted.
+   - **Fix:** count the attempts and assert the total, or reword the line so it doesn't read as a measurement.
+
+7. **Smaller gaps:**
+   - The mutant runs use `-Xint` only; add `-Xcomp` or document why not.
+   - The constructor path is only tested with fault 2.
+   - With fault 6 (an `Error`), the socket isn't closed (`closes==0`). That's existing JDK behaviour, and the object is now unstored, but it's worth recording.
+
+## Other ways to get stuck that this doesn't fix (existing behaviour; document it)
+
+The fix only removes the stuck state after a failed connection setup. Failures that happen after `newRequest` can still leave a persistent connection stuck with `requestOutstanding == true`. The fixture's line 149 deliberately asserts that this stays as before. Those failures are:
+
+- `setTimeout` or `writeTo` failing on a live socket.
+- A server that replies with `Connection: close`. `HttpResponse.getBody` then closes the input stream (javap 32095-32102), which closes the socket, without calling `disconnect()`. The next persistent `send` passes `newRequest` and then fails on the closed socket.
+
+As far as the design review's consumer inventory goes, the Manager and CLI callers retire the connection on any failure, so users shouldn't hit these. But the `limits` text should say so explicitly rather than implying the stuck state is gone.
+
+No secrets, profiles, credentials or controller data appeared in the files I read.

@@ -1,0 +1,50 @@
+I found no blocker in the files you listed, apart from the FRAMES repin you already planned. Everything below comes from reading the code. Nothing was run, and the run claims in the evidence files are still unchecked.
+
+## Must fix before running
+
+**FRAMES has one out-of-date line number** (`tools/check_connection_publication.py:17`). The missing-persistent entry ends with `main(...:161)`. In the current fixture the call that fails is the `target.send(request(timeout))` on line 163. Line 161 is now the `failure(2,…)` call, which this mutant passes. The other pinned frames still match the current source:
+- `check:32`
+- early-publication `expectFault:118` and `failure:126`. The `unpublished()` assertion inside `connect` is swallowed by `catch(Throwable)`, so the run actually fails on the exception-class check.
+- missing-publication and missing-open: `main:151`
+- missing-persistent: the lambda frame at `:101`
+
+## Should fix before the clean build
+
+These aren't correctness problems, but the files are hashed build or gate inputs. Fixing them after the build would mean rebuilding and re-qualifying.
+- **The Acpx `scope` text in `audit/security-patches.json:45` is out of date.** It still describes only the appended send handler. `additional_private_override` exists, but no tool reads it.
+- **The Acpx label in `check_security.py:356` is out of date.** It still says only "Appended exact-marker send handler…". Yet `independent_preservation` now checks `createConnection` too.
+- **The doc gap from the prototype review is only partly closed.** `CONNECTION-PUBLICATION.md:43-44` mentions the writeTo bookkeeping. It doesn't say that failures after `newRequest` can still leave a persistent connection stuck. That includes `setTimeout` or `writeTo` failing on a live socket, and a server reply with `Connection: close`. Lines 46–47 also repeat the "Four verifier-valid mutations…" sentence.
+
+## Preservation sites: no regression found
+
+- **`class_patch.transform_current`:** applies `publication_plan(transform(...))`, which needs `transform` to output the pinned audit23 Acpx class. `test_connection_publication.py:13` asserts exactly that.
+- **`class_patch.assert_preserved`:** reverses the change only when the class hash isn't the pin, and `normalize` throws on anything other than an exact reversal. Inside `_transform_reference` the class is still the pinned one, so the check is skipped. `test_class_patch.py:42,55` exercise the patched class, and both mutation paths still raise `ValueError` (through `normalize`).
+- **`check_security.independent_preservation`:** puts the original's javap Code block back in place of the patched one before comparing. That is valid because the original and audit23 `createConnection` are identical and the constant pool doesn't change. Header lines like Last modified/MD5 are ignored, because `sections()` keeps only identity lines.
+- **`check_socket_configuration`:66-69, `stop_admission_fixtures.select_basis`:35-37 and `check_stop_admission_experiment`:34-36:** each requires the change set to be exactly the expected entries plus Acpx, and requires Acpx to reverse exactly. These depend on the audit21 and audit22 Acpx classes being byte-identical to audit23. That's consistent with the audit20 `transform` producing the pin. The stop "active" runs put the `stopfixture/AcpxConnection` stub ahead of the jar on the classpath, so the new code isn't exercised there. That's intended.
+- **Side effect (fine, worth a sentence in the doc):** current tools can no longer re-verify audit23 artifacts. `normalize` rejects an unpatched class. Re-checking audit23 needs commit `68a84a5` plus the archived `audit23-*.json`.
+
+## Fixture and gate: logic checked against `SocketConfiguration`
+
+- **Counts:** cases 1+1+6+12+5+1=26, and attempts 11×3+1=34. Both are counted, and the gate's expected strings match.
+- **Exception and close behaviour per fault:**
+  - Fault 1 gives `SocketException`, fault 2 `SocketTimeoutException`, and faults 3 and 4 `IOException`, each from `fixed()` with the fixed message and no cause.
+  - For fault 4, the exception thrown by close is swallowed (`SocketConfiguration.java:52`), so `closes==n` holds.
+  - Fault 5 and the security-manager denial pass the same exception object through: the JDK8 `Socket(String,int)` constructor closes and rethrows it, and `open` only catches `IOException`.
+  - Fault 6 isn't caught by the Socket constructor, so `closes==0` is right.
+- **Mutants:** all three use nops that keep the stack consistent, so they should pass the verifier. Each one fails at the line you'd expect.
+
+## Test limitations (no change required)
+
+- **The denial case checks loosely.** It uses `constructions<=1` and doesn't check `closes` or `permissionChecks`. Under JDK8, `createImpl` runs before `checkConnect`, so `constructions==1 && closes==1` should hold exactly. Tightening is optional.
+- **The log counter only sees WARN and above.** `logEvents==0` during setup failures is true by construction: `requestTouches==0` already proves `HttpRequest` was never reached. The appender is shown to work by the `logEvents==1` warning case.
+- **Xcomp limits:** Xcomp is requested, but there is no compilation log for `createConnection`. The mutants run under Xint only. Both limits are documented.
+- **The committed javap fixture still has unchecked origins** (a temp directory path and an MD5). It's now used only by the unit test, and the gate runs a fresh javap, so this matters less. You could regenerate it during the clean run and record its SHA-256.
+- **Optional cross-check:** the early-publication mutant jar should hash to `REFERENCE` if `write_jar` matches the build packaging. It's a cheap assertion to add.
+
+## Only a run can confirm
+
+- Exact stdout and empty stderr for both runtimes and both modes.
+- That the bundled `log4j.properties` doesn't override the `AcpxConnection` logger level. If it did, the `logEvents==1` check at line 153 would fail.
+- The persistent and non-persistent marker results at lines 166–168.
+- The repinned frames.
+- All hashes and the clean-tree state.

@@ -1,0 +1,841 @@
+Classfile /var/folders/0n/jhb50bt91z7bx9jw66cnz4s80000gn/T/raid-bytecode-0hgazl_k/com/apple/xsr/net/AcpxConnection.class
+  Last modified Oct 7, 2026; size 5199 bytes
+  MD5 checksum 299565a3cdc095c23c1ff4bcc96768d2
+public class com.apple.xsr.net.AcpxConnection
+  minor version: 0
+  major version: 47
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+    #1 = Methodref          #142.#143     // java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+    #2 = Class              #144          // java/lang/ClassNotFoundException
+    #3 = Class              #145          // java/lang/NoClassDefFoundError
+    #4 = Methodref          #2.#146       // java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
+    #5 = Methodref          #3.#147       // java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
+    #6 = Methodref          #95.#148      // java/lang/Object."<init>":()V
+    #7 = Fieldref           #94.#149      // com/apple/xsr/net/AcpxConnection.persistent:Z
+    #8 = Fieldref           #94.#150      // com/apple/xsr/net/AcpxConnection.encrypted:Z
+    #9 = Class              #151          // java/lang/NullPointerException
+   #10 = String             #152          // Host cannot be null
+   #11 = Methodref          #9.#147       // java/lang/NullPointerException."<init>":(Ljava/lang/String;)V
+   #12 = Fieldref           #94.#153      // com/apple/xsr/net/AcpxConnection.host:Ljava/lang/String;
+   #13 = Methodref          #94.#154      // com/apple/xsr/net/AcpxConnection.createConnection:()V
+   #14 = Fieldref           #94.#155      // com/apple/xsr/net/AcpxConnection.connection:Lcom/apple/xsr/net/HttpConnection;
+   #15 = Methodref          #66.#156      // com/apple/xsr/net/HttpConnection.close:()V
+   #16 = Methodref          #94.#156      // com/apple/xsr/net/AcpxConnection.close:()V
+   #17 = String             #157          // request cannot be null
+   #18 = InterfaceMethodref #158.#159     // com/apple/xsr/net/RequestMessage.getPath:()Ljava/lang/String;
+   #19 = Methodref          #66.#160      // com/apple/xsr/net/HttpConnection.newRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/HttpRequest;
+   #20 = Methodref          #94.#161      // com/apple/xsr/net/AcpxConnection.addHeaders:(Lcom/apple/xsr/net/HttpRequest;Lcom/apple/xsr/net/RequestMessage;)V
+   #21 = InterfaceMethodref #158.#162     // com/apple/xsr/net/RequestMessage.getTimeout:()I
+   #22 = Methodref          #66.#163      // com/apple/xsr/net/HttpConnection.setTimeout:(I)V
+   #23 = Class              #164          // com/apple/net/acp/SimpleCryptOutputStream
+   #24 = Methodref          #165.#166     // com/apple/xsr/net/HttpRequest.getOutputStream:()Ljava/io/OutputStream;
+   #25 = Methodref          #23.#167      // com/apple/net/acp/SimpleCryptOutputStream."<init>":(Ljava/io/OutputStream;)V
+   #26 = InterfaceMethodref #158.#168     // com/apple/xsr/net/RequestMessage.writeTo:(Ljava/io/OutputStream;)V
+   #27 = Methodref          #169.#156     // java/io/OutputStream.close:()V
+   #28 = Fieldref           #94.#170      // com/apple/xsr/net/AcpxConnection.logger:Lorg/apache/log4j/Logger;
+   #29 = Class              #171          // java/lang/StringBuffer
+   #30 = Methodref          #29.#148      // java/lang/StringBuffer."<init>":()V
+   #31 = String             #172          // Request sent (
+   #32 = Methodref          #29.#173      // java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+   #33 = Methodref          #165.#174     // com/apple/xsr/net/HttpRequest.getContentLength:()I
+   #34 = Methodref          #29.#175      // java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+   #35 = String             #176          //  bytes)
+   #36 = String             #177          // command=\"
+   #37 = InterfaceMethodref #158.#178     // com/apple/xsr/net/RequestMessage.getCommand:()Ljava/lang/String;
+   #38 = String             #179          // \"
+   #39 = String             #180          // target=\"
+   #40 = InterfaceMethodref #158.#181     // com/apple/xsr/net/RequestMessage.getTargetController:()Lcom/apple/xsr/net/RequestMessage$Target;
+   #41 = Methodref          #29.#182      // java/lang/StringBuffer.append:(Ljava/lang/Object;)Ljava/lang/StringBuffer;
+   #42 = String             #183          // \"
+   #43 = Methodref          #29.#184      // java/lang/StringBuffer.toString:()Ljava/lang/String;
+   #44 = Methodref          #185.#186     // org/apache/log4j/Logger.debug:(Ljava/lang/Object;)V
+   #45 = Methodref          #66.#187      // com/apple/xsr/net/HttpConnection.getResponse:()Lcom/apple/xsr/net/HttpResponse;
+   #46 = Class              #188          // com/apple/net/acp/SimpleCryptInputStream
+   #47 = Methodref          #189.#190     // com/apple/xsr/net/HttpResponse.getInputStream:()Ljava/io/InputStream;
+   #48 = Methodref          #46.#191      // com/apple/net/acp/SimpleCryptInputStream."<init>":(Ljava/io/InputStream;)V
+   #49 = Methodref          #192.#193     // java/io/InputStream.available:()I
+   #50 = Class              #194          // com/apple/util/plist/PropertyList
+   #51 = Methodref          #50.#191      // com/apple/util/plist/PropertyList."<init>":(Ljava/io/InputStream;)V
+   #52 = String             #195          // Response read (
+   #53 = Methodref          #189.#174     // com/apple/xsr/net/HttpResponse.getContentLength:()I
+   #54 = String             #196          //  bytes)
+   #55 = Class              #197          // com/apple/util/plist/PropertyListException
+   #56 = Methodref          #185.#198     // org/apache/log4j/Logger.error:(Ljava/lang/Object;)V
+   #57 = Class              #199          // java/io/IOException
+   #58 = String             #200          // PropertyListException:
+   #59 = Methodref          #55.#146      // com/apple/util/plist/PropertyListException.getMessage:()Ljava/lang/String;
+   #60 = Methodref          #57.#147      // java/io/IOException."<init>":(Ljava/lang/String;)V
+   #61 = Methodref          #192.#156     // java/io/InputStream.close:()V
+   #62 = InterfaceMethodref #158.#201     // com/apple/xsr/net/RequestMessage.getShutdownConnection:()Z
+   #63 = InterfaceMethodref #158.#202     // com/apple/xsr/net/RequestMessage.getRestartConnection:()I
+   #64 = Methodref          #66.#203      // com/apple/xsr/net/HttpConnection.disconnect:()V
+   #65 = Methodref          #94.#204      // com/apple/xsr/net/AcpxConnection.getHostAddress:()Ljava/lang/String;
+   #66 = Class              #205          // com/apple/xsr/net/HttpConnection
+   #67 = Methodref          #66.#147      // com/apple/xsr/net/HttpConnection."<init>":(Ljava/lang/String;)V
+   #68 = Methodref          #66.#206      // com/apple/xsr/net/HttpConnection.setPersistent:(Z)V
+   #69 = Methodref          #66.#207      // com/apple/xsr/net/HttpConnection.open:()V
+   #70 = String             #208          // Attempt to create a connection with an existing connection open
+   #71 = Methodref          #185.#209     // org/apache/log4j/Logger.warn:(Ljava/lang/Object;)V
+   #72 = String             #210          // User-Agent
+   #73 = String             #211          // Apple-Xserve_RAID_Admin/1.6.0
+   #74 = Methodref          #165.#212     // com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+   #75 = String             #213          // Connection
+   #76 = String             #124          // close
+   #77 = InterfaceMethodref #158.#214     // com/apple/xsr/net/RequestMessage.getUser:()Ljava/lang/String;
+   #78 = InterfaceMethodref #158.#215     // com/apple/xsr/net/RequestMessage.getPassword:()Ljava/lang/String;
+   #79 = String             #216          // ACP-User
+   #80 = String             #217          // ACP-Password
+   #81 = String             #218          // Apple-Xsync
+   #82 = String             #219          //
+   #83 = String             #220          // Content-Encoding
+   #84 = String             #221          // acp-crypt
+   #85 = InterfaceMethodref #158.#222     // com/apple/xsr/net/RequestMessage.getRequestProperties:()[Ljava/lang/String;
+   #86 = String             #223          // Adding request property \"
+   #87 = String             #224          // \" value = \"
+   #88 = InterfaceMethodref #158.#225     // com/apple/xsr/net/RequestMessage.getRequestProperty:(Ljava/lang/String;)Ljava/lang/String;
+   #89 = Methodref          #185.#226     // org/apache/log4j/Logger.info:(Ljava/lang/Object;)V
+   #90 = Fieldref           #94.#227      // com/apple/xsr/net/AcpxConnection.class$com$apple$xsr$net$AcpxConnection:Ljava/lang/Class;
+   #91 = String             #228          // com.apple.xsr.net.AcpxConnection
+   #92 = Methodref          #94.#229      // com/apple/xsr/net/AcpxConnection.class$:(Ljava/lang/String;)Ljava/lang/Class;
+   #93 = Methodref          #185.#230     // org/apache/log4j/Logger.getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+   #94 = Class              #231          // com/apple/xsr/net/AcpxConnection
+   #95 = Class              #232          // java/lang/Object
+   #96 = Utf8               PLIST_EXCEPTION
+   #97 = Utf8               Ljava/lang/String;
+   #98 = Utf8               ConstantValue
+   #99 = String             #233          // PropertyListException
+  #100 = Utf8               DEFAULT_PERSISTENT_CONNECTION_STATE
+  #101 = Utf8               Z
+  #102 = Integer            1
+  #103 = Utf8               DEFAULT_ENCRYPTION_STATE
+  #104 = Integer            0
+  #105 = Utf8               DUMP_XML
+  #106 = Utf8               CONTENT_TYPE
+  #107 = String             #234          // text/xml
+  #108 = Utf8               USER_AGENT
+  #109 = Utf8               APPLE_XSYNC
+  #110 = Utf8               host
+  #111 = Utf8               persistent
+  #112 = Utf8               encrypted
+  #113 = Utf8               connection
+  #114 = Utf8               Lcom/apple/xsr/net/HttpConnection;
+  #115 = Utf8               logger
+  #116 = Utf8               Lorg/apache/log4j/Logger;
+  #117 = Utf8               class$com$apple$xsr$net$AcpxConnection
+  #118 = Utf8               Ljava/lang/Class;
+  #119 = Utf8               Synthetic
+  #120 = Utf8               <init>
+  #121 = Utf8               (Ljava/lang/String;)V
+  #122 = Utf8               Code
+  #123 = Utf8               Exceptions
+  #124 = Utf8               close
+  #125 = Utf8               ()V
+  #126 = Utf8               disconnect
+  #127 = Utf8               Deprecated
+  #128 = Utf8               send
+  #129 = Utf8               (Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;
+  #130 = Utf8               getHostAddress
+  #131 = Utf8               ()Ljava/lang/String;
+  #132 = Utf8               getHost
+  #133 = Utf8               setPersistent
+  #134 = Utf8               (Z)V
+  #135 = Utf8               setEncrypted
+  #136 = Utf8               createConnection
+  #137 = Utf8               addHeaders
+  #138 = Utf8               (Lcom/apple/xsr/net/HttpRequest;Lcom/apple/xsr/net/RequestMessage;)V
+  #139 = Utf8               class$
+  #140 = Utf8               (Ljava/lang/String;)Ljava/lang/Class;
+  #141 = Utf8               <clinit>
+  #142 = Class              #235          // java/lang/Class
+  #143 = NameAndType        #236:#140     // forName:(Ljava/lang/String;)Ljava/lang/Class;
+  #144 = Utf8               java/lang/ClassNotFoundException
+  #145 = Utf8               java/lang/NoClassDefFoundError
+  #146 = NameAndType        #237:#131     // getMessage:()Ljava/lang/String;
+  #147 = NameAndType        #120:#121     // "<init>":(Ljava/lang/String;)V
+  #148 = NameAndType        #120:#125     // "<init>":()V
+  #149 = NameAndType        #111:#101     // persistent:Z
+  #150 = NameAndType        #112:#101     // encrypted:Z
+  #151 = Utf8               java/lang/NullPointerException
+  #152 = Utf8               Host cannot be null
+  #153 = NameAndType        #110:#97      // host:Ljava/lang/String;
+  #154 = NameAndType        #136:#125     // createConnection:()V
+  #155 = NameAndType        #113:#114     // connection:Lcom/apple/xsr/net/HttpConnection;
+  #156 = NameAndType        #124:#125     // close:()V
+  #157 = Utf8               request cannot be null
+  #158 = Class              #238          // com/apple/xsr/net/RequestMessage
+  #159 = NameAndType        #239:#131     // getPath:()Ljava/lang/String;
+  #160 = NameAndType        #240:#241     // newRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/HttpRequest;
+  #161 = NameAndType        #137:#138     // addHeaders:(Lcom/apple/xsr/net/HttpRequest;Lcom/apple/xsr/net/RequestMessage;)V
+  #162 = NameAndType        #242:#243     // getTimeout:()I
+  #163 = NameAndType        #244:#245     // setTimeout:(I)V
+  #164 = Utf8               com/apple/net/acp/SimpleCryptOutputStream
+  #165 = Class              #246          // com/apple/xsr/net/HttpRequest
+  #166 = NameAndType        #247:#248     // getOutputStream:()Ljava/io/OutputStream;
+  #167 = NameAndType        #120:#249     // "<init>":(Ljava/io/OutputStream;)V
+  #168 = NameAndType        #250:#249     // writeTo:(Ljava/io/OutputStream;)V
+  #169 = Class              #251          // java/io/OutputStream
+  #170 = NameAndType        #115:#116     // logger:Lorg/apache/log4j/Logger;
+  #171 = Utf8               java/lang/StringBuffer
+  #172 = Utf8               Request sent (
+  #173 = NameAndType        #252:#253     // append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+  #174 = NameAndType        #254:#243     // getContentLength:()I
+  #175 = NameAndType        #252:#255     // append:(I)Ljava/lang/StringBuffer;
+  #176 = Utf8                bytes)
+  #177 = Utf8               command=\"
+  #178 = NameAndType        #256:#131     // getCommand:()Ljava/lang/String;
+  #179 = Utf8               \"
+  #180 = Utf8               target=\"
+  #181 = NameAndType        #257:#261     // getTargetController:()Lcom/apple/xsr/net/RequestMessage$Target;
+  #182 = NameAndType        #252:#262     // append:(Ljava/lang/Object;)Ljava/lang/StringBuffer;
+  #183 = Utf8               \"
+  #184 = NameAndType        #263:#131     // toString:()Ljava/lang/String;
+  #185 = Class              #264          // org/apache/log4j/Logger
+  #186 = NameAndType        #265:#266     // debug:(Ljava/lang/Object;)V
+  #187 = NameAndType        #267:#268     // getResponse:()Lcom/apple/xsr/net/HttpResponse;
+  #188 = Utf8               com/apple/net/acp/SimpleCryptInputStream
+  #189 = Class              #269          // com/apple/xsr/net/HttpResponse
+  #190 = NameAndType        #270:#271     // getInputStream:()Ljava/io/InputStream;
+  #191 = NameAndType        #120:#272     // "<init>":(Ljava/io/InputStream;)V
+  #192 = Class              #273          // java/io/InputStream
+  #193 = NameAndType        #274:#243     // available:()I
+  #194 = Utf8               com/apple/util/plist/PropertyList
+  #195 = Utf8               Response read (
+  #196 = Utf8                bytes)
+  #197 = Utf8               com/apple/util/plist/PropertyListException
+  #198 = NameAndType        #275:#266     // error:(Ljava/lang/Object;)V
+  #199 = Utf8               java/io/IOException
+  #200 = Utf8               PropertyListException:
+  #201 = NameAndType        #276:#277     // getShutdownConnection:()Z
+  #202 = NameAndType        #278:#243     // getRestartConnection:()I
+  #203 = NameAndType        #126:#125     // disconnect:()V
+  #204 = NameAndType        #130:#131     // getHostAddress:()Ljava/lang/String;
+  #205 = Utf8               com/apple/xsr/net/HttpConnection
+  #206 = NameAndType        #133:#134     // setPersistent:(Z)V
+  #207 = NameAndType        #279:#125     // open:()V
+  #208 = Utf8               Attempt to create a connection with an existing connection open
+  #209 = NameAndType        #280:#266     // warn:(Ljava/lang/Object;)V
+  #210 = Utf8               User-Agent
+  #211 = Utf8               Apple-Xserve_RAID_Admin/1.6.0
+  #212 = NameAndType        #281:#282     // setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+  #213 = Utf8               Connection
+  #214 = NameAndType        #283:#131     // getUser:()Ljava/lang/String;
+  #215 = NameAndType        #284:#131     // getPassword:()Ljava/lang/String;
+  #216 = Utf8               ACP-User
+  #217 = Utf8               ACP-Password
+  #218 = Utf8               Apple-Xsync
+  #219 = Utf8
+  #220 = Utf8               Content-Encoding
+  #221 = Utf8               acp-crypt
+  #222 = NameAndType        #285:#286     // getRequestProperties:()[Ljava/lang/String;
+  #223 = Utf8               Adding request property \"
+  #224 = Utf8               \" value = \"
+  #225 = NameAndType        #287:#288     // getRequestProperty:(Ljava/lang/String;)Ljava/lang/String;
+  #226 = NameAndType        #289:#266     // info:(Ljava/lang/Object;)V
+  #227 = NameAndType        #117:#118     // class$com$apple$xsr$net$AcpxConnection:Ljava/lang/Class;
+  #228 = Utf8               com.apple.xsr.net.AcpxConnection
+  #229 = NameAndType        #139:#140     // class$:(Ljava/lang/String;)Ljava/lang/Class;
+  #230 = NameAndType        #290:#291     // getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+  #231 = Utf8               com/apple/xsr/net/AcpxConnection
+  #232 = Utf8               java/lang/Object
+  #233 = Utf8               PropertyListException
+  #234 = Utf8               text/xml
+  #235 = Utf8               java/lang/Class
+  #236 = Utf8               forName
+  #237 = Utf8               getMessage
+  #238 = Utf8               com/apple/xsr/net/RequestMessage
+  #239 = Utf8               getPath
+  #240 = Utf8               newRequest
+  #241 = Utf8               (Ljava/lang/String;)Lcom/apple/xsr/net/HttpRequest;
+  #242 = Utf8               getTimeout
+  #243 = Utf8               ()I
+  #244 = Utf8               setTimeout
+  #245 = Utf8               (I)V
+  #246 = Utf8               com/apple/xsr/net/HttpRequest
+  #247 = Utf8               getOutputStream
+  #248 = Utf8               ()Ljava/io/OutputStream;
+  #249 = Utf8               (Ljava/io/OutputStream;)V
+  #250 = Utf8               writeTo
+  #251 = Utf8               java/io/OutputStream
+  #252 = Utf8               append
+  #253 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuffer;
+  #254 = Utf8               getContentLength
+  #255 = Utf8               (I)Ljava/lang/StringBuffer;
+  #256 = Utf8               getCommand
+  #257 = Utf8               getTargetController
+  #258 = Class              #292          // com/apple/xsr/net/RequestMessage$Target
+  #259 = Utf8               Target
+  #260 = Utf8               InnerClasses
+  #261 = Utf8               ()Lcom/apple/xsr/net/RequestMessage$Target;
+  #262 = Utf8               (Ljava/lang/Object;)Ljava/lang/StringBuffer;
+  #263 = Utf8               toString
+  #264 = Utf8               org/apache/log4j/Logger
+  #265 = Utf8               debug
+  #266 = Utf8               (Ljava/lang/Object;)V
+  #267 = Utf8               getResponse
+  #268 = Utf8               ()Lcom/apple/xsr/net/HttpResponse;
+  #269 = Utf8               com/apple/xsr/net/HttpResponse
+  #270 = Utf8               getInputStream
+  #271 = Utf8               ()Ljava/io/InputStream;
+  #272 = Utf8               (Ljava/io/InputStream;)V
+  #273 = Utf8               java/io/InputStream
+  #274 = Utf8               available
+  #275 = Utf8               error
+  #276 = Utf8               getShutdownConnection
+  #277 = Utf8               ()Z
+  #278 = Utf8               getRestartConnection
+  #279 = Utf8               open
+  #280 = Utf8               warn
+  #281 = Utf8               setHeaderField
+  #282 = Utf8               (Ljava/lang/String;Ljava/lang/String;)V
+  #283 = Utf8               getUser
+  #284 = Utf8               getPassword
+  #285 = Utf8               getRequestProperties
+  #286 = Utf8               ()[Ljava/lang/String;
+  #287 = Utf8               getRequestProperty
+  #288 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+  #289 = Utf8               info
+  #290 = Utf8               getLogger
+  #291 = Utf8               (Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+  #292 = Utf8               com/apple/xsr/net/RequestMessage$Target
+  #293 = Utf8               compat/RejectionRecovery
+  #294 = Class              #293          // compat/RejectionRecovery
+  #295 = Utf8               sendFailure
+  #296 = Utf8               (Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;
+  #297 = NameAndType        #295:#296     // sendFailure:(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;
+  #298 = Methodref          #294.#297     // compat/RejectionRecovery.sendFailure:(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;
+  #299 = Utf8               compat/UntrustedResponseException
+  #300 = Class              #299          // compat/UntrustedResponseException
+{
+  public static final java.lang.String PLIST_EXCEPTION = "PropertyListException";
+    descriptor: Ljava/lang/String;
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: String PropertyListException
+
+  private static final boolean DEFAULT_PERSISTENT_CONNECTION_STATE = true;
+    descriptor: Z
+    flags: ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+
+  private static final boolean DEFAULT_ENCRYPTION_STATE = false;
+    descriptor: Z
+    flags: ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 0
+
+  private static final boolean DUMP_XML = false;
+    descriptor: Z
+    flags: ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 0
+
+  protected static final java.lang.String CONTENT_TYPE = "text/xml";
+    descriptor: Ljava/lang/String;
+    flags: ACC_PROTECTED, ACC_STATIC, ACC_FINAL
+    ConstantValue: String text/xml
+
+  protected static final java.lang.String USER_AGENT = "Apple-Xserve_RAID_Admin/1.6.0";
+    descriptor: Ljava/lang/String;
+    flags: ACC_PROTECTED, ACC_STATIC, ACC_FINAL
+    ConstantValue: String Apple-Xserve_RAID_Admin/1.6.0
+
+  protected static final java.lang.String APPLE_XSYNC = "Apple-Xsync";
+    descriptor: Ljava/lang/String;
+    flags: ACC_PROTECTED, ACC_STATIC, ACC_FINAL
+    ConstantValue: String Apple-Xsync
+
+  protected java.lang.String host;
+    descriptor: Ljava/lang/String;
+    flags: ACC_PROTECTED
+
+  protected boolean persistent;
+    descriptor: Z
+    flags: ACC_PROTECTED
+
+  protected boolean encrypted;
+    descriptor: Z
+    flags: ACC_PROTECTED
+
+  protected com.apple.xsr.net.HttpConnection connection;
+    descriptor: Lcom/apple/xsr/net/HttpConnection;
+    flags: ACC_PROTECTED
+
+  private static final org.apache.log4j.Logger logger;
+    descriptor: Lorg/apache/log4j/Logger;
+    flags: ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+
+  static java.lang.Class class$com$apple$xsr$net$AcpxConnection;
+    descriptor: Ljava/lang/Class;
+    flags: ACC_STATIC
+    Synthetic: true
+
+  public com.apple.xsr.net.AcpxConnection(java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;)V
+    flags: ACC_PUBLIC
+    Code:
+      stack=3, locals=2, args_size=2
+         0: aload_0
+         1: invokespecial #6                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: iconst_1
+         6: putfield      #7                  // Field persistent:Z
+         9: aload_0
+        10: iconst_0
+        11: putfield      #8                  // Field encrypted:Z
+        14: aload_1
+        15: ifnonnull     28
+        18: new           #9                  // class java/lang/NullPointerException
+        21: dup
+        22: ldc           #10                 // String Host cannot be null
+        24: invokespecial #11                 // Method java/lang/NullPointerException."<init>":(Ljava/lang/String;)V
+        27: athrow
+        28: aload_0
+        29: aload_1
+        30: putfield      #12                 // Field host:Ljava/lang/String;
+        33: aload_0
+        34: invokespecial #13                 // Method createConnection:()V
+        37: return
+    Exceptions:
+      throws java.io.IOException
+
+  public void close() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+         4: ifnull        19
+         7: aload_0
+         8: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+        11: invokevirtual #15                 // Method com/apple/xsr/net/HttpConnection.close:()V
+        14: aload_0
+        15: aconst_null
+        16: putfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+        19: return
+    Exceptions:
+      throws java.io.IOException
+
+  public void disconnect() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #16                 // Method close:()V
+         4: return
+    Exceptions:
+      throws java.io.IOException
+    Deprecated: true
+
+  public com.apple.util.plist.PropertyList send(com.apple.xsr.net.RequestMessage) throws java.io.IOException;
+    descriptor: (Lcom/apple/xsr/net/RequestMessage;)Lcom/apple/util/plist/PropertyList;
+    flags: ACC_PUBLIC
+    Code:
+      stack=4, locals=10, args_size=2
+         0: aload_1
+         1: ifnonnull     14
+         4: new           #9                  // class java/lang/NullPointerException
+         7: dup
+         8: ldc           #17                 // String request cannot be null
+        10: invokespecial #11                 // Method java/lang/NullPointerException."<init>":(Ljava/lang/String;)V
+        13: athrow
+        14: aload_0
+        15: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+        18: ifnonnull     25
+        21: aload_0
+        22: invokespecial #13                 // Method createConnection:()V
+        25: aconst_null
+        26: astore_2
+        27: aconst_null
+        28: astore_3
+        29: aconst_null
+        30: astore        4
+        32: aload_0
+        33: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+        36: aload_1
+        37: invokeinterface #18,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getPath:()Ljava/lang/String;
+        42: invokevirtual #19                 // Method com/apple/xsr/net/HttpConnection.newRequest:(Ljava/lang/String;)Lcom/apple/xsr/net/HttpRequest;
+        45: astore        5
+        47: aload_0
+        48: aload         5
+        50: aload_1
+        51: invokespecial #20                 // Method addHeaders:(Lcom/apple/xsr/net/HttpRequest;Lcom/apple/xsr/net/RequestMessage;)V
+        54: aload_0
+        55: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+        58: aload_1
+        59: invokeinterface #21,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getTimeout:()I
+        64: invokevirtual #22                 // Method com/apple/xsr/net/HttpConnection.setTimeout:(I)V
+        67: aload_0
+        68: getfield      #8                  // Field encrypted:Z
+        71: ifeq          90
+        74: new           #23                 // class com/apple/net/acp/SimpleCryptOutputStream
+        77: dup
+        78: aload         5
+        80: invokevirtual #24                 // Method com/apple/xsr/net/HttpRequest.getOutputStream:()Ljava/io/OutputStream;
+        83: invokespecial #25                 // Method com/apple/net/acp/SimpleCryptOutputStream."<init>":(Ljava/io/OutputStream;)V
+        86: astore_3
+        87: goto          96
+        90: aload         5
+        92: invokevirtual #24                 // Method com/apple/xsr/net/HttpRequest.getOutputStream:()Ljava/io/OutputStream;
+        95: astore_3
+        96: aload_1
+        97: aload_3
+        98: invokeinterface #26,  2           // InterfaceMethod com/apple/xsr/net/RequestMessage.writeTo:(Ljava/io/OutputStream;)V
+       103: aload_3
+       104: invokevirtual #27                 // Method java/io/OutputStream.close:()V
+       107: getstatic     #28                 // Field logger:Lorg/apache/log4j/Logger;
+       110: new           #29                 // class java/lang/StringBuffer
+       113: dup
+       114: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+       117: ldc           #31                 // String Request sent (
+       119: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       122: aload         5
+       124: invokevirtual #33                 // Method com/apple/xsr/net/HttpRequest.getContentLength:()I
+       127: invokevirtual #34                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+       130: ldc           #35                 // String  bytes)
+       132: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       135: ldc           #36                 // String command=\"
+       137: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       140: aload_1
+       141: invokeinterface #37,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getCommand:()Ljava/lang/String;
+       146: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       149: ldc           #38                 // String \"
+       151: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       154: ldc           #39                 // String target=\"
+       156: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       159: aload_1
+       160: invokeinterface #40,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getTargetController:()Lcom/apple/xsr/net/RequestMessage$Target;
+       165: invokevirtual #41                 // Method java/lang/StringBuffer.append:(Ljava/lang/Object;)Ljava/lang/StringBuffer;
+       168: ldc           #42                 // String \"
+       170: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       173: invokevirtual #43                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+       176: invokevirtual #44                 // Method org/apache/log4j/Logger.debug:(Ljava/lang/Object;)V
+       179: aload_0
+       180: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+       183: invokevirtual #45                 // Method com/apple/xsr/net/HttpConnection.getResponse:()Lcom/apple/xsr/net/HttpResponse;
+       186: astore        6
+       188: aload_0
+       189: getfield      #8                  // Field encrypted:Z
+       192: ifeq          212
+       195: new           #46                 // class com/apple/net/acp/SimpleCryptInputStream
+       198: dup
+       199: aload         6
+       201: invokevirtual #47                 // Method com/apple/xsr/net/HttpResponse.getInputStream:()Ljava/io/InputStream;
+       204: invokespecial #48                 // Method com/apple/net/acp/SimpleCryptInputStream."<init>":(Ljava/io/InputStream;)V
+       207: astore        4
+       209: goto          219
+       212: aload         6
+       214: invokevirtual #47                 // Method com/apple/xsr/net/HttpResponse.getInputStream:()Ljava/io/InputStream;
+       217: astore        4
+       219: aload         4
+       221: invokevirtual #49                 // Method java/io/InputStream.available:()I
+       224: ifeq          237
+       227: new           #50                 // class com/apple/util/plist/PropertyList
+       230: dup
+       231: aload         4
+       233: invokespecial #51                 // Method com/apple/util/plist/PropertyList."<init>":(Ljava/io/InputStream;)V
+       236: astore_2
+       237: getstatic     #28                 // Field logger:Lorg/apache/log4j/Logger;
+       240: new           #29                 // class java/lang/StringBuffer
+       243: dup
+       244: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+       247: ldc           #52                 // String Response read (
+       249: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       252: aload         6
+       254: invokevirtual #53                 // Method com/apple/xsr/net/HttpResponse.getContentLength:()I
+       257: invokevirtual #34                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+       260: ldc           #54                 // String  bytes)
+       262: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       265: invokevirtual #43                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+       268: invokevirtual #44                 // Method org/apache/log4j/Logger.debug:(Ljava/lang/Object;)V
+       271: jsr           326
+       274: goto          390
+       277: astore        5
+       279: getstatic     #28                 // Field logger:Lorg/apache/log4j/Logger;
+       282: aload         5
+       284: invokevirtual #56                 // Method org/apache/log4j/Logger.error:(Ljava/lang/Object;)V
+       287: new           #57                 // class java/io/IOException
+       290: dup
+       291: new           #29                 // class java/lang/StringBuffer
+       294: dup
+       295: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+       298: ldc           #58                 // String PropertyListException:
+       300: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       303: aload         5
+       305: invokevirtual #59                 // Method com/apple/util/plist/PropertyListException.getMessage:()Ljava/lang/String;
+       308: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       311: invokevirtual #43                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+       314: invokespecial #60                 // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+       317: athrow
+       318: astore        7
+       320: jsr           326
+       323: aload         7
+       325: athrow
+       326: astore        8
+       328: aload         4
+       330: ifnull        338
+       333: aload         4
+       335: invokevirtual #61                 // Method java/io/InputStream.close:()V
+       338: aload_1
+       339: invokeinterface #62,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getShutdownConnection:()Z
+       344: ifne          357
+       347: aload_1
+       348: invokeinterface #63,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getRestartConnection:()I
+       353: iconst_m1
+       354: if_icmpeq     361
+       357: iconst_1
+       358: goto          362
+       361: iconst_0
+       362: istore        9
+       364: aload_0
+       365: getfield      #7                  // Field persistent:Z
+       368: ifeq          376
+       371: iload         9
+       373: ifeq          388
+       376: aload_0
+       377: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+       380: invokevirtual #64                 // Method com/apple/xsr/net/HttpConnection.disconnect:()V
+       383: aload_0
+       384: aconst_null
+       385: putfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+       388: ret           8
+       390: aload_2
+       391: areturn
+       392: aload_0
+       393: invokestatic  #298                // Method compat/RejectionRecovery.sendFailure:(Ljava/lang/Throwable;Lcom/apple/xsr/net/AcpxConnection;)Ljava/lang/Throwable;
+       396: athrow
+      Exception table:
+         from    to  target type
+            32   271   277   Class com/apple/util/plist/PropertyListException
+            32   271   392   Class compat/UntrustedResponseException
+            32   274   318   any
+           277   323   318   any
+    Exceptions:
+      throws java.io.IOException
+
+  public java.lang.String getHostAddress();
+    descriptor: ()Ljava/lang/String;
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #12                 // Field host:Ljava/lang/String;
+         4: areturn
+
+  public java.lang.String getHost();
+    descriptor: ()Ljava/lang/String;
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #65                 // Method getHostAddress:()Ljava/lang/String;
+         4: areturn
+    Deprecated: true
+
+  public void setPersistent(boolean);
+    descriptor: (Z)V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: iload_1
+         2: putfield      #7                  // Field persistent:Z
+         5: return
+
+  public void setEncrypted(boolean);
+    descriptor: (Z)V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_0
+         1: iload_1
+         2: putfield      #8                  // Field encrypted:Z
+         5: return
+
+  private void createConnection() throws java.io.IOException;
+    descriptor: ()V
+    flags: ACC_PRIVATE
+    Code:
+      stack=3, locals=2, args_size=1
+         0: aload_0
+         1: getfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+         4: ifnonnull     39
+         7: new           #66                 // class com/apple/xsr/net/HttpConnection
+        10: dup
+        11: aload_0
+        12: getfield      #12                 // Field host:Ljava/lang/String;
+        15: invokespecial #67                 // Method com/apple/xsr/net/HttpConnection."<init>":(Ljava/lang/String;)V
+        18: astore_1
+        19: aload_1
+        20: aload_0
+        21: getfield      #7                  // Field persistent:Z
+        24: invokevirtual #68                 // Method com/apple/xsr/net/HttpConnection.setPersistent:(Z)V
+        27: aload_1
+        28: invokevirtual #69                 // Method com/apple/xsr/net/HttpConnection.open:()V
+        31: aload_0
+        32: aload_1
+        33: putfield      #14                 // Field connection:Lcom/apple/xsr/net/HttpConnection;
+        36: goto          47
+        39: getstatic     #28                 // Field logger:Lorg/apache/log4j/Logger;
+        42: ldc           #70                 // String Attempt to create a connection with an existing connection open
+        44: invokevirtual #71                 // Method org/apache/log4j/Logger.warn:(Ljava/lang/Object;)V
+        47: return
+    Exceptions:
+      throws java.io.IOException
+
+  private void addHeaders(com.apple.xsr.net.HttpRequest, com.apple.xsr.net.RequestMessage);
+    descriptor: (Lcom/apple/xsr/net/HttpRequest;Lcom/apple/xsr/net/RequestMessage;)V
+    flags: ACC_PRIVATE
+    Code:
+      stack=5, locals=9, args_size=3
+         0: aload_1
+         1: ldc           #72                 // String User-Agent
+         3: ldc           #73                 // String Apple-Xserve_RAID_Admin/1.6.0
+         5: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+         8: aload_2
+         9: invokeinterface #62,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getShutdownConnection:()Z
+        14: ifne          27
+        17: aload_2
+        18: invokeinterface #63,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getRestartConnection:()I
+        23: iconst_m1
+        24: if_icmpeq     31
+        27: iconst_1
+        28: goto          32
+        31: iconst_0
+        32: istore_3
+        33: aload_0
+        34: getfield      #7                  // Field persistent:Z
+        37: ifeq          44
+        40: iload_3
+        41: ifeq          52
+        44: aload_1
+        45: ldc           #75                 // String Connection
+        47: ldc           #76                 // String close
+        49: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+        52: aload_2
+        53: invokeinterface #77,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getUser:()Ljava/lang/String;
+        58: astore        4
+        60: aload_2
+        61: invokeinterface #78,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getPassword:()Ljava/lang/String;
+        66: astore        5
+        68: aload         4
+        70: ifnull        81
+        73: aload_1
+        74: ldc           #79                 // String ACP-User
+        76: aload         4
+        78: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+        81: aload         5
+        83: ifnull        94
+        86: aload_1
+        87: ldc           #80                 // String ACP-Password
+        89: aload         5
+        91: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+        94: aload_2
+        95: invokeinterface #40,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getTargetController:()Lcom/apple/xsr/net/RequestMessage$Target;
+       100: astore        6
+       102: aload         6
+       104: ifnull        133
+       107: aload_1
+       108: ldc           #81                 // String Apple-Xsync
+       110: new           #29                 // class java/lang/StringBuffer
+       113: dup
+       114: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+       117: aload         6
+       119: invokevirtual #41                 // Method java/lang/StringBuffer.append:(Ljava/lang/Object;)Ljava/lang/StringBuffer;
+       122: ldc           #82                 // String
+       124: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       127: invokevirtual #43                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+       130: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+       133: aload_0
+       134: getfield      #8                  // Field encrypted:Z
+       137: ifeq          148
+       140: aload_1
+       141: ldc           #83                 // String Content-Encoding
+       143: ldc           #84                 // String acp-crypt
+       145: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+       148: aload_2
+       149: invokeinterface #85,  1           // InterfaceMethod com/apple/xsr/net/RequestMessage.getRequestProperties:()[Ljava/lang/String;
+       154: astore        7
+       156: aload         7
+       158: arraylength
+       159: ifle          252
+       162: iconst_0
+       163: istore        8
+       165: iload         8
+       167: aload         7
+       169: arraylength
+       170: if_icmpge     252
+       173: getstatic     #28                 // Field logger:Lorg/apache/log4j/Logger;
+       176: new           #29                 // class java/lang/StringBuffer
+       179: dup
+       180: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+       183: ldc           #86                 // String Adding request property \"
+       185: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       188: aload         7
+       190: iload         8
+       192: aaload
+       193: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       196: ldc           #87                 // String \" value = \"
+       198: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       201: aload_2
+       202: aload         7
+       204: iload         8
+       206: aaload
+       207: invokeinterface #88,  2           // InterfaceMethod com/apple/xsr/net/RequestMessage.getRequestProperty:(Ljava/lang/String;)Ljava/lang/String;
+       212: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       215: ldc           #42                 // String \"
+       217: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+       220: invokevirtual #43                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+       223: invokevirtual #89                 // Method org/apache/log4j/Logger.info:(Ljava/lang/Object;)V
+       226: aload_1
+       227: aload         7
+       229: iload         8
+       231: aaload
+       232: aload_2
+       233: aload         7
+       235: iload         8
+       237: aaload
+       238: invokeinterface #88,  2           // InterfaceMethod com/apple/xsr/net/RequestMessage.getRequestProperty:(Ljava/lang/String;)Ljava/lang/String;
+       243: invokevirtual #74                 // Method com/apple/xsr/net/HttpRequest.setHeaderField:(Ljava/lang/String;Ljava/lang/String;)V
+       246: iinc          8, 1
+       249: goto          165
+       252: return
+
+  static java.lang.Class class$(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/Class;
+    flags: ACC_STATIC
+    Code:
+      stack=3, locals=2, args_size=1
+         0: aload_0
+         1: invokestatic  #1                  // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+         4: areturn
+         5: astore_1
+         6: new           #3                  // class java/lang/NoClassDefFoundError
+         9: dup
+        10: aload_1
+        11: invokevirtual #4                  // Method java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
+        14: invokespecial #5                  // Method java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
+        17: athrow
+      Exception table:
+         from    to  target type
+             0     4     5   Class java/lang/ClassNotFoundException
+    Synthetic: true
+
+  static {};
+    descriptor: ()V
+    flags: ACC_STATIC
+    Code:
+      stack=2, locals=0, args_size=0
+         0: getstatic     #90                 // Field class$com$apple$xsr$net$AcpxConnection:Ljava/lang/Class;
+         3: ifnonnull     18
+         6: ldc           #91                 // String com.apple.xsr.net.AcpxConnection
+         8: invokestatic  #92                 // Method class$:(Ljava/lang/String;)Ljava/lang/Class;
+        11: dup
+        12: putstatic     #90                 // Field class$com$apple$xsr$net$AcpxConnection:Ljava/lang/Class;
+        15: goto          21
+        18: getstatic     #90                 // Field class$com$apple$xsr$net$AcpxConnection:Ljava/lang/Class;
+        21: invokestatic  #93                 // Method org/apache/log4j/Logger.getLogger:(Ljava/lang/Class;)Lorg/apache/log4j/Logger;
+        24: putstatic     #28                 // Field logger:Lorg/apache/log4j/Logger;
+        27: return
+}
+InnerClasses:
+     public static final #259= #258 of #158; //Target=class com/apple/xsr/net/RequestMessage$Target of class com/apple/xsr/net/RequestMessage

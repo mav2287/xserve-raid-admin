@@ -87,7 +87,7 @@ def main():
     if args.recovery:
         sources += [ROOT/'tests/java/com/apple/xsr/net/RecoveryObservation.java',ROOT/'tests/java/com/apple/xsr/net/HeaderObservation.java',ROOT/'tests/java/fixture/OfflineGuard.java',ROOT/'patches/sun/io/MalformedInputException.java']
     sources = list(dict.fromkeys(sources))
-    identity_sources=list(sources)+[ROOT/"tools/socket_configuration_patch.py"]
+    identity_sources=list(sources)+[ROOT/"tools/socket_configuration_patch.py",ROOT/"tools/connection_publication_patch.py"]
     if session_containment:
         expected_path=ROOT/('audit/stopped-post-recovery-expected.json' if stop_lock_order else 'audit/connect-stop-recovery-expected.json' if connect_failure_stop else 'audit/sync-preenqueue-recovery-expected.json' if sync_preenqueue else 'audit/worker-stop-recovery-expected.json' if worker_failure_stop else 'audit/terminal-io-recovery-expected.json' if terminal_io_policy else 'audit/session-containment-recovery-expected.json')
         expected_recovery_record=json.loads(expected_path.read_bytes())

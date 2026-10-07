@@ -20,7 +20,7 @@ def scan(jdk,jar,reference,output):
     if before!=expected or reference_sha!='202c9e1e0b5a7db39fc7a6ab17c46f0e1511cffbf9dcbdbe0199c1737147e9cd':raise ValueError('Anchored inventory artifacts differ')
     sources=[ROOT/n for n in ('tools/socket_configuration_consumers.py','tools/class_patch.py',
         'tools/inventory.py','tools/audit_support.py','tools/verify_builds.py','tools/baseline.py',
-        'tools/socket_configuration_patch.py','audit/jdk-lock.json','audit/python-lock.json','audit/expected-build.json')]
+        'tools/socket_configuration_patch.py','tools/connection_publication_patch.py','audit/jdk-lock.json','audit/python-lock.json','audit/expected-build.json')]
     hashes={str(p.relative_to(ROOT)):sha(p) for p in sources}
     actual,old=entries(jar),entries(reference);types=[];messages=[]
     classes=sorted(n for n in actual if n.endswith('.class'))
