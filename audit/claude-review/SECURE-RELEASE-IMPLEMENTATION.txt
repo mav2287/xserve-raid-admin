@@ -1,0 +1,69 @@
+Actual restricted, read-only Claude CLI review. Historical design findings; see subsequent implementation and qualification records.
+
+I reviewed the 4 compat/native sources, the 4 test files and both tools. I also read `tools/secure_package.py` and `packaging/RAIDAdmin` to check the bundle and launcher paths. I didn't execute or edit anything.
+
+# Verdict
+
+Nothing I found breaks the core transaction. Session ownership, eager binding, the inverse JAR delta and the fail-closed library state are carefully done. There are no silent-corruption or fallback paths. Before any fault-gate or qualification claim, though, five issues need fixing or explicit scoping (items 1–5). Several current evidence labels claim more than the runs show.
+
+## Blockers / high
+
+1. **Symlinked or hard-linked preference files now fail on every save.**
+   - `private_file.c:158-161` rejects symlinked targets, so a symlinked plist (dangling or not) fails with `atomic-target-policy` on every save.
+   - The original writes through the link (`AtomicCallerObservation.java:108-117` shows this). The candidate's `sync()` returns `null` because the caller swallows the IOException, so after one stderr line and one dialog, saves are lost silently for the rest of the session.
+   - The test labels this `link-target-protected`. That is a user-visible regression, not a protection. Hard links are silently split because `nlink` isn't checked on the target.
+   - Fix: state this as an intentional compatibility break, or decide it differently.
+
+2. **Ownership has holes under asynchronous Errors.**
+   - `Session.commit/abort` (`PrivatePreferenceFile.java:35-43`) set `handle = 0` before calling into native code. A StackOverflowError while entering `commit0`/`abort0` leaks the Session, both fds and the temp file, and nothing can retry.
+   - `abortPreserving(primary)` is called outside its own try (`:83`, `:89`), so a StackOverflowError there replaces the primary. That breaks the rule stated at `:50`.
+   - `PreferenceIO.java:8`: a class-init failure of `PreferenceSaveFailure` (NoClassDefFoundError, OOM in `<clinit>`) is thrown before `report`'s catch-Throwable, inside the catch block, so it replaces the primary.
+   - Fix: let native code clear `handle` (it already receives `owner` in `begin0`, and could take it in commit/abort). Otherwise, document that the "cleanup never replaces primary" and "no leftover" claims exclude VM errors.
+
+3. **The deferred dialog has no evidence at all, and has real risks.**
+   - Every run sets `-Djava.awt.headless=true`, and `AtomicCallerObservation.java:71` asserts it. So "one deferred dialog" is never exercised, including `dialogReported` being consumed when `invokeLater` throws.
+   - In the product the launcher sets `headless=false`. A failure in the original Main's CLI mode (`packaging/RAIDAdmin:22-23`) would initialize AWT from inside the caller's preferences monitor and show a GUI dialog in a CLI run.
+   - Failures during shutdown or exit-time sync report only to stderr, which is invisible for a `.app`.
+   - The text "Check that your preferences folder is writable" is wrong for policy rejections: group-writable parent, ACL, foreign owner, `MNT_IGNORE_OWNERSHIP`, symlink.
+
+4. **The committed-cleanup classification is never tested end to end.**
+   - The `atomic-committed:close` category is only exercised by calling `report()` reflectively with a synthetic IOException (`BindingObservation.java:24`).
+   - `AtomicFaultObservation` calls `PrivatePreferenceFile.write` directly, which bypasses PreferenceIO and the reporter. It runs only against modified natives, and `check_secure_preferences.py` doesn't run it at all. No end-to-end path proves that a real native close failure produces the COMMITTED line and not FAIL.
+
+5. **The secure_build output can never save.**
+   - `secure_build.py:50-52` builds `RAID Admin.app` without `Contents/Frameworks/libPrivatePreference.dylib`. Its provenance (`purpose: 'unsigned secure preference candidate'`) describes a bundle that would return `atomic-library-unavailable` on every save. Only `secure_package.py:30` adds the library.
+   - The fixtures don't use either bundle. `layout()` (`check_secure_preferences.py:33-36`) builds a minimal JAR+dylib tree. The real packaged artifact is never run by these gates: launcher `-jar`, `-Djava.ext.dirs=$RUNTIME/jre/lib/ext`, app class loader.
+   - Fix: relabel the secure_build output as an intermediate, or bring the packaged path into scope.
+
+## Medium: productpath compatibility (none of these is tested)
+
+- **Parent directory not writable but target writable:** the original succeeds because it writes in place. The candidate needs to create a temp file in the parent, so it fails.
+- **Parent with write+execute but no read permission:** `open(parent, O_RDONLY|O_DIRECTORY)` at `:227` fails, but the original would succeed.
+- **Inode replacement drops metadata:** mode (0644→0600, which is characterized), xattrs, BSD flags such as `UF_HIDDEN`, and the case or normalization of the existing name. `SecurePathObservation.java:55` checks for one entry but not which spelling survives.
+- **Filesystem dependence:** `renameatx_np(RENAME_EXCL)` returns ENOTSUP on some network filesystems, so creating a new prefs file there always fails. `MNT_IGNORE_OWNERSHIP` volumes are rejected outright.
+- **Policy rejection paths:** group-writable parent, ACLs, foreign or root-owned target, immutable flags, sticky dirs. No production-library run exercises any of these. The fixtures set every folder to 0700 (`SecurePathObservation.java:38`) so the policy passes.
+- **rename EINTR retry (`:309-311`):** if the first rename succeeded on an `intr` NFS mount, the retry gets ENOENT. The result is reported as a failure although it committed. This is inconsistent with the careful no-retry handling of `openat`.
+- **Permanent unavailable state:** this is correct per the design. But transient conditions at first save (EMFILE during dlopen, OOM) also disable saving for the whole process lifetime. Document that.
+
+## Misleading evidence scopes
+
+- **APFS-specific results:** `aliases=3` and `multi258` (expected to succeed) depend on case-insensitive APFS on the build volume. The record should say so; they would fail or differ on case-sensitive APFS or HFS+.
+- **`path_limits=3`:** only compares success vs failure, not exception type or message. The original gives FileNotFoundException "(File name too long)"; the candidate gives FileNotFoundException `atomic-path`.
+- **Stderr expectations:** requiring exactly one `SAVE_FAILED` line per suite (`:60`) proves the CAS limit. Because of that, it can't show that each of the 19/22 failing cases went through PreferenceIO.
+- **Fault libraries aren't pinned:**
+  - The `experimental` library (`:67`) has no hash check.
+  - The `stale` library is built with an unhashed toolchain and no repeat, and its hash isn't recorded.
+  - Observation rows don't record which library bytes each scenario loaded.
+- **"Wrong, missing, stale and experimental library" scenarios:** none of them reaches the `UnregisterNatives` failure branch (`private_file.c:80-86`). That branch has no evidence.
+- **Reporter failure:** "reporter failure identity" covers `Reporter.report` throwing. It doesn't cover `PreferenceSaveFailure` failing to initialize (item 2).
+- **Clean execution:** `--require-clean` is optional, and the tree currently has untracked `modernization/` and the two new tools. Anything produced now is `source_dirty`.
+- **x64 and GUI scope:** x64 = Rosetta, and there's no GUI, quarantine/translocation, controller or physical Intel coverage. The records already say this. Keep it attached to every derived claim.
+
+## Checked and sound
+
+- **CodeSource path:** the `Resources/RAID_Admin.jar` → `Contents/Frameworks` path matches the launcher's `-jar`. Spaces in the path are handled. A null CodeSource or parent ends up `false`.
+- **Class initializer:** `Library` loads nothing in its initializer. Load Throwables are caught inside `load()`, and the -1 state is set before loading.
+- **Path checks:** the SecurityManager → NUL → strict encoding order matches JDK 8 `FileOutputStream`. The PATH_MAX check (`length >= PATH_MAX`) has the right boundary.
+- **fd ownership:** the raw fd is published only after every fallible step. The handle is stored before the fd, Java closes the fd before commit, the dup keeps the open file alive, and the temp file is unlinked only after an inode match.
+- **Build inverse:** removing the helpers and restoring the original `PreferenceIO` reproduces audit27 exactly. Exports are limited to `JNI_OnLoad/OnUnload`, the minimum OS is 11.0 (so `renameatx_np`/`*at` are safe), and repeated builds produce identical bytes. Header, preprocessed-output, tool and SDK-stub hashes are rechecked after the build.
+- **Library failure modes:** the missing, wrong-arch, stale and experimental cases all fail closed with no fallback, no fd/GC drift and the target unchanged.

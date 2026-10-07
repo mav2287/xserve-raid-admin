@@ -1,0 +1,57 @@
+Actual restricted read-only Claude CLI final-source review; see subsequent fixes and clean records.
+
+I found one real defect in the new native code. It's in the hard-link case and needs fixing before clean qualification. Everything else is test gaps or low-severity tooling items. This was a static review only: I ran nothing.
+
+## Blocker
+
+**1. Hard links: `stored_target_name` can send the save to a different file name** (`private_file.c:166-190`, called at `:263`).
+- `target_ok` (`:159`) accepts a target that has other hard-linked names (`st_nlink > 1`).
+- For a file like that, `ATTR_CMN_NAME` isn't guaranteed to return the name the caller used. The filesystem may report another name for the same file, depending on which name was looked up most recently. That's the same behaviour that makes `F_GETPATH` unreliable for hard links.
+- The device/inode check can't catch this, because every name of a hard-linked file has the same device and inode.
+- **Same folder** (e.g. `prefs` and `prefs-backup`): `s->base` becomes `prefs-backup`. The commit-time checks (`:330`) pass and the rename writes over `prefs-backup`. The file the caller asked for keeps its old contents, and the save reports success.
+- **Different folder:** looking up the other name fails, so a legitimate hard-linked save fails as `atomic-target-name`. The README promises these saves work ("deliberately splits its link").
+- The existing hard-link test (`AtomicPreferenceObservation.java:140`) only passes because the requested name happened to be looked up last.
+- **Fix:** only use the stored spelling when `target.st_nlink == 1`. Otherwise keep the caller's spelling, which is consistent with the documented split, or reject the save under `atomic-target-policy`.
+- **Test to add:** after `createLink`, look up the other name (stat `hard-alias`) last, then save via `hard-target`. Assert `hard-target` gets the new bytes and `hard-alias` keeps the old ones. Add a second case with the other link in another folder.
+- The fix changes the stored-name block, so the pinned hash at `check_secure_native.py:34` must be updated after re-review.
+
+## Medium (test gaps to close before clean evidence)
+
+2. **Nothing exercises the stored-name failure or checks:**
+   - No fault variant produces `atomic-target-name`, for example by making `getattrlistat` fail.
+   - No negative control proves the alias fixtures notice when the stored-name step is removed (e.g. replace the `:263` call with a no-op and expect the `alias-0/Foo` check to fail).
+   - No negative control removes the inode check at `:185`.
+   - Mutating the production source doesn't conflict with the hash pin, because the pin applies only to the normalized comparison.
+3. **`check_secure_packaged.py` doesn't tie the fixture evidence to the release:**
+   - It never compares `fixture['source_commit']` with `manifest['source_commit']` or the current commit (`:13`). Fixture classes from a different commit could be used against the packaged product.
+   - `SessionObservation` isn't run against the packaged library.
+
+## Low
+
+4. `atomic-temporary-create-uncertain` still has no `+leftover` hint, even though the `create-interrupted-after` scenario does leave an empty private file.
+5. No variant produces the compound `+leftover+close` code; the classifier handles it, but it's never exercised. The `temporary-acl` test branch (`AtomicFaultObservation.java:33`) is still unreachable.
+6. In `secure_package.py`:
+   - The plist delta isn't narrowed to `LSMinimumSystemVersion` (`:53` only checks the file changed).
+   - The SPDX negative only corrupts a SHA256 value, so the SHA1 comparison is never shown to fail.
+   - The package-level JAR checksums (`spdx.py:65`) aren't re-checked against the actual bytes.
+7. `secure_qualification.py:34-35` prints "17/16" without checking `len(commands)`.
+8. The dialog for the "committed with cleanup warning" result still uses `ERROR_MESSAGE` (`PreferenceSaveFailure.java:22`).
+
+## Verified as correct
+- **Stored-name parsing:**
+  - The buffer is large enough, `memcpy` avoids misaligned reads, and the offset is measured from the `attrreference_t`.
+  - The length check `4+off+len ≤ length ≤ bufsize` is right.
+  - The name must end in NUL with no NUL inside, and `/`, `.` and `..` are rejected.
+  - The stored name is checked by inode before it replaces `s->base`.
+  - The free/strdup order can't leak or double-free.
+- **Owner session (ABI03):** commit/abort take ownership inside native code under the Java lock, and every consumed-session rule is now tested directly in `SessionObservation`.
+- **Java reporting:** each result type now has its own reported-once flag. The reporter-unavailable test produces no stderr and preserves the original exception, and it's run in both the fixture and packaged checks.
+- **Independent base checks (`secure_build.py:94-101`):**
+  - The audit27 base is read with `read_bytes`, so the gate driver's `read_text` substitution can't intercept it.
+  - Only the JAR and `Info.plist` may differ from audit27.
+  - The plist may differ only in the two version keys.
+- **Gate driver:** it now records the replacement count and the product commit, and checks that argv points at the secure JAR.
+- **SPDX:** every file and JAR-entry checksum is measured against both the bundle and the extracted copy. The negative is a well-formed SHA256 value, since `checksums[0]` is SHA256 per `spdx.py:26`.
+- **Native comparator:** the occurrence counts are now asserted (`:24`).
+- **Interrupted-create variants and their leftover handling:** consistent with the native code.
+- **NFD alias via raw `FileOutputStream`:** correct; it avoids NIO's NFD conversion of native paths.

@@ -1,0 +1,18 @@
+Actual restricted read-only Claude CLI focused follow-up on hardlink and static Help comparison fixes.
+
+I found no correctness or safety blockers in the three areas you named.
+
+**`stored_target_name`** (`modernization/private-preferences/native/private_file.c:166`)
+- When `st_nlink != 1` it returns 1 before `getattrlistat`, so `s->base` keeps the caller's name. That closes the case where `ATTR_CMN_NAME` reports a different link's name. The single-link path still checks the stored name against `st_dev`/`st_ino` before swapping it in, and `target_writable` plus the recorded target identity still apply to the caller's name.
+- One minor gap, not a blocker: a hardlinked target opened through a case or Unicode alias spelling now gets renamed to the caller's spelling instead of the stored one. The test suite doesn't cover hardlink and alias together. If you accept that, say so in the comment at line 167.
+
+**`SecurePathObservation.java`**
+- The hardlink cases are ordered correctly. In both, `backup` is looked up at line 59, after `target` and before the save, so the name cache points at the other link while the save runs. The checks after the save cover replacement and `backup` keeping its inode and bytes, and `backup` is again looked up last (line 61). The same-folder (i=0) and different-folder (i=1) cases are both covered.
+- Alias setup (line 41) and the alias caller (line 56) both use `new File(d.toFile(), name)`. The NFD case at line 38 builds its path by plain string concatenation, so it's raw too. The remaining `d.resolve(...)`/`toPath()` calls (lines 54 and 56) only do inode, byte and permission lookups. Those lookups match names regardless of normalization, so they can't hide a wrong spelling, and the one-entry check (`list.length==1`) covers what's left.
+
+**`secure_gate_driver.py` Help adaptation**
+- The replaced line has to appear exactly once (`count(window)!=1`), so a change to the frozen gate makes it fail instead of silently skipping.
+- `normalize_private` fails closed. It requires the full set of extra helpers, checks the hash of every entry in `HELPERS` (including `PreferenceIO.class`) against the measured `helper_hashes`, and treats a missing entry as an error. It replaces only `PreferenceIO.class`, using the audit27 baseline copy, so every other entry must match the static overlay exactly.
+- `jar=actual.resolve()` (`check_help.py:82`) is untouched, so javap and the probe classpaths use the real secure JAR.
+- The frozen base is checked independently. `check_secure_artifact` reads `expected-build.json` with `read_bytes` (`secure_build.py:95`), which the driver's `read_text` patch doesn't touch, and checks the base against `BASE_SHA`. Line 103 limits the secure delta to `PreferenceIO.class` plus the added helpers. Line 63 of the driver re-checks the identity afterwards.
+- Minor: the Help check now compares entry contents rather than the whole-JAR hash, so ZIP ordering and metadata aren't compared there. The JAR hash is still pinned through `provenance.json` and line 93, so this isn't a blocker.

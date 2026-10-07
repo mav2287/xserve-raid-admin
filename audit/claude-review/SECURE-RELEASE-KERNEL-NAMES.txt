@@ -1,0 +1,40 @@
+Actual restricted read-only Claude CLI review of simplification after raw-name fixture correction.
+
+I found no concrete security or original-semantic blocker. Removing `stored_target_name` takes nothing away from security, and the hardlink behaviour stays exactly the same. It does break several tools and fixtures that depend on it, listed below. Those have to change before the trial and qualification results will mean anything.
+
+**Security: no regression**
+- The helper only chose which spelling of the name to use, and only after checking the device and inode matched. It never decided whether a save was allowed.
+- Without it, `s->base` is the caller's name for every step: `target_ok`, `faccessat`, the target identity check at commit (`private_file.c:333`), and `renameat`/`RENAME_EXCL`. All of these go through the same `dirfd`, so they all reach the same directory entry.
+- Removing it actually shrinks what can go wrong. It drops the `getattrlistat` buffer parsing, the window between that lookup and the stat of the returned name, and the hardlink name ambiguity.
+- The private-file, owner, ACL, read-only and parent checks, the commit identity check and the ABI03 ownership code are all untouched.
+
+**Original semantics**
+- Hardlinks: no change. With more than one link, the helper already returned 1 at `:169` and kept the caller's name. The link split ("hard-backup keeps the old bytes") is an existing, documented difference from the original, which truncated in place and so updated every link.
+- Alias spelling:
+  - The original keeps the stored spelling because it truncates the existing file in place.
+  - The new code keeps it only if `rename` keeps it. On APFS that rests on your trial, not on any guarantee.
+  - Either way the file stays in the same folder with the same contents and stays private.
+  - So a spelling difference would be a cosmetic deviation to document, not a security issue.
+
+**APFS (tested) vs other filesystems (unqualified)**
+- **Case-insensitive APFS:** your trial shows `rename` keeps `Foo` when saving as `foo`. Treat that as observed behaviour on this build, not a guarantee.
+- **Case- and normalization-sensitive filesystems** (case-sensitive APFS, UFS): `foo` is a separate, absent name, so the save creates a new `foo` next to `Foo`. The original `FileOutputStream` does the same, so they match. This hasn't been tested, though.
+- **HFS+:** it stores decomposed (NFD) names, so the two Unicode forms end up as one name anyway. How it handles a case-variant rename has not been tested.
+- **SMB, NFS, exFAT, FAT:** the resulting spelling is up to the filesystem or server. These were never qualified, and on some of them `RENAME_EXCL` returns ENOTSUP.
+
+**Tests that check spelling**
+- `SecurePathObservation.java:56` only checks that there is one name and that the inode changed. It never checks the spelling, so it can't show the name was kept. Add `list[0].equals(aliases[i][0])`.
+- Java's directory listing (`File.list()`, and NIO on macOS) may convert returned names to composed form (NFC). If so, a Java listing can't tell whether `é` or `e\u0301` is the stored form. I haven't confirmed this. Your raw trial should check the Unicode cases with a byte-level listing, for example Python `os.listdir(b'...')`. Only the ASCII `Foo`/`foo` case is reliable through Java.
+- Once the helper is gone, `stored-alias-name` (`NameGuardObservation.java:22`) is checking filesystem behaviour, not a product guard. No code mutation can make it fail, so record it as an environment observation, not a negative control.
+
+**Breakage to fix before the trial and qualification**
+1. `tools/check_secure_native.py`:
+   - `:31-36` (the pinned helper hash and the call-site removal) will raise on the new source and need to come out.
+   - The `'stored-name'` fault at `:67` goes too, since its strict `replace()` will raise.
+   - The other source rewrites at `:26` are plain `.replace()` calls, so removing the `sys/attr.h` include is harmless. Keep `limits.h`, because `PATH_MAX` is still used at `:244`.
+2. `AtomicFaultObservation.java:31`: drop the `stored-name` → `atomic-target-name` mapping.
+3. `tools/check_secure_names.py`: the `injected`, `skip-hardlink-guard`, `skip-stored-name` and `skip-name-identity` variants all fail or no longer make sense. Cut it down to the `normal` alias and `hard` scenarios, and remove the `identity` branch in `NameGuardObservation.java:17-18`.
+4. `modernization/private-preferences/README.md:7,9` still describe keeping the stored spelling.
+5. ABI03: the comment at `private_file.c:104` says to bump the version whenever the transaction contract changes. Dropping one failure code (`atomic-target-name`) and no longer rewriting the name is arguably a contract change. Because library hashes are pinned, keeping 0x58415203 is acceptable. Write that decision down so two different behaviours under ABI03 don't look accidental.
+
+You're right to accept this only after every raw alias and hardlink trial passes and full clean qualification succeeds, once the changes above are in.

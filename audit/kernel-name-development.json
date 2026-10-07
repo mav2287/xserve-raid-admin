@@ -1,0 +1,97 @@
+{
+  "clean_execution": false,
+  "limits": [
+    "Dirty development source; no other filesystems/GUI/hardware; x64 Rosetta"
+  ],
+  "observations": [
+    {
+      "architecture": "aarch64",
+      "mode": "-Xint",
+      "native_sha256": "7bb9dc1fccafab8ebc639caaace903ec151abc45c33ec8a33a5da1d96c06f41f",
+      "raw_alias_hex": [
+        "616c6961732d30",
+        "616c6961732d302f466f6f",
+        "616c6961732d31",
+        "616c6961732d312fc3a9",
+        "616c6961732d32",
+        "616c6961732d322f65cc81"
+      ],
+      "result": "PASS secure paths; original_cases=22; aliases=3; hardlinks=2; path_limits=3; strict_encoding_fail_closed=true",
+      "source_sha256": "114cad70deb7b1c0646ffe98be2f226d65f076f8af573a690b616479fd2019b7"
+    },
+    {
+      "architecture": "aarch64",
+      "mode": "-Xcomp",
+      "native_sha256": "7bb9dc1fccafab8ebc639caaace903ec151abc45c33ec8a33a5da1d96c06f41f",
+      "raw_alias_hex": [
+        "616c6961732d30",
+        "616c6961732d302f466f6f",
+        "616c6961732d31",
+        "616c6961732d312fc3a9",
+        "616c6961732d32",
+        "616c6961732d322f65cc81"
+      ],
+      "result": "PASS secure paths; original_cases=22; aliases=3; hardlinks=2; path_limits=3; strict_encoding_fail_closed=true",
+      "source_sha256": "114cad70deb7b1c0646ffe98be2f226d65f076f8af573a690b616479fd2019b7"
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xint",
+      "native_sha256": "793d61b5312db454d8eb100edfb2a1d4a0c94bfbc39a21f9f00c5aea5321a934",
+      "raw_alias_hex": [
+        "616c6961732d30",
+        "616c6961732d302f466f6f",
+        "616c6961732d31",
+        "616c6961732d312fc3a9",
+        "616c6961732d32",
+        "616c6961732d322f65cc81"
+      ],
+      "result": "PASS secure paths; original_cases=22; aliases=3; hardlinks=2; path_limits=3; strict_encoding_fail_closed=true",
+      "source_sha256": "114cad70deb7b1c0646ffe98be2f226d65f076f8af573a690b616479fd2019b7"
+    },
+    {
+      "architecture": "x64",
+      "mode": "-Xcomp",
+      "native_sha256": "793d61b5312db454d8eb100edfb2a1d4a0c94bfbc39a21f9f00c5aea5321a934",
+      "raw_alias_hex": [
+        "616c6961732d30",
+        "616c6961732d302f466f6f",
+        "616c6961732d31",
+        "616c6961732d312fc3a9",
+        "616c6961732d32",
+        "616c6961732d322f65cc81"
+      ],
+      "result": "PASS secure paths; original_cases=22; aliases=3; hardlinks=2; path_limits=3; strict_encoding_fail_closed=true",
+      "source_sha256": "114cad70deb7b1c0646ffe98be2f226d65f076f8af573a690b616479fd2019b7"
+    }
+  ],
+  "original_source_sha256": "1d5749638554ad60c8fc9d97931cb3f3f5365f8697ee34f1a84be870ed4bd154",
+  "probe_hashes": {
+    "atomiccaller/AtomicCallerObservation$1.class": "e1ab62db8e0033b584bf5d4b0935dfd9b7a1d403a3f14c78c7fe1a8b146cf1cc",
+    "atomiccaller/AtomicCallerObservation$2.class": "a302b834b44adf6f528074bd8b5dc4423b54cb73087eb71d860b0734ea5363b6",
+    "atomiccaller/AtomicCallerObservation$Backend.class": "a5d5725edda6c55b4638f795aaab10a6e411770a0c6c0c11915fb90fbe6fc611",
+    "atomiccaller/AtomicCallerObservation$Guard.class": "5608052200b3bd1009364e8527eb51cb65aead51cf605c4fb2a0f636b8b786f0",
+    "atomiccaller/AtomicCallerObservation$Observed.class": "4e3e351ed15259bcb49d3d92759b3e6e7a498ac1dc5cb8d6effc942adf595ed8",
+    "atomiccaller/AtomicCallerObservation.class": "5cc6a02e6ff3e5463759e0a348aea995878e654bb23ab01d4a0db67486453ef5",
+    "atomiccaller/BindingObservation$1.class": "4c00d90c002407b849d28ebb3f2a25b8d4c9e9e9625d01a94276de262c84e078",
+    "atomiccaller/BindingObservation$2.class": "bed7b8f40cee62054a34302f0613e73b23cdb5c278451bb973ca5a83b4dc771f",
+    "atomiccaller/BindingObservation$3.class": "c3228a3d0416a9d9ed24c771c21f000ed67c5b6d2cec432b61c7af631667dbff",
+    "atomiccaller/BindingObservation$4.class": "22be88d79b96caac956d2b0bb1414326f2059234fec0da5c3878962c5fd3d82c",
+    "atomiccaller/BindingObservation.class": "09d18e3531a5bbe242948b98cb312d015e66023e2b944093d8237710c0ff792a",
+    "atomiccaller/NameGuardObservation.class": "81038f40fed57c45cd0b347cae2f2dd29d6139c9573430407f2f789a9cc4d1db",
+    "atomiccaller/SessionObservation.class": "1d48319d13d6821bbe5fa5f763130ced4cd65b2bdc2214460470ac62ead124ec",
+    "securefixture/AtomicFaultObservation.class": "f90ff85b1046aec6b7abdbfb22b799254935f371cfa636b7bc211c76e9097689",
+    "securefixture/AtomicPreferenceObservation$1.class": "01dbc3e36a33436571370033f465697a4b62a5b3efb3915d621b8ed08eb19079",
+    "securefixture/AtomicPreferenceObservation$2.class": "2482bd08dcd74e9a1b6fe5d824443b15b8fa744fe2ba1059ea84cb576d97756c",
+    "securefixture/AtomicPreferenceObservation.class": "0e37394292001cc9ef1005ebf976bfc83c6b40788b9aac12cf64056408996a7e",
+    "securefixture/SecurePathObservation$Guard.class": "b25cee1af14d7b79cc2329f3f2a2c33a290956e1ec11c99ada2460a29bb70f1d",
+    "securefixture/SecurePathObservation.class": "28f910c5b1f1e863781602b4f9cf4003dc6bc4a93d186480e827f8fd286736f6",
+    "securefixture/TransactionProbe.class": "46d7e87db06cb78f8cbf550e9c0935a261008ecd946f481fe4dc6da494a77d22"
+  },
+  "product_jar_sha256": "4d33884a5c2084200dad21238c529827553096a2ab11414dd30b83fcd0a46ccf",
+  "qualification": false,
+  "scope": "Nonshipping native variant bypasses stored-name metadata; raw File-created aliases; all paths and hardlinks on APFS",
+  "source_commit": "ec9182b",
+  "source_dirty": true,
+  "variant_source_sha256": "114cad70deb7b1c0646ffe98be2f226d65f076f8af573a690b616479fd2019b7"
+}

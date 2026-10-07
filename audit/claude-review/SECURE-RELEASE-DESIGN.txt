@@ -1,0 +1,115 @@
+Actual restricted, read-only Claude CLI review. Historical design findings; see subsequent implementation and qualification records.
+
+I read the named sources plus the pieces they depend on: `patches/compat/PreferenceIO.java`, `tools/preference_io_patch.py`, `tools/verify_builds.py`, `audit/expected-build.json`, `audit/preference-gate-commands.json`, `HelpLauncher.java` and the experiment README and `check.py`. I didn't execute or edit anything.
+
+## Overall view
+
+The design holds up. Keeping new sources out of `patches/` is required, not just tidy: `tools/baseline.py:77-82` compiles every `patches/**/*.java` and rejects any class set other than `PATCH_CLASSES`. Rebuilding audit27 first and then applying a hash-bound delta is the right order. Two parts of the plan won't work as stated: running the full prior regression matrix on the secure JAR with untouched tools, and reusing the existing packaging tools. There are also several integration hazards to fix before any code is written.
+
+## Blockers
+
+**1. The prior regression tools can't accept the secure JAR without changes.**
+- `check_stop_lock.py:40`, `check_sync_posting.py:44`, `check_connect_stop.py:44` and `check_stopped_post.py:42` require the candidate to equal `stopped-post-recovery-expected.json`'s `e0fe515…` and the `expected-build.json` identity.
+- `preference_io_patch.strip_entries` (`:41-48`) rejects any `compat/PreferenceIO.class` other than `51d208…`. Every checker that calls `help_patch.strip_entries` inherits that rejection.
+- `check_preference_io.py:16,40` pins the in-place raw-stream behaviour, so it should fail against atomic saving.
+
+Required split:
+- (a) Run the untouched matrix against the rebuilt audit27, which proves the base reproduces.
+- (b) Add a secure inverse: check the exact added-class set and hashes, restore PreferenceIO to `51d208` bytes taken from the audit27 JAR, delete the added classes, then require all entries (including the manifest) to equal audit27 and FBC to remain `76935f…`.
+- (c) Add new secure drivers, copied rather than edited, that re-execute the runtime fixtures against the secure JAR.
+
+Byte identity of the other entries does not by itself carry runtime evidence over for any fixture that reaches `FileBasedPreferences.store`. Inventory those fixtures. `check_preference_io` should be replaced by the caller matrix run against the product classes, not re-run.
+
+**2. Packaging needs a parallel secure path.**
+- `bundle.py:51` requires the audit27 expected identity.
+- `bundle.py:94` allows changes only to the launcher and Info.plist.
+- `bundle.py:97-99` forbids any `Native/` addition.
+- `release_archive.py:94`, `verify_bundles` and `spdx` also pin audit27 inputs.
+
+You need `secure_bundle`/`secure_release` tools with their own expected record. Leave `expected-build.json` frozen.
+
+**3. The rebuild identity includes the builder.** `check_artifact` identity contains `builder` (macOS 26.6.2, Python 3.14.8). A matching JAR hash on a different point release still fails identity. The secure pipeline should assert `e0fe515` and `input_hashes == expected-build` and record the builder. It should not route through `bundle.py`.
+
+**4. The native toolchain isn't fully locked.** The experiment hashes clang, `SDKSettings.json` and four headers, and its README says "not a complete SDK lock". For release:
+- Hash every header actually included (from `-MD` depfile output) and the `ld` binary.
+- Pin the JNI headers from the compiler JDK.
+- Clear `SDKROOT`/`DEVELOPER_DIR`.
+- Require two identical builds per architecture.
+
+**5. Path rules are still open, and you already ordered these tests first. Two concrete differences:**
+- Native opens the parent path and then uses `openat`/`renameat` relative to it. A full path of 1024 bytes or more with a shorter parent can succeed where the original `open(full)` fails with ENAMETOOLONG. That makes the product more permissive. Either mirror the original's raw-length rejection or document it.
+- A basename over 255 bytes fails in `fstatat` as `atomic-target-stat` (IOException). The original fails with FileNotFoundException. FBC swallows both, but the reporting codes should map it deliberately.
+- Case and NFC aliases: the original truncates the existing inode and keeps the existing name's form. `renameat` onto a case-variant may change the stored name. The application basename is fixed ASCII, so this mainly affects user-restored files. Observe it and document the result.
+
+**6. Don't copy HelpLauncher's dialog pattern.** `HelpLauncher.java:41` runs the dialog synchronously when already on the EDT. The three `PreferencesWindow` listeners call `synchronize` on the EDT, under the store lock. A modal dialog there pumps events while other threads (registry, SystemMonitor) block on the lock. Always use `invokeLater`, even on the EDT. Never use `invokeAndWait`. Acquire no locks in the reporter, using only CAS flags.
+
+**7. Initialising the library inside a class initializer changes the failure class.** `Library.AVAILABLE` catches only `LinkageError | RuntimeException` (`AtomicPreferenceFile.java:24`). Another Error during class initialisation poisons the holder. Every later save then throws `NoClassDefFoundError` outside any catch, which escapes `store` as an Error the original never produced. Use an explicit synchronized state: any load failure becomes permanently unavailable with a fixed code.
+
+## Preservation details to keep exactly
+
+- **Path handling:** `new File(identifier)` stays first, so a null identifier still throws NPE. Then `checkWrite(file.getPath())`, then the NUL check with `FileNotFoundException("Invalid file path")`, then strict UTF-8. Remove the dot-component rejection (`:59-60`) and the `fixture.directory` realpath boundary (`:65-69`). Native already rejects only a `.`/`..` basename, which the original also fails on, as a directory. Relative identifiers resolve against the process cwd in both versions, which matters for the `findFolder` fallback.
+- **Strict-surrogate rejection:** give it its own fixed code (for example `atomic-path-encoding`) so it can be reported. Valid strings must produce byte-identical names to audit27 for all 22 path labels on both runtimes.
+- **Product helper:** keep only `write`. Drop `writeWithHook`. Keep the abort-on-close-failure ordering, `abortPreserving`, and rethrowing the same primary object.
+- **Signature:** `PreferenceIO.write(String,Object)` must keep its exact signature, because FBC's constant pool references it (`preference_io_patch.py:8`).
+- **Reporting:** FBC swallows Exceptions, so reporting has to happen inside `PreferenceIO.write` before rethrowing.
+  - Report Exceptions only.
+  - Pass Errors through untouched.
+  - Never print `getMessage()`: map an exact whitelist of native codes, including the `+leftover`/`+close` variants, and send everything else to a generic code.
+  - Print to stderr at most once per code, from a bounded set. Show at most one dialog per process.
+  - Check `isHeadless()` before touching Swing.
+  - Swallow reporter failures, leave the interrupt flag untouched, and don't reset `changeCount`.
+- **Committed-close:** `commit()` zeroes the handle before `commit0`, so the abort after `atomic-committed:close` is a no-op. That's correct. Rethrowing matches the original's close-failure behaviour, since FBC swallows both. Use a distinct code and non-alarming wording ("saved; cleanup warning").
+- **Native renaming:** change the three `FindClass` strings and the `begin0` signature (`atomic_file.c:49,55,67`). I'd also use a new ABI token so experimental and product libraries can never be confused in provenance; this costs nothing. Exports stay exactly `JNI_OnLoad`/`JNI_OnUnload`.
+
+## Native library location
+
+- Convert with `new File(codeSource.getLocation().toURI())`, never `URL.getPath()`. The bundle name `RAID Admin.app` already contains a space.
+- Fail closed if:
+  - the ProtectionDomain or CodeSource is null,
+  - the scheme isn't `file`,
+  - the location is a directory,
+  - `toURI` throws.
+- Use `System.load(absolute)` only. Never use `loadLibrary`; the launcher sets `-Djava.library.path` (`packaging/RAIDAdmin:28`).
+- Use one fixed filename per package and don't select by `os.arch`, which is a JVM property. If the architecture is wrong, `dlopen` fails and the helper fails closed.
+- Hashing the dylib before loading would not create a trust boundary, because whoever can write the bundle can already replace the JAR.
+- **Design risk:** a Mach-O file under `Contents/Resources` will cause problems for future `codesign`/notarization. Consider `<jar dir>/../Frameworks/`, which is still derived from CodeSource.
+- **Load host:** the experiment loaded linker-signed dylibs into the pinned runtimes from `build/`. Record the vendor `java` entitlements and hardened-runtime flags. Confirm loading from the bundle path. Mark loading from a quarantined copy as unqualified. Under fail-closed, a Gatekeeper block would surface as a visible save failure.
+
+## Validation requirements
+
+1. **Pipeline:** rebuild audit27 to `e0fe515` with input hashes equal to `expected-build.json`, from a clean commit. Run the secure delta twice and get identical JARs.
+2. **Delta and inverse:**
+   - The added-class set exactly matches an allowlist that includes javac synthetics.
+   - No added name collides with an existing entry.
+   - The inverse produces audit27 entries exactly, and FBC is unchanged.
+   - The original JAR still hashes to `5505d8…` before and after.
+3. **Absence scans:**
+   - No `atomicfixture/` entries.
+   - No `fixture.`, `writeWithHook` or `getProperty` strings in the constant pools of the new classes.
+   - No `atomicfixture` strings in either dylib.
+4. **Mach-O checks per architecture:**
+   - Single architecture, `LC_BUILD_VERSION` macOS with minos 11.0, matching `LSMinimumSystemVersion` (`bundle.py:84`).
+   - Dependencies limited to libSystem, no `LC_RPATH`, exports exactly the two JNI symbols.
+   - The arm64 linker ad-hoc signature is present and not stripped.
+5. **Prior matrix:** the untouched tools on rebuilt audit27, plus the new secure drivers on the secure JAR, on both runtimes, with `-Xint`/`-Xcomp` as before.
+6. **Direct secure tests** using the real CodeSource. Lay out the disposable fixture as `X.app/Contents/Resources/{JAR, Native}` and put fixture classes in a second JAR. That exercises production resolution without a seam. Rerun:
+   - the 37-case/16-run atomic matrix,
+   - the 44 fault runs,
+   - the 19-case caller matrix,
+   - the 22 path labels,
+
+   plus these new cases:
+   - missing, wrong-architecture, experimental and stale-token libraries → no file created, no in-place fallback, old bytes intact, exactly one stderr code over N saves,
+   - case/NFC aliases and PATH_MAX,
+   - committed-close injection,
+   - a deferred-reporter assertion via a package-private Reporter seam (no `invokeAndWait`, which can't be GUI-tested here, so add a static bytecode check),
+   - stderr scanned for fixture paths and home strings,
+   - interrupt/count/Error-identity parity,
+   - zero leftovers and exact directory sets.
+7. **Packages:**
+   - Both have byte-identical JARs and their architecture's dylib.
+   - The runtime is a byte-only copy with the vendor signature re-verified (`bundle.py:73-74` semantics).
+   - No signing or installation.
+   - Provenance/SBOM lists the base `e0fe515`, the `expected-build.json` hash, delta class hashes, the inverse proof, per-architecture dylib hashes with the toolchain lock, the ABI token, and `application_signing: null`.
+
+Still explicitly unqualified: physical Intel (x64 runs under Rosetta), the GUI and dialog, Main/factory launch, real profiles, quarantine/Gatekeeper, signing/notarization, network homes, and hardware.

@@ -1,0 +1,59 @@
+Actual restricted read-only Claude CLI review of ABI03 production and pipeline draft. Subsequent refinements are recorded separately.
+
+I found no blocking defects in the native transaction or the Java session code. There are two blockers before any of this counts as evidence, and they're in the tooling and the repo state, not the transaction. This was a read-only static review: I ran nothing, so none of the findings below have been executed.
+
+## Blockers
+
+1. **None of the reviewed code is committed.** `modernization/` and all five `tools/secure_*.py` / `check_secure_*.py` files show as untracked in git. The `state()` dirty check rejects any clean-required run (`secure_build.py:23`), so no clean evidence for ABI03 can exist yet. Anything already archived came from different code.
+
+2. **The gate driver's metadata adapter makes the frozen identity check check itself.** `secure_gate_driver.py:38` builds `expected-build.json` from `identity`, and `identity` is returned by `check_secure_artifact` on the candidate being tested. The frozen gate's "artifact matches expected" step is now the candidate compared with itself. The independent check left (`secure_build.py:84-98`) covers the JAR delta against audit27, but:
+   - The other bundle files (Info.plist, MacOS/RAIDAdmin, any extra files) are compared only to the build's own `provenance.json`.
+   - It doesn't check the audit27-reference `provenance.json`, or that the Info.plist changes are limited to the two version keys.
+
+   So the comment at `secure_gate_driver.py:25` ("still checks the complete secure delta") overstates what is checked. Fix: in `check_secure_artifact`, require `tree(app)` to equal audit27's provenance files except exactly the JAR and Info.plist, and diff the plist down to those two keys.
+
+## High
+
+3. **The SBOM checks prove the format, not the contents** (`secure_package.py:55-58`). `validate(doc, validator)` never sees the bundle. The negative test writes `'0'*64` into what is probably a 40-character SHA1 field, so it most likely fails as malformed rather than as a wrong-but-valid checksum. Nothing re-checks the SPDX file checksums against the extracted archive, so the `SPDX=true` claim is stronger than the evidence. Fix: use a well-formed wrong SHA1 as the negative, and cross-check every `files[].checksums` entry against `snapshot(extracted)`.
+
+## Medium
+
+4. **One dialog slot is shared by all result types** (`PreferenceSaveFailure.java:10,14`). `dialogReported` is a single flag. A harmless "saved, cleanup warning" dialog, or an "unconfirmed" one, blocks every later "could not save" dialog. GUI users don't see stderr, so they'd never learn of a real failure. Give each category its own flag, or let a more severe result replace a milder one.
+
+5. **The native-port comparator can hide added copies of a removed block** (`check_secure_native.py:23-27`). It uses unbounded `str.replace` for deletions, notably the comment plus `SetLongField(..., handle_field, 0)` block. An extra identical block (say, in `begin_native` after the fd is published) would be deleted during normalization and still match. Assert exact occurrence counts (2 for ownership, 1 for others), like the `replace()` helper does.
+
+6. **Offline test gaps for the new ABI03 behaviour:**
+   - Consumed-session rules aren't tested directly: commit twice, abort after commit, commit after abort, `commit0` on a zero handle. `TransactionProbe` re-implements `write()` rather than testing these.
+   - No fault variant for: create interrupted (`atomic-temporary-create-uncertain`), the `+leftover`/`+close` forms of `atomic-rename-uncertain` (the classifier at `PreferenceSaveFailure.java:35` handles them but nothing produces them), or `atomic-abort+close`.
+   - Some test code never runs: no tool runs the `reporter-unavailable` scenario (`BindingObservation.java:18-26`), and nothing reaches the `temporary-acl` branch (`AtomicFaultObservation.java:33`).
+   - The GUI branch (property and headless gating, single slot) is never exercised; every fixture runs headless.
+
+## Low
+
+7. **A save that succeeded but hit a close error is reported as a failure to the caller.** `atomic-committed:close` reaches the caller as an `IOException`, while the dialog says "Preferences were saved" with an error icon. This matches legacy close-throws behaviour, but the user gets mixed signals.
+8. **`atomic-temporary-create-uncertain` can leave a leftover temporary file without saying so.** It's classified as FAILED, which is correct for the target, but the code carries no `+leftover` hint.
+9. **Hard-coded values that won't track the source:**
+   - `native_abi: '0x58415203'` in the package manifest and SBOM is a literal, not derived from or checked against the source (`secure_package.py:41,49,52`).
+   - The printed totals `16x37` / `52` / `26` (`check_secure_native.py:109`) are typed in, not computed. They are correct today.
+10. **Gate driver details:**
+    - It swaps every `BASE_SHA` literal in the frozen source without recording how many it replaced.
+    - It doesn't record the product's `source_commit` or require it to match `execution_commit`.
+    - `jar` is never used, so nothing asserts that argv actually points at the secure JAR.
+11. **Minor:** `if __name__=='__main__':main()` comes before `def check_secure_artifact` (`secure_build.py:81`), which works but is fragile. The experimental library is pinned by substring match (`check_secure_preferences.py:89`).
+
+## Checked and correct
+
+- **Ownership hand-off after native entry, under the Java lock:** no double free or double close. Abort after a failed commit is a safe no-op.
+- **`begin_native`:** the temp name fits its buffer (41 + NUL in 43). Ownership is published with two infallible field writes. Every early return frees and closes what it allocated.
+- **ACL checks:** the loop ends on Darwin's `-1/EINVAL`.
+- **Rename:** `RENAME_EXCL` is used when the target is absent. An interrupted rename isn't retried, and cleanup verifies the inode before deleting. The interrupted-before and interrupted-after cases are tested.
+- **Error handling:** reporter and cleanup failures never replace the original exception (`PreferenceIO`, `abortPreserving`), and errors pass through without being reported.
+- **Launcher:** strips only a leading `-psn_`, sets `raid.admin.gui=true` only when there are no arguments, and scrubs the environment.
+- **SBOM verification code:** the single-file `packageVerificationCode` is computed correctly per SPDX.
+
+## Not testable offline (hardware/GUI)
+
+- **Gatekeeper/quarantine on `System.load` of the unsigned dylib.** This is the biggest real-world risk. If it's blocked, every save fails safely as `atomic-library-unavailable` with no fallback, but the user sees an error on every save. Library validation passes with the locked runtime in the fixtures; quarantine has never been tried.
+- **The dialog itself:** rendering, event-thread behaviour, and whether it shows at all for a save during quit (likely lost, so failure would show only on stderr).
+- Physical Intel (x64 has only run under Rosetta), real NFS/SMB (interrupted calls and fsync are only injected), and external volumes that ignore ownership (saves there are rejected by policy).
+- Other users or root, power-loss durability (local saves have no fsync, as documented), and real controllers.
