@@ -164,14 +164,18 @@ public final class ArrayInfoTransitionObservation {
         for (int turn=0;turn<300;turn++) {
             drivesRadio.doClick(0); int drive=turn%14;select.invoke(panel,drive);
             check(field(infoClass,"selectedDrive").getInt(info)==drive,"drive-details");
+            check(drivesRadio.isSelected() && drivesCard.isVisible() && !arraysCard.isVisible(),"drive-card");
             for(int i=0;i<14;i++)check(pixel(icons[i])==(i==drive?selectedPixel:basePixel),"drive-pixels");
-            int id=turn%6+1;
+            int id=new int[]{1,2,3,4,5,6,-2,-3,0,-10}[turn%10];
             listener.propertyChange(new PropertyChangeEvent(info,"ArrayIndex",-1,id));
             check(radio.isSelected() && arraysCard.isVisible() && !drivesCard.isVisible(),"array-card");
-            for(int i=0;i<14;i++)check(pixel(icons[i])==(memberships[i]==id?selectedPixel:basePixel),"array-pixels");
+            check(field(infoClass,"selectedArray").getInt(info)==id-1,"array-details");
+            for(int i=0;i<14;i++)check(pixel(icons[i])==(memberships[i]==(id==0?-10:id)?selectedPixel:basePixel),"array-pixels");
             int clicked=(turn+3)%14;
             if(states[clicked]==-2) {
                 select.invoke(panel,clicked); id=memberships[clicked];
+                check(field(infoClass,"selectedArray").getInt(info)==id-1,"array-icon-details");
+                check(radio.isSelected() && arraysCard.isVisible() && !drivesCard.isVisible(),"array-icon-card");
                 for(int i=0;i<14;i++)check(pixel(icons[i])==(memberships[i]==id?selectedPixel:basePixel),"array-icon-click");
             }
         }
