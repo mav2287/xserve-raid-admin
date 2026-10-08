@@ -9,6 +9,7 @@ import json
 import re
 import subprocess
 import zipfile
+import xml.etree.ElementTree as ET
 from audit_support import ROOT, JAVA_FLAGS, isolated_env, verify_jdk, verify_python, run_jdk, sha
 from array_info_build import check_array_info_artifact
 from array_info_patch import ENTRY, HELPER, verify_delta
@@ -23,25 +24,22 @@ IDENTITIES = ['com/apple/xsr/SystemInfoPane$5.class', 'com/apple/xsr/SystemInfoP
               'com/apple/xsr/SelectableStatusLabel.class', 'com/apple/xsr/ArraySelectionPanel.class',
               'com/apple/xsr/ArraySelectionPanel$ArrayLabel.class', 'com/apple/xsr/ArraySelectionPanel$2.class',
               'com/apple/xsr/ArraySelectionPanel$3.class', 'com/apple/xsr/ArraySelectionPanel$4.class']
-COMPILED_TARGETS = ['com.apple.xsr.SystemInfoPane$5::propertyChange', 'compat.ArrayInfoSelection::setArrayIndex']
+COMPILED_TARGETS = ['com/apple/xsr/SystemInfoPane$5 propertyChange (Ljava/beans/PropertyChangeEvent;)V',
+                    'compat/ArrayInfoSelection setArrayIndex (Lcom/apple/xsr/DriveSelectionPanel;I)V']
 
 
-def validate_output(raw, expected, mode, fixed):
-    if mode == '-Xint':
-        if raw != expected: raise ValueError('Interpreted output differs')
-        return []
-    compiled = []; markers = []
-    for line in raw.decode('ascii').splitlines():
-        if line == expected.decode('ascii').strip():
-            markers.append(line); continue
-        if not re.match(r'^\s*\d+\s+\d+\s+.*::', line): raise ValueError('Unexpected compiler diagnostic')
-        target = next((name for name in COMPILED_TARGETS if name + ' ' in line), None)
-        if target and re.search(r'\(\d+ bytes\)\s*$', line): compiled.append(line)
-        elif not target and '(native)' not in line: raise ValueError('Unexpected Java compilation outside target scope')
+def check_compilation(path, fixed):
+    root = ET.parse(path).getroot()
     required = COMPILED_TARGETS if fixed else COMPILED_TARGETS[:1]
-    if len(markers) != 1 or any(not any(name + ' ' in line for line in compiled) for name in required):
-        raise ValueError('Required compiled target or exact fixture marker missing')
-    return compiled
+    methods = {name:[dict(n.attrib) for n in root.iter('nmethod') if n.get('method') == name] for name in COMPILED_TARGETS}
+    failures = [dict(f.attrib) for task in root.iter('task') if task.get('method') in required for f in task.iter('failure')]
+    if any(not methods[name] for name in required) or (not fixed and methods[COMPILED_TARGETS[1]]) or failures:
+        raise ValueError('Exact target compilation not verified')
+    ids = {n['compile_id'] for name in required for n in methods[name]}
+    return {'installed_nmethods':{name:methods[name] for name in required},
+            'make_not_entrant_count':sum(n.get('compile_id') in ids for n in root.iter('make_not_entrant')),
+            'uncommon_trap_count':sum(n.get('compile_id') in ids for n in root.iter('uncommon_trap')),
+            'log_sha256':sha(path)}
 
 
 def main():
@@ -75,6 +73,7 @@ def main():
               'baseline_jar_sha256':sha(baseline), 'candidate_jar_sha256':sha(candidate), 'delta':delta,
               'whole_jar_inverse_exact':True, 'all_other_entries_unchanged':True,
               'scope':'Actual information listener and no-system refresh; synthetic detail components and fresh raster icons; no native presentation or hardware qualification',
+              'compilation_policy':'Only listener and helper are eligible for focused compilation. XML proves code installation, not that every assertion or the full application ran compiled. Deoptimization/inlining remain possible. VM stubs/native wrappers are outside this claim. Application launcher options are unchanged.',
               'runs':[], 'negatives':[]}
     for arch, expected_arch in [('aarch64', 'aarch64'), ('x64', 'x86_64')]:
         runtime = ROOT / ('build/secure-release-' + arch + '-6/RAID Admin.app/Contents/PlugIns/Runtime.jdk')
@@ -87,10 +86,12 @@ def main():
             manifest = out / ('identity-' + arch + '-' + label + '.tsv'); manifest.write_text('\n'.join(lines) + '\n')
             fixed = 'true' if label == 'after' else 'false'
             for mode in ['-Xint', '-Xcomp']:
+                log = out / ('jit-' + arch + '-' + label + '-positive.xml')
+                if log.exists(): raise ValueError('Fresh compiler log required')
                 compiler_flags = (['-XX:CompileCommand=quiet',
                     '-XX:CompileCommand=compileonly,com/apple/xsr/SystemInfoPane$5.propertyChange',
                     '-XX:CompileCommand=compileonly,compat/ArrayInfoSelection.setArrayIndex',
-                    '-XX:+PrintCompilation'] if mode == '-Xcomp' else [])
+                    '-XX:+UnlockDiagnosticVMOptions', '-XX:+LogCompilation', '-XX:LogFile=' + str(log)] if mode == '-Xcomp' else [])
                 flags = JAVA_FLAGS + [mode, '-Xverify:all', '-Djava.awt.headless=true', '-Dlog4j.defaultInitOverride=true',
                                      '-Dfixture.expectedArch=' + expected_arch, '-Dfixture.fixed=' + fixed,
                                      '-Dfixture.requireFixed=' + fixed,
@@ -98,27 +99,25 @@ def main():
                 command = [str(runtime / 'Contents/Home/bin/java')] + flags + ['uifixture.ArrayInfoFixObservation']
                 result = subprocess.run(command, env=isolated_env(), capture_output=True, timeout=180)
                 expected = ('PASS array info listener; fixed=' + fixed + '; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0\n').encode()
-                valid = result.returncode == 0 and not result.stderr
-                try: compiled = validate_output(result.stdout, expected, mode, label == 'after')
-                except (ValueError, UnicodeDecodeError): valid = False; compiled = []
-                if not valid:
+                if result.returncode or result.stdout != expected or result.stderr:
                     # Fixture emits only reviewed identifiers on failure; retain diagnostics locally, never secrets.
                     (out / ('failure-' + arch + '-' + label + '.stdout')).write_bytes(result.stdout)
                     (out / ('failure-' + arch + '-' + label + '.stderr')).write_bytes(result.stderr)
                     raise ValueError('Array-info observation failed; diagnostics withheld')
-                log = out / ('jit-' + arch + '-' + label + '.txt')
-                if mode == '-Xcomp': log.write_bytes(result.stdout)
+                compiled = check_compilation(log, label == 'after') if mode == '-Xcomp' else None
                 record['runs'].append({'architecture':arch, 'mode':mode, 'jar':label, 'stdout':expected.decode().strip(), 'empty_stderr':True, 'runtime_tree_sha256':spec['tree_sha256'],
-                    'compiler_flags':compiler_flags, 'compiled_target_lines':compiled,
-                    'jit_log_sha256':sha(log) if mode == '-Xcomp' else None})
+                    'compiler_flags':compiler_flags, 'compilation':compiled})
                 if label == 'before':
                     negative = command[:-1] + ['-Dfixture.requireFixed=true', command[-1]]
+                    negative_log = out / ('jit-' + arch + '-' + label + '-negative.xml')
+                    if negative_log.exists(): raise ValueError('Fresh negative compiler log required')
+                    negative = ['-XX:LogFile=' + str(negative_log) if v.startswith('-XX:LogFile=') else v for v in negative]
                     result = subprocess.run(negative, env=isolated_env(), capture_output=True, timeout=180)
-                    validate_output(result.stdout, b'EXPECTED_NEGATIVE missing-fix\n', mode, False)
-                    if (result.returncode != 1
+                    if (result.returncode != 1 or result.stdout != b'EXPECTED_NEGATIVE missing-fix\n'
                             or not result.stderr.startswith(b'Exception in thread "main" java.lang.AssertionError: array-info-fixture-failed\n')):
                         raise ValueError('Original fixed-oracle negative failed')
-                    record['negatives'].append({'architecture':arch, 'mode':mode, 'expected_failure':'missing-fix', 'stderr_sha256':hashlib.sha256(result.stderr).hexdigest()})
+                    record['negatives'].append({'architecture':arch, 'mode':mode, 'expected_failure':'missing-fix', 'stderr_sha256':hashlib.sha256(result.stderr).hexdigest(),
+                        'compilation':check_compilation(negative_log, False) if mode == '-Xcomp' else None})
     if state() != initial or any(sha(ROOT / n) != h for n,h in inputs.items()) or check_array_info_artifact(args.build)[0] != identity:
         raise ValueError('Qualification inputs changed')
     (out / 'results.json').write_text(json.dumps(record, sort_keys=True, indent=2) + '\n')

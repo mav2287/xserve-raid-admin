@@ -1,0 +1,2 @@
+OpenJDK 64-Bit Server VM warning: CodeCache is full. Compiler has been disabled.
+OpenJDK 64-Bit Server VM warning: Try increasing the code cache size using -XX:ReservedCodeCacheSize=

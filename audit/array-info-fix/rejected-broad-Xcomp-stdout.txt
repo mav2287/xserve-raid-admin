@@ -1,0 +1,5 @@
+CodeCache: size=131072Kb used=8721Kb max_used=10641Kb free=122350Kb
+ bounds [0x00000001088ac000, 0x000000010937c000, 0x00000001108ac000]
+ total_blobs=5098 nmethods=4696 adapters=318
+ compilation: disabled (not enough contiguous free space left)
+PASS array info listener; fixed=false; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0

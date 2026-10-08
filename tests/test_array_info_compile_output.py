@@ -1,24 +1,33 @@
 import sys
 from pathlib import Path
+import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from check_array_info_fix import validate_output
+from check_array_info_fix import check_compilation, COMPILED_TARGETS
 
 
 class CompileOutputTests(unittest.TestCase):
-    def test_exact_interpreted_marker(self):
-        self.assertEqual(validate_output(b'PASS\n', b'PASS\n', '-Xint', False), [])
-        with self.assertRaises(ValueError): validate_output(b'WARNING\nPASS\n', b'PASS\n', '-Xint', False)
+    def log(self, directory, methods, failure=False):
+        root = ET.Element('hotspot_log')
+        for i, name in enumerate(methods):
+            ET.SubElement(root, 'nmethod', method=name, compile_id=str(i), level='3')
+        if failure:
+            task = ET.SubElement(root, 'task', method=COMPILED_TARGETS[0]); ET.SubElement(task, 'failure', reason='fixture-control')
+        path = Path(directory) / 'jit.xml'; ET.ElementTree(root).write(path); return path
 
-    def test_requires_both_actual_compiled_methods(self):
-        listener = b' 100 1 b 3 com.apple.xsr.SystemInfoPane$5::propertyChange (82 bytes)\n'
-        helper = b' 101 2 b 3 compat.ArrayInfoSelection::setArrayIndex (15 bytes)\n'
-        self.assertEqual(len(validate_output(listener + helper + b'PASS\n', b'PASS\n', '-Xcomp', True)), 2)
-        with self.assertRaises(ValueError): validate_output(listener + b'PASS\n', b'PASS\n', '-Xcomp', True)
-        with self.assertRaises(ValueError): validate_output(b'PASS\n', b'PASS\n', '-Xcomp', False)
-        with self.assertRaises(ValueError): validate_output(listener.replace(b'bytes)', b'bytes) made not entrant') + b'PASS\n', b'PASS\n', '-Xcomp', False)
+    def test_requires_exact_method_and_descriptor(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = check_compilation(self.log(directory, COMPILED_TARGETS), True)
+            self.assertEqual(set(result['installed_nmethods']), set(COMPILED_TARGETS))
+            with self.assertRaises(ValueError): check_compilation(self.log(directory, [COMPILED_TARGETS[0].replace(';)V', ';)I')]), False)
 
-    def test_warnings_unexpected_compilation_and_extra_markers_rejected(self):
-        listener = b' 100 1 b 3 com.apple.xsr.SystemInfoPane$5::propertyChange (82 bytes)\n'
-        for extra in [b'CodeCache: disabled\n', b' 102 3 b 3 unexpected.Class::method (4 bytes)\n', b'PASS\n']:
-            with self.assertRaises(ValueError): validate_output(listener + extra + b'PASS\n', b'PASS\n', '-Xcomp', False)
+    def test_missing_helper_failed_compilation_and_empty_log_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for methods, failed in [(COMPILED_TARGETS[:1], False), (COMPILED_TARGETS, True), ([], False)]:
+                with self.assertRaises(ValueError): check_compilation(self.log(directory, methods, failed), True)
+
+    def test_original_requires_listener_and_forbids_helper(self):
+        with tempfile.TemporaryDirectory() as directory:
+            check_compilation(self.log(directory, COMPILED_TARGETS[:1]), False)
+            with self.assertRaises(ValueError): check_compilation(self.log(directory, COMPILED_TARGETS), False)
