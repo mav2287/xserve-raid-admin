@@ -1,278 +1,83 @@
 # Xserve RAID Admin
 
-Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS, retaining its existing Apple silicon and Intel runtime support. This audit candidate is not yet operationally qualified.
+Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS. The original Java interface and controller application are retained, with a bundled runtime, thin compatibility helpers and narrowly scoped class overrides.
 
-Current qualified local baseline is audit.27: seventeen candidate regression gates,
-175 unit tests, repeated ARM/x64 packages, deterministic unsigned ZIPs and
-schema-validated SPDX inventories. Product, fixtures, builds, packages and release
-artifacts use clean source `4735f41`; evidence assembly uses `c7ea088`.
-The only JAR delta from audit26 closes original preference save streams through a
-thin helper. Original XML, paths, modes, links, interrupts and controller behavior
-remain. See [the qualified scope](audit/PREFERENCE-IO.md),
-[integrity ledger](audit/preference-final-integrity.json) and
-[local artifact handoff](RELEASE.md). Full native GUI, physical Intel, controller
-compatibility and signed release acceptance remain unverified. Hardware validation
-is deferred until actual operational need, by user instruction.
+## Download
 
-## About
+[Get the audit28 release](https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.28).
 
-The original RAID Admin was a Java application bundled with Mac OS X for managing Apple Xserve RAID hardware. It was compiled for Java 1.3 and relied on Apple-specific APIs that no longer exist in modern JVMs, making it unable to run on current macOS versions.
+| Your Mac | Download |
+| --- | --- |
+| Apple silicon (M-series) | [Apple silicon ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip) |
+| Intel | [Intel ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip) |
 
-This project contains compatibility patches for the original application. Full functionality, UI behavior, protocol parity, and supported runtime/firmware combinations are not yet qualified. See [AUDIT-BASELINE.md](AUDIT-BASELINE.md) for measured results and limitations.
+**You do not need to download or install Corretto 8 or any other Java runtime.** Each ZIP includes the matching pinned Amazon Corretto 8.504.04.1 runtime inside `RAID Admin.app`. The launcher uses that bundled runtime rather than your system Java. Both packages contain the same application JAR; their runtimes and native helpers differ by CPU architecture.
 
-## Patches Applied
+These are **unsigned, unnotarized prerelease audit builds**. Offline checks passed on native ARM and on x64 under Rosetta; physical Intel, full native interface/startup and real-controller workflows still need qualification. Successful launch is not proof that every feature works. See [completion and remaining acceptance](COMPLETION-STATUS.md).
 
-1. **`sun.io.MalformedInputException` shim** — The original `CommunicationsManager` catches this exception class which was removed from modern JDKs. A compatibility shim extending `java.nio.charset.CharacterCodingException` supplies the required catch type. Isolated dispatch fixtures pass; controller operation remains unqualified.
+## Installation and use
 
-2. **`com.apple.mrj.MRJApplicationUtils` replacement** — Selects `com.apple.eawt` on Java 8 and `java.awt.Desktop` handlers on Java 9+; forwards original About, Preferences, Quit and file-open callbacks. Headless bridge tests pass; native menu/event qualification remains open.
+1. Download the ZIP for your Mac and extract it.
+2. Keep the complete `RAID Admin.app` bundle together; the runtime is inside it.
+3. Open the app when you are ready to use it. Installation in `/Applications` is optional. Preserve any existing installation before replacing it.
 
-3. **`com.apple.eio.FileManager` replacement** — Provides legacy folder mappings, but the runtime class shadows this replacement on tested Corretto 8/11. The verified MRJ caller bridge below handles Desktop lookup.
+If macOS blocks this unsigned app as unverified, first verify the downloaded checksum and decide whether you trust the source. Apple documents the per-app **Privacy & Security → Open Anyway** approval path in [Open apps safely on your Mac](https://support.apple.com/en-gb/102445). Availability depends on your macOS/security policy; this project has not qualified Gatekeeper installation behavior.
 
-4. **`Launcher` wrapper** — Applies Swing UIManager fixes for the Aqua Look & Feel tab text rendering on modern macOS before delegating to the original entry point.
+The release includes `SHA256SUMS.txt` for the uploaded filenames, plus architecture-specific SPDX SBOM, provenance and observations. The unchanged `SHA256SUMS` records the original local metadata paths; the release notes provide the mapping to uploaded filenames.
 
-5. **`com.apple.mrj.MRJFileUtils` Desktop bridge** — Repairs the null folder lookup used by firmware selection and event-log export. Other stubs remain unchanged. Offline regression and method-preservation checks pass; dialog workflows remain to be qualified.
+The original application offers a **+** workflow for discovery or manual IP entry. Discovery uses `_xserveraid._tcp`; controller communication uses the legacy ACPX protocol over **plaintext HTTP**. Monitoring credentials retain reversible legacy obfuscation. Private mode 0600 preference saves are access control, not encryption.
 
-6. **Plist entity resolver and request diagnostics** — Three hash-locked method substitutions preserve the original embedded DTD, reject external entities, and redact both credential-bearing request diagnostic methods.
+Treat firmware transfer, RAID creation/deletion, disk initialization/erasure, cache or controller network-setting changes, restart/shutdown and rebuilds as actual hardware operations. Do not use them merely to test a feature on production or mounted volumes. These workflows have not been qualified by the offline fixtures.
 
-7. **Bounded logging adapter** — Emits only fixed ERROR/FATAL signals, at most once per level per process. No message, exception or context is rendered. This is terminal diagnostic support; GUI error handling remains unqualified.
+## Requirements and tested scope
 
-8. **Secure plist parser boundary** — Uses the pinned bootstrap JDK provider with
-   explicit verified resource quotas and external-access denial, retaining the
-   original plist Handler, DTD and serializer. Custom entity expansion is bounded
-   to 1 MiB. These are deliberate security restrictions; real-response compatibility
-   remains open. See [audit.6 evidence](audit/XML-PARSER-COMPATIBILITY.md).
+- Choose the package matching your Mac's architecture. Apple silicon uses the native aarch64 package; Intel uses x64. On Apple silicon, choose aarch64 rather than the Intel ZIP; Rosetta x64 testing is an additional offline check.
+- The bundled vendor runtime and native helpers have a macOS 11 binary floor. This is not qualification of every macOS version.
+- Recorded native checks ran on macOS 26.6.2/local APFS. x64 execution on that host used Rosetta, not physical Intel.
+- No external Java installation is required for the downloaded packages. Source builds require the exact compiler and Python versions in the audit locks.
+- Signing/notarization, Gatekeeper, additional OS/filesystem combinations and future macOS versions remain unqualified.
 
-9. **Response allocation ceiling** — An operand-only change selects a bounded
-   ByteArrayOutputStream subclass. Advertised response bodies above 16 MiB fail
-   before allocation through the existing terminal malformed-input path.
-   Security rejection recovery is refined in audit.9; framing remains open. See
-   [audit.7 evidence](audit/HTTP-ALLOCATION-GUARD.md).
+## What changed
 
-10. **Bounded response headers** — A per-response stream wrapper caps line,
-    field-count and aggregate header input while preserving the original parser.
-    Unsafe input fails once without resend; audit.9 retires the rejected connection.
-    See [audit.8 evidence](audit/HTTP-HEADER-GUARD.md).
+Compatibility work includes the legacy exception/API bridges, native menu-event adapters, Aqua rendering adjustments, Desktop folder lookup, Help integration, and exact launcher-argument handling. Native user-interface acceptance remains open.
 
-11. **Security rejection recovery** — Exact-marker handling closes the rejected
-    connection, preserves one failure callback and lets the next distinct command
-    use the original reconnect path. Cleanup failures cannot trigger a resend.
-    Invalid numeric/negative lengths are refined in audit.10. See
-    [audit.9 evidence](audit/REJECTION-RECOVERY.md).
+Security and lifecycle work bounds plist/XML and HTTP input, redacts credential-bearing diagnostics, prevents unsafe failed-session continuation on documented paths, and fixes connection-publication, request-ownership and worker-lifetime problems. Those intentional security restrictions differ from legacy behavior; the audit records describe their scope. Healthy controller command formats and polling behavior are preserved within the verified boundaries.
 
-12. **Invalid length rejection** — Malformed, overflowing and negative response
-    lengths use the same safe retirement path, with a fixed message and no raw
-    header value/cause. Valid runtime numeric parsing remains unchanged. See
-    [audit.10 evidence](audit/INVALID-LENGTH-GUARD.md).
+Preference saves use a CodeSource-bound native helper for private atomic replacement, with no insecure in-place fallback. Symlinks and unsafe destinations fail closed; hardlink replacement does not change the other linked file. Existing profile files are not proactively migrated. The original serializer and caller synchronization/error semantics are retained within the tested scope.
 
-13. **Explicit response framing** — Accepts one Content-Length regardless of
-    ASCII letter case. Missing/duplicate lengths and unsupported Transfer-Encoding
-    fail through the same safe retirement path. This is an intentional security
-    restriction with controller compatibility still unqualified. See
-    [audit.11 evidence](audit/RESPONSE-FRAMING-POLICY.md).
-14. **Malformed-header rejection** — Fixed terminal errors for colonless and
-    leading-colon headers prevent peer-text exceptions and command replay on
-    that response path. See [audit.12 evidence](audit/MALFORMED-HEADER-GUARD.md).
-15. **Null-message IO recovery** — Replaces dispatch worker death with one fixed
-    terminal failure and connection retirement, preserving nonnull IO retry behavior.
-    See [audit.13 evidence](audit/NULL-IO-RECOVERY.md).
+Synthetic model-to-file tests exercised the original/current writer and reader combinations. They preserve monitoring values under `Attributes`; management values and their saved flag are absent from the tested registry map. Forget changes the saved flag while retaining the in-memory management value. Actual GUI authentication, full registry/factory integration and broader credential confidentiality remain unverified.
 
-## Requirements
+This is compatibility and preservation work, not a rewrite of Apple's interface or a claim of comprehensive security.
 
-Pinned runtime candidates include Corretto 8 for the selected architecture and
-need no system Java. Their vendor binaries require macOS 11.0 or later; native UI
-and hardware qualification across OS versions remains open. Development builds
-require the exact compiler and Python versions recorded in the audit locks.
+## Build and artifact provenance
 
-## Building
+The public audit28 packages are the frozen unsigned artifacts recorded in [audit/SECURE-PREFERENCES.md](audit/SECURE-PREFERENCES.md), not a new build attributed to later documentation commits.
 
-Use the exact compiler recorded in `audit/jdk-lock.json` and Python version in
-`audit/python-lock.json`. Choose a new output directory for each build:
+- Product source: `e005b9a2877133d98af4cf86fd5b625532b06fcb`.
+- Isolated package/release tooling: `fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8`.
+- Corrected runtime gate: `00209235ab05b6398ecd5fba4403d8d29fe3532e`.
+- Release tag: `v1.5.1-modern.audit.28`, at `15b4957480269298bff56686bb6e3c4877938fff`, adds the later credential-boundary evidence and completion handoff.
+- Common application JAR SHA-256: `bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e`.
 
-```bash
-./build.sh --jdk /path/to/locked-jdk/Contents/Home --output build/audit-local
+Two builds, repeated architecture-specific packages/ZIPs and packaged-code fixtures passed within their documented offline scope. The full record/Git/ZIP/reference verifier is read-only:
+
+```sh
+python3 -I -S audit/credential-persistence/verify.py
 ```
 
-This produces `build/audit-local/RAID Admin.app` and `provenance.json`.
-The unsigned audit bundle retains a historical launcher for comparison. For a
-self-contained candidate, use the pinned runtime packaging described below.
-No build command installs, signs, launches, or deletes an existing output.
-Installation and hardware qualification remain separate acceptance work.
+This verifier requires the recorded local build artifacts to be present. It is not an end-user installation step. For source/package reproduction, use the recorded release tooling commit and [reproduction commands](audit/secure-release/reproduction.txt), or create a fresh clean-source build and new qualification evidence. Historical qualification is not relabeled at a later HEAD.
 
-## Usage
+## Project records
 
-The original application offers a **+** workflow for discovery or manual IP entry.
-That GUI/network workflow has not been qualified in this audit. Hardware testing
-of these candidates requires an approved test context.
+- [Source and artifact baseline](AUDIT-BASELINE.md)
+- [Architecture](ARCHITECTURE.md)
+- [Protocol inventory](PROTOCOL-INVENTORY.md)
+- [Dependencies and licensing evidence](DEPENDENCIES.md)
+- [Acceptance matrix](ACCEPTANCE-MATRIX.md) and [documented gaps](GAPS.md)
+- [Audit28 implementation/release evidence](audit/SECURE-PREFERENCES.md)
+- [Credential persistence boundary evidence](audit/CREDENTIAL-PERSISTENCE.md)
+- [Current completion and remaining acceptance](COMPLETION-STATUS.md)
 
-The original application can replay a mutation after a dropped response. The
-current compatibility guards stop the affected worker session on the verified
-ambiguous-failure paths and preserve honest uncertain outcomes. Full GUI/CLI
-retry and firmware workflows remain unqualified; launch is not feature proof.
-See [G10](GAPS.md#g10--ambiguous-writes-and-queue-retry-semantics).
+The `original/` JAR remains an immutable reference artifact. `/Applications/RAID Admin.app` and real controller data were not modified during the audit.
 
-## Hardware Compatibility
-
-- Apple Xserve RAID (firmware compatibility remains to be qualified)
-- Communicates via the ACPX protocol over HTTP to the Xserve RAID coprocessor
-- Contains Bonjour/mDNS discovery implementation (`_xserveraid._tcp`); operation unqualified
-
-## Original Software
-
-The `original/` directory contains the unmodified JAR and icon assets from Apple's RAID Admin 1.5.1. The `patches/` directory contains compatibility Java source. `tools/class_patch.py` performs three hash-locked, method-only substitutions documented in `audit/security-patches.json`.
-
-## Audit tooling
-
-`build.sh` delegates to the [hash-locked audit builder](AUDIT-BASELINE.md#build-reproducibility).
-Consult [architecture](ARCHITECTURE.md), [protocol inventory](PROTOCOL-INVENTORY.md),
-and [dependencies](DEPENDENCIES.md). No audit artifact is a qualified release.
-
-## Pinned runtime packaging
-
-`tools/runtime.py` fetches only the versioned archives in `audit/runtime-lock.json`,
-verifies vendor SHA-256, exact file bytes/modes and Developer ID signatures, and
-keeps them in a local cache. `tools/bundle.py` adds one pinned runtime to a verified
-clean audit build; it never signs, installs or launches the app. Produce separate
-`aarch64` and `x64` artifacts to preserve both architectures. The bundled launcher
-uses only that runtime and a committed icon, with no temporary icon or PATH fallback.
-
-The pinned vendor Java binaries require macOS 11.0 or later; this binary floor is
-not a claim that every OS version is qualified. These remain unsigned local
-candidates, not release artifacts.
-
-
-### audit.14 security-session containment
-
-[audit.14 containment](audit/SECURITY-SESSION-CONTAINMENT.md) supersedes audit.12/13
-next-request recovery for exact security markers. Local dispatch stops before
-logging/callbacks, so already-queued dependent writes cannot proceed after an
-unconfirmed outcome. No controller shutdown command is sent. Ordinary nonnull IO
-replay remains open. Earlier isolated next-read success is historical evidence;
-it is not the current containment behavior or whole-workflow qualification.
-
-## Audit.15 no-replay refinement
-
-[Ambiguous I/O containment](audit/AMBIGUOUS-IO-NO-REPLAY.md) intentionally removes
-automatic resend for non-prefix I/O failures and stops the local session, including
-failed reads. This supersedes audit.14 statements that ordinary nonnull I/O still
-retries. Healthy replies and prefix -103 behavior remain original. Clean qualification passes on both pinned runtimes. See the linked evidence
-for the 93-test suite, deterministic artifacts and narrowly stated limits. Prefix/generic failure sequencing,
-synchronous cancellation/liveness, UI recovery and hardware acceptance remain open.
-
-### Audit.16 worker-failure containment (clean fixtures)
-
-The narrowly scoped audit.16 patch stops the local session before callbacks after
-legacy prefix parse failures, typed malformed-input failures and generic worker
-exceptions. It preserves their original result codes and exception objects;
-healthy negative controller replies still permit the next request. This refines
-the audit.15 statement that prefix behavior remains original: its error code is
-preserved, but session continuation is deliberately removed for security.
-Claude reviewed the design, implementation, follow-up and clean evidence; all six
-qualification gates and 103 tests pass at clean source/fixture/package commit `727e5c4`. See [scope, evidence and remaining holes](audit/WORKER-FAILURE-STOP.md).
-Interrupted synchronous waits, premature connection completion, queue exit races,
-GUI recovery and hardware qualification remain unresolved. No controller command
-or installed-app modification is part of this change.
-
-### Audit.17 callback guard (clean fixtures)
-
-A constructor-only defense removes enqueueing before the existing forbidden
-synchronous-callback error. The memory differential shows the original queued
-command later executing; the patch rejects before enqueueing while preserving
-normal synchronous response identity and clone counts. This does not establish
-original GUI reachability or fix interrupted waits and TYPE_CONNECT failure/later
-transmission. Claude reviewed the design, implementation and clean evidence; seven gates and
-108 tests pass at clean source/fixture/package commit `47166ed`. See [scoped evidence](audit/SYNC-CALLBACK-PREENQUEUE.md).
-
-### Audit.18 initial connection failure stop (clean fixtures)
-
-The worker now stops locally before publishing an initial connection failure,
-preventing the held command from later executing after its caller receives an
-error. The first silent dual-host fallback and retries with no published notice
-remain; a stopped session requires a fresh Manager. Native GUI recovery is not
-qualified. Nine gates, 112 Python tests and duplicate packages per architecture
-pass at clean source/fixture/package commit `7aa02c5`; x64 runs under Rosetta.
-See [scope and evidence](audit/CONNECT-FAILURE-STOP.md). No controller or installed
-app was modified. Interrupted waits, synchronous enqueue/exit hangs, late async
-posts, callback cleanup, lock ordering and hardware/release acceptance remain open.
-
-### Audit.19 local stop lock ordering (clean fixtures)
-
-Private stopped is volatile, and the worker's two queue-held reads avoid acquiring
-the Manager monitor. Shutdown, callback timing and admission stay unchanged.
-The isolated fixture proves completion and exact deadlock pairs when original
-lock calls are restored. Ten gates, 118 tests and duplicate arm64/x64 packages pass
-at clean source/fixture/package commit `6e2c210`. The first output-mismatch attempt
-has an unresolved cause and is excluded; only the second plain set qualifies.
-See [scope, limits and evidence](audit/STOP-LOCK-ORDER.md). Posting/exit stranding,
-interrupted waits, callback failure cleanup, native GUI and hardware/release
-acceptance remain open. No controller or installed-app modification occurred.
-
-### Audit.20 stopped request admission (clean fixtures)
-
-External posts to a locally stopped Manager are refused after the original clone,
-under the queue lock. The lock is released before response delivery: SyncSender
-is completed directly; other nonnull handlers are deferred to the EDT. The
-worker retains its original enqueue/drain behavior. Deferred errors may update
-the GUI/model where the old queue stayed silent, can precede older callbacks,
-and can execute before a non-EDT poster returns; extension repost loops and
-disposed AppContext delivery remain unqualified. Only Manager and two new
-compatibility helper entries differ from audit.19; exact class reconstruction
-checks unrelated logic. Eleven gates, 124 tests, 40 admission observations and
-duplicate arm64/x64 packages pass at clean `b600ad3`; x64 is Rosetta.
-See [scope, evidence and remaining gaps](audit/STOPPED-POST-ADMISSION.md).
-Interrupted-wait ownership, abnormal worker exit, stop-versus-active-send,
-native GUI, real hardware and signed release acceptance remain open. Original
-JAR and installed application are preserved; legacy HTTP remains plaintext.
-
-
-### Audit24 failed-open publication and LaunchServices arguments (local qualification)
-
-Clean application, fixture and package source `8c246e1`, JAR
-`9592145c933f611888a00cb159340a86f99d427672483701212023078f823553`.
-Fourteen candidate regression gates and 146 unit tests pass; 290 gate source hash
-entries are checked against their recorded clean Git commit and current bytes.
-Only private AcpxConnection.createConnection changes inside the JAR from audit23:
-open a local candidate once, publish only after success. Public timeout handling,
-command bytes, polling and retries remain unchanged. Each candidate runtime/mode
-covers 26 cases and 34 explicit failed-send attempts; four additional observations
-characterize the actual audit23 reference. Eight interpreted negative controls
-fail at their exact intended assertions. Direct post-newRequest failure recovery
-remains unchanged and is not qualified by this fix.
-
-The pinned-runtime launcher strips only one leading canonical legacy process
-serial number, preventing that metadata from selecting CLI mode. All other
-arguments remain exact. Its shell tests use a synthetic executable, not app Main.
-Paired builds and repeated packages match bytes and file/directory modes on both
-architectures; vendor runtime signatures verify. x64 execution is Rosetta, not
-physical Intel. Apps remain unsigned and unnotarized. See
-[audit scope and reproduction](audit/CONNECTION-PUBLICATION.md) and
-[hash-bound evidence](audit/connection-publication-final-integrity.json).
-
-Real hardware acceptance is deferred by the user's latest instruction, until an
-actual operational need arises. No controller, production/mounted-volume test,
-firmware transfer or installed-app modification occurred. Native GUI workflows,
-physical Intel, signed release acceptance and controller behavior are unverified.
-Separate offscreen native component probes are development-only, with no windows
-shown or app Main/profile/controller access. HTTP remains plaintext.
-
-
-### Audit25 original Help boundary and local release preparation
-
-Qualified JAR `59087dceed5865b08cef4db0b554a0822837618a07e59b6fd92a2b25880e6393`.
-Product/build/package source `82f9c4f`; final stop comparator, units and release
-postprocessing source `aee4580`. Fifteen candidate regression gates and 165 units
-pass. Two original browser call operands route through a thin Desktop helper;
-original localized URLs, UI action filtering, controller code, commands, polling
-and retries remain. Browser failures receive deliberate fixed English feedback.
-The actual browser/native-dialog path remains unverified.
-
-Paired packages, unsigned deterministic ZIPs, extracted vendor runtime signatures
-and repeated schema-validated SPDX inventories pass on both architecture artifacts.
-x64 execution is Rosetta. No installed app modification, controller contact or
-production/mounted-volume test occurred. Hardware acceptance is deferred until
-actual operational need. Native full GUI, physical Intel, signing/notarization,
-redistribution rights and remaining documented compatibility/security gaps are
-not waived. Model diagnostic credential redaction is a separate development
-milestone; its current prototype is not shipping qualification. HTTP is plaintext.
-See [audit scope, record hashes and reproduction](audit/HELP-COMPATIBILITY.md),
-[the frozen ledger](audit/help-final-integrity.json), and
-[archived record locations](audit/help-archival-map.json).
+Apple authored RAID Admin 1.5.1. This project does not imply Apple endorsement. Publication is authorized by the repository owner; original Apple and unresolved legacy dependency redistribution rights remain unresolved, and no legal determination is made. Vendor runtime notices are retained in the bundles. Historical documents describe the pre-publication local handoff; the release notes record the subsequent publication.

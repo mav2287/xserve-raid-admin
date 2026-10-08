@@ -1,0 +1,175 @@
+{
+  "release": {
+    "assets": [
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343382",
+        "contentType": "application/zip",
+        "createdAt": "2026-10-08T01:32:09Z",
+        "digest": "sha256:e3701f62b03824b3b206c46c759b43fe3edd291f24ce4d1c40436e5f239611a7",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBW",
+        "label": "",
+        "name": "RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip",
+        "size": 220593988,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:28Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343380",
+        "contentType": "application/zip",
+        "createdAt": "2026-10-08T01:32:09Z",
+        "digest": "sha256:743f6a724ce743b2fc71ab3594085af0d7d9d49b73edfe9573dc54a995a80e02",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBU",
+        "label": "",
+        "name": "RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip",
+        "size": 217149740,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:27Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343383",
+        "contentType": "application/json",
+        "createdAt": "2026-10-08T01:32:09Z",
+        "digest": "sha256:6a4c095ecb82d8a8cccf57c5594c48f35fe35cad92089f1a623b8f21203c2314",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBX",
+        "label": "",
+        "name": "RAID-Admin-audit28-aarch64-provenance.json",
+        "size": 118023,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:10Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-audit28-aarch64-provenance.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343385",
+        "contentType": "application/json",
+        "createdAt": "2026-10-08T01:32:09Z",
+        "digest": "sha256:b7ceb967737563ac304d0747522b8cba2090acd795b5631e3c6492c498ef3a0d",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBZ",
+        "label": "",
+        "name": "RAID-Admin-audit28-aarch64-release-observations.json",
+        "size": 24848,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:10Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-audit28-aarch64-release-observations.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343386",
+        "contentType": "application/json",
+        "createdAt": "2026-10-08T01:32:09Z",
+        "digest": "sha256:d8162716702bca2c7e82616d705954e2f9cf9367f2dc78512c2ead5a6750c35a",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBa",
+        "label": "",
+        "name": "RAID-Admin-audit28-aarch64-SBOM.spdx.json",
+        "size": 3816129,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:10Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-audit28-aarch64-SBOM.spdx.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343411",
+        "contentType": "application/json",
+        "createdAt": "2026-10-08T01:32:10Z",
+        "digest": "sha256:420730b109f7c2015728e9c543fc2102db4a9918b985c774dce44d99dd76594b",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBz",
+        "label": "",
+        "name": "RAID-Admin-audit28-x64-provenance.json",
+        "size": 118027,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:10Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-audit28-x64-provenance.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343417",
+        "contentType": "application/json",
+        "createdAt": "2026-10-08T01:32:10Z",
+        "digest": "sha256:faf0f6f9173ebeebcb542055fe9257e4dbda6c08098b302b6c767c03df0133e1",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bB5",
+        "label": "",
+        "name": "RAID-Admin-audit28-x64-release-observations.json",
+        "size": 24844,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:11Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-audit28-x64-release-observations.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343410",
+        "contentType": "application/json",
+        "createdAt": "2026-10-08T01:32:10Z",
+        "digest": "sha256:1255f174cb4369635e26839f8bd6ceca7e110385e2657ef5fcfd44e6fd442dca",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bBy",
+        "label": "",
+        "name": "RAID-Admin-audit28-x64-SBOM.spdx.json",
+        "size": 3816117,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:11Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-audit28-x64-SBOM.spdx.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343426",
+        "contentType": "application/octet-stream",
+        "createdAt": "2026-10-08T01:32:11Z",
+        "digest": "sha256:2e22741e9d77ba1973ec1076723a49d8a3ef6661cfbfefefb62b7a407eb83b66",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bCC",
+        "label": "",
+        "name": "SHA256SUMS",
+        "size": 782,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:11Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/SHA256SUMS"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/mav2287/xserve-raid-admin/releases/assets/620343435",
+        "contentType": "text/plain; charset=utf-8",
+        "createdAt": "2026-10-08T01:32:11Z",
+        "digest": "sha256:1f98e97a7e7129b0ae0677f2b52dcc59fe37001d26601f29ebf21455a212be9b",
+        "downloadCount": 0,
+        "id": "RA_kwDORqxrSs4k-bCL",
+        "label": "",
+        "name": "SHA256SUMS.txt",
+        "size": 973,
+        "state": "uploaded",
+        "updatedAt": "2026-10-08T01:32:11Z",
+        "url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/SHA256SUMS.txt"
+      }
+    ],
+    "isDraft": false,
+    "isPrerelease": true,
+    "tagName": "v1.5.1-modern.audit.28",
+    "url": "https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.28"
+  },
+  "download_verification": {
+    "RAID-Admin-audit28-x64-provenance.json": "420730b109f7c2015728e9c543fc2102db4a9918b985c774dce44d99dd76594b",
+    "RAID-Admin-audit28-aarch64-release-observations.json": "b7ceb967737563ac304d0747522b8cba2090acd795b5631e3c6492c498ef3a0d",
+    "RAID-Admin-audit28-aarch64-provenance.json": "6a4c095ecb82d8a8cccf57c5594c48f35fe35cad92089f1a623b8f21203c2314",
+    "RAID-Admin-audit28-x64-SBOM.spdx.json": "1255f174cb4369635e26839f8bd6ceca7e110385e2657ef5fcfd44e6fd442dca",
+    "RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip": "743f6a724ce743b2fc71ab3594085af0d7d9d49b73edfe9573dc54a995a80e02",
+    "RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip": "e3701f62b03824b3b206c46c759b43fe3edd291f24ce4d1c40436e5f239611a7",
+    "RAID-Admin-audit28-aarch64-SBOM.spdx.json": "d8162716702bca2c7e82616d705954e2f9cf9367f2dc78512c2ead5a6750c35a",
+    "RAID-Admin-audit28-x64-release-observations.json": "faf0f6f9173ebeebcb542055fe9257e4dbda6c08098b302b6c767c03df0133e1",
+    "SHA256SUMS": "2e22741e9d77ba1973ec1076723a49d8a3ef6661cfbfefefb62b7a407eb83b66",
+    "SHA256SUMS.txt": "1f98e97a7e7129b0ae0677f2b52dcc59fe37001d26601f29ebf21455a212be9b"
+  },
+  "anonymous_zip_checks": [
+    {
+      "name": "RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip",
+      "anonymous_https_status": 200
+    },
+    {
+      "name": "RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip",
+      "anonymous_https_status": 200
+    }
+  ],
+  "source_tag_commit": "15b4957480269298bff56686bb6e3c4877938fff",
+  "main_fast_forward_from": "ed171c734f98706fd02524306941625603e1a751",
+  "scope": "Both package ZIPs and metadata downloaded from GitHub and hash-verified. No artifact rebuild, installed app or controller change. README follows as a separate documentation commit; release tag is unchanged."
+}
