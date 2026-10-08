@@ -4,18 +4,18 @@ Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS
 
 ## Download
 
-[Get the audit29 release](https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.29).
+[Get the audit30 release](https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.30).
 
 | Your Mac | Download |
 | --- | --- |
-| Apple silicon (M-series) | [Apple silicon ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.29/RAID-Admin-1.5.1-modern.audit.29-aarch64-unsigned.zip) |
-| Intel | [Intel ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.29/RAID-Admin-1.5.1-modern.audit.29-x64-unsigned.zip) |
+| Apple silicon (M-series) | [Apple silicon ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/RAID-Admin-1.5.1-modern.audit.30-aarch64-unsigned.zip) |
+| Intel | [Intel ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/RAID-Admin-1.5.1-modern.audit.30-x64-unsigned.zip) |
 
 **You do not need to download or install Corretto 8 or any other Java runtime.** Each ZIP includes the matching pinned Amazon Corretto 8.504.04.1 runtime inside `RAID Admin.app`. The launcher uses that bundled runtime rather than your system Java. Both packages contain the same application JAR; their runtimes and native helpers differ by CPU architecture.
 
 These are **unsigned, unnotarized audit builds**. Offline checks passed on native ARM and on x64 under Rosetta; physical Intel, full native interface/startup and real-controller workflows still need qualification. Successful launch is not proof that every feature works. See [completion and remaining acceptance](COMPLETION-STATUS.md).
 
-Audit29 adds a narrow information-view fix: a cleared array selection now clears the drive highlights instead of selecting unassigned drives. Offline original/fixed tests pass. The user reports improvement and correct selection/details, with a remaining brief highlight delay that self-resolves. [The follow-up investigation](audit/ARRAY-REFRESH.md) records expanded transition tests; native paint latency remains unqualified. See [fix and test evidence](audit/ARRAY-INFO-FIX.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
+Audit30 removes the artificial 68 ms simulated button-press pause from information-view array-row clicks and internal view switches. The original selection events and results are preserved, and shared row behavior outside the information view keeps its original delay. Audit29's cleared-selection correction remains. Before/after tests prove the wait is removed; your remaining native highlight symptom still needs confirmation with this bundle. See [responsiveness evidence and reproduction](audit/ARRAY-CLICK.md), [earlier investigation](audit/ARRAY-REFRESH.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
 
 ## Installation and use
 
@@ -53,7 +53,9 @@ This is compatibility and preservation work, not a rewrite of Apple's interface 
 
 ## Build and artifact provenance
 
-The current audit29 packages were built and packaged at clean source commit `26d7ec7921d9839d1dfcb9f0158e3af1a2824c6c`. Both contain common JAR SHA-256 `d616359dbea9fa8c9bd61f107b86e65b3563353f833a35430b314036d1a03fc6`. Two independent common builds and repeated architecture packages passed. See [audit29 evidence and reproduction](audit/ARRAY-INFO-FIX.md). Later documentation/release-tag commits do not change that product provenance.
+The current audit30 packages were built and packaged at clean source commit `1a2ef1f35ad26dc28821ab19ba3677a2280312b9`. Both contain common JAR SHA-256 `3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059`. Two independent common builds match; both architecture packages pass repeated ZIP/extraction/signature/SPDX checks. Four guarded before/after runs exercise 300 mixed transitions each and prove exact zero-delay arguments through the patched listeners while preserving ordered events. The Python suite passes 196 tests with six existing skips. See [audit30 evidence and reproduction](audit/ARRAY-CLICK.md). Later documentation/release-tag commits do not change product provenance.
+
+The prior audit29 packages remain available at their original tag and recorded source `26d7ec7921d9839d1dfcb9f0158e3af1a2824c6c`, common JAR SHA-256 `d616359dbea9fa8c9bd61f107b86e65b3563353f833a35430b314036d1a03fc6`. [Audit29's evidence](audit/ARRAY-INFO-FIX.md) retains its original scope.
 
 The previous audit28 packages remain the frozen unsigned artifacts recorded in [audit/SECURE-PREFERENCES.md](audit/SECURE-PREFERENCES.md), not a new build attributed to later documentation commits.
 
@@ -78,6 +80,7 @@ This historical verifier requires the recorded local build artifacts and origina
 - [Protocol inventory](PROTOCOL-INVENTORY.md)
 - [Dependencies and licensing evidence](DEPENDENCIES.md)
 - [Acceptance matrix](ACCEPTANCE-MATRIX.md) and [documented gaps](GAPS.md)
+- [Audit30 information-view responsiveness fix and release evidence](audit/ARRAY-CLICK.md)
 - [Audit29 array information fix and release evidence](audit/ARRAY-INFO-FIX.md)
 - [Audit28 implementation/release evidence](audit/SECURE-PREFERENCES.md)
 - [Credential persistence boundary evidence](audit/CREDENTIAL-PERSISTENCE.md)

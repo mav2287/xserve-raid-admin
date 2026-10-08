@@ -651,3 +651,15 @@ architecture-specific native loading/packaging, and rerun the complete candidate
 and unsigned archive/SPDX checks. Neither application launch nor these bounded
 experiments establishes full application functionality. The original JAR,
 installed JAR, audit27 release JAR and frozen integrity ledger remain unchanged.
+
+
+## Information-view click-delay correction — audit30
+
+Subsequent source/runtime evidence identifies a definite 68 ms simulated press
+sleep on the drawing thread for array-row text clicks and internal mode switches.
+Audit30 removes that wait only within the information view. Actual original/fixed
+listeners prove 68 → 0 delay arguments with identical ordered events and selection
+results; shared rows outside the information view retain 68. Both architectures
+build reproducibly and pass unsigned package checks. This refines the earlier
+latency inference; it does not establish native symptom resolution or additional
+controller acceptance. See [audit30 evidence](audit/ARRAY-CLICK.md).

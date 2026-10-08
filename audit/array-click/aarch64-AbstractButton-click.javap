@@ -1,0 +1,51 @@
+  public void doClick();
+    Code:
+       0: aload_0
+       1: bipush        68
+       3: invokevirtual #57                 // Method doClick:(I)V
+       6: return
+
+  public void doClick(int);
+    Code:
+       0: aload_0
+       1: invokevirtual #58                 // Method getSize:()Ljava/awt/Dimension;
+       4: astore_2
+       5: aload_0
+       6: getfield      #5                  // Field model:Ljavax/swing/ButtonModel;
+       9: iconst_1
+      10: invokeinterface #59,  2           // InterfaceMethod javax/swing/ButtonModel.setArmed:(Z)V
+      15: aload_0
+      16: getfield      #5                  // Field model:Ljavax/swing/ButtonModel;
+      19: iconst_1
+      20: invokeinterface #60,  2           // InterfaceMethod javax/swing/ButtonModel.setPressed:(Z)V
+      25: aload_0
+      26: new           #61                 // class java/awt/Rectangle
+      29: dup
+      30: iconst_0
+      31: iconst_0
+      32: aload_2
+      33: getfield      #62                 // Field java/awt/Dimension.width:I
+      36: aload_2
+      37: getfield      #63                 // Field java/awt/Dimension.height:I
+      40: invokespecial #64                 // Method java/awt/Rectangle."<init>":(IIII)V
+      43: invokevirtual #65                 // Method paintImmediately:(Ljava/awt/Rectangle;)V
+      46: invokestatic  #66                 // Method java/lang/Thread.currentThread:()Ljava/lang/Thread;
+      49: pop
+      50: iload_1
+      51: i2l
+      52: invokestatic  #67                 // Method java/lang/Thread.sleep:(J)V
+      55: goto          59
+      58: astore_3
+      59: aload_0
+      60: getfield      #5                  // Field model:Ljavax/swing/ButtonModel;
+      63: iconst_0
+      64: invokeinterface #60,  2           // InterfaceMethod javax/swing/ButtonModel.setPressed:(Z)V
+      69: aload_0
+      70: getfield      #5                  // Field model:Ljavax/swing/ButtonModel;
+      73: iconst_0
+      74: invokeinterface #59,  2           // InterfaceMethod javax/swing/ButtonModel.setArmed:(Z)V
+      79: return
+    Exception table:
+       from    to  target type
+          46    55    58   Class java/lang/InterruptedException
+

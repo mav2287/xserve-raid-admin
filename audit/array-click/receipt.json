@@ -1,0 +1,72 @@
+{
+  "archives": {
+    "aarch64": {
+      "filename": "RAID-Admin-1.5.1-modern.audit.30-aarch64-unsigned.zip",
+      "local_path": "build/array-click-release-aarch64-1/RAID-Admin-1.5.1-modern.audit.30-aarch64-unsigned.zip",
+      "sha256": "aba0f6f64fa0c5279db799598867f08d5ec760bddb2505d4e789071994d68306"
+    },
+    "x64": {
+      "filename": "RAID-Admin-1.5.1-modern.audit.30-x64-unsigned.zip",
+      "local_path": "build/array-click-release-x64-1/RAID-Admin-1.5.1-modern.audit.30-x64-unsigned.zip",
+      "sha256": "4c2ead53cf0bc2a371a98ef229909e37c205513da1a2ab670d4ad54d8344deb2"
+    }
+  },
+  "equal_common_builds": true,
+  "files": {
+    "aarch64-AbstractButton-click.javap": "7384a2d1f1010c9d2dfc497856c6d31a1d8d6b5c2fae7f1b074b535b194562b7",
+    "aarch64-SBOM.spdx.json": "b56dd5cc43894e6b3bdc676791536306ed6ee361cf4466e7eb0365df8e2f0424",
+    "aarch64-after.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "aarch64-after.stdout": "9d725fd849304b723c85b29ca928cd9275c1c48b74dba94d53a1943ca1f10782",
+    "aarch64-after.tsv": "3b0da5a291d3816b470fabd577c16980f98ab845a2575e90c7540e80245489d8",
+    "aarch64-before.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "aarch64-before.stdout": "b32671496d8bc2dc931283e880c56f8904cb1fbc39d04d2c6a87dc58be8d96cc",
+    "aarch64-before.tsv": "babf4b4c03f89abacc13bbb42d28566daff4e51ff15786df1865456e894caa60",
+    "aarch64-provenance.json": "944bc5d302e94203518f0a3f442343a05a2451d475b0cd44d0e64ffc8d3ab36b",
+    "aarch64-release-observations.json": "9f4b77dfa89968e5d29e01b855ca6e0a6d88253f239c2f1f65c309e2ecf2d586",
+    "claude-diagnosis.json": "3680d0cd9bc61318acc52abbd550fac603dd256b055be45bc8ae30c131736cbb",
+    "claude-final-review.json": "ab9eb17eddd33ec566e456ba524cf4dfab7ac73a02806691acb25996227f178f",
+    "claude-followup.json": "e11d8f74be707176afb79973e09707e9d7a8ece71bbda2abe03547965f456f6b",
+    "claude-initial-review.json": "86c8d5ce1658baf790a7cf724b2a6738a00e4e9b7473d182db124a77d122ea58",
+    "common-3-provenance.json": "5aabf8019786a4b08e83475065e6ee234556b0081e081aa7891d282d5efa318e",
+    "common-4-provenance.json": "c934edada2260d84a19b1547df2f2683ec6045da64c01ea9cf2defe04b55fbe9",
+    "listener-results.json": "0a69c0644141a807922be1aeeab3b9dfc09376ede76f7ea761a5a3d59799f3af",
+    "units.stderr": "74be1e2ac91e4c4688096eb0a055b06edf3f01c7b58b83e4512d25505cdfce2d",
+    "units.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "x64-AbstractButton-click.javap": "7384a2d1f1010c9d2dfc497856c6d31a1d8d6b5c2fae7f1b074b535b194562b7",
+    "x64-SBOM.spdx.json": "62dd82e393374965ba051a055651ac67d0e0b39764bef3a3dfe7e4b9c645412c",
+    "x64-after.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "x64-after.stdout": "65aea239b77bf16d25b6cdba1a6b75ab01fabb1e7ac5f2c5ecf60a5a373788c3",
+    "x64-after.tsv": "3b0da5a291d3816b470fabd577c16980f98ab845a2575e90c7540e80245489d8",
+    "x64-before.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "x64-before.stdout": "4b849b5e41076b8e7ef6c8655a64f9188dd09315f3e14349c29748316d50c7b7",
+    "x64-before.tsv": "babf4b4c03f89abacc13bbb42d28566daff4e51ff15786df1865456e894caa60",
+    "x64-provenance.json": "f44ba621d15570f631e47c0e276d8dd0134d3260b702880702ea636cf632c49f",
+    "x64-release-observations.json": "9d17d584c0bd79fc37d942cf69598a3a1d6fc7777aea099b806d1b9cfab365f2"
+  },
+  "jar_sha256": "3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059",
+  "limits": [
+    "Interpreted headless only; x64 is Rosetta",
+    "Synthetic ancestry; real containment established by original bytecode",
+    "Native symptom confirmation and controller operations unqualified"
+  ],
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "package_delta_vs_audit29": {
+    "aarch64": {
+      "all_other_files_and_modes_equal": true,
+      "files_changed": [
+        "Contents/Info.plist",
+        "Contents/Resources/RAID_Admin.jar"
+      ]
+    },
+    "x64": {
+      "all_other_files_and_modes_equal": true,
+      "files_changed": [
+        "Contents/Info.plist",
+        "Contents/Resources/RAID_Admin.jar"
+      ]
+    }
+  },
+  "qualification": false,
+  "reference_jar_sha256": "d616359dbea9fa8c9bd61f107b86e65b3563353f833a35430b314036d1a03fc6",
+  "source_commit": "1a2ef1f35ad26dc28821ab19ba3677a2280312b9"
+}

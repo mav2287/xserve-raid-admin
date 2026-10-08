@@ -96,3 +96,15 @@ The exact audit29 common artifact and verified local runtime trees must be prese
 The [integrity record](array-refresh/integrity.json) hashes archived evidence;
 source inputs and probe hashes are in the clean result record. This is offline
 correctness evidence, not full application or native GUI qualification.
+
+
+## Information-view click-delay correction — audit30
+
+Subsequent source/runtime evidence identifies a definite 68 ms simulated press
+sleep on the drawing thread for array-row text clicks and internal mode switches.
+Audit30 removes that wait only within the information view. Actual original/fixed
+listeners prove 68 → 0 delay arguments with identical ordered events and selection
+results; shared rows outside the information view retain 68. Both architectures
+build reproducibly and pass unsigned package checks. This refines the earlier
+latency inference; it does not establish native symptom resolution or additional
+controller acceptance. See [audit30 evidence](ARRAY-CLICK.md).

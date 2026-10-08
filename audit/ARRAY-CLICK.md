@@ -57,3 +57,46 @@ folders and clean Git source are required.
 ```
 
 Repeat for x64. These tools never launch or install the application.
+
+## Accepted clean-source results
+
+Product, fixture and package source: `1a2ef1f35ad26dc28821ab19ba3677a2280312b9`.
+Two independent common builds (`build/array-click-common-3` and `-4`) match all
+files, modes and input hashes. Common JAR SHA-256:
+`3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059`.
+
+[Four clean interpreted runs](array-click/listener-results.json) pass 300 mixed
+rounds each on native ARM and x64 under Rosetta. Actual patched row and mode
+listeners record delay argument 0; exact audit29 records 68; outside rows record
+68 in both. Ordered button state/action/item traces match. Direct helper argument
+and null tests, real mode handlers, offline-drive selection, detail/card/icon and
+unchanged-model checks pass. Guards report no prohibited operation. Medians for
+row clicks were 87.96 → 3.96 ms on ARM and 83.63 → 2.21 ms on Rosetta x64;
+mode switches 80.29 → 4.12 and 80.82 → 2.54 ms. These are headless interpreted
+observations, not native screen presentation measurements or general benchmarks.
+The deterministic argument checks establish the fix without a fragile upper
+latency threshold. Full Python suite: 196 tests, six existing skips.
+
+Both unsigned architecture packages pass repeat ZIP, extraction/files/modes,
+vendor-runtime signature and SPDX physical/virtual-byte checks. Relative to the
+frozen audit29 packages, only JAR and the two Info.plist version fields differ;
+all other files, modes and directories are equal. Packaged JARs and runtime trees
+are identical to the identities used by the corresponding fixture checks.
+
+[Receipt and archive hashes](array-click/receipt.json) bind common/package
+provenance, source inputs, fixture outputs and Claude reviews. Imported build and
+runtime verification modules are additionally bound by common-product input
+closure and the clean fixture commit. Read-only verification, without Java:
+
+```sh
+/opt/homebrew/bin/python3 -I -S audit/array-click/verify.py
+```
+
+Claude's final review exposed a runtime-proof gap; deterministic checks through
+the actual patched listeners were added. Its [follow-up](array-click/claude-followup.json)
+confirms the reported issues resolved. The stale argparse observation in the
+preceding review refers to an earlier snapshot; that variable bug was fixed before
+`65ce931`. Pilot timing/setup runs are excluded from this accepted clean record.
+The information-pane constructor and native presentation remain unqualified;
+the operator should confirm normal rapid selections with this bundle. No
+additional controller operation is accepted.

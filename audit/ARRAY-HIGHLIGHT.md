@@ -134,3 +134,15 @@ The user authorized a careful patch after these observations. [Audit29 evidence]
 ## Operator follow-up — 2026-10-08
 
 The user reports audit29 is better. Rapid switching or drive-to-array transitions can briefly delay highlights, while selection/details stay correct. The highlights catch up without another view refresh, before cover/uncover can be tested. [Residual presentation investigation](ARRAY-REFRESH.md) records four guarded mixed-transition runs and the decision to keep product code unchanged. The remaining latency is not independently measured or claimed resolved.
+
+
+## Information-view click-delay correction — audit30
+
+Subsequent source/runtime evidence identifies a definite 68 ms simulated press
+sleep on the drawing thread for array-row text clicks and internal mode switches.
+Audit30 removes that wait only within the information view. Actual original/fixed
+listeners prove 68 → 0 delay arguments with identical ordered events and selection
+results; shared rows outside the information view retain 68. Both architectures
+build reproducibly and pass unsigned package checks. This refines the earlier
+latency inference; it does not establish native symptom resolution or additional
+controller acceptance. See [audit30 evidence](ARRAY-CLICK.md).
