@@ -1,0 +1,11 @@
+{
+  "original_jar_sha256": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+  "disassembler": "audit/jdk-lock.json",
+  "records": {
+    "original.javap": "ea0866698fb623777a08f17ad1bc272ef061325a63fa9cb80fef6e729e713120",
+    "detail.javap": "012a95d8f124dff4385e5a9a369d8aacdc3dadc3ce1fb84b72bfebfa26287a7a",
+    "listeners.javap": "544e74f3913d01073b748661a80a79cc78e43d036f970a7582196f00d383c010",
+    "updates.javap": "7f0b503c2f167efcf7dc597564454d5a1571764766cecaac0aee47805cb5077f",
+    "runtime-image-allocation.txt": "b9b4d46cc2825e389ba33eeab374a34bf0e11044197fade5b8692cd5ca062fff"
+  }
+}

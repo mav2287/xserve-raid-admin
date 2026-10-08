@@ -1,0 +1,12 @@
+Pinned ARM runtime rt.jar: sun.lwawt.LWComponentPeer
+
+  public final java.awt.Image createImage(int, int);
+    Code:
+       0: aload_0
+       1: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+       4: aload_0
+       5: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       8: iload_1
+       9: iload_2
+      10: invokeinterface #228,  4          // InterfaceMethod sun/lwawt/LWGraphicsConfig.createAcceleratedImage:(Ljava/awt/Component;II)Ljava/awt/Image;
+      15: areturn

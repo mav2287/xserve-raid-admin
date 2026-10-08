@@ -1,0 +1,4526 @@
+public class com.apple.xsr.DriveSelectionPanel extends javax.swing.JPanel implements com.apple.xsr.DrivePanel {
+  public static final int NO_SELECTION = 0;
+
+  public static final int SELECT_FOR_CREATE = 1;
+
+  public static final int SELECT_FOR_DELETE = 2;
+
+  public static final int SELECT_FOR_DRIVE_INFO = 3;
+
+  public static final int SELECT_FOR_ARRAY_INFO = 4;
+
+  public static final int SELECT_FOR_EXPAND = 5;
+
+  public static final int SELECT_FOR_VERIFY = 6;
+
+  public static final int SELECT_FOR_REBUILD = 7;
+
+  public static final int SELECT_FOR_SLICE = 8;
+
+  public static final int SELECT_FOR_MERGE = 9;
+
+  public static final int SELECT_FOR_BGRW_START = 10;
+
+  public static final int SELECT_FOR_BGRW_PAUSE = 11;
+
+  public static final int SELECT_FOR_BGRW_RESUME = 12;
+
+  public static final int SELECT_FOR_BGRW_STOP = 13;
+
+  public static final int RAID_0 = 0;
+
+  public static final int RAID_1 = 1;
+
+  public static final int RAID_3 = 2;
+
+  public static final int RAID_5 = 3;
+
+  public static final int RAID_01 = 4;
+
+  public static final int JBOD = 255;
+
+  public static final int INDEX_NONE = -10;
+
+  public static final int RAID_SET_ID_JBOD_TOP = -2;
+
+  public static final int RAID_SET_ID_JBOD_BOTTOM = -3;
+
+  static final int DRIVE_ORPHAN = -5;
+
+  static final int DRIVE_EMPTY = -4;
+
+  static final int DRIVE_OFFLINE = -3;
+
+  static final int DRIVE_ASSIGNED = -2;
+
+  static final int DRIVE_SELECTED = -1;
+
+  static final int DRIVE_AVAILABLE = 0;
+
+  static final int ARRAY_VALID = 0;
+
+  static final int ARRAY_INVALID = 1;
+
+  static final int ARRAY_INVALID_NO_DRIVES = 2;
+
+  static final int ARRAY_INVALID_MORE_DRIVES = 3;
+
+  static final int ARRAY_INVALID_WRONG_DRIVES = 4;
+
+  static final int ARRAY_INVALID_NO_LUNS = 5;
+
+  static final int JBOD_INVALID_EXISTING_ARRAY = 6;
+
+  static final int JBOD_INVALID_MORE_DRIVES = 7;
+
+  private static java.awt.Color hiliteColor;
+
+  private static java.awt.Color badgeColor;
+
+  com.apple.xsr.som.RaidSystem system;
+
+  int selectionMode;
+
+  boolean expandArbitrary;
+
+  int[] driveArrays;
+
+  int[] driveStates;
+
+  float[] driveCapacities;
+
+  java.lang.String[] arrayDescriptions;
+
+  int[] arrayLevels;
+
+  com.apple.xsr.DriveInformationPanel infoLabel;
+
+  com.apple.xsr.StepByStepPanel summaryHeader;
+
+  javax.swing.JTextPane summary;
+
+  javax.swing.JButton applyButton;
+
+  javax.swing.JLabel[] driveIcon;
+
+  java.awt.Image emptyImage;
+
+  java.awt.Image presentImage;
+
+  java.awt.Image availableImage;
+
+  java.awt.Image selectedImage;
+
+  java.awt.Image offlineImage;
+
+  java.awt.Image deleteImage;
+
+  java.awt.Image rebuildingImage;
+
+  java.awt.Image expandImage;
+
+  java.awt.Image orphanImage;
+
+  int driveIndex;
+
+  int arrayIndex;
+
+  boolean confirmed;
+
+  int level;
+
+  int[] defaultDriveStates;
+
+  int[] defaultDriveArrays;
+
+  boolean addNotifyCalled;
+
+  boolean inDragSelect;
+
+  boolean selecting;
+
+  public com.apple.xsr.DriveSelectionPanel(int, com.apple.xsr.DriveInformationPanel, com.apple.xsr.StepByStepPanel, javax.swing.JTextPane, javax.swing.JButton);
+    Code:
+       0: aload_0
+       1: invokespecial #4                  // Method javax/swing/JPanel."<init>":()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #5                  // Field expandArbitrary:Z
+       9: aload_0
+      10: bipush        -10
+      12: putfield      #6                  // Field driveIndex:I
+      15: aload_0
+      16: bipush        -10
+      18: putfield      #7                  // Field arrayIndex:I
+      21: aload_0
+      22: iconst_0
+      23: putfield      #8                  // Field level:I
+      26: aload_0
+      27: bipush        14
+      29: newarray       int
+      31: dup
+      32: iconst_0
+      33: bipush        -4
+      35: iastore
+      36: dup
+      37: iconst_1
+      38: bipush        -4
+      40: iastore
+      41: dup
+      42: iconst_2
+      43: bipush        -4
+      45: iastore
+      46: dup
+      47: iconst_3
+      48: bipush        -4
+      50: iastore
+      51: dup
+      52: iconst_4
+      53: bipush        -4
+      55: iastore
+      56: dup
+      57: iconst_5
+      58: bipush        -4
+      60: iastore
+      61: dup
+      62: bipush        6
+      64: bipush        -4
+      66: iastore
+      67: dup
+      68: bipush        7
+      70: bipush        -4
+      72: iastore
+      73: dup
+      74: bipush        8
+      76: bipush        -4
+      78: iastore
+      79: dup
+      80: bipush        9
+      82: bipush        -4
+      84: iastore
+      85: dup
+      86: bipush        10
+      88: bipush        -4
+      90: iastore
+      91: dup
+      92: bipush        11
+      94: bipush        -4
+      96: iastore
+      97: dup
+      98: bipush        12
+     100: bipush        -4
+     102: iastore
+     103: dup
+     104: bipush        13
+     106: bipush        -4
+     108: iastore
+     109: putfield      #9                  // Field defaultDriveStates:[I
+     112: aload_0
+     113: bipush        14
+     115: newarray       int
+     117: dup
+     118: iconst_0
+     119: iconst_0
+     120: iastore
+     121: dup
+     122: iconst_1
+     123: iconst_0
+     124: iastore
+     125: dup
+     126: iconst_2
+     127: iconst_0
+     128: iastore
+     129: dup
+     130: iconst_3
+     131: iconst_0
+     132: iastore
+     133: dup
+     134: iconst_4
+     135: iconst_0
+     136: iastore
+     137: dup
+     138: iconst_5
+     139: iconst_0
+     140: iastore
+     141: dup
+     142: bipush        6
+     144: iconst_0
+     145: iastore
+     146: dup
+     147: bipush        7
+     149: iconst_0
+     150: iastore
+     151: dup
+     152: bipush        8
+     154: iconst_0
+     155: iastore
+     156: dup
+     157: bipush        9
+     159: iconst_0
+     160: iastore
+     161: dup
+     162: bipush        10
+     164: iconst_0
+     165: iastore
+     166: dup
+     167: bipush        11
+     169: iconst_0
+     170: iastore
+     171: dup
+     172: bipush        12
+     174: iconst_0
+     175: iastore
+     176: dup
+     177: bipush        13
+     179: iconst_0
+     180: iastore
+     181: putfield      #10                 // Field defaultDriveArrays:[I
+     184: aload_0
+     185: iconst_0
+     186: putfield      #11                 // Field addNotifyCalled:Z
+     189: aload_0
+     190: iconst_0
+     191: putfield      #12                 // Field inDragSelect:Z
+     194: aload_0
+     195: iconst_0
+     196: putfield      #13                 // Field selecting:Z
+     199: aload_0
+     200: invokestatic  #14                 // Method com/apple/gui/GUIFactory.configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+     203: pop
+     204: aload_0
+     205: aload_0
+     206: getfield      #9                  // Field defaultDriveStates:[I
+     209: putfield      #15                 // Field driveStates:[I
+     212: aload_0
+     213: aload_0
+     214: getfield      #10                 // Field defaultDriveArrays:[I
+     217: putfield      #16                 // Field driveArrays:[I
+     220: aload_0
+     221: iload_1
+     222: putfield      #17                 // Field selectionMode:I
+     225: aload_0
+     226: aload_2
+     227: putfield      #18                 // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+     230: aload_0
+     231: aload_3
+     232: putfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     235: aload_0
+     236: aload         4
+     238: putfield      #20                 // Field summary:Ljavax/swing/JTextPane;
+     241: aload_0
+     242: aload         5
+     244: putfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     247: aload_0
+     248: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     251: ifnull        262
+     254: aload_0
+     255: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     258: iconst_0
+     259: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     262: aload_0
+     263: ldc           #23                 // String icon.frontpanel.drive.empty
+     265: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     268: putfield      #25                 // Field emptyImage:Ljava/awt/Image;
+     271: aload_0
+     272: ldc           #26                 // String icon.frontpanel.drive.present
+     274: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     277: putfield      #27                 // Field presentImage:Ljava/awt/Image;
+     280: aload_0
+     281: ldc           #28                 // String icon.frontpanel.drive.available
+     283: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     286: putfield      #29                 // Field availableImage:Ljava/awt/Image;
+     289: aload_0
+     290: ldc           #30                 // String icon.frontpanel.drive.selected
+     292: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     295: putfield      #31                 // Field selectedImage:Ljava/awt/Image;
+     298: aload_0
+     299: ldc           #32                 // String icon.frontpanel.drive.offline
+     301: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     304: putfield      #33                 // Field offlineImage:Ljava/awt/Image;
+     307: aload_0
+     308: ldc           #34                 // String icon.frontpanel.drive.delete
+     310: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     313: putfield      #35                 // Field deleteImage:Ljava/awt/Image;
+     316: aload_0
+     317: ldc           #36                 // String icon.frontpanel.drive.rebuilding
+     319: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     322: putfield      #37                 // Field rebuildingImage:Ljava/awt/Image;
+     325: aload_0
+     326: ldc           #38                 // String icon.frontpanel.drive.expand
+     328: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     331: putfield      #39                 // Field expandImage:Ljava/awt/Image;
+     334: aload_0
+     335: ldc           #40                 // String icon.frontpanel.drive.orphan
+     337: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     340: putfield      #41                 // Field orphanImage:Ljava/awt/Image;
+     343: new           #42                 // class java/awt/MediaTracker
+     346: dup
+     347: aload_0
+     348: invokespecial #43                 // Method java/awt/MediaTracker."<init>":(Ljava/awt/Component;)V
+     351: astore        6
+     353: aload         6
+     355: dup
+     356: astore        7
+     358: monitorenter
+     359: aload         6
+     361: aload_0
+     362: getfield      #25                 // Field emptyImage:Ljava/awt/Image;
+     365: iconst_0
+     366: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     369: aload         6
+     371: aload_0
+     372: getfield      #27                 // Field presentImage:Ljava/awt/Image;
+     375: iconst_0
+     376: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     379: aload         6
+     381: aload_0
+     382: getfield      #29                 // Field availableImage:Ljava/awt/Image;
+     385: iconst_0
+     386: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     389: aload         6
+     391: aload_0
+     392: getfield      #31                 // Field selectedImage:Ljava/awt/Image;
+     395: iconst_0
+     396: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     399: aload         6
+     401: aload_0
+     402: getfield      #33                 // Field offlineImage:Ljava/awt/Image;
+     405: iconst_0
+     406: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     409: aload         6
+     411: aload_0
+     412: getfield      #35                 // Field deleteImage:Ljava/awt/Image;
+     415: iconst_0
+     416: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     419: aload         6
+     421: aload_0
+     422: getfield      #37                 // Field rebuildingImage:Ljava/awt/Image;
+     425: iconst_0
+     426: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     429: aload         6
+     431: aload_0
+     432: getfield      #39                 // Field expandImage:Ljava/awt/Image;
+     435: iconst_0
+     436: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     439: aload         6
+     441: aload_0
+     442: getfield      #41                 // Field orphanImage:Ljava/awt/Image;
+     445: iconst_0
+     446: invokevirtual #44                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     449: aload         6
+     451: iconst_0
+     452: lconst_0
+     453: invokevirtual #45                 // Method java/awt/MediaTracker.waitForID:(IJ)Z
+     456: pop
+     457: goto          462
+     460: astore        8
+     462: aload         6
+     464: aload_0
+     465: getfield      #25                 // Field emptyImage:Ljava/awt/Image;
+     468: iconst_0
+     469: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     472: aload         6
+     474: aload_0
+     475: getfield      #27                 // Field presentImage:Ljava/awt/Image;
+     478: iconst_0
+     479: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     482: aload         6
+     484: aload_0
+     485: getfield      #29                 // Field availableImage:Ljava/awt/Image;
+     488: iconst_0
+     489: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     492: aload         6
+     494: aload_0
+     495: getfield      #31                 // Field selectedImage:Ljava/awt/Image;
+     498: iconst_0
+     499: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     502: aload         6
+     504: aload_0
+     505: getfield      #33                 // Field offlineImage:Ljava/awt/Image;
+     508: iconst_0
+     509: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     512: aload         6
+     514: aload_0
+     515: getfield      #35                 // Field deleteImage:Ljava/awt/Image;
+     518: iconst_0
+     519: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     522: aload         6
+     524: aload_0
+     525: getfield      #37                 // Field rebuildingImage:Ljava/awt/Image;
+     528: iconst_0
+     529: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     532: aload         6
+     534: aload_0
+     535: getfield      #39                 // Field expandImage:Ljava/awt/Image;
+     538: iconst_0
+     539: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     542: aload         6
+     544: aload_0
+     545: getfield      #41                 // Field orphanImage:Ljava/awt/Image;
+     548: iconst_0
+     549: invokevirtual #47                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;I)V
+     552: aload         7
+     554: monitorexit
+     555: goto          566
+     558: astore        9
+     560: aload         7
+     562: monitorexit
+     563: aload         9
+     565: athrow
+     566: new           #48                 // class java/awt/GridBagLayout
+     569: dup
+     570: invokespecial #49                 // Method java/awt/GridBagLayout."<init>":()V
+     573: astore        7
+     575: new           #50                 // class java/awt/GridBagConstraints
+     578: dup
+     579: invokespecial #51                 // Method java/awt/GridBagConstraints."<init>":()V
+     582: astore        8
+     584: aload_0
+     585: aload         7
+     587: invokevirtual #52                 // Method setLayout:(Ljava/awt/LayoutManager;)V
+     590: aload         8
+     592: iconst_0
+     593: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     596: aload         8
+     598: iconst_0
+     599: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     602: aload         8
+     604: iconst_1
+     605: putfield      #55                 // Field java/awt/GridBagConstraints.gridwidth:I
+     608: aload         8
+     610: iconst_1
+     611: putfield      #56                 // Field java/awt/GridBagConstraints.gridheight:I
+     614: aload         8
+     616: bipush        17
+     618: putfield      #57                 // Field java/awt/GridBagConstraints.anchor:I
+     621: aload         8
+     623: iconst_1
+     624: putfield      #58                 // Field java/awt/GridBagConstraints.fill:I
+     627: new           #59                 // class javax/swing/JLabel
+     630: dup
+     631: new           #60                 // class javax/swing/ImageIcon
+     634: dup
+     635: ldc           #61                 // String icon.frontpanel.top
+     637: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     640: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     643: invokespecial #63                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+     646: astore        9
+     648: aload         8
+     650: iconst_0
+     651: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     654: aload         8
+     656: iconst_0
+     657: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     660: aload         8
+     662: bipush        17
+     664: putfield      #55                 // Field java/awt/GridBagConstraints.gridwidth:I
+     667: aload         8
+     669: iconst_1
+     670: putfield      #56                 // Field java/awt/GridBagConstraints.gridheight:I
+     673: aload_0
+     674: aload         9
+     676: aload         8
+     678: invokevirtual #64                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     681: iconst_0
+     682: istore        10
+     684: new           #59                 // class javax/swing/JLabel
+     687: dup
+     688: new           #60                 // class javax/swing/ImageIcon
+     691: dup
+     692: ldc           #65                 // String icon.frontpanel.left
+     694: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     697: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     700: invokespecial #63                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+     703: astore        11
+     705: aload         8
+     707: iload         10
+     709: iinc          10, 1
+     712: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     715: aload         8
+     717: iconst_1
+     718: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     721: aload         8
+     723: iconst_1
+     724: putfield      #55                 // Field java/awt/GridBagConstraints.gridwidth:I
+     727: aload         8
+     729: iconst_1
+     730: putfield      #56                 // Field java/awt/GridBagConstraints.gridheight:I
+     733: aload_0
+     734: aload         11
+     736: aload         8
+     738: invokevirtual #64                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     741: aload_0
+     742: bipush        14
+     744: anewarray     #59                 // class javax/swing/JLabel
+     747: putfield      #66                 // Field driveIcon:[Ljavax/swing/JLabel;
+     750: iconst_0
+     751: istore        12
+     753: iload         12
+     755: bipush        14
+     757: if_icmpge     893
+     760: aload_0
+     761: getfield      #66                 // Field driveIcon:[Ljavax/swing/JLabel;
+     764: iload         12
+     766: new           #59                 // class javax/swing/JLabel
+     769: dup
+     770: new           #60                 // class javax/swing/ImageIcon
+     773: dup
+     774: aload_0
+     775: getfield      #25                 // Field emptyImage:Ljava/awt/Image;
+     778: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     781: invokespecial #63                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+     784: aastore
+     785: aload         8
+     787: iload         10
+     789: iinc          10, 1
+     792: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     795: aload         8
+     797: iconst_1
+     798: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     801: aload_0
+     802: aload_0
+     803: getfield      #66                 // Field driveIcon:[Ljavax/swing/JLabel;
+     806: iload         12
+     808: aaload
+     809: aload         8
+     811: invokevirtual #64                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     814: aload_0
+     815: getfield      #66                 // Field driveIcon:[Ljavax/swing/JLabel;
+     818: iload         12
+     820: aaload
+     821: new           #67                 // class com/apple/xsr/DriveSelectionPanel$DriveIconListener
+     824: dup
+     825: aload_0
+     826: iload         12
+     828: aload_2
+     829: invokespecial #68                 // Method com/apple/xsr/DriveSelectionPanel$DriveIconListener."<init>":(Lcom/apple/xsr/DriveSelectionPanel;ILcom/apple/xsr/DriveInformationPanel;)V
+     832: invokevirtual #69                 // Method javax/swing/JLabel.addMouseListener:(Ljava/awt/event/MouseListener;)V
+     835: iload         12
+     837: bipush        6
+     839: if_icmpne     887
+     842: new           #59                 // class javax/swing/JLabel
+     845: dup
+     846: new           #60                 // class javax/swing/ImageIcon
+     849: dup
+     850: ldc           #70                 // String icon.frontpanel.center
+     852: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     855: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     858: invokespecial #63                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+     861: astore        13
+     863: aload         8
+     865: iload         10
+     867: iinc          10, 1
+     870: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     873: aload         8
+     875: iconst_1
+     876: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     879: aload_0
+     880: aload         13
+     882: aload         8
+     884: invokevirtual #64                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     887: iinc          12, 1
+     890: goto          753
+     893: new           #59                 // class javax/swing/JLabel
+     896: dup
+     897: new           #60                 // class javax/swing/ImageIcon
+     900: dup
+     901: ldc           #71                 // String icon.frontpanel.right
+     903: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     906: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     909: invokespecial #63                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+     912: astore        12
+     914: aload         8
+     916: iload         10
+     918: iinc          10, 1
+     921: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     924: aload         8
+     926: iconst_1
+     927: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     930: aload_0
+     931: aload         12
+     933: aload         8
+     935: invokevirtual #64                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     938: new           #59                 // class javax/swing/JLabel
+     941: dup
+     942: new           #60                 // class javax/swing/ImageIcon
+     945: dup
+     946: ldc           #72                 // String icon.frontpanel.bottom
+     948: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     951: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     954: invokespecial #63                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+     957: astore        13
+     959: aload         8
+     961: iconst_0
+     962: putfield      #53                 // Field java/awt/GridBagConstraints.gridx:I
+     965: aload         8
+     967: iconst_2
+     968: putfield      #54                 // Field java/awt/GridBagConstraints.gridy:I
+     971: aload         8
+     973: bipush        17
+     975: putfield      #55                 // Field java/awt/GridBagConstraints.gridwidth:I
+     978: aload         8
+     980: iconst_1
+     981: putfield      #56                 // Field java/awt/GridBagConstraints.gridheight:I
+     984: aload_0
+     985: aload         13
+     987: aload         8
+     989: invokevirtual #64                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     992: return
+    Exception table:
+       from    to  target type
+         449   457   460   Class java/lang/InterruptedException
+         359   555   558   any
+         558   563   558   any
+
+  public void setRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       5: aload_0
+       6: aload_0
+       7: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      10: invokevirtual #74                 // Method configureForRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+      13: return
+
+  public com.apple.xsr.som.RaidSystem getRaidSystem();
+    Code:
+       0: aload_0
+       1: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       4: areturn
+
+  public void setSelectionMode(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #17                 // Field selectionMode:I
+       5: aload_0
+       6: invokespecial #75                 // Method syncDriveIcons:()V
+       9: aload_0
+      10: invokevirtual #76                 // Method syncSummary:()V
+      13: return
+
+  public void setDriveStates(int[]);
+    Code:
+       0: aload_1
+       1: ifnull        12
+       4: aload_0
+       5: aload_1
+       6: putfield      #15                 // Field driveStates:[I
+       9: goto          20
+      12: aload_0
+      13: aload_0
+      14: getfield      #9                  // Field defaultDriveStates:[I
+      17: putfield      #15                 // Field driveStates:[I
+      20: aload_0
+      21: invokespecial #75                 // Method syncDriveIcons:()V
+      24: return
+
+  public int[] getDriveStates();
+    Code:
+       0: aload_0
+       1: getfield      #15                 // Field driveStates:[I
+       4: areturn
+
+  public void setDriveArrays(int[]);
+    Code:
+       0: aload_1
+       1: ifnull        12
+       4: aload_0
+       5: aload_1
+       6: putfield      #16                 // Field driveArrays:[I
+       9: goto          20
+      12: aload_0
+      13: aload_0
+      14: getfield      #10                 // Field defaultDriveArrays:[I
+      17: putfield      #16                 // Field driveArrays:[I
+      20: aload_0
+      21: invokespecial #75                 // Method syncDriveIcons:()V
+      24: return
+
+  public int[] getDriveArrays();
+    Code:
+       0: aload_0
+       1: getfield      #16                 // Field driveArrays:[I
+       4: areturn
+
+  public void setDriveCapacities(float[]);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #77                 // Field driveCapacities:[F
+       5: return
+
+  public void setArrayDescriptions(java.lang.String[]);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #78                 // Field arrayDescriptions:[Ljava/lang/String;
+       5: return
+
+  public void setArrayLevels(int[]);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #79                 // Field arrayLevels:[I
+       5: return
+
+  public void setDriveSelected(int, boolean);
+    Code:
+       0: iload_2
+       1: ifeq          14
+       4: aload_0
+       5: iload_1
+       6: iconst_1
+       7: isub
+       8: invokespecial #2                  // Method selectDrive:(I)V
+      11: goto          21
+      14: aload_0
+      15: iload_1
+      16: iconst_1
+      17: isub
+      18: invokespecial #1                  // Method deselectDrive:(I)V
+      21: return
+
+  public boolean isDriveSelected(int);
+    Code:
+       0: aload_0
+       1: getfield      #15                 // Field driveStates:[I
+       4: iload_1
+       5: iconst_1
+       6: isub
+       7: iaload
+       8: iconst_m1
+       9: if_icmpne     16
+      12: iconst_1
+      13: goto          17
+      16: iconst_0
+      17: ireturn
+
+  public void setArraySelected(int, boolean);
+    Code:
+       0: aload_0
+       1: iload_2
+       2: ifeq          9
+       5: iload_1
+       6: goto          11
+       9: bipush        -10
+      11: invokevirtual #80                 // Method setArrayIndex:(I)V
+      14: return
+
+  public boolean isArraySelected(int);
+    Code:
+       0: iload_1
+       1: iconst_1
+       2: isub
+       3: aload_0
+       4: getfield      #7                  // Field arrayIndex:I
+       7: if_icmpne     14
+      10: iconst_1
+      11: goto          15
+      14: iconst_0
+      15: ireturn
+
+  public void setArrayIndex(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #7                  // Field arrayIndex:I
+       5: aload_0
+       6: getfield      #17                 // Field selectionMode:I
+       9: iconst_5
+      10: if_icmpne     45
+      13: iconst_0
+      14: istore_2
+      15: iload_2
+      16: bipush        14
+      18: if_icmpge     45
+      21: aload_0
+      22: getfield      #16                 // Field driveArrays:[I
+      25: iload_2
+      26: iaload
+      27: iload_1
+      28: if_icmpne     39
+      31: aload_0
+      32: iload_2
+      33: invokespecial #81                 // Method deselectUnavailableDrives:(I)V
+      36: goto          45
+      39: iinc          2, 1
+      42: goto          15
+      45: aload_0
+      46: invokespecial #75                 // Method syncDriveIcons:()V
+      49: aload_0
+      50: invokevirtual #76                 // Method syncSummary:()V
+      53: return
+
+  public void setSelectedArray(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokevirtual #80                 // Method setArrayIndex:(I)V
+       5: return
+
+  public int getSelectedArray();
+    Code:
+       0: aload_0
+       1: invokevirtual #82                 // Method getArrayIndex:()I
+       4: ireturn
+
+  public int getArrayIndex();
+    Code:
+       0: aload_0
+       1: getfield      #7                  // Field arrayIndex:I
+       4: ireturn
+
+  public boolean isSelectedArray(int);
+    Code:
+       0: iload_1
+       1: aload_0
+       2: getfield      #7                  // Field arrayIndex:I
+       5: if_icmpne     12
+       8: iconst_1
+       9: goto          13
+      12: iconst_0
+      13: ireturn
+
+  public void setLevel(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #8                  // Field level:I
+       5: return
+
+  public int getLevel();
+    Code:
+       0: aload_0
+       1: getfield      #8                  // Field level:I
+       4: ireturn
+
+  public boolean isSelectionJbod();
+    Code:
+       0: aload_0
+       1: getfield      #7                  // Field arrayIndex:I
+       4: invokestatic  #83                 // Method isJbod:(I)Z
+       7: ireturn
+
+  public boolean jbodExists(int);
+    Code:
+       0: iconst_0
+       1: istore_2
+       2: iload_2
+       3: aload_0
+       4: getfield      #16                 // Field driveArrays:[I
+       7: arraylength
+       8: if_icmpge     29
+      11: aload_0
+      12: getfield      #16                 // Field driveArrays:[I
+      15: iload_2
+      16: iaload
+      17: iload_1
+      18: if_icmpne     23
+      21: iconst_1
+      22: ireturn
+      23: iinc          2, 1
+      26: goto          2
+      29: iconst_0
+      30: ireturn
+
+  public void setConfirmed(boolean);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #84                 // Field confirmed:Z
+       5: aload_0
+       6: invokevirtual #76                 // Method syncSummary:()V
+       9: return
+
+  public void setSelectedDriveCount(int);
+    Code:
+       0: iconst_0
+       1: istore_3
+       2: iconst_0
+       3: istore_2
+       4: iload_2
+       5: bipush        14
+       7: if_icmpge     33
+      10: aload_0
+      11: getfield      #15                 // Field driveStates:[I
+      14: iload_2
+      15: iaload
+      16: iconst_m1
+      17: if_icmpne     27
+      20: aload_0
+      21: getfield      #15                 // Field driveStates:[I
+      24: iload_2
+      25: iconst_0
+      26: iastore
+      27: iinc          2, 1
+      30: goto          4
+      33: iconst_0
+      34: istore_2
+      35: iload_2
+      36: bipush        14
+      38: if_icmpge     184
+      41: aload_0
+      42: getfield      #16                 // Field driveArrays:[I
+      45: iload_2
+      46: iaload
+      47: aload_0
+      48: getfield      #7                  // Field arrayIndex:I
+      51: if_icmpne     178
+      54: iload_2
+      55: bipush        7
+      57: if_icmpge     64
+      60: iconst_0
+      61: goto          66
+      64: bipush        7
+      66: istore_3
+      67: fconst_0
+      68: fstore        4
+      70: iload_3
+      71: istore_2
+      72: iload_2
+      73: iload_3
+      74: bipush        7
+      76: iadd
+      77: if_icmpge     126
+      80: aload_0
+      81: getfield      #16                 // Field driveArrays:[I
+      84: iload_2
+      85: iaload
+      86: aload_0
+      87: getfield      #7                  // Field arrayIndex:I
+      90: if_icmpne     120
+      93: fload         4
+      95: fconst_0
+      96: fcmpl
+      97: ifeq          112
+     100: aload_0
+     101: getfield      #77                 // Field driveCapacities:[F
+     104: iload_2
+     105: faload
+     106: fload         4
+     108: fcmpg
+     109: ifge          120
+     112: aload_0
+     113: getfield      #77                 // Field driveCapacities:[F
+     116: iload_2
+     117: faload
+     118: fstore        4
+     120: iinc          2, 1
+     123: goto          72
+     126: iload_3
+     127: istore_2
+     128: iload_2
+     129: iload_3
+     130: bipush        7
+     132: iadd
+     133: if_icmpge     184
+     136: aload_0
+     137: getfield      #15                 // Field driveStates:[I
+     140: iload_2
+     141: iaload
+     142: ifne          172
+     145: aload_0
+     146: getfield      #77                 // Field driveCapacities:[F
+     149: iload_2
+     150: faload
+     151: fload         4
+     153: fcmpl
+     154: iflt          172
+     157: iload_1
+     158: dup
+     159: iconst_1
+     160: isub
+     161: istore_1
+     162: ifle          172
+     165: aload_0
+     166: getfield      #15                 // Field driveStates:[I
+     169: iload_2
+     170: iconst_m1
+     171: iastore
+     172: iinc          2, 1
+     175: goto          128
+     178: iinc          2, 1
+     181: goto          35
+     184: aload_0
+     185: invokespecial #75                 // Method syncDriveIcons:()V
+     188: aload_0
+     189: invokevirtual #76                 // Method syncSummary:()V
+     192: return
+
+  public int getAvailableDriveCount();
+    Code:
+       0: iconst_0
+       1: istore_3
+       2: aload_0
+       3: getfield      #7                  // Field arrayIndex:I
+       6: iconst_1
+       7: if_icmpge     12
+      10: iconst_0
+      11: ireturn
+      12: iconst_0
+      13: istore_1
+      14: iload_1
+      15: bipush        14
+      17: if_icmpge     161
+      20: aload_0
+      21: getfield      #16                 // Field driveArrays:[I
+      24: iload_1
+      25: iaload
+      26: aload_0
+      27: getfield      #7                  // Field arrayIndex:I
+      30: if_icmpne     155
+      33: iload_1
+      34: bipush        7
+      36: if_icmpge     43
+      39: iconst_0
+      40: goto          45
+      43: bipush        7
+      45: istore_2
+      46: fconst_0
+      47: fstore        4
+      49: iload_2
+      50: istore_1
+      51: iload_1
+      52: iload_2
+      53: bipush        7
+      55: iadd
+      56: if_icmpge     105
+      59: aload_0
+      60: getfield      #16                 // Field driveArrays:[I
+      63: iload_1
+      64: iaload
+      65: aload_0
+      66: getfield      #7                  // Field arrayIndex:I
+      69: if_icmpne     99
+      72: fload         4
+      74: fconst_0
+      75: fcmpl
+      76: ifeq          91
+      79: aload_0
+      80: getfield      #77                 // Field driveCapacities:[F
+      83: iload_1
+      84: faload
+      85: fload         4
+      87: fcmpg
+      88: ifge          99
+      91: aload_0
+      92: getfield      #77                 // Field driveCapacities:[F
+      95: iload_1
+      96: faload
+      97: fstore        4
+      99: iinc          1, 1
+     102: goto          51
+     105: iload_2
+     106: istore_1
+     107: iload_1
+     108: iload_2
+     109: bipush        7
+     111: iadd
+     112: if_icmpge     161
+     115: aload_0
+     116: getfield      #15                 // Field driveStates:[I
+     119: iload_1
+     120: iaload
+     121: ifeq          134
+     124: aload_0
+     125: getfield      #15                 // Field driveStates:[I
+     128: iload_1
+     129: iaload
+     130: iconst_m1
+     131: if_icmpne     149
+     134: aload_0
+     135: getfield      #77                 // Field driveCapacities:[F
+     138: iload_1
+     139: faload
+     140: fload         4
+     142: fcmpl
+     143: iflt          149
+     146: iinc          3, 1
+     149: iinc          1, 1
+     152: goto          107
+     155: iinc          1, 1
+     158: goto          14
+     161: iload_3
+     162: ireturn
+
+  public void updatePanel();
+    Code:
+       0: aload_0
+       1: aload_0
+       2: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       5: invokevirtual #74                 // Method configureForRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+       8: return
+
+  public void resetPanel();
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: invokevirtual #74                 // Method configureForRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+       5: return
+
+  public void configureForRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aconst_null
+       1: astore_2
+       2: aconst_null
+       3: astore_3
+       4: aconst_null
+       5: astore        4
+       7: aconst_null
+       8: astore        5
+      10: aconst_null
+      11: astore        6
+      13: aload_1
+      14: ifnull        78
+      17: aload_1
+      18: invokestatic  #85                 // Method getDriveStatesFromRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)[I
+      21: astore_2
+      22: aload_1
+      23: invokestatic  #86                 // Method getDriveArraysFromRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)[I
+      26: astore_3
+      27: aload_1
+      28: invokestatic  #87                 // Method getDriveCapacitiesFromRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)[F
+      31: astore        5
+      33: aload_0
+      34: getfield      #17                 // Field selectionMode:I
+      37: iconst_5
+      38: if_icmpeq     59
+      41: aload_0
+      42: getfield      #17                 // Field selectionMode:I
+      45: bipush        6
+      47: if_icmpeq     59
+      50: aload_0
+      51: getfield      #17                 // Field selectionMode:I
+      54: bipush        7
+      56: if_icmpne     65
+      59: aload_1
+      60: invokestatic  #88                 // Method com/apple/xsr/ArraySelectionPanel.getArrayLevelsFromRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)[I
+      63: astore        4
+      65: aload_0
+      66: getfield      #18                 // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+      69: ifnull        78
+      72: aload_1
+      73: invokestatic  #89                 // Method com/apple/xsr/ArraySelectionPanel.getArrayDescriptionsFromRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)[Ljava/lang/String;
+      76: astore        6
+      78: aload_0
+      79: aload_2
+      80: invokevirtual #90                 // Method setDriveStates:([I)V
+      83: aload_0
+      84: aload_3
+      85: invokevirtual #91                 // Method setDriveArrays:([I)V
+      88: aload_0
+      89: aload         4
+      91: invokevirtual #92                 // Method setArrayLevels:([I)V
+      94: aload_0
+      95: aload         5
+      97: invokevirtual #93                 // Method setDriveCapacities:([F)V
+     100: aload_0
+     101: aload         6
+     103: invokevirtual #94                 // Method setArrayDescriptions:([Ljava/lang/String;)V
+     106: aload_0
+     107: invokespecial #75                 // Method syncDriveIcons:()V
+     110: aload_0
+     111: invokevirtual #76                 // Method syncSummary:()V
+     114: return
+
+  public void addNotify();
+    Code:
+       0: aload_0
+       1: invokespecial #95                 // Method javax/swing/JPanel.addNotify:()V
+       4: aload_0
+       5: iconst_1
+       6: putfield      #11                 // Field addNotifyCalled:Z
+       9: aload_0
+      10: invokespecial #75                 // Method syncDriveIcons:()V
+      13: return
+
+  private void syncDriveIcons();
+    Code:
+       0: aload_0
+       1: getfield      #11                 // Field addNotifyCalled:Z
+       4: ifeq          21
+       7: aload_0
+       8: getfield      #16                 // Field driveArrays:[I
+      11: ifnull        21
+      14: aload_0
+      15: getfield      #15                 // Field driveStates:[I
+      18: ifnonnull     22
+      21: return
+      22: iconst_0
+      23: istore_1
+      24: iload_1
+      25: bipush        14
+      27: if_icmpge     924
+      30: bipush        18
+      32: istore_2
+      33: bipush        68
+      35: istore_3
+      36: bipush        49
+      38: istore        4
+      40: bipush        14
+      42: istore        5
+      44: aload_0
+      45: iload_2
+      46: iload_3
+      47: invokevirtual #96                 // Method createImage:(II)Ljava/awt/Image;
+      50: astore        7
+      52: aload         7
+      54: invokevirtual #97                 // Method java/awt/Image.getGraphics:()Ljava/awt/Graphics;
+      57: astore        8
+      59: aload_0
+      60: getfield      #15                 // Field driveStates:[I
+      63: iload_1
+      64: iaload
+      65: bipush        -4
+      67: if_icmpne     79
+      70: aload_0
+      71: getfield      #25                 // Field emptyImage:Ljava/awt/Image;
+      74: astore        6
+      76: goto          201
+      79: aload_0
+      80: getfield      #15                 // Field driveStates:[I
+      83: iload_1
+      84: iaload
+      85: iconst_m1
+      86: if_icmpne     129
+      89: aload_0
+      90: getfield      #17                 // Field selectionMode:I
+      93: iconst_5
+      94: if_icmpne     120
+      97: aload_0
+      98: getfield      #5                  // Field expandArbitrary:Z
+     101: ifeq          111
+     104: aload_0
+     105: getfield      #31                 // Field selectedImage:Ljava/awt/Image;
+     108: goto          115
+     111: aload_0
+     112: getfield      #27                 // Field presentImage:Ljava/awt/Image;
+     115: astore        6
+     117: goto          201
+     120: aload_0
+     121: getfield      #31                 // Field selectedImage:Ljava/awt/Image;
+     124: astore        6
+     126: goto          201
+     129: aload_0
+     130: getfield      #15                 // Field driveStates:[I
+     133: iload_1
+     134: iaload
+     135: ifne          155
+     138: aload_0
+     139: getfield      #17                 // Field selectionMode:I
+     142: iconst_1
+     143: if_icmpne     155
+     146: aload_0
+     147: getfield      #29                 // Field availableImage:Ljava/awt/Image;
+     150: astore        6
+     152: goto          201
+     155: aload_0
+     156: getfield      #15                 // Field driveStates:[I
+     159: iload_1
+     160: iaload
+     161: ifne          195
+     164: aload_0
+     165: getfield      #17                 // Field selectionMode:I
+     168: iconst_5
+     169: if_icmpne     195
+     172: aload_0
+     173: getfield      #5                  // Field expandArbitrary:Z
+     176: ifeq          186
+     179: aload_0
+     180: getfield      #29                 // Field availableImage:Ljava/awt/Image;
+     183: goto          190
+     186: aload_0
+     187: getfield      #27                 // Field presentImage:Ljava/awt/Image;
+     190: astore        6
+     192: goto          201
+     195: aload_0
+     196: getfield      #27                 // Field presentImage:Ljava/awt/Image;
+     199: astore        6
+     201: aload         8
+     203: aload         6
+     205: iconst_0
+     206: iconst_0
+     207: aconst_null
+     208: invokevirtual #98                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+     211: pop
+     212: aload         6
+     214: aload_0
+     215: getfield      #29                 // Field availableImage:Ljava/awt/Image;
+     218: if_acmpeq     230
+     221: aload         6
+     223: aload_0
+     224: getfield      #31                 // Field selectedImage:Ljava/awt/Image;
+     227: if_acmpne     233
+     230: iinc          4, -12
+     233: aload_0
+     234: getfield      #17                 // Field selectionMode:I
+     237: iconst_4
+     238: if_icmpne     254
+     241: aload_0
+     242: getfield      #16                 // Field driveArrays:[I
+     245: iload_1
+     246: iaload
+     247: aload_0
+     248: getfield      #7                  // Field arrayIndex:I
+     251: if_icmpeq     428
+     254: aload_0
+     255: getfield      #17                 // Field selectionMode:I
+     258: iconst_3
+     259: if_icmpne     270
+     262: iload_1
+     263: aload_0
+     264: getfield      #6                  // Field driveIndex:I
+     267: if_icmpeq     428
+     270: aload_0
+     271: getfield      #17                 // Field selectionMode:I
+     274: iconst_5
+     275: if_icmpne     291
+     278: aload_0
+     279: getfield      #16                 // Field driveArrays:[I
+     282: iload_1
+     283: iaload
+     284: aload_0
+     285: getfield      #7                  // Field arrayIndex:I
+     288: if_icmpeq     428
+     291: aload_0
+     292: getfield      #17                 // Field selectionMode:I
+     295: bipush        6
+     297: if_icmpne     313
+     300: aload_0
+     301: getfield      #16                 // Field driveArrays:[I
+     304: iload_1
+     305: iaload
+     306: aload_0
+     307: getfield      #7                  // Field arrayIndex:I
+     310: if_icmpeq     428
+     313: aload_0
+     314: getfield      #17                 // Field selectionMode:I
+     317: bipush        7
+     319: if_icmpne     335
+     322: aload_0
+     323: getfield      #16                 // Field driveArrays:[I
+     326: iload_1
+     327: iaload
+     328: aload_0
+     329: getfield      #7                  // Field arrayIndex:I
+     332: if_icmpeq     428
+     335: aload_0
+     336: getfield      #17                 // Field selectionMode:I
+     339: bipush        8
+     341: if_icmpne     357
+     344: aload_0
+     345: getfield      #16                 // Field driveArrays:[I
+     348: iload_1
+     349: iaload
+     350: aload_0
+     351: getfield      #7                  // Field arrayIndex:I
+     354: if_icmpeq     428
+     357: aload_0
+     358: getfield      #17                 // Field selectionMode:I
+     361: bipush        9
+     363: if_icmpne     379
+     366: aload_0
+     367: getfield      #16                 // Field driveArrays:[I
+     370: iload_1
+     371: iaload
+     372: aload_0
+     373: getfield      #7                  // Field arrayIndex:I
+     376: if_icmpeq     428
+     379: aload_0
+     380: getfield      #17                 // Field selectionMode:I
+     383: bipush        10
+     385: if_icmpeq     415
+     388: aload_0
+     389: getfield      #17                 // Field selectionMode:I
+     392: bipush        11
+     394: if_icmpeq     415
+     397: aload_0
+     398: getfield      #17                 // Field selectionMode:I
+     401: bipush        12
+     403: if_icmpeq     415
+     406: aload_0
+     407: getfield      #17                 // Field selectionMode:I
+     410: bipush        13
+     412: if_icmpne     445
+     415: aload_0
+     416: getfield      #16                 // Field driveArrays:[I
+     419: iload_1
+     420: iaload
+     421: aload_0
+     422: getfield      #7                  // Field arrayIndex:I
+     425: if_icmpne     445
+     428: aload_0
+     429: aload         8
+     431: iload_2
+     432: iload_3
+     433: getstatic     #99                 // Field hiliteColor:Ljava/awt/Color;
+     436: ldc           #100                // float 0.7f
+     438: iconst_1
+     439: invokespecial #101                // Method tintIcon:(Ljava/awt/Graphics;IILjava/awt/Color;FZ)V
+     442: goto          480
+     445: aload_0
+     446: getfield      #17                 // Field selectionMode:I
+     449: iconst_2
+     450: if_icmpne     480
+     453: aload_0
+     454: getfield      #16                 // Field driveArrays:[I
+     457: iload_1
+     458: iaload
+     459: aload_0
+     460: getfield      #7                  // Field arrayIndex:I
+     463: if_icmpne     480
+     466: aload_0
+     467: aload         8
+     469: iload_2
+     470: iload_3
+     471: getstatic     #102                // Field java/awt/Color.red:Ljava/awt/Color;
+     474: ldc           #103                // float 0.4f
+     476: iconst_0
+     477: invokespecial #101                // Method tintIcon:(Ljava/awt/Graphics;IILjava/awt/Color;FZ)V
+     480: aload_0
+     481: getfield      #16                 // Field driveArrays:[I
+     484: iload_1
+     485: iaload
+     486: ifeq          588
+     489: aload         8
+     491: getstatic     #104                // Field badgeColor:Ljava/awt/Color;
+     494: invokevirtual #105                // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+     497: aload         8
+     499: iconst_4
+     500: bipush        53
+     502: bipush        10
+     504: bipush        10
+     506: invokevirtual #106                // Method java/awt/Graphics.fillRect:(IIII)V
+     509: aload         8
+     511: getstatic     #107                // Field java/awt/Color.white:Ljava/awt/Color;
+     514: invokevirtual #105                // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+     517: aload         8
+     519: getstatic     #108                // Field com/apple/gui/GUIFactory.FONT_BADGE:Ljava/awt/Font;
+     522: invokevirtual #109                // Method java/awt/Graphics.setFont:(Ljava/awt/Font;)V
+     525: aload_0
+     526: getfield      #16                 // Field driveArrays:[I
+     529: iload_1
+     530: iaload
+     531: ifle          570
+     534: aload         8
+     536: new           #110                // class java/lang/StringBuffer
+     539: dup
+     540: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     543: aload_0
+     544: getfield      #16                 // Field driveArrays:[I
+     547: iload_1
+     548: iaload
+     549: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     552: ldc           #113                // String
+     554: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     557: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     560: bipush        6
+     562: bipush        62
+     564: invokevirtual #116                // Method java/awt/Graphics.drawString:(Ljava/lang/String;II)V
+     567: goto          581
+     570: aload         8
+     572: ldc           #117                // String J
+     574: bipush        8
+     576: bipush        61
+     578: invokevirtual #116                // Method java/awt/Graphics.drawString:(Ljava/lang/String;II)V
+     581: iload         4
+     583: iload         5
+     585: isub
+     586: istore        4
+     588: aload_0
+     589: getfield      #17                 // Field selectionMode:I
+     592: iconst_5
+     593: if_icmpne     627
+     596: aload_0
+     597: getfield      #15                 // Field driveStates:[I
+     600: iload_1
+     601: iaload
+     602: iconst_m1
+     603: if_icmpne     627
+     606: aload         8
+     608: aload_0
+     609: getfield      #39                 // Field expandImage:Ljava/awt/Image;
+     612: iconst_0
+     613: iload         4
+     615: aconst_null
+     616: invokevirtual #98                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+     619: pop
+     620: iload         4
+     622: iload         5
+     624: isub
+     625: istore        4
+     627: aload_0
+     628: getfield      #17                 // Field selectionMode:I
+     631: iconst_2
+     632: if_icmpne     671
+     635: aload_0
+     636: getfield      #16                 // Field driveArrays:[I
+     639: iload_1
+     640: iaload
+     641: aload_0
+     642: getfield      #7                  // Field arrayIndex:I
+     645: if_icmpne     671
+     648: aload         8
+     650: aload_0
+     651: getfield      #35                 // Field deleteImage:Ljava/awt/Image;
+     654: iconst_0
+     655: iload         4
+     657: iconst_1
+     658: iadd
+     659: aconst_null
+     660: invokevirtual #98                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+     663: pop
+     664: iload         4
+     666: iload         5
+     668: isub
+     669: istore        4
+     671: aload_0
+     672: getfield      #15                 // Field driveStates:[I
+     675: iload_1
+     676: iaload
+     677: bipush        -3
+     679: if_icmpne     703
+     682: aload         8
+     684: aload_0
+     685: getfield      #33                 // Field offlineImage:Ljava/awt/Image;
+     688: iconst_0
+     689: iload         4
+     691: aconst_null
+     692: invokevirtual #98                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+     695: pop
+     696: iload         4
+     698: iload         5
+     700: isub
+     701: istore        4
+     703: aload_0
+     704: getfield      #15                 // Field driveStates:[I
+     707: iload_1
+     708: iaload
+     709: bipush        -5
+     711: if_icmpne     900
+     714: iconst_0
+     715: istore        9
+     717: iload         9
+     719: ifeq          877
+     722: iconst_0
+     723: istore        10
+     725: aload_0
+     726: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+     729: ifnull        756
+     732: aload_0
+     733: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+     736: iload_1
+     737: iconst_1
+     738: iadd
+     739: invokevirtual #118                // Method com/apple/xsr/som/RaidSystem.getDisk:(I)Lcom/apple/xsr/som/Disk;
+     742: astore        11
+     744: aload         11
+     746: ifnull        756
+     749: aload         11
+     751: invokevirtual #119                // Method com/apple/xsr/som/Disk.getOrphanRaidSetId:()I
+     754: istore        10
+     756: aload         8
+     758: getstatic     #104                // Field badgeColor:Ljava/awt/Color;
+     761: invokevirtual #105                // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+     764: aload         8
+     766: iconst_4
+     767: bipush        53
+     769: bipush        10
+     771: bipush        10
+     773: invokevirtual #106                // Method java/awt/Graphics.fillRect:(IIII)V
+     776: aload         8
+     778: getstatic     #107                // Field java/awt/Color.white:Ljava/awt/Color;
+     781: invokevirtual #105                // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+     784: aload         8
+     786: getstatic     #108                // Field com/apple/gui/GUIFactory.FONT_BADGE:Ljava/awt/Font;
+     789: invokevirtual #109                // Method java/awt/Graphics.setFont:(Ljava/awt/Font;)V
+     792: iload         10
+     794: ifle          826
+     797: aload         8
+     799: new           #110                // class java/lang/StringBuffer
+     802: dup
+     803: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     806: iload         10
+     808: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     811: ldc           #113                // String
+     813: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     816: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     819: bipush        6
+     821: bipush        62
+     823: invokevirtual #116                // Method java/awt/Graphics.drawString:(Ljava/lang/String;II)V
+     826: iconst_0
+     827: istore        11
+     829: iload         11
+     831: ifeq          850
+     834: iload         10
+     836: ifne          850
+     839: aload         8
+     841: ldc           #120                // String ?
+     843: bipush        7
+     845: bipush        61
+     847: invokevirtual #116                // Method java/awt/Graphics.drawString:(Ljava/lang/String;II)V
+     850: iload         4
+     852: iload         5
+     854: isub
+     855: istore        4
+     857: aload         8
+     859: aload_0
+     860: getfield      #41                 // Field orphanImage:Ljava/awt/Image;
+     863: iconst_4
+     864: iload         4
+     866: bipush        6
+     868: iadd
+     869: aconst_null
+     870: invokevirtual #98                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+     873: pop
+     874: goto          900
+     877: aload         8
+     879: aload_0
+     880: getfield      #41                 // Field orphanImage:Ljava/awt/Image;
+     883: iconst_4
+     884: iload         4
+     886: iconst_4
+     887: iadd
+     888: aconst_null
+     889: invokevirtual #98                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+     892: pop
+     893: iload         4
+     895: iload         5
+     897: isub
+     898: istore        4
+     900: aload_0
+     901: getfield      #66                 // Field driveIcon:[Ljavax/swing/JLabel;
+     904: iload_1
+     905: aaload
+     906: new           #60                 // class javax/swing/ImageIcon
+     909: dup
+     910: aload         7
+     912: invokespecial #62                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     915: invokevirtual #121                // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+     918: iinc          1, 1
+     921: goto          24
+     924: return
+
+  private void tintIcon(java.awt.Graphics, int, int, java.awt.Color, float, boolean);
+    Code:
+       0: iconst_3
+       1: fload         5
+       3: invokestatic  #122                // Method java/awt/AlphaComposite.getInstance:(IF)Ljava/awt/AlphaComposite;
+       6: astore        7
+       8: aload_1
+       9: checkcast     #123                // class java/awt/Graphics2D
+      12: invokevirtual #124                // Method java/awt/Graphics2D.getComposite:()Ljava/awt/Composite;
+      15: astore        8
+      17: aload_1
+      18: checkcast     #123                // class java/awt/Graphics2D
+      21: aload         7
+      23: invokevirtual #125                // Method java/awt/Graphics2D.setComposite:(Ljava/awt/Composite;)V
+      26: aload_1
+      27: aload         4
+      29: invokevirtual #105                // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+      32: aload_1
+      33: iconst_1
+      34: iconst_1
+      35: iload_2
+      36: iconst_2
+      37: isub
+      38: iload_3
+      39: iconst_2
+      40: isub
+      41: invokevirtual #106                // Method java/awt/Graphics.fillRect:(IIII)V
+      44: aload_1
+      45: checkcast     #123                // class java/awt/Graphics2D
+      48: aload         8
+      50: invokevirtual #125                // Method java/awt/Graphics2D.setComposite:(Ljava/awt/Composite;)V
+      53: iload         6
+      55: ifeq          88
+      58: aload_1
+      59: aload         4
+      61: invokevirtual #105                // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+      64: aload_1
+      65: iconst_1
+      66: iconst_1
+      67: iload_2
+      68: iconst_3
+      69: isub
+      70: iload_3
+      71: iconst_3
+      72: isub
+      73: invokevirtual #126                // Method java/awt/Graphics.drawRect:(IIII)V
+      76: aload_1
+      77: iconst_2
+      78: iconst_2
+      79: iload_2
+      80: iconst_5
+      81: isub
+      82: iload_3
+      83: iconst_5
+      84: isub
+      85: invokevirtual #126                // Method java/awt/Graphics.drawRect:(IIII)V
+      88: return
+
+  private boolean toggleDrive(int);
+    Code:
+       0: iconst_0
+       1: istore_2
+       2: aload_0
+       3: getfield      #15                 // Field driveStates:[I
+       6: iload_1
+       7: iaload
+       8: ifeq          30
+      11: aload_0
+      12: getfield      #17                 // Field selectionMode:I
+      15: iconst_5
+      16: if_icmpne     40
+      19: aload_0
+      20: getfield      #15                 // Field driveStates:[I
+      23: iload_1
+      24: iaload
+      25: bipush        -2
+      27: if_icmpne     40
+      30: aload_0
+      31: iload_1
+      32: invokespecial #2                  // Method selectDrive:(I)V
+      35: iconst_1
+      36: istore_2
+      37: goto          55
+      40: aload_0
+      41: getfield      #15                 // Field driveStates:[I
+      44: iload_1
+      45: iaload
+      46: iconst_m1
+      47: if_icmpne     55
+      50: aload_0
+      51: iload_1
+      52: invokespecial #1                  // Method deselectDrive:(I)V
+      55: iload_2
+      56: ireturn
+
+  private void selectDrive(int);
+    Code:
+       0: aload_0
+       1: getfield      #17                 // Field selectionMode:I
+       4: iconst_4
+       5: if_icmpne     35
+       8: aload_0
+       9: getfield      #15                 // Field driveStates:[I
+      12: iload_1
+      13: iaload
+      14: bipush        -3
+      16: if_icmpne     35
+      19: aload_0
+      20: iconst_3
+      21: putfield      #17                 // Field selectionMode:I
+      24: aload_0
+      25: ldc           #127                // String SelectionMode
+      27: iconst_m1
+      28: aload_0
+      29: getfield      #17                 // Field selectionMode:I
+      32: invokevirtual #128                // Method firePropertyChange:(Ljava/lang/String;II)V
+      35: aload_0
+      36: getfield      #17                 // Field selectionMode:I
+      39: iconst_3
+      40: if_icmpne     63
+      43: aload_0
+      44: iload_1
+      45: putfield      #6                  // Field driveIndex:I
+      48: aload_0
+      49: invokespecial #75                 // Method syncDriveIcons:()V
+      52: aload_0
+      53: ldc           #129                // String DriveIndex
+      55: iconst_m1
+      56: aload_0
+      57: getfield      #6                  // Field driveIndex:I
+      60: invokevirtual #128                // Method firePropertyChange:(Ljava/lang/String;II)V
+      63: aload_0
+      64: getfield      #17                 // Field selectionMode:I
+      67: iconst_4
+      68: if_icmpeq     159
+      71: aload_0
+      72: getfield      #17                 // Field selectionMode:I
+      75: iconst_2
+      76: if_icmpeq     159
+      79: aload_0
+      80: getfield      #17                 // Field selectionMode:I
+      83: iconst_5
+      84: if_icmpeq     159
+      87: aload_0
+      88: getfield      #17                 // Field selectionMode:I
+      91: bipush        6
+      93: if_icmpeq     159
+      96: aload_0
+      97: getfield      #17                 // Field selectionMode:I
+     100: bipush        7
+     102: if_icmpeq     159
+     105: aload_0
+     106: getfield      #17                 // Field selectionMode:I
+     109: bipush        8
+     111: if_icmpeq     159
+     114: aload_0
+     115: getfield      #17                 // Field selectionMode:I
+     118: bipush        9
+     120: if_icmpeq     159
+     123: aload_0
+     124: getfield      #17                 // Field selectionMode:I
+     127: bipush        10
+     129: if_icmpeq     159
+     132: aload_0
+     133: getfield      #17                 // Field selectionMode:I
+     136: bipush        11
+     138: if_icmpeq     159
+     141: aload_0
+     142: getfield      #17                 // Field selectionMode:I
+     145: bipush        12
+     147: if_icmpeq     159
+     150: aload_0
+     151: getfield      #17                 // Field selectionMode:I
+     154: bipush        13
+     156: if_icmpne     212
+     159: aload_0
+     160: getfield      #15                 // Field driveStates:[I
+     163: iload_1
+     164: iaload
+     165: bipush        -2
+     167: if_icmpne     212
+     170: aload_0
+     171: aload_0
+     172: getfield      #16                 // Field driveArrays:[I
+     175: iload_1
+     176: iaload
+     177: putfield      #7                  // Field arrayIndex:I
+     180: aload_0
+     181: invokespecial #75                 // Method syncDriveIcons:()V
+     184: aload_0
+     185: invokevirtual #76                 // Method syncSummary:()V
+     188: aload_0
+     189: ldc           #130                // String ArrayIndex
+     191: iconst_m1
+     192: aload_0
+     193: getfield      #7                  // Field arrayIndex:I
+     196: invokevirtual #128                // Method firePropertyChange:(Ljava/lang/String;II)V
+     199: aload_0
+     200: getfield      #17                 // Field selectionMode:I
+     203: iconst_5
+     204: if_icmpne     212
+     207: aload_0
+     208: iload_1
+     209: invokespecial #81                 // Method deselectUnavailableDrives:(I)V
+     212: aload_0
+     213: getfield      #17                 // Field selectionMode:I
+     216: iconst_1
+     217: if_icmpeq     235
+     220: aload_0
+     221: getfield      #17                 // Field selectionMode:I
+     224: iconst_5
+     225: if_icmpne     260
+     228: aload_0
+     229: getfield      #5                  // Field expandArbitrary:Z
+     232: ifeq          260
+     235: aload_0
+     236: getfield      #15                 // Field driveStates:[I
+     239: iload_1
+     240: iaload
+     241: ifne          260
+     244: aload_0
+     245: getfield      #15                 // Field driveStates:[I
+     248: iload_1
+     249: iconst_m1
+     250: iastore
+     251: aload_0
+     252: invokespecial #75                 // Method syncDriveIcons:()V
+     255: aload_0
+     256: iload_1
+     257: invokespecial #81                 // Method deselectUnavailableDrives:(I)V
+     260: return
+
+  private void deselectDrive(int);
+    Code:
+       0: aload_0
+       1: getfield      #15                 // Field driveStates:[I
+       4: iload_1
+       5: iaload
+       6: iconst_m1
+       7: if_icmpne     21
+      10: aload_0
+      11: getfield      #15                 // Field driveStates:[I
+      14: iload_1
+      15: iconst_0
+      16: iastore
+      17: aload_0
+      18: invokespecial #75                 // Method syncDriveIcons:()V
+      21: return
+
+  private void deselectUnavailableDrives(int);
+    Code:
+       0: aload_0
+       1: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       4: iload_1
+       5: iconst_1
+       6: iadd
+       7: invokevirtual #131                // Method com/apple/xsr/som/RaidSystem.getRaidControllerForDiskSlot:(I)Lcom/apple/xsr/som/RaidController;
+      10: astore_2
+      11: aload_2
+      12: ifnull        100
+      15: iconst_0
+      16: istore_3
+      17: iload_3
+      18: bipush        14
+      20: if_icmpge     100
+      23: aload_0
+      24: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      27: iload_3
+      28: iconst_1
+      29: iadd
+      30: invokevirtual #131                // Method com/apple/xsr/som/RaidSystem.getRaidControllerForDiskSlot:(I)Lcom/apple/xsr/som/RaidController;
+      33: aload_2
+      34: if_acmpeq     94
+      37: aload_0
+      38: getfield      #17                 // Field selectionMode:I
+      41: iconst_5
+      42: if_icmpne     79
+      45: aload_0
+      46: getfield      #16                 // Field driveArrays:[I
+      49: iload_3
+      50: iaload
+      51: aload_0
+      52: getfield      #7                  // Field arrayIndex:I
+      55: if_icmpne     79
+      58: aload_0
+      59: bipush        -10
+      61: putfield      #7                  // Field arrayIndex:I
+      64: aload_0
+      65: invokespecial #75                 // Method syncDriveIcons:()V
+      68: aload_0
+      69: ldc           #130                // String ArrayIndex
+      71: iconst_m1
+      72: aload_0
+      73: getfield      #7                  // Field arrayIndex:I
+      76: invokevirtual #128                // Method firePropertyChange:(Ljava/lang/String;II)V
+      79: aload_0
+      80: getfield      #15                 // Field driveStates:[I
+      83: iload_3
+      84: iaload
+      85: iconst_m1
+      86: if_icmpne     94
+      89: aload_0
+      90: iload_3
+      91: invokespecial #1                  // Method deselectDrive:(I)V
+      94: iinc          3, 1
+      97: goto          17
+     100: return
+
+  public void syncSummary();
+    Code:
+       0: aconst_null
+       1: astore_1
+       2: aload_0
+       3: getfield      #7                  // Field arrayIndex:I
+       6: ifle          24
+       9: aload_0
+      10: aload_0
+      11: getfield      #7                  // Field arrayIndex:I
+      14: invokevirtual #132                // Method arrayOnline:(I)Z
+      17: ifeq          24
+      20: iconst_1
+      21: goto          25
+      24: iconst_0
+      25: istore_2
+      26: aload_0
+      27: getfield      #17                 // Field selectionMode:I
+      30: iconst_1
+      31: if_icmpne     310
+      34: aload_0
+      35: invokevirtual #133                // Method checkArray:()I
+      38: istore_3
+      39: iload_3
+      40: ifne          129
+      43: aload_0
+      44: invokevirtual #134                // Method getArrayCapacity:()F
+      47: fstore        4
+      49: aload_0
+      50: fload         4
+      52: invokevirtual #135                // Method getCapacityString:(F)Ljava/lang/String;
+      55: astore        5
+      57: aload_0
+      58: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+      61: ldc           #136                // String icon.step.four
+      63: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+      66: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+      69: aload_0
+      70: getfield      #8                  // Field level:I
+      73: sipush        255
+      76: if_icmpeq     112
+      79: ldc           #138                // String management.create.summary.can
+      81: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      84: astore_1
+      85: aload_1
+      86: ldc           #140                // String {level}
+      88: getstatic     #141                // Field com/apple/xsr/CreateArrayPane.levelNames:[Ljava/lang/String;
+      91: aload_0
+      92: getfield      #8                  // Field level:I
+      95: aaload
+      96: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      99: astore_1
+     100: aload_1
+     101: ldc           #143                // String {capacity}
+     103: aload         5
+     105: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     108: astore_1
+     109: goto          118
+     112: ldc           #144                // String management.create.summary.can.jbod
+     114: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     117: astore_1
+     118: aload_0
+     119: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     122: iconst_1
+     123: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     126: goto          2229
+     129: aload_0
+     130: getfield      #8                  // Field level:I
+     133: sipush        255
+     136: if_icmpeq     147
+     139: ldc           #145                // String management.create.summary.cannot
+     141: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     144: goto          152
+     147: ldc           #146                // String management.create.summary.cannot.jbod
+     149: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     152: astore_1
+     153: aload_0
+     154: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     157: ldc           #147                // String icon.step.five
+     159: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     162: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     165: iload_3
+     166: iconst_2
+     167: if_icmpne     185
+     170: aload_1
+     171: ldc           #148                // String {reason}
+     173: ldc           #149                // String management.create.summary.reason.noDrives
+     175: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     178: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     181: astore_1
+     182: goto          299
+     185: iload_3
+     186: iconst_5
+     187: if_icmpne     205
+     190: aload_1
+     191: ldc           #148                // String {reason}
+     193: ldc           #150                // String management.create.summary.reason.noLuns
+     195: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     198: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     201: astore_1
+     202: goto          299
+     205: iload_3
+     206: iconst_3
+     207: if_icmpne     225
+     210: aload_1
+     211: ldc           #148                // String {reason}
+     213: ldc           #151                // String management.create.summary.reason.moreDrives
+     215: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     218: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     221: astore_1
+     222: goto          299
+     225: iload_3
+     226: iconst_4
+     227: if_icmpne     245
+     230: aload_1
+     231: ldc           #148                // String {reason}
+     233: ldc           #152                // String management.create.summary.reason.wrongDrives
+     235: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     238: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     241: astore_1
+     242: goto          299
+     245: iload_3
+     246: bipush        6
+     248: if_icmpne     266
+     251: aload_1
+     252: ldc           #148                // String {reason}
+     254: ldc           #153                // String management.create.summary.reason.jbod.existingArray
+     256: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     259: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     262: astore_1
+     263: goto          299
+     266: iload_3
+     267: bipush        7
+     269: if_icmpne     287
+     272: aload_1
+     273: ldc           #148                // String {reason}
+     275: ldc           #154                // String management.create.summary.reason.jbod.moreDrives
+     277: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     280: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     283: astore_1
+     284: goto          299
+     287: aload_1
+     288: ldc           #148                // String {reason}
+     290: ldc           #155                // String management.create.summary.reason.unknown
+     292: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     295: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     298: astore_1
+     299: aload_0
+     300: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     303: iconst_0
+     304: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     307: goto          2229
+     310: aload_0
+     311: getfield      #17                 // Field selectionMode:I
+     314: iconst_2
+     315: if_icmpne     477
+     318: aload_0
+     319: getfield      #7                  // Field arrayIndex:I
+     322: ifgt          335
+     325: aload_0
+     326: getfield      #7                  // Field arrayIndex:I
+     329: invokestatic  #83                 // Method isJbod:(I)Z
+     332: ifeq          419
+     335: aload_0
+     336: getfield      #84                 // Field confirmed:Z
+     339: ifeq          419
+     342: aload_0
+     343: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     346: ldc           #136                // String icon.step.four
+     348: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     351: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     354: aload_0
+     355: getfield      #7                  // Field arrayIndex:I
+     358: invokestatic  #83                 // Method isJbod:(I)Z
+     361: ifeq          373
+     364: ldc           #156                // String management.delete.summary.can.jbod
+     366: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     369: astore_1
+     370: goto          408
+     373: ldc           #157                // String management.delete.summary.can
+     375: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     378: astore_1
+     379: aload_1
+     380: ldc           #158                // String {index}
+     382: new           #110                // class java/lang/StringBuffer
+     385: dup
+     386: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     389: ldc           #113                // String
+     391: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     394: aload_0
+     395: getfield      #7                  // Field arrayIndex:I
+     398: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     401: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     404: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     407: astore_1
+     408: aload_0
+     409: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     412: iconst_1
+     413: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     416: goto          445
+     419: ldc           #159                // String management.delete.summary.cannot
+     421: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     424: astore_1
+     425: aload_0
+     426: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     429: ldc           #147                // String icon.step.five
+     431: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     434: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     437: aload_0
+     438: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     441: iconst_0
+     442: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     445: aload_0
+     446: getfield      #7                  // Field arrayIndex:I
+     449: invokestatic  #83                 // Method isJbod:(I)Z
+     452: ifeq          460
+     455: ldc           #160                // String management.delete.deleteButton.jbod
+     457: goto          462
+     460: ldc           #161                // String management.delete.deleteButton
+     462: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     465: astore_3
+     466: aload_0
+     467: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     470: aload_3
+     471: invokevirtual #162                // Method javax/swing/JButton.setText:(Ljava/lang/String;)V
+     474: goto          2229
+     477: aload_0
+     478: getfield      #17                 // Field selectionMode:I
+     481: iconst_5
+     482: if_icmpne     813
+     485: aload_0
+     486: invokevirtual #163                // Method countSelectedDrives:()I
+     489: istore_3
+     490: aload_0
+     491: getfield      #7                  // Field arrayIndex:I
+     494: ifle          512
+     497: aload_0
+     498: getfield      #79                 // Field arrayLevels:[I
+     501: aload_0
+     502: getfield      #7                  // Field arrayIndex:I
+     505: iconst_1
+     506: isub
+     507: iaload
+     508: iconst_4
+     509: if_icmpeq     522
+     512: aload_0
+     513: getfield      #7                  // Field arrayIndex:I
+     516: invokestatic  #83                 // Method isJbod:(I)Z
+     519: ifeq          567
+     522: aload_0
+     523: getfield      #7                  // Field arrayIndex:I
+     526: ifle          538
+     529: ldc           #164                // String advanced.expansion.summary.cannot.wrongType
+     531: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     534: astore_1
+     535: goto          544
+     538: ldc           #165                // String advanced.expansion.summary.cannot.jbod
+     540: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     543: astore_1
+     544: aload_0
+     545: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     548: ldc           #147                // String icon.step.five
+     550: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     553: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     556: aload_0
+     557: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     560: iconst_0
+     561: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     564: goto          2229
+     567: aload_0
+     568: getfield      #7                  // Field arrayIndex:I
+     571: ifle          607
+     574: iload_2
+     575: ifne          607
+     578: ldc           #166                // String advanced.expansion.summary.cannot.notOnline
+     580: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     583: astore_1
+     584: aload_0
+     585: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     588: ldc           #147                // String icon.step.five
+     590: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     593: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     596: aload_0
+     597: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     600: iconst_0
+     601: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     604: goto          2229
+     607: aload_0
+     608: getfield      #7                  // Field arrayIndex:I
+     611: ifle          670
+     614: aload_0
+     615: invokevirtual #167                // Method arrayControllerAlreadyBusy:()Z
+     618: ifeq          670
+     621: aload_0
+     622: aload_0
+     623: getfield      #7                  // Field arrayIndex:I
+     626: invokevirtual #168                // Method arrayBusy:(I)Z
+     629: ifeq          641
+     632: ldc           #169                // String advanced.expansion.summary.cannot.busy.self
+     634: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     637: astore_1
+     638: goto          647
+     641: ldc           #170                // String advanced.expansion.summary.cannot.busy
+     643: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     646: astore_1
+     647: aload_0
+     648: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     651: ldc           #147                // String icon.step.five
+     653: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     656: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     659: aload_0
+     660: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     663: iconst_0
+     664: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     667: goto          2229
+     670: aload_0
+     671: getfield      #7                  // Field arrayIndex:I
+     674: ifle          784
+     677: iload_3
+     678: ifle          784
+     681: aload_0
+     682: getfield      #84                 // Field confirmed:Z
+     685: ifeq          784
+     688: aload_0
+     689: aload_0
+     690: getfield      #79                 // Field arrayLevels:[I
+     693: aload_0
+     694: getfield      #7                  // Field arrayIndex:I
+     697: iconst_1
+     698: isub
+     699: iaload
+     700: putfield      #8                  // Field level:I
+     703: aload_0
+     704: invokevirtual #134                // Method getArrayCapacity:()F
+     707: fstore        4
+     709: aload_0
+     710: fload         4
+     712: invokevirtual #135                // Method getCapacityString:(F)Ljava/lang/String;
+     715: astore        5
+     717: aload_0
+     718: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     721: ldc           #136                // String icon.step.four
+     723: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     726: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     729: ldc           #171                // String advanced.expansion.summary.can
+     731: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     734: astore_1
+     735: aload_1
+     736: ldc           #158                // String {index}
+     738: new           #110                // class java/lang/StringBuffer
+     741: dup
+     742: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     745: ldc           #113                // String
+     747: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     750: aload_0
+     751: getfield      #7                  // Field arrayIndex:I
+     754: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     757: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     760: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     763: astore_1
+     764: aload_1
+     765: ldc           #143                // String {capacity}
+     767: aload         5
+     769: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     772: astore_1
+     773: aload_0
+     774: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     777: iconst_1
+     778: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     781: goto          2229
+     784: ldc           #172                // String advanced.expansion.summary.cannot.general
+     786: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     789: astore_1
+     790: aload_0
+     791: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     794: ldc           #147                // String icon.step.five
+     796: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     799: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     802: aload_0
+     803: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     806: iconst_0
+     807: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     810: goto          2229
+     813: aload_0
+     814: getfield      #17                 // Field selectionMode:I
+     817: bipush        6
+     819: if_icmpeq     831
+     822: aload_0
+     823: getfield      #17                 // Field selectionMode:I
+     826: bipush        7
+     828: if_icmpne     1262
+     831: aload_0
+     832: invokevirtual #163                // Method countSelectedDrives:()I
+     835: istore_3
+     836: aload_0
+     837: getfield      #7                  // Field arrayIndex:I
+     840: ifle          873
+     843: aload_0
+     844: getfield      #79                 // Field arrayLevels:[I
+     847: aload_0
+     848: getfield      #7                  // Field arrayIndex:I
+     851: iconst_1
+     852: isub
+     853: iaload
+     854: iconst_2
+     855: if_icmpeq     873
+     858: aload_0
+     859: getfield      #79                 // Field arrayLevels:[I
+     862: aload_0
+     863: getfield      #7                  // Field arrayIndex:I
+     866: iconst_1
+     867: isub
+     868: iaload
+     869: iconst_3
+     870: if_icmpne     883
+     873: aload_0
+     874: getfield      #7                  // Field arrayIndex:I
+     877: invokestatic  #83                 // Method isJbod:(I)Z
+     880: ifeq          988
+     883: aload_0
+     884: getfield      #7                  // Field arrayIndex:I
+     887: invokestatic  #83                 // Method isJbod:(I)Z
+     890: ifne          945
+     893: aload_0
+     894: getfield      #17                 // Field selectionMode:I
+     897: bipush        6
+     899: if_icmpne     907
+     902: ldc           #173                // String firstAid.verify.summary.cannot.wrongType
+     904: goto          909
+     907: ldc           #174                // String firstAid.rebuild.summary.cannot.wrongType
+     909: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     912: astore_1
+     913: aload_1
+     914: ldc           #158                // String {index}
+     916: new           #110                // class java/lang/StringBuffer
+     919: dup
+     920: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     923: ldc           #113                // String
+     925: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     928: aload_0
+     929: getfield      #7                  // Field arrayIndex:I
+     932: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     935: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     938: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     941: astore_1
+     942: goto          965
+     945: aload_0
+     946: getfield      #17                 // Field selectionMode:I
+     949: bipush        6
+     951: if_icmpne     959
+     954: ldc           #175                // String firstAid.verify.summary.cannot.jbod
+     956: goto          961
+     959: ldc           #176                // String firstAid.rebuild.summary.cannot.jbod
+     961: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     964: astore_1
+     965: aload_0
+     966: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+     969: ldc           #147                // String icon.step.five
+     971: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+     974: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+     977: aload_0
+     978: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+     981: iconst_0
+     982: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+     985: goto          2229
+     988: aload_0
+     989: getfield      #7                  // Field arrayIndex:I
+     992: ifle          1042
+     995: iload_2
+     996: ifne          1042
+     999: aload_0
+    1000: getfield      #17                 // Field selectionMode:I
+    1003: bipush        6
+    1005: if_icmpne     1013
+    1008: ldc           #177                // String firstAid.verify.summary.cannot.online
+    1010: goto          1015
+    1013: ldc           #178                // String firstAid.rebuild.summary.cannot.online
+    1015: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1018: astore_1
+    1019: aload_0
+    1020: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1023: ldc           #147                // String icon.step.five
+    1025: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1028: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1031: aload_0
+    1032: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1035: iconst_0
+    1036: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1039: goto          2229
+    1042: aload_0
+    1043: getfield      #7                  // Field arrayIndex:I
+    1046: ifle          1133
+    1049: aload_0
+    1050: invokevirtual #167                // Method arrayControllerAlreadyBusy:()Z
+    1053: ifeq          1133
+    1056: aload_0
+    1057: aload_0
+    1058: getfield      #7                  // Field arrayIndex:I
+    1061: invokevirtual #168                // Method arrayBusy:(I)Z
+    1064: ifeq          1090
+    1067: aload_0
+    1068: getfield      #17                 // Field selectionMode:I
+    1071: bipush        6
+    1073: if_icmpne     1081
+    1076: ldc           #179                // String firstAid.verify.summary.cannot.busySelf
+    1078: goto          1083
+    1081: ldc           #180                // String firstAid.rebuild.summary.cannot.busySelf
+    1083: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1086: astore_1
+    1087: goto          1110
+    1090: aload_0
+    1091: getfield      #17                 // Field selectionMode:I
+    1094: bipush        6
+    1096: if_icmpne     1104
+    1099: ldc           #181                // String firstAid.verify.summary.cannot.busy
+    1101: goto          1106
+    1104: ldc           #182                // String firstAid.rebuild.summary.cannot.busy
+    1106: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1109: astore_1
+    1110: aload_0
+    1111: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1114: ldc           #147                // String icon.step.five
+    1116: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1119: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1122: aload_0
+    1123: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1126: iconst_0
+    1127: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1130: goto          2229
+    1133: aload_0
+    1134: getfield      #7                  // Field arrayIndex:I
+    1137: ifle          1219
+    1140: aload_0
+    1141: getfield      #84                 // Field confirmed:Z
+    1144: ifeq          1219
+    1147: aload_0
+    1148: getfield      #17                 // Field selectionMode:I
+    1151: bipush        6
+    1153: if_icmpne     1161
+    1156: ldc           #183                // String firstAid.verify.summary.can
+    1158: goto          1163
+    1161: ldc           #184                // String firstAid.rebuild.summary.can
+    1163: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1166: astore_1
+    1167: aload_1
+    1168: ldc           #158                // String {index}
+    1170: new           #110                // class java/lang/StringBuffer
+    1173: dup
+    1174: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+    1177: ldc           #113                // String
+    1179: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1182: aload_0
+    1183: getfield      #7                  // Field arrayIndex:I
+    1186: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+    1189: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    1192: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    1195: astore_1
+    1196: aload_0
+    1197: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1200: ldc           #136                // String icon.step.four
+    1202: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1205: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1208: aload_0
+    1209: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1212: iconst_1
+    1213: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1216: goto          2229
+    1219: aload_0
+    1220: getfield      #17                 // Field selectionMode:I
+    1223: bipush        6
+    1225: if_icmpne     1233
+    1228: ldc           #185                // String firstAid.verify.summary.cannot.general
+    1230: goto          1235
+    1233: ldc           #186                // String firstAid.rebuild.summary.cannot.general
+    1235: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1238: astore_1
+    1239: aload_0
+    1240: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1243: ldc           #147                // String icon.step.five
+    1245: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1248: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1251: aload_0
+    1252: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1255: iconst_0
+    1256: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1259: goto          2229
+    1262: aload_0
+    1263: getfield      #17                 // Field selectionMode:I
+    1266: bipush        10
+    1268: if_icmpne     1613
+    1271: aload_0
+    1272: getfield      #7                  // Field arrayIndex:I
+    1275: invokestatic  #83                 // Method isJbod:(I)Z
+    1278: ifeq          1310
+    1281: ldc           #187                // String firstAid.condition.summary.cannot.jbod
+    1283: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1286: astore_1
+    1287: aload_0
+    1288: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1291: ldc           #147                // String icon.step.five
+    1293: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1296: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1299: aload_0
+    1300: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1303: iconst_0
+    1304: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1307: goto          2229
+    1310: aload_0
+    1311: getfield      #7                  // Field arrayIndex:I
+    1314: ifle          1472
+    1317: aload_0
+    1318: invokevirtual #167                // Method arrayControllerAlreadyBusy:()Z
+    1321: ifeq          1472
+    1324: aload_0
+    1325: aload_0
+    1326: getfield      #7                  // Field arrayIndex:I
+    1329: invokevirtual #168                // Method arrayBusy:(I)Z
+    1332: ifeq          1364
+    1335: ldc           #188                // String firstAid.condition.summary.cannot.busySelf
+    1337: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1340: astore_1
+    1341: aload_0
+    1342: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1345: ldc           #147                // String icon.step.five
+    1347: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1350: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1353: aload_0
+    1354: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1357: iconst_0
+    1358: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1361: goto          2229
+    1364: aload_0
+    1365: invokespecial #189                // Method busyRaidSet:()Lcom/apple/xsr/som/RaidSet;
+    1368: astore_3
+    1369: aload_3
+    1370: ifnull        2229
+    1373: aload_3
+    1374: invokevirtual #190                // Method com/apple/xsr/som/RaidSet.getOperation:()I
+    1377: istore        4
+    1379: iload         4
+    1381: iconst_5
+    1382: if_icmpne     1443
+    1385: ldc           #191                // String firstAid.condition.summary.can.start
+    1387: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1390: astore_1
+    1391: aload_1
+    1392: ldc           #158                // String {index}
+    1394: new           #110                // class java/lang/StringBuffer
+    1397: dup
+    1398: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+    1401: ldc           #113                // String
+    1403: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1406: aload_0
+    1407: getfield      #7                  // Field arrayIndex:I
+    1410: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+    1413: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    1416: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    1419: astore_1
+    1420: aload_0
+    1421: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1424: ldc           #136                // String icon.step.four
+    1426: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1429: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1432: aload_0
+    1433: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1436: iconst_1
+    1437: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1440: goto          2229
+    1443: ldc           #192                // String firstAid.condition.summary.cannot.busy
+    1445: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1448: astore_1
+    1449: aload_0
+    1450: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1453: ldc           #147                // String icon.step.five
+    1455: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1458: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1461: aload_0
+    1462: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1465: iconst_0
+    1466: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1469: goto          2229
+    1472: aload_0
+    1473: getfield      #7                  // Field arrayIndex:I
+    1476: ifle          1512
+    1479: iload_2
+    1480: ifne          1512
+    1483: ldc           #193                // String firstAid.condition.summary.cannot.notOnline
+    1485: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1488: astore_1
+    1489: aload_0
+    1490: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1493: ldc           #147                // String icon.step.five
+    1495: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1498: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1501: aload_0
+    1502: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1505: iconst_0
+    1506: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1509: goto          2229
+    1512: aload_0
+    1513: getfield      #7                  // Field arrayIndex:I
+    1516: ifle          1584
+    1519: aload_0
+    1520: getfield      #84                 // Field confirmed:Z
+    1523: ifeq          1584
+    1526: ldc           #191                // String firstAid.condition.summary.can.start
+    1528: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1531: astore_1
+    1532: aload_1
+    1533: ldc           #158                // String {index}
+    1535: new           #110                // class java/lang/StringBuffer
+    1538: dup
+    1539: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+    1542: ldc           #113                // String
+    1544: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1547: aload_0
+    1548: getfield      #7                  // Field arrayIndex:I
+    1551: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+    1554: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    1557: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    1560: astore_1
+    1561: aload_0
+    1562: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1565: ldc           #136                // String icon.step.four
+    1567: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1570: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1573: aload_0
+    1574: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1577: iconst_1
+    1578: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1581: goto          2229
+    1584: ldc           #194                // String firstAid.condition.summary.cannot.general
+    1586: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1589: astore_1
+    1590: aload_0
+    1591: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1594: ldc           #147                // String icon.step.five
+    1596: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1599: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1602: aload_0
+    1603: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1606: iconst_0
+    1607: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1610: goto          2229
+    1613: aload_0
+    1614: getfield      #17                 // Field selectionMode:I
+    1617: bipush        12
+    1619: if_icmpne     1846
+    1622: iconst_m1
+    1623: istore_3
+    1624: iconst_m1
+    1625: istore        4
+    1627: aload_0
+    1628: getfield      #7                  // Field arrayIndex:I
+    1631: ifle          1665
+    1634: aload_0
+    1635: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+    1638: aload_0
+    1639: getfield      #7                  // Field arrayIndex:I
+    1642: invokevirtual #195                // Method com/apple/xsr/som/RaidSystem.getRaidSet:(I)Lcom/apple/xsr/som/RaidSet;
+    1645: astore        5
+    1647: aload         5
+    1649: ifnull        1665
+    1652: aload         5
+    1654: invokevirtual #190                // Method com/apple/xsr/som/RaidSet.getOperation:()I
+    1657: istore_3
+    1658: aload         5
+    1660: invokevirtual #196                // Method com/apple/xsr/som/RaidSet.getBackgroundConditioningState:()I
+    1663: istore        4
+    1665: iload_3
+    1666: iconst_5
+    1667: if_icmpne     1676
+    1670: iload         4
+    1672: iconst_1
+    1673: if_icmpeq     1705
+    1676: ldc           #194                // String firstAid.condition.summary.cannot.general
+    1678: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1681: astore_1
+    1682: aload_0
+    1683: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1686: ldc           #147                // String icon.step.five
+    1688: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1691: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1694: aload_0
+    1695: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1698: iconst_0
+    1699: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1702: goto          2229
+    1705: aload_0
+    1706: getfield      #7                  // Field arrayIndex:I
+    1709: ifle          1745
+    1712: iload_2
+    1713: ifne          1745
+    1716: ldc           #193                // String firstAid.condition.summary.cannot.notOnline
+    1718: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1721: astore_1
+    1722: aload_0
+    1723: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1726: ldc           #147                // String icon.step.five
+    1728: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1731: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1734: aload_0
+    1735: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1738: iconst_0
+    1739: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1742: goto          2229
+    1745: aload_0
+    1746: getfield      #7                  // Field arrayIndex:I
+    1749: ifle          1817
+    1752: aload_0
+    1753: getfield      #84                 // Field confirmed:Z
+    1756: ifeq          1817
+    1759: ldc           #197                // String firstAid.condition.summary.can.resume
+    1761: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1764: astore_1
+    1765: aload_1
+    1766: ldc           #158                // String {index}
+    1768: new           #110                // class java/lang/StringBuffer
+    1771: dup
+    1772: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+    1775: ldc           #113                // String
+    1777: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1780: aload_0
+    1781: getfield      #7                  // Field arrayIndex:I
+    1784: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+    1787: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    1790: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    1793: astore_1
+    1794: aload_0
+    1795: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1798: ldc           #136                // String icon.step.four
+    1800: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1803: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1806: aload_0
+    1807: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1810: iconst_1
+    1811: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1814: goto          2229
+    1817: ldc           #194                // String firstAid.condition.summary.cannot.general
+    1819: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1822: astore_1
+    1823: aload_0
+    1824: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1827: ldc           #147                // String icon.step.five
+    1829: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1832: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1835: aload_0
+    1836: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1839: iconst_0
+    1840: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1843: goto          2229
+    1846: aload_0
+    1847: getfield      #17                 // Field selectionMode:I
+    1850: bipush        11
+    1852: if_icmpeq     1864
+    1855: aload_0
+    1856: getfield      #17                 // Field selectionMode:I
+    1859: bipush        13
+    1861: if_icmpne     1979
+    1864: aload_0
+    1865: getfield      #7                  // Field arrayIndex:I
+    1868: ifle          1950
+    1871: aload_0
+    1872: getfield      #84                 // Field confirmed:Z
+    1875: ifeq          1950
+    1878: aload_0
+    1879: getfield      #17                 // Field selectionMode:I
+    1882: bipush        11
+    1884: if_icmpne     1892
+    1887: ldc           #198                // String firstAid.condition.summary.can.pause
+    1889: goto          1894
+    1892: ldc           #199                // String firstAid.condition.summary.can.stop
+    1894: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1897: astore_1
+    1898: aload_1
+    1899: ldc           #158                // String {index}
+    1901: new           #110                // class java/lang/StringBuffer
+    1904: dup
+    1905: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+    1908: ldc           #113                // String
+    1910: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1913: aload_0
+    1914: getfield      #7                  // Field arrayIndex:I
+    1917: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+    1920: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    1923: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    1926: astore_1
+    1927: aload_0
+    1928: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1931: ldc           #136                // String icon.step.four
+    1933: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1936: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1939: aload_0
+    1940: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1943: iconst_1
+    1944: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1947: goto          2229
+    1950: ldc           #194                // String firstAid.condition.summary.cannot.general
+    1952: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1955: astore_1
+    1956: aload_0
+    1957: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    1960: ldc           #147                // String icon.step.five
+    1962: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    1965: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    1968: aload_0
+    1969: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    1972: iconst_0
+    1973: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    1976: goto          2229
+    1979: aload_0
+    1980: getfield      #17                 // Field selectionMode:I
+    1983: bipush        8
+    1985: if_icmpeq     1997
+    1988: aload_0
+    1989: getfield      #17                 // Field selectionMode:I
+    1992: bipush        9
+    1994: if_icmpne     2229
+    1997: iconst_0
+    1998: istore_3
+    1999: aload_0
+    2000: getfield      #17                 // Field selectionMode:I
+    2003: bipush        9
+    2005: if_icmpeq     2024
+    2008: aload_0
+    2009: getfield      #17                 // Field selectionMode:I
+    2012: bipush        8
+    2014: if_icmpne     2026
+    2017: aload_0
+    2018: invokevirtual #200                // Method countAvailableLuns:()I
+    2021: ifle          2026
+    2024: iconst_1
+    2025: istore_3
+    2026: aload_0
+    2027: getfield      #7                  // Field arrayIndex:I
+    2030: ifle          2124
+    2033: aload_0
+    2034: getfield      #84                 // Field confirmed:Z
+    2037: ifeq          2124
+    2040: iload_3
+    2041: ifeq          2124
+    2044: iload_2
+    2045: ifeq          2124
+    2048: aload_0
+    2049: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    2052: ldc           #136                // String icon.step.four
+    2054: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    2057: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    2060: aload_0
+    2061: getfield      #17                 // Field selectionMode:I
+    2064: bipush        8
+    2066: if_icmpne     2078
+    2069: ldc           #201                // String advanced.slicing.summary.can.slice
+    2071: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    2074: astore_1
+    2075: goto          2084
+    2078: ldc           #202                // String advanced.slicing.summary.can.merge
+    2080: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    2083: astore_1
+    2084: aload_1
+    2085: ldc           #158                // String {index}
+    2087: new           #110                // class java/lang/StringBuffer
+    2090: dup
+    2091: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+    2094: ldc           #113                // String
+    2096: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    2099: aload_0
+    2100: getfield      #7                  // Field arrayIndex:I
+    2103: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+    2106: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    2109: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    2112: astore_1
+    2113: aload_0
+    2114: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    2117: iconst_1
+    2118: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    2121: goto          2229
+    2124: aload_0
+    2125: getfield      #7                  // Field arrayIndex:I
+    2128: invokestatic  #83                 // Method isJbod:(I)Z
+    2131: ifeq          2163
+    2134: ldc           #203                // String advanced.slicing.summary.cannot.jbod
+    2136: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    2139: astore_1
+    2140: aload_0
+    2141: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    2144: ldc           #147                // String icon.step.five
+    2146: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    2149: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    2152: aload_0
+    2153: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    2156: iconst_0
+    2157: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    2160: goto          2229
+    2163: aload_0
+    2164: getfield      #7                  // Field arrayIndex:I
+    2167: ifle          2203
+    2170: iload_2
+    2171: ifne          2203
+    2174: ldc           #204                // String advanced.slicing.summary.cannot.notOnline
+    2176: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    2179: astore_1
+    2180: aload_0
+    2181: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    2184: ldc           #147                // String icon.step.five
+    2186: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    2189: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    2192: aload_0
+    2193: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    2196: iconst_0
+    2197: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    2200: goto          2229
+    2203: ldc           #205                // String advanced.slicing.summary.cannot.general
+    2205: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    2208: astore_1
+    2209: aload_0
+    2210: getfield      #19                 // Field summaryHeader:Lcom/apple/xsr/StepByStepPanel;
+    2213: ldc           #147                // String icon.step.five
+    2215: invokestatic  #24                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+    2218: invokevirtual #137                // Method com/apple/xsr/StepByStepPanel.setIcon:(Ljava/awt/Image;)V
+    2221: aload_0
+    2222: getfield      #21                 // Field applyButton:Ljavax/swing/JButton;
+    2225: iconst_0
+    2226: invokevirtual #22                 // Method javax/swing/JButton.setEnabled:(Z)V
+    2229: aload_0
+    2230: getfield      #20                 // Field summary:Ljavax/swing/JTextPane;
+    2233: ifnull        2248
+    2236: aload_1
+    2237: ifnull        2248
+    2240: aload_0
+    2241: getfield      #20                 // Field summary:Ljavax/swing/JTextPane;
+    2244: aload_1
+    2245: invokevirtual #206                // Method javax/swing/JTextPane.setText:(Ljava/lang/String;)V
+    2248: return
+
+  public int checkArray();
+    Code:
+       0: aload_0
+       1: getfield      #16                 // Field driveArrays:[I
+       4: ifnonnull     9
+       7: iconst_2
+       8: ireturn
+       9: aload_0
+      10: invokevirtual #163                // Method countSelectedDrives:()I
+      13: istore_1
+      14: iload_1
+      15: ifne          20
+      18: iconst_2
+      19: ireturn
+      20: aload_0
+      21: getfield      #8                  // Field level:I
+      24: ifeq          35
+      27: aload_0
+      28: getfield      #8                  // Field level:I
+      31: iconst_1
+      32: if_icmpne     42
+      35: iload_1
+      36: iconst_2
+      37: if_icmpge     200
+      40: iconst_3
+      41: ireturn
+      42: aload_0
+      43: getfield      #8                  // Field level:I
+      46: iconst_2
+      47: if_icmpeq     58
+      50: aload_0
+      51: getfield      #8                  // Field level:I
+      54: iconst_3
+      55: if_icmpne     65
+      58: iload_1
+      59: iconst_3
+      60: if_icmpge     200
+      63: iconst_3
+      64: ireturn
+      65: aload_0
+      66: getfield      #8                  // Field level:I
+      69: iconst_4
+      70: if_icmpne     86
+      73: iload_1
+      74: iconst_4
+      75: if_icmpeq     200
+      78: iload_1
+      79: bipush        6
+      81: if_icmpeq     200
+      84: iconst_4
+      85: ireturn
+      86: aload_0
+      87: getfield      #8                  // Field level:I
+      90: sipush        255
+      93: if_icmpne     198
+      96: aload_0
+      97: invokespecial #207                // Method indexOfFirstSelectedDrive:()I
+     100: istore_2
+     101: iload_2
+     102: iconst_m1
+     103: if_icmpne     108
+     106: iconst_2
+     107: ireturn
+     108: iload_2
+     109: bipush        7
+     111: if_icmpge     118
+     114: iconst_0
+     115: goto          120
+     118: bipush        7
+     120: istore_3
+     121: iload_3
+     122: istore        4
+     124: iload         4
+     126: iload_3
+     127: bipush        7
+     129: iadd
+     130: if_icmpge     152
+     133: aload_0
+     134: getfield      #16                 // Field driveArrays:[I
+     137: iload         4
+     139: iaload
+     140: ifeq          146
+     143: bipush        6
+     145: ireturn
+     146: iinc          4, 1
+     149: goto          124
+     152: iload_3
+     153: istore        4
+     155: iload         4
+     157: iload_3
+     158: bipush        7
+     160: iadd
+     161: if_icmpge     200
+     164: aload_0
+     165: getfield      #15                 // Field driveStates:[I
+     168: iload         4
+     170: iaload
+     171: ifne          177
+     174: bipush        7
+     176: ireturn
+     177: aload_0
+     178: getfield      #15                 // Field driveStates:[I
+     181: iload         4
+     183: iaload
+     184: bipush        -2
+     186: if_icmpne     192
+     189: bipush        6
+     191: ireturn
+     192: iinc          4, 1
+     195: goto          155
+     198: iconst_1
+     199: ireturn
+     200: aload_0
+     201: invokevirtual #200                // Method countAvailableLuns:()I
+     204: ifne          209
+     207: iconst_5
+     208: ireturn
+     209: iconst_0
+     210: ireturn
+
+  private int indexOfFirstSelectedDrive();
+    Code:
+       0: iconst_0
+       1: istore_1
+       2: iload_1
+       3: aload_0
+       4: getfield      #15                 // Field driveStates:[I
+       7: arraylength
+       8: if_icmpge     30
+      11: aload_0
+      12: getfield      #15                 // Field driveStates:[I
+      15: iload_1
+      16: iaload
+      17: iconst_m1
+      18: if_icmpne     24
+      21: goto          30
+      24: iinc          1, 1
+      27: goto          2
+      30: iload_1
+      31: aload_0
+      32: getfield      #15                 // Field driveStates:[I
+      35: arraylength
+      36: if_icmpge     43
+      39: iload_1
+      40: goto          44
+      43: iconst_m1
+      44: ireturn
+
+  public boolean arrayOnline(int);
+    Code:
+       0: iconst_0
+       1: istore_2
+       2: aload_0
+       3: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       6: ifnull        35
+       9: aload_0
+      10: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      13: iload_1
+      14: invokevirtual #195                // Method com/apple/xsr/som/RaidSystem.getRaidSet:(I)Lcom/apple/xsr/som/RaidSet;
+      17: astore_3
+      18: aload_3
+      19: ifnull        35
+      22: aload_3
+      23: invokevirtual #208                // Method com/apple/xsr/som/RaidSet.getState:()I
+      26: ifne          33
+      29: iconst_1
+      30: goto          34
+      33: iconst_0
+      34: istore_2
+      35: iload_2
+      36: ireturn
+
+  public boolean arrayBusy(int);
+    Code:
+       0: iconst_0
+       1: istore_2
+       2: aload_0
+       3: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       6: ifnull        64
+       9: aload_0
+      10: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      13: iload_1
+      14: invokevirtual #195                // Method com/apple/xsr/som/RaidSystem.getRaidSet:(I)Lcom/apple/xsr/som/RaidSet;
+      17: astore_3
+      18: aload_3
+      19: ifnull        64
+      22: aload_3
+      23: invokevirtual #190                // Method com/apple/xsr/som/RaidSet.getOperation:()I
+      26: istore        4
+      28: iload         4
+      30: iconst_1
+      31: if_icmpeq     58
+      34: iload         4
+      36: iconst_2
+      37: if_icmpeq     58
+      40: iload         4
+      42: iconst_3
+      43: if_icmpeq     58
+      46: iload         4
+      48: iconst_4
+      49: if_icmpeq     58
+      52: iload         4
+      54: iconst_5
+      55: if_icmpne     62
+      58: iconst_1
+      59: goto          63
+      62: iconst_0
+      63: istore_2
+      64: iload_2
+      65: ireturn
+
+  public int getSelectionCount();
+    Code:
+       0: aload_0
+       1: invokevirtual #163                // Method countSelectedDrives:()I
+       4: ireturn
+
+  public int countSelectedDrives();
+    Code:
+       0: iconst_0
+       1: istore_1
+       2: iconst_0
+       3: istore_2
+       4: iload_2
+       5: bipush        14
+       7: if_icmpge     29
+      10: aload_0
+      11: getfield      #15                 // Field driveStates:[I
+      14: iload_2
+      15: iaload
+      16: iconst_m1
+      17: if_icmpne     23
+      20: iinc          1, 1
+      23: iinc          2, 1
+      26: goto          4
+      29: iload_1
+      30: ireturn
+
+  public int countAvailableLuns();
+    Code:
+       0: iconst_0
+       1: istore_1
+       2: iconst_m1
+       3: istore_2
+       4: aload_0
+       5: getfield      #17                 // Field selectionMode:I
+       8: iconst_1
+       9: if_icmpne     41
+      12: iconst_0
+      13: istore_3
+      14: iload_3
+      15: bipush        14
+      17: if_icmpge     82
+      20: aload_0
+      21: getfield      #15                 // Field driveStates:[I
+      24: iload_3
+      25: iaload
+      26: iconst_m1
+      27: if_icmpne     35
+      30: iload_3
+      31: istore_2
+      32: goto          82
+      35: iinc          3, 1
+      38: goto          14
+      41: aload_0
+      42: getfield      #17                 // Field selectionMode:I
+      45: bipush        8
+      47: if_icmpne     82
+      50: iconst_0
+      51: istore_3
+      52: iload_3
+      53: bipush        14
+      55: if_icmpge     82
+      58: aload_0
+      59: getfield      #16                 // Field driveArrays:[I
+      62: iload_3
+      63: iaload
+      64: aload_0
+      65: getfield      #7                  // Field arrayIndex:I
+      68: if_icmpne     76
+      71: iload_3
+      72: istore_2
+      73: goto          82
+      76: iinc          3, 1
+      79: goto          52
+      82: iload_2
+      83: iconst_m1
+      84: if_icmpeq     132
+      87: aload_0
+      88: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      91: iload_2
+      92: iconst_1
+      93: iadd
+      94: invokevirtual #131                // Method com/apple/xsr/som/RaidSystem.getRaidControllerForDiskSlot:(I)Lcom/apple/xsr/som/RaidController;
+      97: astore_3
+      98: aload_3
+      99: ifnull        132
+     102: aload_0
+     103: getfield      #17                 // Field selectionMode:I
+     106: iconst_1
+     107: if_icmpne     118
+     110: aload_3
+     111: invokevirtual #209                // Method com/apple/xsr/som/RaidController.getLunsRemainingForCreation:()I
+     114: istore_1
+     115: goto          132
+     118: aload_0
+     119: getfield      #17                 // Field selectionMode:I
+     122: bipush        8
+     124: if_icmpne     132
+     127: aload_3
+     128: invokevirtual #210                // Method com/apple/xsr/som/RaidController.getLunsRemainingForSlicing:()I
+     131: istore_1
+     132: iload_1
+     133: ireturn
+
+  public boolean arrayControllerAlreadyBusy();
+    Code:
+       0: aload_0
+       1: invokespecial #189                // Method busyRaidSet:()Lcom/apple/xsr/som/RaidSet;
+       4: astore_1
+       5: aload_1
+       6: ifnonnull     14
+       9: iconst_0
+      10: istore_2
+      11: goto          16
+      14: iconst_1
+      15: istore_2
+      16: iload_2
+      17: ireturn
+
+  private com.apple.xsr.som.RaidSet busyRaidSet();
+    Code:
+       0: aconst_null
+       1: astore_1
+       2: iconst_m1
+       3: istore_2
+       4: iconst_0
+       5: istore_3
+       6: iload_3
+       7: bipush        14
+       9: if_icmpge     36
+      12: aload_0
+      13: getfield      #16                 // Field driveArrays:[I
+      16: iload_3
+      17: iaload
+      18: aload_0
+      19: getfield      #7                  // Field arrayIndex:I
+      22: if_icmpne     30
+      25: iload_3
+      26: istore_2
+      27: goto          36
+      30: iinc          3, 1
+      33: goto          6
+      36: iload_2
+      37: iconst_m1
+      38: if_icmpeq     136
+      41: aload_0
+      42: getfield      #73                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      45: iload_2
+      46: iconst_1
+      47: iadd
+      48: invokevirtual #131                // Method com/apple/xsr/som/RaidSystem.getRaidControllerForDiskSlot:(I)Lcom/apple/xsr/som/RaidController;
+      51: astore_3
+      52: aload_3
+      53: ifnull        136
+      56: aload_3
+      57: invokevirtual #211                // Method com/apple/xsr/som/RaidController.getRaidSets:()Ljava/util/Collection;
+      60: astore        4
+      62: aload         4
+      64: invokeinterface #212,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      69: astore        5
+      71: aload         5
+      73: invokeinterface #213,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+      78: ifeq          136
+      81: aload         5
+      83: invokeinterface #214,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      88: checkcast     #215                // class com/apple/xsr/som/RaidSet
+      91: astore        6
+      93: aload         6
+      95: invokevirtual #190                // Method com/apple/xsr/som/RaidSet.getOperation:()I
+      98: istore        7
+     100: iload         7
+     102: iconst_1
+     103: if_icmpeq     130
+     106: iload         7
+     108: iconst_4
+     109: if_icmpeq     130
+     112: iload         7
+     114: iconst_3
+     115: if_icmpeq     130
+     118: iload         7
+     120: iconst_2
+     121: if_icmpeq     130
+     124: iload         7
+     126: iconst_5
+     127: if_icmpne     71
+     130: aload         6
+     132: astore_1
+     133: goto          136
+     136: aload_1
+     137: areturn
+
+  public float getArrayCapacity();
+    Code:
+       0: fconst_0
+       1: fstore_1
+       2: iconst_0
+       3: istore_2
+       4: fconst_0
+       5: fstore_3
+       6: iconst_0
+       7: istore        4
+       9: iload         4
+      11: bipush        14
+      13: if_icmpge     58
+      16: aload_0
+      17: getfield      #15                 // Field driveStates:[I
+      20: iload         4
+      22: iaload
+      23: iconst_m1
+      24: if_icmpeq     49
+      27: aload_0
+      28: getfield      #17                 // Field selectionMode:I
+      31: iconst_5
+      32: if_icmpne     52
+      35: aload_0
+      36: getfield      #16                 // Field driveArrays:[I
+      39: iload         4
+      41: iaload
+      42: aload_0
+      43: getfield      #7                  // Field arrayIndex:I
+      46: if_icmpne     52
+      49: iinc          2, 1
+      52: iinc          4, 1
+      55: goto          9
+      58: iconst_0
+      59: istore        4
+      61: iload         4
+      63: bipush        14
+      65: if_icmpge     134
+      68: aload_0
+      69: getfield      #15                 // Field driveStates:[I
+      72: iload         4
+      74: iaload
+      75: iconst_m1
+      76: if_icmpeq     101
+      79: aload_0
+      80: getfield      #17                 // Field selectionMode:I
+      83: iconst_5
+      84: if_icmpne     128
+      87: aload_0
+      88: getfield      #16                 // Field driveArrays:[I
+      91: iload         4
+      93: iaload
+      94: aload_0
+      95: getfield      #7                  // Field arrayIndex:I
+      98: if_icmpne     128
+     101: fload_3
+     102: f2d
+     103: dconst_0
+     104: dcmpl
+     105: ifeq          120
+     108: aload_0
+     109: getfield      #77                 // Field driveCapacities:[F
+     112: iload         4
+     114: faload
+     115: fload_3
+     116: fcmpg
+     117: ifge          128
+     120: aload_0
+     121: getfield      #77                 // Field driveCapacities:[F
+     124: iload         4
+     126: faload
+     127: fstore_3
+     128: iinc          4, 1
+     131: goto          61
+     134: aload_0
+     135: getfield      #8                  // Field level:I
+     138: ifne          149
+     141: fload_3
+     142: iload_2
+     143: i2f
+     144: fmul
+     145: fstore_1
+     146: goto          251
+     149: aload_0
+     150: getfield      #8                  // Field level:I
+     153: iconst_1
+     154: if_icmpne     162
+     157: fload_3
+     158: fstore_1
+     159: goto          251
+     162: aload_0
+     163: getfield      #8                  // Field level:I
+     166: iconst_2
+     167: if_icmpeq     178
+     170: aload_0
+     171: getfield      #8                  // Field level:I
+     174: iconst_3
+     175: if_icmpne     188
+     178: fload_3
+     179: iload_2
+     180: iconst_1
+     181: isub
+     182: i2f
+     183: fmul
+     184: fstore_1
+     185: goto          251
+     188: aload_0
+     189: getfield      #8                  // Field level:I
+     192: iconst_4
+     193: if_icmpne     206
+     196: fload_3
+     197: iload_2
+     198: iconst_2
+     199: idiv
+     200: i2f
+     201: fmul
+     202: fstore_1
+     203: goto          251
+     206: aload_0
+     207: getfield      #8                  // Field level:I
+     210: sipush        255
+     213: if_icmpne     221
+     216: fconst_0
+     217: fstore_1
+     218: goto          251
+     221: new           #216                // class java/lang/RuntimeException
+     224: dup
+     225: new           #110                // class java/lang/StringBuffer
+     228: dup
+     229: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     232: ldc           #217                // String Unrecognized RAID level:
+     234: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     237: aload_0
+     238: getfield      #8                  // Field level:I
+     241: invokevirtual #112                // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     244: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     247: invokespecial #218                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+     250: athrow
+     251: fload_1
+     252: freturn
+
+  java.lang.String getCapacityString(float);
+    Code:
+       0: fload_1
+       1: f2d
+       2: ldc2_w        #219                // double 1024.0d
+       5: dcmpg
+       6: ifge          14
+       9: fload_1
+      10: fstore_3
+      11: goto          19
+      14: fload_1
+      15: ldc           #221                // float 1024.0f
+      17: fdiv
+      18: fstore_3
+      19: fload_3
+      20: f2d
+      21: ldc2_w        #222                // double 10000.0d
+      24: dmul
+      25: d2i
+      26: istore        4
+      28: iload         4
+      30: bipush        100
+      32: irem
+      33: bipush        49
+      35: if_icmple     41
+      38: iinc          4, 100
+      41: iload         4
+      43: bipush        100
+      45: idiv
+      46: istore        4
+      48: iload         4
+      50: i2f
+      51: ldc           #224                // float 100.0f
+      53: fdiv
+      54: fstore_3
+      55: fload_1
+      56: f2d
+      57: ldc2_w        #219                // double 1024.0d
+      60: dcmpg
+      61: ifge          99
+      64: ldc           #225                // String management.create.capacity.gb
+      66: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      69: astore_2
+      70: aload_2
+      71: ldc           #226                // String {number}
+      73: new           #110                // class java/lang/StringBuffer
+      76: dup
+      77: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+      80: ldc           #113                // String
+      82: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      85: fload_3
+      86: invokevirtual #227                // Method java/lang/StringBuffer.append:(F)Ljava/lang/StringBuffer;
+      89: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      92: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      95: astore_2
+      96: goto          131
+      99: ldc           #228                // String management.create.capacity.tb
+     101: invokestatic  #139                // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     104: astore_2
+     105: aload_2
+     106: ldc           #226                // String {number}
+     108: new           #110                // class java/lang/StringBuffer
+     111: dup
+     112: invokespecial #111                // Method java/lang/StringBuffer."<init>":()V
+     115: ldc           #113                // String
+     117: invokevirtual #114                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     120: fload_3
+     121: invokevirtual #227                // Method java/lang/StringBuffer.append:(F)Ljava/lang/StringBuffer;
+     124: invokevirtual #115                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     127: invokestatic  #142                // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     130: astore_2
+     131: aload_2
+     132: areturn
+
+  static int[] getDriveArraysFromRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: bipush        14
+       2: newarray       int
+       4: dup
+       5: iconst_0
+       6: iconst_0
+       7: iastore
+       8: dup
+       9: iconst_1
+      10: iconst_0
+      11: iastore
+      12: dup
+      13: iconst_2
+      14: iconst_0
+      15: iastore
+      16: dup
+      17: iconst_3
+      18: iconst_0
+      19: iastore
+      20: dup
+      21: iconst_4
+      22: iconst_0
+      23: iastore
+      24: dup
+      25: iconst_5
+      26: iconst_0
+      27: iastore
+      28: dup
+      29: bipush        6
+      31: iconst_0
+      32: iastore
+      33: dup
+      34: bipush        7
+      36: iconst_0
+      37: iastore
+      38: dup
+      39: bipush        8
+      41: iconst_0
+      42: iastore
+      43: dup
+      44: bipush        9
+      46: iconst_0
+      47: iastore
+      48: dup
+      49: bipush        10
+      51: iconst_0
+      52: iastore
+      53: dup
+      54: bipush        11
+      56: iconst_0
+      57: iastore
+      58: dup
+      59: bipush        12
+      61: iconst_0
+      62: iastore
+      63: dup
+      64: bipush        13
+      66: iconst_0
+      67: iastore
+      68: astore_1
+      69: aload_0
+      70: invokevirtual #229                // Method com/apple/xsr/som/RaidSystem.getDiskSlots:()Ljava/util/Collection;
+      73: astore_2
+      74: aload_2
+      75: invokeinterface #212,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      80: astore_3
+      81: aload_3
+      82: invokeinterface #213,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+      87: ifeq          188
+      90: aload_3
+      91: invokeinterface #214,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      96: checkcast     #230                // class com/apple/xsr/som/DiskSlot
+      99: astore        4
+     101: aload         4
+     103: invokevirtual #231                // Method com/apple/xsr/som/DiskSlot.getId:()I
+     106: iconst_1
+     107: isub
+     108: istore        5
+     110: aload         4
+     112: invokevirtual #232                // Method com/apple/xsr/som/DiskSlot.isPopulated:()Z
+     115: ifeq          81
+     118: aload         4
+     120: invokevirtual #233                // Method com/apple/xsr/som/DiskSlot.getDisk:()Lcom/apple/xsr/som/Disk;
+     123: astore        6
+     125: aload         6
+     127: invokevirtual #234                // Method com/apple/xsr/som/Disk.getType:()I
+     130: iconst_1
+     131: if_icmpne     158
+     134: aload         6
+     136: invokevirtual #235                // Method com/apple/xsr/som/Disk.getRaidSet:()Lcom/apple/xsr/som/RaidSet;
+     139: astore        7
+     141: aload         7
+     143: ifnull        81
+     146: aload_1
+     147: iload         5
+     149: aload         7
+     151: invokevirtual #236                // Method com/apple/xsr/som/RaidSet.getId:()I
+     154: iastore
+     155: goto          81
+     158: aload         6
+     160: invokevirtual #234                // Method com/apple/xsr/som/Disk.getType:()I
+     163: iconst_3
+     164: if_icmpne     81
+     167: aload_1
+     168: iload         5
+     170: iload         5
+     172: bipush        7
+     174: if_icmpge     182
+     177: bipush        -2
+     179: goto          184
+     182: bipush        -3
+     184: iastore
+     185: goto          81
+     188: aload_1
+     189: areturn
+
+  static int[] getDriveStatesFromRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: bipush        14
+       2: newarray       int
+       4: dup
+       5: iconst_0
+       6: bipush        -4
+       8: iastore
+       9: dup
+      10: iconst_1
+      11: bipush        -4
+      13: iastore
+      14: dup
+      15: iconst_2
+      16: bipush        -4
+      18: iastore
+      19: dup
+      20: iconst_3
+      21: bipush        -4
+      23: iastore
+      24: dup
+      25: iconst_4
+      26: bipush        -4
+      28: iastore
+      29: dup
+      30: iconst_5
+      31: bipush        -4
+      33: iastore
+      34: dup
+      35: bipush        6
+      37: bipush        -4
+      39: iastore
+      40: dup
+      41: bipush        7
+      43: bipush        -4
+      45: iastore
+      46: dup
+      47: bipush        8
+      49: bipush        -4
+      51: iastore
+      52: dup
+      53: bipush        9
+      55: bipush        -4
+      57: iastore
+      58: dup
+      59: bipush        10
+      61: bipush        -4
+      63: iastore
+      64: dup
+      65: bipush        11
+      67: bipush        -4
+      69: iastore
+      70: dup
+      71: bipush        12
+      73: bipush        -4
+      75: iastore
+      76: dup
+      77: bipush        13
+      79: bipush        -4
+      81: iastore
+      82: astore_1
+      83: aload_0
+      84: invokevirtual #229                // Method com/apple/xsr/som/RaidSystem.getDiskSlots:()Ljava/util/Collection;
+      87: astore_2
+      88: aload_2
+      89: invokeinterface #212,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      94: astore_3
+      95: aload_3
+      96: invokeinterface #213,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     101: ifeq          247
+     104: aload_3
+     105: invokeinterface #214,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     110: checkcast     #230                // class com/apple/xsr/som/DiskSlot
+     113: astore        4
+     115: aload         4
+     117: invokevirtual #231                // Method com/apple/xsr/som/DiskSlot.getId:()I
+     120: iconst_1
+     121: isub
+     122: istore        5
+     124: aload         4
+     126: invokevirtual #232                // Method com/apple/xsr/som/DiskSlot.isPopulated:()Z
+     129: ifeq          238
+     132: aload         4
+     134: invokevirtual #233                // Method com/apple/xsr/som/DiskSlot.getDisk:()Lcom/apple/xsr/som/Disk;
+     137: astore        6
+     139: aload         6
+     141: invokevirtual #237                // Method com/apple/xsr/som/Disk.getStatus:()I
+     144: ifne          229
+     147: aload         6
+     149: invokevirtual #234                // Method com/apple/xsr/som/Disk.getType:()I
+     152: iconst_1
+     153: if_icmpne     185
+     156: aload         6
+     158: invokevirtual #235                // Method com/apple/xsr/som/Disk.getRaidSet:()Lcom/apple/xsr/som/RaidSet;
+     161: astore        7
+     163: aload         7
+     165: ifnull        177
+     168: aload_1
+     169: iload         5
+     171: bipush        -2
+     173: iastore
+     174: goto          95
+     177: aload_1
+     178: iload         5
+     180: iconst_0
+     181: iastore
+     182: goto          95
+     185: aload         6
+     187: invokevirtual #234                // Method com/apple/xsr/som/Disk.getType:()I
+     190: iconst_3
+     191: if_icmpne     203
+     194: aload_1
+     195: iload         5
+     197: bipush        -2
+     199: iastore
+     200: goto          95
+     203: aload         6
+     205: invokevirtual #234                // Method com/apple/xsr/som/Disk.getType:()I
+     208: iconst_4
+     209: if_icmpne     221
+     212: aload_1
+     213: iload         5
+     215: bipush        -5
+     217: iastore
+     218: goto          95
+     221: aload_1
+     222: iload         5
+     224: iconst_0
+     225: iastore
+     226: goto          95
+     229: aload_1
+     230: iload         5
+     232: bipush        -3
+     234: iastore
+     235: goto          95
+     238: aload_1
+     239: iload         5
+     241: bipush        -4
+     243: iastore
+     244: goto          95
+     247: aload_1
+     248: areturn
+
+  static float[] getDriveCapacitiesFromRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: bipush        14
+       2: newarray       float
+       4: astore_1
+       5: aload_0
+       6: invokevirtual #229                // Method com/apple/xsr/som/RaidSystem.getDiskSlots:()Ljava/util/Collection;
+       9: astore_2
+      10: aload_2
+      11: invokeinterface #212,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      16: astore_3
+      17: aload_3
+      18: invokeinterface #213,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+      23: ifeq          85
+      26: aload_3
+      27: invokeinterface #214,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      32: checkcast     #230                // class com/apple/xsr/som/DiskSlot
+      35: astore        4
+      37: aload         4
+      39: invokevirtual #231                // Method com/apple/xsr/som/DiskSlot.getId:()I
+      42: iconst_1
+      43: isub
+      44: istore        5
+      46: aload         4
+      48: invokevirtual #232                // Method com/apple/xsr/som/DiskSlot.isPopulated:()Z
+      51: ifeq          77
+      54: aload         4
+      56: invokevirtual #233                // Method com/apple/xsr/som/DiskSlot.getDisk:()Lcom/apple/xsr/som/Disk;
+      59: astore        6
+      61: aload_1
+      62: iload         5
+      64: aload         6
+      66: invokevirtual #238                // Method com/apple/xsr/som/Disk.getCapacityBytes:()J
+      69: invokestatic  #239                // Method com/apple/util/CapacityConverter.toGigabytes:(J)D
+      72: d2f
+      73: fastore
+      74: goto          17
+      77: aload_1
+      78: iload         5
+      80: fconst_0
+      81: fastore
+      82: goto          17
+      85: aload_1
+      86: areturn
+
+  public static boolean isJbod(int);
+    Code:
+       0: iload_0
+       1: bipush        -2
+       3: if_icmpeq     12
+       6: iload_0
+       7: bipush        -3
+       9: if_icmpne     16
+      12: iconst_1
+      13: goto          17
+      16: iconst_0
+      17: ireturn
+
+  static boolean access$000(com.apple.xsr.DriveSelectionPanel, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokespecial #3                  // Method toggleDrive:(I)Z
+       5: ireturn
+
+  static void access$100(com.apple.xsr.DriveSelectionPanel, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokespecial #2                  // Method selectDrive:(I)V
+       5: return
+
+  static void access$200(com.apple.xsr.DriveSelectionPanel, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokespecial #1                  // Method deselectDrive:(I)V
+       5: return
+
+  static {};
+    Code:
+       0: new           #240                // class javax/swing/JTable
+       3: dup
+       4: invokespecial #241                // Method javax/swing/JTable."<init>":()V
+       7: invokevirtual #242                // Method javax/swing/JTable.getSelectionBackground:()Ljava/awt/Color;
+      10: putstatic     #99                 // Field hiliteColor:Ljava/awt/Color;
+      13: fconst_0
+      14: fconst_0
+      15: ldc           #103                // float 0.4f
+      17: invokestatic  #243                // Method java/awt/Color.getHSBColor:(FFF)Ljava/awt/Color;
+      20: putstatic     #104                // Field badgeColor:Ljava/awt/Color;
+      23: return
+}
+class com.apple.xsr.DriveSelectionPanel$DriveIconListener implements java.awt.event.MouseListener {
+  int drive;
+
+  com.apple.xsr.DriveInformationPanel infoLabel;
+
+  private final com.apple.xsr.DriveSelectionPanel this$0;
+
+  com.apple.xsr.DriveSelectionPanel$DriveIconListener(com.apple.xsr.DriveSelectionPanel, int, com.apple.xsr.DriveInformationPanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+       9: aload_0
+      10: iload_2
+      11: putfield      #3                  // Field drive:I
+      14: aload_0
+      15: aload_3
+      16: putfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+      19: return
+
+  public void mouseClicked(java.awt.event.MouseEvent);
+    Code:
+       0: return
+
+  public void mousePressed(java.awt.event.MouseEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+       4: iconst_1
+       5: putfield      #5                  // Field com/apple/xsr/DriveSelectionPanel.inDragSelect:Z
+       8: aload_1
+       9: invokevirtual #6                  // Method java/awt/event/MouseEvent.isAltDown:()Z
+      12: ifeq          105
+      15: aload_0
+      16: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      19: getfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+      22: iconst_3
+      23: if_icmpne     69
+      26: aload_0
+      27: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      30: getfield      #8                  // Field com/apple/xsr/DriveSelectionPanel.driveArrays:[I
+      33: aload_0
+      34: getfield      #3                  // Field drive:I
+      37: iaload
+      38: ifle          69
+      41: aload_0
+      42: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      45: iconst_4
+      46: putfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+      49: aload_0
+      50: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      53: ldc           #9                  // String SelectionMode
+      55: iconst_m1
+      56: aload_0
+      57: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      60: getfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+      63: invokevirtual #10                 // Method com/apple/xsr/DriveSelectionPanel.firePropertyChange:(Ljava/lang/String;II)V
+      66: goto          105
+      69: aload_0
+      70: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      73: getfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+      76: iconst_4
+      77: if_icmpne     105
+      80: aload_0
+      81: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      84: iconst_3
+      85: putfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+      88: aload_0
+      89: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      92: ldc           #9                  // String SelectionMode
+      94: iconst_m1
+      95: aload_0
+      96: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      99: getfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+     102: invokevirtual #10                 // Method com/apple/xsr/DriveSelectionPanel.firePropertyChange:(Ljava/lang/String;II)V
+     105: aload_0
+     106: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     109: getfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+     112: iconst_1
+     113: if_icmpeq     137
+     116: aload_0
+     117: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     120: getfield      #7                  // Field com/apple/xsr/DriveSelectionPanel.selectionMode:I
+     123: iconst_5
+     124: if_icmpne     158
+     127: aload_0
+     128: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     131: getfield      #11                 // Field com/apple/xsr/DriveSelectionPanel.expandArbitrary:Z
+     134: ifeq          158
+     137: aload_0
+     138: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     141: aload_0
+     142: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     145: aload_0
+     146: getfield      #3                  // Field drive:I
+     149: invokestatic  #12                 // Method com/apple/xsr/DriveSelectionPanel.access$000:(Lcom/apple/xsr/DriveSelectionPanel;I)Z
+     152: putfield      #13                 // Field com/apple/xsr/DriveSelectionPanel.selecting:Z
+     155: goto          177
+     158: aload_0
+     159: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     162: iconst_1
+     163: putfield      #13                 // Field com/apple/xsr/DriveSelectionPanel.selecting:Z
+     166: aload_0
+     167: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     170: aload_0
+     171: getfield      #3                  // Field drive:I
+     174: invokestatic  #14                 // Method com/apple/xsr/DriveSelectionPanel.access$100:(Lcom/apple/xsr/DriveSelectionPanel;I)V
+     177: aload_0
+     178: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     181: invokevirtual #15                 // Method com/apple/xsr/DriveSelectionPanel.syncSummary:()V
+     184: return
+
+  public void mouseReleased(java.awt.event.MouseEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+       4: iconst_0
+       5: putfield      #5                  // Field com/apple/xsr/DriveSelectionPanel.inDragSelect:Z
+       8: aload_0
+       9: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      12: invokevirtual #15                 // Method com/apple/xsr/DriveSelectionPanel.syncSummary:()V
+      15: return
+
+  public void mouseEntered(java.awt.event.MouseEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+       4: getfield      #5                  // Field com/apple/xsr/DriveSelectionPanel.inDragSelect:Z
+       7: ifeq          52
+      10: aload_0
+      11: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      14: getfield      #13                 // Field com/apple/xsr/DriveSelectionPanel.selecting:Z
+      17: ifeq          34
+      20: aload_0
+      21: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      24: aload_0
+      25: getfield      #3                  // Field drive:I
+      28: invokestatic  #14                 // Method com/apple/xsr/DriveSelectionPanel.access$100:(Lcom/apple/xsr/DriveSelectionPanel;I)V
+      31: goto          45
+      34: aload_0
+      35: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      38: aload_0
+      39: getfield      #3                  // Field drive:I
+      42: invokestatic  #16                 // Method com/apple/xsr/DriveSelectionPanel.access$200:(Lcom/apple/xsr/DriveSelectionPanel;I)V
+      45: aload_0
+      46: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      49: invokevirtual #15                 // Method com/apple/xsr/DriveSelectionPanel.syncSummary:()V
+      52: aload_0
+      53: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+      56: ifnull        477
+      59: aload_0
+      60: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+      63: getfield      #17                 // Field com/apple/xsr/DriveSelectionPanel.driveStates:[I
+      66: aload_0
+      67: getfield      #3                  // Field drive:I
+      70: iaload
+      71: istore_2
+      72: iload_2
+      73: bipush        -4
+      75: if_icmpne     122
+      78: aload_0
+      79: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+      82: ldc           #18                 // String management.driveInfo.empty
+      84: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      87: ldc           #20                 // String {number}
+      89: new           #21                 // class java/lang/StringBuffer
+      92: dup
+      93: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+      96: ldc           #23                 // String
+      98: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     101: aload_0
+     102: getfield      #3                  // Field drive:I
+     105: iconst_1
+     106: iadd
+     107: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     110: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     113: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     116: invokevirtual #28                 // Method com/apple/xsr/DriveInformationPanel.setText:(Ljava/lang/String;)V
+     119: goto          477
+     122: iload_2
+     123: bipush        -3
+     125: if_icmpne     172
+     128: aload_0
+     129: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+     132: ldc           #29                 // String management.driveInfo.offline
+     134: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     137: ldc           #20                 // String {number}
+     139: new           #21                 // class java/lang/StringBuffer
+     142: dup
+     143: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+     146: ldc           #23                 // String
+     148: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     151: aload_0
+     152: getfield      #3                  // Field drive:I
+     155: iconst_1
+     156: iadd
+     157: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     160: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     163: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     166: invokevirtual #28                 // Method com/apple/xsr/DriveInformationPanel.setText:(Ljava/lang/String;)V
+     169: goto          477
+     172: iload_2
+     173: bipush        -5
+     175: if_icmpne     222
+     178: aload_0
+     179: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+     182: ldc           #30                 // String management.driveInfo.orphan.note
+     184: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     187: ldc           #20                 // String {number}
+     189: new           #21                 // class java/lang/StringBuffer
+     192: dup
+     193: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+     196: ldc           #23                 // String
+     198: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     201: aload_0
+     202: getfield      #3                  // Field drive:I
+     205: iconst_1
+     206: iadd
+     207: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     210: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     213: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     216: invokevirtual #28                 // Method com/apple/xsr/DriveInformationPanel.setText:(Ljava/lang/String;)V
+     219: goto          477
+     222: iload_2
+     223: bipush        -2
+     225: if_icmpne     408
+     228: aload_0
+     229: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     232: getfield      #8                  // Field com/apple/xsr/DriveSelectionPanel.driveArrays:[I
+     235: aload_0
+     236: getfield      #3                  // Field drive:I
+     239: iaload
+     240: istore_3
+     241: iload_3
+     242: ifle          332
+     245: ldc           #31                 // String management.driveInfo.assigned
+     247: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     250: ldc           #20                 // String {number}
+     252: new           #21                 // class java/lang/StringBuffer
+     255: dup
+     256: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+     259: ldc           #23                 // String
+     261: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     264: aload_0
+     265: getfield      #3                  // Field drive:I
+     268: iconst_1
+     269: iadd
+     270: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     273: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     276: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     279: astore        4
+     281: aload         4
+     283: ldc           #32                 // String {index}
+     285: new           #21                 // class java/lang/StringBuffer
+     288: dup
+     289: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+     292: ldc           #23                 // String
+     294: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     297: iload_3
+     298: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     301: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     304: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     307: astore        4
+     309: aload         4
+     311: ldc           #33                 // String {description}
+     313: aload_0
+     314: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     317: getfield      #34                 // Field com/apple/xsr/DriveSelectionPanel.arrayDescriptions:[Ljava/lang/String;
+     320: iload_3
+     321: iconst_1
+     322: isub
+     323: aaload
+     324: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     327: astore        4
+     329: goto          396
+     332: ldc           #35                 // String management.driveInfo.jbod
+     334: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     337: ldc           #20                 // String {number}
+     339: new           #21                 // class java/lang/StringBuffer
+     342: dup
+     343: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+     346: ldc           #23                 // String
+     348: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     351: aload_0
+     352: getfield      #3                  // Field drive:I
+     355: iconst_1
+     356: iadd
+     357: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     360: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     363: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     366: astore        4
+     368: aload         4
+     370: ldc           #36                 // String {capacity}
+     372: aload_0
+     373: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     376: aload_0
+     377: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     380: getfield      #37                 // Field com/apple/xsr/DriveSelectionPanel.driveCapacities:[F
+     383: aload_0
+     384: getfield      #3                  // Field drive:I
+     387: faload
+     388: invokevirtual #38                 // Method com/apple/xsr/DriveSelectionPanel.getCapacityString:(F)Ljava/lang/String;
+     391: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     394: astore        4
+     396: aload_0
+     397: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+     400: aload         4
+     402: invokevirtual #28                 // Method com/apple/xsr/DriveInformationPanel.setText:(Ljava/lang/String;)V
+     405: goto          477
+     408: ldc           #39                 // String management.driveInfo.unassigned
+     410: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     413: ldc           #20                 // String {number}
+     415: new           #21                 // class java/lang/StringBuffer
+     418: dup
+     419: invokespecial #22                 // Method java/lang/StringBuffer."<init>":()V
+     422: ldc           #23                 // String
+     424: invokevirtual #24                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     427: aload_0
+     428: getfield      #3                  // Field drive:I
+     431: iconst_1
+     432: iadd
+     433: invokevirtual #25                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     436: invokevirtual #26                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     439: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     442: astore_3
+     443: aload_3
+     444: ldc           #36                 // String {capacity}
+     446: aload_0
+     447: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     450: aload_0
+     451: getfield      #2                  // Field this$0:Lcom/apple/xsr/DriveSelectionPanel;
+     454: getfield      #37                 // Field com/apple/xsr/DriveSelectionPanel.driveCapacities:[F
+     457: aload_0
+     458: getfield      #3                  // Field drive:I
+     461: faload
+     462: invokevirtual #38                 // Method com/apple/xsr/DriveSelectionPanel.getCapacityString:(F)Ljava/lang/String;
+     465: invokestatic  #27                 // Method com/apple/util/StringUtilities.replaceAll:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     468: astore_3
+     469: aload_0
+     470: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+     473: aload_3
+     474: invokevirtual #28                 // Method com/apple/xsr/DriveInformationPanel.setText:(Ljava/lang/String;)V
+     477: return
+
+  public void mouseExited(java.awt.event.MouseEvent);
+    Code:
+       0: aload_0
+       1: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+       4: ifnull        19
+       7: aload_0
+       8: getfield      #4                  // Field infoLabel:Lcom/apple/xsr/DriveInformationPanel;
+      11: ldc           #40                 // String management.driveInfo.note
+      13: invokestatic  #19                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      16: invokevirtual #28                 // Method com/apple/xsr/DriveInformationPanel.setText:(Ljava/lang/String;)V
+      19: return
+}
+class com.apple.xsr.SystemInfoPane$2 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$2(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: aload_0
+      12: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      15: iload_2
+      16: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$102:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)I
+      19: pop
+      20: aload_0
+      21: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      24: invokevirtual #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.refreshInfoForSelectedDrive:()V
+      27: return
+}
+class com.apple.xsr.SystemInfoPane$3 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$3(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: aload_0
+      12: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      15: iload_2
+      16: iconst_1
+      17: isub
+      18: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$202:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)I
+      21: pop
+      22: aload_0
+      23: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      26: invokevirtual #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.refreshInfoForSelectedArray:()V
+      29: return
+}
+class com.apple.xsr.SystemInfoPane$4 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$4(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: iload_2
+      12: iconst_4
+      13: if_icmpne     29
+      16: aload_0
+      17: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      20: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$300:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JRadioButton;
+      23: invokevirtual #7                  // Method javax/swing/JRadioButton.doClick:()V
+      26: goto          44
+      29: iload_2
+      30: iconst_3
+      31: if_icmpne     44
+      34: aload_0
+      35: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      38: invokestatic  #8                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$400:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JRadioButton;
+      41: invokevirtual #7                  // Method javax/swing/JRadioButton.doClick:()V
+      44: return
+}
+class com.apple.xsr.SystemInfoPane$5 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$5(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: aload_0
+      12: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      15: iload_2
+      16: iconst_1
+      17: isub
+      18: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$202:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)I
+      21: pop
+      22: aload_0
+      23: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      26: invokestatic  #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$500:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Lcom/apple/xsr/DriveSelectionPanel;
+      29: iload_2
+      30: invokevirtual #8                  // Method com/apple/xsr/DriveSelectionPanel.setArrayIndex:(I)V
+      33: aload_0
+      34: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      37: invokestatic  #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$500:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Lcom/apple/xsr/DriveSelectionPanel;
+      40: iconst_4
+      41: invokevirtual #9                  // Method com/apple/xsr/DriveSelectionPanel.setSelectionMode:(I)V
+      44: aload_0
+      45: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      48: invokestatic  #10                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$300:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JRadioButton;
+      51: iconst_1
+      52: invokevirtual #11                 // Method javax/swing/JRadioButton.setSelected:(Z)V
+      55: aload_0
+      56: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      59: invokevirtual #12                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.refreshInfoForSelectedArray:()V
+      62: aload_0
+      63: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      66: invokestatic  #13                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$700:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljava/awt/CardLayout;
+      69: aload_0
+      70: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      73: invokestatic  #14                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$600:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JPanel;
+      76: ldc           #15                 // String arrays
+      78: invokevirtual #16                 // Method java/awt/CardLayout.show:(Ljava/awt/Container;Ljava/lang/String;)V
+      81: return
+}

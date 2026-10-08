@@ -1,0 +1,3188 @@
+class com.apple.xsr.SystemInfoPane$ArrayDrivePanel extends javax.swing.JPanel {
+  private static final int MIN_HEIGHT = 224;
+
+  private com.apple.xsr.DriveSelectionPanel drivePanel;
+
+  private com.apple.xsr.ArraySelectionPanel arrayPanel;
+
+  private javax.swing.JPanel infoPanel;
+
+  private javax.swing.JPanel cardPanel;
+
+  private java.awt.CardLayout cardLayout;
+
+  private javax.swing.JRadioButton arraysRadioButton;
+
+  private javax.swing.JRadioButton drivesRadioButton;
+
+  private com.apple.xsr.SelectableStatusLabel arrayStatus;
+
+  private com.apple.xsr.SelectableLabel arrayLevel;
+
+  private com.apple.xsr.SelectableLabel arrayCapacity;
+
+  private com.apple.xsr.SelectableLabel arraySlices;
+
+  private com.apple.xsr.SelectableLabel arrayLUNs;
+
+  private javax.swing.JLabel arrayProgressLabel;
+
+  private javax.swing.JProgressBar arrayProgress;
+
+  private javax.swing.JLabel arrayAvailableLabel;
+
+  private com.apple.xsr.SelectableLabel arrayAvailable;
+
+  private com.apple.xsr.SystemInfoPane$ArrayDrivePanel$MessagePanel messagePanel;
+
+  private com.apple.xsr.SelectableStatusLabel driveStatus;
+
+  private com.apple.xsr.SelectableLabel driveType;
+
+  private com.apple.xsr.SelectableLabel driveModel;
+
+  private com.apple.xsr.SelectableLabel driveFirmware;
+
+  private com.apple.xsr.SelectableLabel driveCapacity;
+
+  private com.apple.xsr.SelectableLabel drivePowerOnHours;
+
+  private com.apple.xsr.SelectableLabel driveCache;
+
+  private int selectedArray;
+
+  private int selectedDrive;
+
+  private com.apple.xsr.som.RaidSystem system;
+
+  private static final java.lang.String unknown;
+
+  private static final java.lang.String notInstalled;
+
+  public com.apple.xsr.SystemInfoPane$ArrayDrivePanel();
+    Code:
+       0: aload_0
+       1: invokespecial #8                  // Method javax/swing/JPanel."<init>":()V
+       4: aload_0
+       5: iconst_m1
+       6: putfield      #6                  // Field selectedArray:I
+       9: aload_0
+      10: iconst_m1
+      11: putfield      #7                  // Field selectedDrive:I
+      14: aload_0
+      15: invokestatic  #9                  // Method com/apple/gui/GUIFactory.configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      18: pop
+      19: aload_0
+      20: invokestatic  #10                 // Method com/apple/xsr/SystemInfoPane.access$000:()Ljavax/swing/border/Border;
+      23: invokevirtual #11                 // Method setBorder:(Ljavax/swing/border/Border;)V
+      26: aload_0
+      27: new           #12                 // class java/awt/GridBagLayout
+      30: dup
+      31: invokespecial #13                 // Method java/awt/GridBagLayout."<init>":()V
+      34: invokevirtual #14                 // Method setLayout:(Ljava/awt/LayoutManager;)V
+      37: new           #15                 // class java/awt/GridBagConstraints
+      40: dup
+      41: invokespecial #16                 // Method java/awt/GridBagConstraints."<init>":()V
+      44: astore_1
+      45: aload_1
+      46: iconst_0
+      47: putfield      #17                 // Field java/awt/GridBagConstraints.gridx:I
+      50: aload_1
+      51: iconst_0
+      52: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+      55: aload_1
+      56: iconst_1
+      57: putfield      #19                 // Field java/awt/GridBagConstraints.gridheight:I
+      60: aload_1
+      61: iconst_1
+      62: putfield      #20                 // Field java/awt/GridBagConstraints.gridwidth:I
+      65: aload_1
+      66: bipush        17
+      68: putfield      #21                 // Field java/awt/GridBagConstraints.anchor:I
+      71: aload_1
+      72: iconst_1
+      73: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+      76: aload_0
+      77: new           #23                 // class com/apple/xsr/DriveSelectionPanel
+      80: dup
+      81: iconst_4
+      82: aconst_null
+      83: aconst_null
+      84: aconst_null
+      85: aconst_null
+      86: invokespecial #24                 // Method com/apple/xsr/DriveSelectionPanel."<init>":(ILcom/apple/xsr/DriveInformationPanel;Lcom/apple/xsr/StepByStepPanel;Ljavax/swing/JTextPane;Ljavax/swing/JButton;)V
+      89: putfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+      92: aload_1
+      93: new           #25                 // class java/awt/Insets
+      96: dup
+      97: iconst_0
+      98: bipush        10
+     100: iconst_0
+     101: bipush        20
+     103: invokespecial #26                 // Method java/awt/Insets."<init>":(IIII)V
+     106: putfield      #27                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     109: aload_0
+     110: aload_0
+     111: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+     114: aload_1
+     115: invokevirtual #28                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     118: aload_1
+     119: new           #25                 // class java/awt/Insets
+     122: dup
+     123: iconst_0
+     124: iconst_0
+     125: iconst_0
+     126: iconst_0
+     127: invokespecial #26                 // Method java/awt/Insets."<init>":(IIII)V
+     130: putfield      #27                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     133: aload_1
+     134: dup
+     135: getfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     138: iconst_1
+     139: iadd
+     140: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     143: aload_0
+     144: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+     147: ldc           #29                 // String DriveIndex
+     149: new           #30                 // class com/apple/xsr/SystemInfoPane$2
+     152: dup
+     153: aload_0
+     154: invokespecial #31                 // Method com/apple/xsr/SystemInfoPane$2."<init>":(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)V
+     157: invokevirtual #32                 // Method com/apple/xsr/DriveSelectionPanel.addPropertyChangeListener:(Ljava/lang/String;Ljava/beans/PropertyChangeListener;)V
+     160: aload_0
+     161: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+     164: ldc           #33                 // String ArrayIndex
+     166: new           #34                 // class com/apple/xsr/SystemInfoPane$3
+     169: dup
+     170: aload_0
+     171: invokespecial #35                 // Method com/apple/xsr/SystemInfoPane$3."<init>":(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)V
+     174: invokevirtual #32                 // Method com/apple/xsr/DriveSelectionPanel.addPropertyChangeListener:(Ljava/lang/String;Ljava/beans/PropertyChangeListener;)V
+     177: aload_0
+     178: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+     181: ldc           #36                 // String SelectionMode
+     183: new           #37                 // class com/apple/xsr/SystemInfoPane$4
+     186: dup
+     187: aload_0
+     188: invokespecial #38                 // Method com/apple/xsr/SystemInfoPane$4."<init>":(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)V
+     191: invokevirtual #32                 // Method com/apple/xsr/DriveSelectionPanel.addPropertyChangeListener:(Ljava/lang/String;Ljava/beans/PropertyChangeListener;)V
+     194: aload_0
+     195: new           #39                 // class com/apple/xsr/ArraySelectionPanel
+     198: dup
+     199: iconst_3
+     200: invokespecial #40                 // Method com/apple/xsr/ArraySelectionPanel."<init>":(I)V
+     203: putfield      #41                 // Field arrayPanel:Lcom/apple/xsr/ArraySelectionPanel;
+     206: aload_1
+     207: new           #25                 // class java/awt/Insets
+     210: dup
+     211: iconst_0
+     212: bipush        10
+     214: iconst_0
+     215: bipush        20
+     217: invokespecial #26                 // Method java/awt/Insets."<init>":(IIII)V
+     220: putfield      #27                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     223: aload_0
+     224: aload_0
+     225: getfield      #41                 // Field arrayPanel:Lcom/apple/xsr/ArraySelectionPanel;
+     228: aload_1
+     229: invokevirtual #28                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     232: aload_1
+     233: new           #25                 // class java/awt/Insets
+     236: dup
+     237: iconst_0
+     238: iconst_0
+     239: iconst_0
+     240: iconst_0
+     241: invokespecial #26                 // Method java/awt/Insets."<init>":(IIII)V
+     244: putfield      #27                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     247: aload_1
+     248: dup
+     249: getfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     252: iconst_1
+     253: iadd
+     254: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     257: aload_0
+     258: getfield      #41                 // Field arrayPanel:Lcom/apple/xsr/ArraySelectionPanel;
+     261: ldc           #33                 // String ArrayIndex
+     263: new           #42                 // class com/apple/xsr/SystemInfoPane$5
+     266: dup
+     267: aload_0
+     268: invokespecial #43                 // Method com/apple/xsr/SystemInfoPane$5."<init>":(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)V
+     271: invokevirtual #44                 // Method com/apple/xsr/ArraySelectionPanel.addPropertyChangeListener:(Ljava/lang/String;Ljava/beans/PropertyChangeListener;)V
+     274: aload_1
+     275: dconst_1
+     276: putfield      #45                 // Field java/awt/GridBagConstraints.weighty:D
+     279: aload_0
+     280: iconst_0
+     281: invokestatic  #46                 // Method javax/swing/Box.createVerticalStrut:(I)Ljava/awt/Component;
+     284: aload_1
+     285: invokevirtual #28                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     288: aload_1
+     289: dconst_0
+     290: putfield      #45                 // Field java/awt/GridBagConstraints.weighty:D
+     293: aload_1
+     294: dup
+     295: getfield      #17                 // Field java/awt/GridBagConstraints.gridx:I
+     298: iconst_1
+     299: iadd
+     300: putfield      #17                 // Field java/awt/GridBagConstraints.gridx:I
+     303: aload_1
+     304: iconst_0
+     305: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     308: sipush        300
+     311: istore_2
+     312: aload_0
+     313: invokestatic  #47                 // Method com/apple/gui/GUIFactory.newPanel:()Ljavax/swing/JPanel;
+     316: putfield      #48                 // Field infoPanel:Ljavax/swing/JPanel;
+     319: new           #12                 // class java/awt/GridBagLayout
+     322: dup
+     323: invokespecial #13                 // Method java/awt/GridBagLayout."<init>":()V
+     326: astore_3
+     327: new           #15                 // class java/awt/GridBagConstraints
+     330: dup
+     331: invokespecial #16                 // Method java/awt/GridBagConstraints."<init>":()V
+     334: astore        4
+     336: aload_0
+     337: getfield      #48                 // Field infoPanel:Ljavax/swing/JPanel;
+     340: aload_3
+     341: invokevirtual #49                 // Method javax/swing/JPanel.setLayout:(Ljava/awt/LayoutManager;)V
+     344: aload         4
+     346: iconst_0
+     347: putfield      #17                 // Field java/awt/GridBagConstraints.gridx:I
+     350: aload         4
+     352: iconst_0
+     353: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     356: aload         4
+     358: iconst_1
+     359: putfield      #19                 // Field java/awt/GridBagConstraints.gridheight:I
+     362: aload         4
+     364: iconst_1
+     365: putfield      #20                 // Field java/awt/GridBagConstraints.gridwidth:I
+     368: aload         4
+     370: bipush        17
+     372: putfield      #21                 // Field java/awt/GridBagConstraints.anchor:I
+     375: aload         4
+     377: iconst_0
+     378: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+     381: new           #50                 // class com/apple/xsr/RadioButtonGroup
+     384: dup
+     385: invokespecial #51                 // Method com/apple/xsr/RadioButtonGroup."<init>":()V
+     388: astore        5
+     390: invokestatic  #47                 // Method com/apple/gui/GUIFactory.newPanel:()Ljavax/swing/JPanel;
+     393: astore        6
+     395: new           #52                 // class javax/swing/JLabel
+     398: dup
+     399: ldc           #53                 // String systemInfo.drivePanel.show
+     401: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     404: invokespecial #55                 // Method javax/swing/JLabel."<init>":(Ljava/lang/String;)V
+     407: astore        7
+     409: aload         7
+     411: getstatic     #56                 // Field com/apple/gui/GUIFactory.FONT_SMALL:Ljava/awt/Font;
+     414: invokevirtual #57                 // Method javax/swing/JLabel.setFont:(Ljava/awt/Font;)V
+     417: aload         6
+     419: aload         7
+     421: invokevirtual #58                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;)Ljava/awt/Component;
+     424: pop
+     425: aload_0
+     426: ldc           #59                 // String systemInfo.drivePanel.arrays
+     428: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     431: iconst_1
+     432: invokestatic  #60                 // Method com/apple/gui/GUIFactory.newRadioButton:(Ljava/lang/String;Z)Ljavax/swing/JRadioButton;
+     435: putfield      #5                  // Field arraysRadioButton:Ljavax/swing/JRadioButton;
+     438: aload_0
+     439: getfield      #5                  // Field arraysRadioButton:Ljavax/swing/JRadioButton;
+     442: getstatic     #56                 // Field com/apple/gui/GUIFactory.FONT_SMALL:Ljava/awt/Font;
+     445: invokevirtual #61                 // Method javax/swing/JRadioButton.setFont:(Ljava/awt/Font;)V
+     448: aload_0
+     449: getfield      #5                  // Field arraysRadioButton:Ljavax/swing/JRadioButton;
+     452: new           #62                 // class com/apple/xsr/SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener
+     455: dup
+     456: aload_0
+     457: iconst_0
+     458: invokespecial #63                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener."<init>":(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)V
+     461: invokevirtual #64                 // Method javax/swing/JRadioButton.addActionListener:(Ljava/awt/event/ActionListener;)V
+     464: aload         5
+     466: aload_0
+     467: getfield      #5                  // Field arraysRadioButton:Ljavax/swing/JRadioButton;
+     470: invokevirtual #65                 // Method com/apple/xsr/RadioButtonGroup.add:(Ljavax/swing/AbstractButton;)V
+     473: aload         6
+     475: aload_0
+     476: getfield      #5                  // Field arraysRadioButton:Ljavax/swing/JRadioButton;
+     479: invokevirtual #58                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;)Ljava/awt/Component;
+     482: pop
+     483: aload_0
+     484: ldc           #66                 // String systemInfo.drivePanel.drives
+     486: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     489: iconst_0
+     490: invokestatic  #60                 // Method com/apple/gui/GUIFactory.newRadioButton:(Ljava/lang/String;Z)Ljavax/swing/JRadioButton;
+     493: putfield      #4                  // Field drivesRadioButton:Ljavax/swing/JRadioButton;
+     496: aload_0
+     497: getfield      #4                  // Field drivesRadioButton:Ljavax/swing/JRadioButton;
+     500: getstatic     #56                 // Field com/apple/gui/GUIFactory.FONT_SMALL:Ljava/awt/Font;
+     503: invokevirtual #61                 // Method javax/swing/JRadioButton.setFont:(Ljava/awt/Font;)V
+     506: aload_0
+     507: getfield      #4                  // Field drivesRadioButton:Ljavax/swing/JRadioButton;
+     510: new           #62                 // class com/apple/xsr/SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener
+     513: dup
+     514: aload_0
+     515: iconst_1
+     516: invokespecial #63                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener."<init>":(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)V
+     519: invokevirtual #64                 // Method javax/swing/JRadioButton.addActionListener:(Ljava/awt/event/ActionListener;)V
+     522: aload         5
+     524: aload_0
+     525: getfield      #4                  // Field drivesRadioButton:Ljavax/swing/JRadioButton;
+     528: invokevirtual #65                 // Method com/apple/xsr/RadioButtonGroup.add:(Ljavax/swing/AbstractButton;)V
+     531: aload         6
+     533: aload_0
+     534: getfield      #4                  // Field drivesRadioButton:Ljavax/swing/JRadioButton;
+     537: invokevirtual #58                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;)Ljava/awt/Component;
+     540: pop
+     541: aload_0
+     542: getfield      #48                 // Field infoPanel:Ljavax/swing/JPanel;
+     545: aload         6
+     547: aload         4
+     549: invokevirtual #67                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     552: aload         4
+     554: dup
+     555: getfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     558: iconst_1
+     559: iadd
+     560: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     563: aload_0
+     564: invokestatic  #47                 // Method com/apple/gui/GUIFactory.newPanel:()Ljavax/swing/JPanel;
+     567: putfield      #2                  // Field cardPanel:Ljavax/swing/JPanel;
+     570: aload_0
+     571: new           #68                 // class java/awt/CardLayout
+     574: dup
+     575: invokespecial #69                 // Method java/awt/CardLayout."<init>":()V
+     578: putfield      #1                  // Field cardLayout:Ljava/awt/CardLayout;
+     581: aload_0
+     582: getfield      #2                  // Field cardPanel:Ljavax/swing/JPanel;
+     585: aload_0
+     586: getfield      #1                  // Field cardLayout:Ljava/awt/CardLayout;
+     589: invokevirtual #49                 // Method javax/swing/JPanel.setLayout:(Ljava/awt/LayoutManager;)V
+     592: aload         4
+     594: dconst_1
+     595: putfield      #70                 // Field java/awt/GridBagConstraints.weightx:D
+     598: aload         4
+     600: iconst_2
+     601: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+     604: aload_0
+     605: getfield      #48                 // Field infoPanel:Ljavax/swing/JPanel;
+     608: aload_0
+     609: getfield      #2                  // Field cardPanel:Ljavax/swing/JPanel;
+     612: aload         4
+     614: invokevirtual #67                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     617: aload         4
+     619: iconst_0
+     620: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+     623: aload         4
+     625: dconst_0
+     626: putfield      #70                 // Field java/awt/GridBagConstraints.weightx:D
+     629: aload         4
+     631: dup
+     632: getfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     635: iconst_1
+     636: iadd
+     637: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     640: ldc           #71                 // String systemInfo.drivePanel.arrayInfo
+     642: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     645: astore        8
+     647: new           #72                 // class com/apple/xsr/SystemInfoPane$SizeLinkedColumn
+     650: dup
+     651: new           #73                 // class java/lang/StringBuffer
+     654: dup
+     655: invokespecial #74                 // Method java/lang/StringBuffer."<init>":()V
+     658: ldc           #75                 // String
+     660: invokevirtual #76                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     663: aload         8
+     665: invokevirtual #76                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     668: ldc           #75                 // String
+     670: invokevirtual #76                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     673: invokevirtual #77                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     676: invokespecial #78                 // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn."<init>":(Ljava/lang/String;)V
+     679: astore        9
+     681: aload_0
+     682: new           #79                 // class com/apple/xsr/SelectableStatusLabel
+     685: dup
+     686: invokespecial #80                 // Method com/apple/xsr/SelectableStatusLabel."<init>":()V
+     689: putfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     692: aload_0
+     693: new           #82                 // class com/apple/xsr/SelectableLabel
+     696: dup
+     697: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+     700: putfield      #84                 // Field arrayLevel:Lcom/apple/xsr/SelectableLabel;
+     703: aload_0
+     704: new           #82                 // class com/apple/xsr/SelectableLabel
+     707: dup
+     708: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+     711: putfield      #85                 // Field arrayCapacity:Lcom/apple/xsr/SelectableLabel;
+     714: aload_0
+     715: new           #82                 // class com/apple/xsr/SelectableLabel
+     718: dup
+     719: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+     722: putfield      #86                 // Field arraySlices:Lcom/apple/xsr/SelectableLabel;
+     725: aload_0
+     726: new           #82                 // class com/apple/xsr/SelectableLabel
+     729: dup
+     730: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+     733: putfield      #87                 // Field arrayLUNs:Lcom/apple/xsr/SelectableLabel;
+     736: aload_0
+     737: new           #52                 // class javax/swing/JLabel
+     740: dup
+     741: ldc           #88                 // String systemInfo.arrayPanel.progress
+     743: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     746: invokespecial #55                 // Method javax/swing/JLabel."<init>":(Ljava/lang/String;)V
+     749: putfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     752: aload_0
+     753: getfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     756: iconst_0
+     757: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     760: aload_0
+     761: new           #91                 // class javax/swing/JProgressBar
+     764: dup
+     765: iconst_0
+     766: bipush        100
+     768: invokespecial #92                 // Method javax/swing/JProgressBar."<init>":(II)V
+     771: putfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     774: new           #94                 // class javax/swing/border/EmptyBorder
+     777: dup
+     778: iconst_2
+     779: iconst_0
+     780: iconst_1
+     781: iconst_0
+     782: invokespecial #95                 // Method javax/swing/border/EmptyBorder."<init>":(IIII)V
+     785: aload_0
+     786: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     789: invokevirtual #96                 // Method javax/swing/JProgressBar.getBorder:()Ljavax/swing/border/Border;
+     792: invokestatic  #97                 // Method javax/swing/BorderFactory.createCompoundBorder:(Ljavax/swing/border/Border;Ljavax/swing/border/Border;)Ljavax/swing/border/CompoundBorder;
+     795: astore        10
+     797: aload_0
+     798: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     801: aload         10
+     803: invokevirtual #98                 // Method javax/swing/JProgressBar.setBorder:(Ljavax/swing/border/Border;)V
+     806: aload_0
+     807: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     810: iconst_0
+     811: invokevirtual #99                 // Method javax/swing/JProgressBar.setVisible:(Z)V
+     814: aload_0
+     815: new           #52                 // class javax/swing/JLabel
+     818: dup
+     819: ldc           #100                // String systemInfo.arrayPanel.available
+     821: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     824: invokespecial #55                 // Method javax/swing/JLabel."<init>":(Ljava/lang/String;)V
+     827: putfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     830: aload_0
+     831: new           #82                 // class com/apple/xsr/SelectableLabel
+     834: dup
+     835: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+     838: putfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     841: aload         9
+     843: ldc           #103                // String systemInfo.status
+     845: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     848: aload_0
+     849: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     852: invokevirtual #104                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addLabeledComponent:(Ljava/lang/String;Ljavax/swing/JComponent;)V
+     855: aload         9
+     857: aload_0
+     858: getfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     861: aload_0
+     862: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     865: invokevirtual #105                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addLabeledComponent:(Ljavax/swing/JLabel;Ljavax/swing/JComponent;)V
+     868: aload         9
+     870: aload_0
+     871: getfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     874: aload_0
+     875: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     878: invokevirtual #105                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addLabeledComponent:(Ljavax/swing/JLabel;Ljavax/swing/JComponent;)V
+     881: aload         9
+     883: ldc           #106                // String systemInfo.arrayPanel.raid_level
+     885: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     888: aload_0
+     889: getfield      #84                 // Field arrayLevel:Lcom/apple/xsr/SelectableLabel;
+     892: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+     895: aload         9
+     897: ldc           #108                // String systemInfo.arrayPanel.capacity
+     899: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     902: aload_0
+     903: getfield      #85                 // Field arrayCapacity:Lcom/apple/xsr/SelectableLabel;
+     906: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+     909: aload         9
+     911: ldc           #109                // String systemInfo.arrayPanel.slices
+     913: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     916: aload_0
+     917: getfield      #86                 // Field arraySlices:Lcom/apple/xsr/SelectableLabel;
+     920: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+     923: aload         9
+     925: ldc           #110                // String systemInfo.arrayPanel.lun
+     927: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     930: aload_0
+     931: getfield      #87                 // Field arrayLUNs:Lcom/apple/xsr/SelectableLabel;
+     934: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+     937: aload_0
+     938: new           #111                // class com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel
+     941: dup
+     942: invokespecial #112                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel."<init>":()V
+     945: putfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     948: aload_0
+     949: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     952: iconst_0
+     953: invokevirtual #114                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setVisible:(Z)V
+     956: new           #15                 // class java/awt/GridBagConstraints
+     959: dup
+     960: invokespecial #16                 // Method java/awt/GridBagConstraints."<init>":()V
+     963: astore        11
+     965: aload         11
+     967: iconst_0
+     968: putfield      #17                 // Field java/awt/GridBagConstraints.gridx:I
+     971: aload         11
+     973: aload         9
+     975: invokevirtual #115                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.getItemCount:()I
+     978: putfield      #18                 // Field java/awt/GridBagConstraints.gridy:I
+     981: aload         11
+     983: iconst_2
+     984: putfield      #20                 // Field java/awt/GridBagConstraints.gridwidth:I
+     987: aload         11
+     989: iconst_1
+     990: putfield      #19                 // Field java/awt/GridBagConstraints.gridheight:I
+     993: aload         11
+     995: dconst_0
+     996: putfield      #70                 // Field java/awt/GridBagConstraints.weightx:D
+     999: aload         11
+    1001: dconst_0
+    1002: putfield      #45                 // Field java/awt/GridBagConstraints.weighty:D
+    1005: aload         11
+    1007: bipush        17
+    1009: putfield      #21                 // Field java/awt/GridBagConstraints.anchor:I
+    1012: aload         11
+    1014: iconst_0
+    1015: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+    1018: aload         11
+    1020: new           #25                 // class java/awt/Insets
+    1023: dup
+    1024: bipush        8
+    1026: iconst_0
+    1027: iconst_0
+    1028: iconst_0
+    1029: invokespecial #26                 // Method java/awt/Insets."<init>":(IIII)V
+    1032: putfield      #27                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+    1035: aload         11
+    1037: iconst_0
+    1038: putfield      #116                // Field java/awt/GridBagConstraints.ipadx:I
+    1041: aload         11
+    1043: iconst_0
+    1044: putfield      #117                // Field java/awt/GridBagConstraints.ipady:I
+    1047: aload         9
+    1049: aload_0
+    1050: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+    1053: aload         11
+    1055: invokevirtual #118                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.add:(Ljava/awt/Component;Ljava/lang/Object;)V
+    1058: aload         9
+    1060: invokevirtual #119                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.padRemainder:()V
+    1063: aload_0
+    1064: getfield      #2                  // Field cardPanel:Ljavax/swing/JPanel;
+    1067: aload         9
+    1069: ldc           #120                // String arrays
+    1071: invokevirtual #67                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;Ljava/lang/Object;)V
+    1074: ldc           #121                // String systemInfo.drivePanel.driveInfo
+    1076: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1079: astore        12
+    1081: new           #72                 // class com/apple/xsr/SystemInfoPane$SizeLinkedColumn
+    1084: dup
+    1085: new           #73                 // class java/lang/StringBuffer
+    1088: dup
+    1089: invokespecial #74                 // Method java/lang/StringBuffer."<init>":()V
+    1092: ldc           #75                 // String
+    1094: invokevirtual #76                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1097: aload         12
+    1099: invokevirtual #76                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1102: ldc           #75                 // String
+    1104: invokevirtual #76                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+    1107: invokevirtual #77                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+    1110: invokespecial #78                 // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn."<init>":(Ljava/lang/String;)V
+    1113: astore        13
+    1115: aload_0
+    1116: new           #79                 // class com/apple/xsr/SelectableStatusLabel
+    1119: dup
+    1120: invokespecial #80                 // Method com/apple/xsr/SelectableStatusLabel."<init>":()V
+    1123: putfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+    1126: aload_0
+    1127: new           #82                 // class com/apple/xsr/SelectableLabel
+    1130: dup
+    1131: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+    1134: putfield      #123                // Field driveType:Lcom/apple/xsr/SelectableLabel;
+    1137: aload_0
+    1138: new           #82                 // class com/apple/xsr/SelectableLabel
+    1141: dup
+    1142: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+    1145: putfield      #124                // Field driveModel:Lcom/apple/xsr/SelectableLabel;
+    1148: aload_0
+    1149: new           #82                 // class com/apple/xsr/SelectableLabel
+    1152: dup
+    1153: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+    1156: putfield      #125                // Field driveFirmware:Lcom/apple/xsr/SelectableLabel;
+    1159: aload_0
+    1160: new           #82                 // class com/apple/xsr/SelectableLabel
+    1163: dup
+    1164: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+    1167: putfield      #126                // Field driveCapacity:Lcom/apple/xsr/SelectableLabel;
+    1170: aload_0
+    1171: new           #82                 // class com/apple/xsr/SelectableLabel
+    1174: dup
+    1175: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+    1178: putfield      #127                // Field drivePowerOnHours:Lcom/apple/xsr/SelectableLabel;
+    1181: aload_0
+    1182: new           #82                 // class com/apple/xsr/SelectableLabel
+    1185: dup
+    1186: invokespecial #83                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+    1189: putfield      #128                // Field driveCache:Lcom/apple/xsr/SelectableLabel;
+    1192: aload         13
+    1194: ldc           #103                // String systemInfo.status
+    1196: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1199: aload_0
+    1200: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+    1203: invokevirtual #104                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addLabeledComponent:(Ljava/lang/String;Ljavax/swing/JComponent;)V
+    1206: aload         13
+    1208: ldc           #129                // String systemInfo.drivePanel.type
+    1210: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1213: aload_0
+    1214: getfield      #123                // Field driveType:Lcom/apple/xsr/SelectableLabel;
+    1217: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+    1220: aload         13
+    1222: ldc           #130                // String systemInfo.drivePanel.model
+    1224: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1227: aload_0
+    1228: getfield      #124                // Field driveModel:Lcom/apple/xsr/SelectableLabel;
+    1231: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+    1234: aload         13
+    1236: ldc           #131                // String systemInfo.drivePanel.revision
+    1238: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1241: aload_0
+    1242: getfield      #125                // Field driveFirmware:Lcom/apple/xsr/SelectableLabel;
+    1245: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+    1248: aload         13
+    1250: ldc           #132                // String systemInfo.drivePanel.capacity
+    1252: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1255: aload_0
+    1256: getfield      #126                // Field driveCapacity:Lcom/apple/xsr/SelectableLabel;
+    1259: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+    1262: aload         13
+    1264: ldc           #133                // String systemInfo.drivePanel.powerOnHours
+    1266: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1269: aload_0
+    1270: getfield      #127                // Field drivePowerOnHours:Lcom/apple/xsr/SelectableLabel;
+    1273: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+    1276: aload         13
+    1278: ldc           #134                // String systemInfo.drivePanel.writeCache
+    1280: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+    1283: aload_0
+    1284: getfield      #128                // Field driveCache:Lcom/apple/xsr/SelectableLabel;
+    1287: invokevirtual #107                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.addField:(Ljava/lang/String;Lcom/apple/xsr/SelectableLabel;)V
+    1290: aload         13
+    1292: invokevirtual #119                // Method com/apple/xsr/SystemInfoPane$SizeLinkedColumn.padRemainder:()V
+    1295: aload_0
+    1296: getfield      #2                  // Field cardPanel:Ljavax/swing/JPanel;
+    1299: aload         13
+    1301: ldc           #135                // String drives
+    1303: invokevirtual #67                 // Method javax/swing/JPanel.add:(Ljava/awt/Component;Ljava/lang/Object;)V
+    1306: aload_1
+    1307: new           #25                 // class java/awt/Insets
+    1310: dup
+    1311: iconst_0
+    1312: bipush        10
+    1314: iconst_0
+    1315: iconst_0
+    1316: invokespecial #26                 // Method java/awt/Insets."<init>":(IIII)V
+    1319: putfield      #27                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+    1322: aload_1
+    1323: iconst_3
+    1324: putfield      #19                 // Field java/awt/GridBagConstraints.gridheight:I
+    1327: aload_1
+    1328: dconst_1
+    1329: putfield      #70                 // Field java/awt/GridBagConstraints.weightx:D
+    1332: aload_1
+    1333: bipush        18
+    1335: putfield      #21                 // Field java/awt/GridBagConstraints.anchor:I
+    1338: aload_1
+    1339: iconst_2
+    1340: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+    1343: aload_0
+    1344: aload_0
+    1345: getfield      #48                 // Field infoPanel:Ljavax/swing/JPanel;
+    1348: aload_1
+    1349: invokevirtual #28                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+    1352: aload_0
+    1353: aconst_null
+    1354: invokevirtual #136                // Method updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+    1357: return
+
+  public void updateInfo(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_1
+       1: ifnull        36
+       4: aload_0
+       5: aload_1
+       6: putfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+       9: aload_0
+      10: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+      13: aload_1
+      14: invokevirtual #138                // Method com/apple/xsr/DriveSelectionPanel.setRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+      17: aload_0
+      18: getfield      #41                 // Field arrayPanel:Lcom/apple/xsr/ArraySelectionPanel;
+      21: aload_1
+      22: invokevirtual #139                // Method com/apple/xsr/ArraySelectionPanel.configureForRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+      25: aload_0
+      26: invokevirtual #140                // Method refreshInfoForSelectedArray:()V
+      29: aload_0
+      30: invokevirtual #141                // Method refreshInfoForSelectedDrive:()V
+      33: goto          64
+      36: aload_0
+      37: aconst_null
+      38: putfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+      41: aload_0
+      42: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+      45: aconst_null
+      46: invokevirtual #138                // Method com/apple/xsr/DriveSelectionPanel.setRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+      49: aload_0
+      50: getfield      #41                 // Field arrayPanel:Lcom/apple/xsr/ArraySelectionPanel;
+      53: invokevirtual #142                // Method com/apple/xsr/ArraySelectionPanel.resetPanel:()V
+      56: aload_0
+      57: invokevirtual #140                // Method refreshInfoForSelectedArray:()V
+      60: aload_0
+      61: invokevirtual #141                // Method refreshInfoForSelectedDrive:()V
+      64: return
+
+  public void refreshInfoForSelectedArray();
+    Code:
+       0: aload_0
+       1: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+       4: ifnull        30
+       7: aload_0
+       8: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+      11: invokevirtual #143                // Method com/apple/xsr/som/RaidSystem.getRaidSets:()Ljava/util/Collection;
+      14: iconst_0
+      15: anewarray     #144                // class com/apple/xsr/som/RaidSet
+      18: invokeinterface #145,  2          // InterfaceMethod java/util/Collection.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+      23: checkcast     #146                // class "[Lcom/apple/xsr/som/RaidSet;"
+      26: astore_1
+      27: goto          32
+      30: aconst_null
+      31: astore_1
+      32: aload_1
+      33: ifnull        430
+      36: aload_0
+      37: getfield      #6                  // Field selectedArray:I
+      40: iconst_1
+      41: iadd
+      42: ifle          430
+      45: aload_0
+      46: getfield      #6                  // Field selectedArray:I
+      49: aload_1
+      50: arraylength
+      51: if_icmpge     430
+      54: aload_1
+      55: aload_0
+      56: getfield      #6                  // Field selectedArray:I
+      59: aaload
+      60: astore_2
+      61: aload_2
+      62: invokevirtual #147                // Method com/apple/xsr/som/RaidSet.getMappedSlices:()Ljava/util/Collection;
+      65: invokeinterface #148,  1          // InterfaceMethod java/util/Collection.size:()I
+      70: aload_2
+      71: invokevirtual #149                // Method com/apple/xsr/som/RaidSet.getLiveSliceCount:()I
+      74: if_icmpeq     81
+      77: iconst_1
+      78: goto          82
+      81: iconst_0
+      82: istore_3
+      83: aload_2
+      84: invokevirtual #150                // Method com/apple/xsr/som/RaidSet.getStatus:()I
+      87: istore        4
+      89: iload         4
+      91: ifeq          100
+      94: iload         4
+      96: iconst_m1
+      97: if_icmpne     128
+     100: aload_0
+     101: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+     104: aload_2
+     105: invokevirtual #151                // Method com/apple/xsr/som/RaidSystem.isRaidSetBeingCreated:(Lcom/apple/xsr/som/RaidSet;)Z
+     108: ifne          128
+     111: iload_3
+     112: ifeq          128
+     115: iconst_1
+     116: istore        4
+     118: iload         4
+     120: invokestatic  #152                // Method com/apple/xsr/SOMLocalizer.getStatusString:(I)Ljava/lang/String;
+     123: astore        5
+     125: goto          134
+     128: aload_2
+     129: invokestatic  #153                // Method com/apple/xsr/SOMLocalizer.getRaidSetOperationStatus:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     132: astore        5
+     134: aload_0
+     135: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     138: iload         4
+     140: invokevirtual #154                // Method com/apple/xsr/SelectableStatusLabel.setStatus:(I)V
+     143: aload_0
+     144: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     147: aload         5
+     149: invokevirtual #155                // Method com/apple/xsr/SelectableStatusLabel.setText:(Ljava/lang/String;)V
+     152: aload_2
+     153: invokevirtual #156                // Method com/apple/xsr/som/RaidSet.getOperation:()I
+     156: istore        6
+     158: iload         6
+     160: iconst_m1
+     161: if_icmpeq     256
+     164: aload_0
+     165: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     168: aload_2
+     169: invokevirtual #157                // Method com/apple/xsr/som/RaidSet.getProgress:()I
+     172: invokevirtual #158                // Method javax/swing/JProgressBar.setValue:(I)V
+     175: aload_0
+     176: getfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     179: iconst_1
+     180: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     183: aload_0
+     184: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     187: iconst_1
+     188: invokevirtual #99                 // Method javax/swing/JProgressBar.setVisible:(Z)V
+     191: iload         6
+     193: iconst_1
+     194: if_icmpne     227
+     197: aload_0
+     198: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     201: aload_2
+     202: invokestatic  #159                // Method com/apple/xsr/SOMLocalizer.getRaidSetAvailability:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     205: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     208: aload_0
+     209: getfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     212: iconst_1
+     213: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     216: aload_0
+     217: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     220: iconst_1
+     221: invokevirtual #161                // Method com/apple/xsr/SelectableLabel.setVisible:(Z)V
+     224: goto          306
+     227: aload_0
+     228: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     231: getstatic     #162                // Field unknown:Ljava/lang/String;
+     234: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     237: aload_0
+     238: getfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     241: iconst_0
+     242: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     245: aload_0
+     246: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     249: iconst_0
+     250: invokevirtual #161                // Method com/apple/xsr/SelectableLabel.setVisible:(Z)V
+     253: goto          306
+     256: aload_0
+     257: getfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     260: iconst_0
+     261: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     264: aload_0
+     265: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     268: iconst_0
+     269: invokevirtual #99                 // Method javax/swing/JProgressBar.setVisible:(Z)V
+     272: aload_0
+     273: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     276: iconst_0
+     277: invokevirtual #158                // Method javax/swing/JProgressBar.setValue:(I)V
+     280: aload_0
+     281: getfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     284: iconst_0
+     285: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     288: aload_0
+     289: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     292: iconst_0
+     293: invokevirtual #161                // Method com/apple/xsr/SelectableLabel.setVisible:(Z)V
+     296: aload_0
+     297: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     300: getstatic     #162                // Field unknown:Ljava/lang/String;
+     303: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     306: aload_0
+     307: getfield      #84                 // Field arrayLevel:Lcom/apple/xsr/SelectableLabel;
+     310: aload_2
+     311: invokestatic  #163                // Method com/apple/xsr/SOMLocalizer.getRaidSetLevel:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     314: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     317: aload_0
+     318: getfield      #85                 // Field arrayCapacity:Lcom/apple/xsr/SelectableLabel;
+     321: aload_2
+     322: invokestatic  #164                // Method com/apple/xsr/SOMLocalizer.getRaidSetCapacity:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     325: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     328: aload_0
+     329: getfield      #86                 // Field arraySlices:Lcom/apple/xsr/SelectableLabel;
+     332: aload_2
+     333: invokestatic  #165                // Method com/apple/xsr/SOMLocalizer.getRaidSetSlices:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     336: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     339: aload_0
+     340: getfield      #87                 // Field arrayLUNs:Lcom/apple/xsr/SelectableLabel;
+     343: aload_2
+     344: invokestatic  #166                // Method com/apple/xsr/SOMLocalizer.getRaidSetLuns:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     347: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     350: aload_2
+     351: invokevirtual #167                // Method com/apple/xsr/som/RaidSet.getState:()I
+     354: iconst_1
+     355: if_icmpne     381
+     358: aload_0
+     359: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     362: ldc           #168                // String systemInfo.message.deleteOfflineArray
+     364: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     367: invokevirtual #169                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setText:(Ljava/lang/String;)V
+     370: aload_0
+     371: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     374: iconst_1
+     375: invokevirtual #114                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setVisible:(Z)V
+     378: goto          696
+     381: iload_3
+     382: ifeq          419
+     385: aload_0
+     386: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+     389: aload_2
+     390: invokevirtual #151                // Method com/apple/xsr/som/RaidSystem.isRaidSetBeingCreated:(Lcom/apple/xsr/som/RaidSet;)Z
+     393: ifne          419
+     396: aload_0
+     397: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     400: ldc           #170                // String systemInfo.message.unmapped
+     402: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     405: invokevirtual #169                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setText:(Ljava/lang/String;)V
+     408: aload_0
+     409: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     412: iconst_1
+     413: invokevirtual #114                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setVisible:(Z)V
+     416: goto          696
+     419: aload_0
+     420: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     423: iconst_0
+     424: invokevirtual #114                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setVisible:(Z)V
+     427: goto          696
+     430: aload_0
+     431: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+     434: ifnull        597
+     437: aload_0
+     438: getfield      #6                  // Field selectedArray:I
+     441: iconst_1
+     442: iadd
+     443: invokestatic  #171                // Method com/apple/xsr/DriveSelectionPanel.isJbod:(I)Z
+     446: ifeq          597
+     449: aload_0
+     450: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+     453: aload_0
+     454: getfield      #6                  // Field selectedArray:I
+     457: iconst_1
+     458: iadd
+     459: invokevirtual #172                // Method com/apple/xsr/DriveSelectionPanel.jbodExists:(I)Z
+     462: ifeq          597
+     465: aload_0
+     466: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     469: iconst_0
+     470: invokevirtual #154                // Method com/apple/xsr/SelectableStatusLabel.setStatus:(I)V
+     473: aload_0
+     474: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     477: ldc           #173                // String raidset.state.online
+     479: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     482: invokevirtual #155                // Method com/apple/xsr/SelectableStatusLabel.setText:(Ljava/lang/String;)V
+     485: aload_0
+     486: getfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     489: iconst_0
+     490: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     493: aload_0
+     494: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     497: iconst_0
+     498: invokevirtual #99                 // Method javax/swing/JProgressBar.setVisible:(Z)V
+     501: aload_0
+     502: getfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     505: iconst_0
+     506: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     509: aload_0
+     510: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     513: iconst_0
+     514: invokevirtual #161                // Method com/apple/xsr/SelectableLabel.setVisible:(Z)V
+     517: aload_0
+     518: getfield      #84                 // Field arrayLevel:Lcom/apple/xsr/SelectableLabel;
+     521: ldc           #174                // String management.create.jbod
+     523: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     526: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     529: aload_0
+     530: getfield      #85                 // Field arrayCapacity:Lcom/apple/xsr/SelectableLabel;
+     533: ldc           #175                // String som.jbod.capacity
+     535: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     538: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     541: aload_0
+     542: getfield      #86                 // Field arraySlices:Lcom/apple/xsr/SelectableLabel;
+     545: getstatic     #162                // Field unknown:Ljava/lang/String;
+     548: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     551: aload_0
+     552: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+     555: aload_0
+     556: getfield      #6                  // Field selectedArray:I
+     559: iconst_1
+     560: iadd
+     561: bipush        -2
+     563: if_icmpne     570
+     566: iconst_1
+     567: goto          571
+     570: iconst_2
+     571: invokevirtual #176                // Method com/apple/xsr/som/RaidSystem.getRaidController:(I)Lcom/apple/xsr/som/RaidController;
+     574: astore_2
+     575: aload_0
+     576: getfield      #87                 // Field arrayLUNs:Lcom/apple/xsr/SelectableLabel;
+     579: aload_2
+     580: invokestatic  #177                // Method com/apple/xsr/SOMLocalizer.getJbodLuns:(Lcom/apple/xsr/som/RaidController;)Ljava/lang/String;
+     583: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     586: aload_0
+     587: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     590: iconst_0
+     591: invokevirtual #114                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setVisible:(Z)V
+     594: goto          696
+     597: aload_0
+     598: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     601: bipush        -3
+     603: invokevirtual #154                // Method com/apple/xsr/SelectableStatusLabel.setStatus:(I)V
+     606: aload_0
+     607: getfield      #81                 // Field arrayStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     610: getstatic     #162                // Field unknown:Ljava/lang/String;
+     613: invokevirtual #155                // Method com/apple/xsr/SelectableStatusLabel.setText:(Ljava/lang/String;)V
+     616: aload_0
+     617: getfield      #89                 // Field arrayProgressLabel:Ljavax/swing/JLabel;
+     620: iconst_0
+     621: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     624: aload_0
+     625: getfield      #93                 // Field arrayProgress:Ljavax/swing/JProgressBar;
+     628: iconst_0
+     629: invokevirtual #99                 // Method javax/swing/JProgressBar.setVisible:(Z)V
+     632: aload_0
+     633: getfield      #101                // Field arrayAvailableLabel:Ljavax/swing/JLabel;
+     636: iconst_0
+     637: invokevirtual #90                 // Method javax/swing/JLabel.setVisible:(Z)V
+     640: aload_0
+     641: getfield      #102                // Field arrayAvailable:Lcom/apple/xsr/SelectableLabel;
+     644: iconst_0
+     645: invokevirtual #161                // Method com/apple/xsr/SelectableLabel.setVisible:(Z)V
+     648: aload_0
+     649: getfield      #84                 // Field arrayLevel:Lcom/apple/xsr/SelectableLabel;
+     652: getstatic     #162                // Field unknown:Ljava/lang/String;
+     655: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     658: aload_0
+     659: getfield      #85                 // Field arrayCapacity:Lcom/apple/xsr/SelectableLabel;
+     662: getstatic     #162                // Field unknown:Ljava/lang/String;
+     665: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     668: aload_0
+     669: getfield      #86                 // Field arraySlices:Lcom/apple/xsr/SelectableLabel;
+     672: getstatic     #162                // Field unknown:Ljava/lang/String;
+     675: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     678: aload_0
+     679: getfield      #87                 // Field arrayLUNs:Lcom/apple/xsr/SelectableLabel;
+     682: getstatic     #162                // Field unknown:Ljava/lang/String;
+     685: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     688: aload_0
+     689: getfield      #113                // Field messagePanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel;
+     692: iconst_0
+     693: invokevirtual #114                // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel$MessagePanel.setVisible:(Z)V
+     696: return
+
+  public void refreshInfoForSelectedDrive();
+    Code:
+       0: aload_0
+       1: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+       4: ifnull        30
+       7: aload_0
+       8: getfield      #137                // Field system:Lcom/apple/xsr/som/RaidSystem;
+      11: invokevirtual #178                // Method com/apple/xsr/som/RaidSystem.getDiskSlots:()Ljava/util/Collection;
+      14: iconst_0
+      15: anewarray     #179                // class com/apple/xsr/som/DiskSlot
+      18: invokeinterface #145,  2          // InterfaceMethod java/util/Collection.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+      23: checkcast     #180                // class "[Lcom/apple/xsr/som/DiskSlot;"
+      26: astore_1
+      27: goto          32
+      30: aconst_null
+      31: astore_1
+      32: aload_1
+      33: ifnull        265
+      36: aload_0
+      37: getfield      #7                  // Field selectedDrive:I
+      40: iconst_m1
+      41: if_icmple     265
+      44: aload_0
+      45: getfield      #7                  // Field selectedDrive:I
+      48: aload_1
+      49: arraylength
+      50: if_icmpge     265
+      53: aload_1
+      54: aload_0
+      55: getfield      #7                  // Field selectedDrive:I
+      58: aaload
+      59: astore_2
+      60: aload_2
+      61: invokevirtual #181                // Method com/apple/xsr/som/DiskSlot.isPopulated:()Z
+      64: ifeq          183
+      67: aload_2
+      68: invokevirtual #182                // Method com/apple/xsr/som/DiskSlot.getDisk:()Lcom/apple/xsr/som/Disk;
+      71: astore_3
+      72: aload_3
+      73: invokevirtual #183                // Method com/apple/xsr/som/Disk.getType:()I
+      76: iconst_4
+      77: if_icmpeq     87
+      80: aload_3
+      81: invokevirtual #184                // Method com/apple/xsr/som/Disk.getStatus:()I
+      84: goto          88
+      87: iconst_1
+      88: istore        4
+      90: aload_0
+      91: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+      94: iload         4
+      96: invokevirtual #154                // Method com/apple/xsr/SelectableStatusLabel.setStatus:(I)V
+      99: aload_0
+     100: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     103: iload         4
+     105: invokestatic  #152                // Method com/apple/xsr/SOMLocalizer.getStatusString:(I)Ljava/lang/String;
+     108: invokevirtual #155                // Method com/apple/xsr/SelectableStatusLabel.setText:(Ljava/lang/String;)V
+     111: aload_0
+     112: getfield      #123                // Field driveType:Lcom/apple/xsr/SelectableLabel;
+     115: aload_3
+     116: invokestatic  #185                // Method com/apple/xsr/SOMLocalizer.getDiskType:(Lcom/apple/xsr/som/Disk;)Ljava/lang/String;
+     119: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     122: aload_0
+     123: getfield      #124                // Field driveModel:Lcom/apple/xsr/SelectableLabel;
+     126: aload_3
+     127: invokevirtual #186                // Method com/apple/xsr/som/Disk.getModel:()Ljava/lang/String;
+     130: invokevirtual #187                // Method java/lang/String.trim:()Ljava/lang/String;
+     133: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     136: aload_0
+     137: getfield      #125                // Field driveFirmware:Lcom/apple/xsr/SelectableLabel;
+     140: aload_3
+     141: invokevirtual #188                // Method com/apple/xsr/som/Disk.getRevision:()Ljava/lang/String;
+     144: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     147: aload_0
+     148: getfield      #126                // Field driveCapacity:Lcom/apple/xsr/SelectableLabel;
+     151: aload_3
+     152: invokestatic  #189                // Method com/apple/xsr/SOMLocalizer.getDiskCapacityShort:(Lcom/apple/xsr/som/Disk;)Ljava/lang/String;
+     155: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     158: aload_0
+     159: getfield      #127                // Field drivePowerOnHours:Lcom/apple/xsr/SelectableLabel;
+     162: aload_3
+     163: invokestatic  #190                // Method com/apple/xsr/SOMLocalizer.getDiskPowerOnHoursShort:(Lcom/apple/xsr/som/Disk;)Ljava/lang/String;
+     166: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     169: aload_0
+     170: getfield      #128                // Field driveCache:Lcom/apple/xsr/SelectableLabel;
+     173: aload_3
+     174: invokestatic  #191                // Method com/apple/xsr/SOMLocalizer.getDiskCacheState:(Lcom/apple/xsr/som/Disk;)Ljava/lang/String;
+     177: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     180: goto          344
+     183: aload_0
+     184: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     187: bipush        -2
+     189: invokevirtual #154                // Method com/apple/xsr/SelectableStatusLabel.setStatus:(I)V
+     192: aload_0
+     193: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     196: getstatic     #192                // Field notInstalled:Ljava/lang/String;
+     199: invokevirtual #155                // Method com/apple/xsr/SelectableStatusLabel.setText:(Ljava/lang/String;)V
+     202: aload_0
+     203: getfield      #123                // Field driveType:Lcom/apple/xsr/SelectableLabel;
+     206: getstatic     #162                // Field unknown:Ljava/lang/String;
+     209: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     212: aload_0
+     213: getfield      #124                // Field driveModel:Lcom/apple/xsr/SelectableLabel;
+     216: getstatic     #162                // Field unknown:Ljava/lang/String;
+     219: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     222: aload_0
+     223: getfield      #125                // Field driveFirmware:Lcom/apple/xsr/SelectableLabel;
+     226: getstatic     #162                // Field unknown:Ljava/lang/String;
+     229: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     232: aload_0
+     233: getfield      #126                // Field driveCapacity:Lcom/apple/xsr/SelectableLabel;
+     236: getstatic     #162                // Field unknown:Ljava/lang/String;
+     239: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     242: aload_0
+     243: getfield      #127                // Field drivePowerOnHours:Lcom/apple/xsr/SelectableLabel;
+     246: getstatic     #162                // Field unknown:Ljava/lang/String;
+     249: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     252: aload_0
+     253: getfield      #128                // Field driveCache:Lcom/apple/xsr/SelectableLabel;
+     256: getstatic     #162                // Field unknown:Ljava/lang/String;
+     259: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     262: goto          344
+     265: aload_0
+     266: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     269: bipush        -3
+     271: invokevirtual #154                // Method com/apple/xsr/SelectableStatusLabel.setStatus:(I)V
+     274: aload_0
+     275: getfield      #122                // Field driveStatus:Lcom/apple/xsr/SelectableStatusLabel;
+     278: getstatic     #162                // Field unknown:Ljava/lang/String;
+     281: invokevirtual #155                // Method com/apple/xsr/SelectableStatusLabel.setText:(Ljava/lang/String;)V
+     284: aload_0
+     285: getfield      #123                // Field driveType:Lcom/apple/xsr/SelectableLabel;
+     288: getstatic     #162                // Field unknown:Ljava/lang/String;
+     291: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     294: aload_0
+     295: getfield      #124                // Field driveModel:Lcom/apple/xsr/SelectableLabel;
+     298: getstatic     #162                // Field unknown:Ljava/lang/String;
+     301: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     304: aload_0
+     305: getfield      #125                // Field driveFirmware:Lcom/apple/xsr/SelectableLabel;
+     308: getstatic     #162                // Field unknown:Ljava/lang/String;
+     311: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     314: aload_0
+     315: getfield      #126                // Field driveCapacity:Lcom/apple/xsr/SelectableLabel;
+     318: getstatic     #162                // Field unknown:Ljava/lang/String;
+     321: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     324: aload_0
+     325: getfield      #127                // Field drivePowerOnHours:Lcom/apple/xsr/SelectableLabel;
+     328: getstatic     #162                // Field unknown:Ljava/lang/String;
+     331: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     334: aload_0
+     335: getfield      #128                // Field driveCache:Lcom/apple/xsr/SelectableLabel;
+     338: getstatic     #162                // Field unknown:Ljava/lang/String;
+     341: invokevirtual #160                // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+     344: return
+
+  public java.awt.Dimension getMinimumSize();
+    Code:
+       0: aload_0
+       1: invokespecial #193                // Method javax/swing/JPanel.getMinimumSize:()Ljava/awt/Dimension;
+       4: astore_1
+       5: new           #194                // class java/awt/Dimension
+       8: dup
+       9: aload_1
+      10: getfield      #195                // Field java/awt/Dimension.width:I
+      13: sipush        224
+      16: aload_1
+      17: getfield      #196                // Field java/awt/Dimension.height:I
+      20: if_icmple     29
+      23: sipush        224
+      26: goto          33
+      29: aload_1
+      30: getfield      #196                // Field java/awt/Dimension.height:I
+      33: invokespecial #197                // Method java/awt/Dimension."<init>":(II)V
+      36: areturn
+
+  static int access$102(com.apple.xsr.SystemInfoPane$ArrayDrivePanel, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: dup_x1
+       3: putfield      #7                  // Field selectedDrive:I
+       6: ireturn
+
+  static int access$202(com.apple.xsr.SystemInfoPane$ArrayDrivePanel, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: dup_x1
+       3: putfield      #6                  // Field selectedArray:I
+       6: ireturn
+
+  static javax.swing.JRadioButton access$300(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: getfield      #5                  // Field arraysRadioButton:Ljavax/swing/JRadioButton;
+       4: areturn
+
+  static javax.swing.JRadioButton access$400(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: getfield      #4                  // Field drivesRadioButton:Ljavax/swing/JRadioButton;
+       4: areturn
+
+  static com.apple.xsr.DriveSelectionPanel access$500(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field drivePanel:Lcom/apple/xsr/DriveSelectionPanel;
+       4: areturn
+
+  static javax.swing.JPanel access$600(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field cardPanel:Ljavax/swing/JPanel;
+       4: areturn
+
+  static java.awt.CardLayout access$700(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: getfield      #1                  // Field cardLayout:Ljava/awt/CardLayout;
+       4: areturn
+
+  static {};
+    Code:
+       0: invokestatic  #198                // Method com/apple/xsr/Resources.noDataLabel:()Ljava/lang/String;
+       3: putstatic     #162                // Field unknown:Ljava/lang/String;
+       6: ldc           #199                // String systemInfo.modulesPanel.notInstalled
+       8: invokestatic  #54                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      11: putstatic     #192                // Field notInstalled:Ljava/lang/String;
+      14: return
+}
+class com.apple.xsr.SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener implements java.awt.event.ActionListener {
+  int show;
+
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener(com.apple.xsr.SystemInfoPane$ArrayDrivePanel, int);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: aload_0
+      10: iload_2
+      11: putfield      #3                  // Field show:I
+      14: return
+
+  public void actionPerformed(java.awt.event.ActionEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       4: invokestatic  #4                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$500:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Lcom/apple/xsr/DriveSelectionPanel;
+       7: aload_0
+       8: getfield      #3                  // Field show:I
+      11: ifne          18
+      14: iconst_4
+      15: goto          19
+      18: iconst_3
+      19: invokevirtual #5                  // Method com/apple/xsr/DriveSelectionPanel.setSelectionMode:(I)V
+      22: aload_0
+      23: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      26: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$700:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljava/awt/CardLayout;
+      29: aload_0
+      30: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      33: invokestatic  #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$600:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JPanel;
+      36: aload_0
+      37: getfield      #3                  // Field show:I
+      40: ifne          48
+      43: ldc           #8                  // String arrays
+      45: goto          50
+      48: ldc           #9                  // String drives
+      50: invokevirtual #10                 // Method java/awt/CardLayout.show:(Ljava/awt/Container;Ljava/lang/String;)V
+      53: return
+}
+public interface com.apple.xsr.DrivePanel {
+  public static final int SELECTION_COLOR_NORMAL = 0;
+
+  public static final int SELECTION_COLOR_DANGER = 1;
+
+  public static final int BADGE_DEFAULT = 0;
+
+  public static final int BADGE_EXPAND = 1;
+
+  public static final int INFO_ICON_DELETE = 0;
+
+  public static final int INDEX_NONE = -10;
+
+  public static final int RAID_SET_ID_JBOD_TOP = -2;
+
+  public static final int RAID_SET_ID_JBOD_BOTTOM = -3;
+
+  public static final int TYPE_UNASSIGNED = 0;
+
+  public static final int TYPE_RAID_MEMBER = 1;
+
+  public static final int TYPE_JBOD = 3;
+
+  public static final int TYPE_ORPHAN = 4;
+
+  public static final int STATE_ONLINE = 1;
+
+  public static final int STATE_OFFLINE = 0;
+
+  public static final int STATE_PREDICTIVE_FAILURE = 2;
+
+  public static final int STATE_EMPTY = -2;
+
+  public abstract void setRaidSystem(com.apple.xsr.som.RaidSystem);
+
+  public abstract com.apple.xsr.som.RaidSystem getRaidSystem();
+
+  public abstract void setSelectionMode(int);
+
+  public abstract void setDriveSelected(int, boolean);
+
+  public abstract boolean isDriveSelected(int);
+
+  public abstract void setArraySelected(int, boolean);
+
+  public abstract boolean isArraySelected(int);
+
+  public abstract int getSelectionCount();
+
+  public abstract void setSelectedArray(int);
+
+  public abstract int getSelectedArray();
+
+  public abstract void addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener);
+
+  public abstract void setConfirmed(boolean);
+}
+public class com.apple.xsr.DrivePanel$DefaultSelectionModel implements com.apple.xsr.DrivePanelSelectionModel {
+  private static final int DRIVE_COUNT = 14;
+
+  private static final int ARRAY_COUNT = 8;
+
+  private int mode;
+
+  private int style;
+
+  private boolean[] driveSelections;
+
+  private boolean[] arraySelections;
+
+  private boolean isAdjusting;
+
+  private final javax.swing.event.EventListenerList listenerList;
+
+  public com.apple.xsr.DrivePanel$DefaultSelectionModel();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iconst_1
+       6: putfield      #2                  // Field mode:I
+       9: aload_0
+      10: iconst_0
+      11: putfield      #3                  // Field style:I
+      14: aload_0
+      15: bipush        14
+      17: newarray       boolean
+      19: putfield      #4                  // Field driveSelections:[Z
+      22: aload_0
+      23: bipush        8
+      25: newarray       boolean
+      27: putfield      #5                  // Field arraySelections:[Z
+      30: aload_0
+      31: iconst_0
+      32: putfield      #6                  // Field isAdjusting:Z
+      35: aload_0
+      36: new           #7                  // class javax/swing/event/EventListenerList
+      39: dup
+      40: invokespecial #8                  // Method javax/swing/event/EventListenerList."<init>":()V
+      43: putfield      #9                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+      46: iconst_0
+      47: istore_1
+      48: iload_1
+      49: aload_0
+      50: getfield      #4                  // Field driveSelections:[Z
+      53: arraylength
+      54: if_icmpge     70
+      57: aload_0
+      58: getfield      #4                  // Field driveSelections:[Z
+      61: iload_1
+      62: iconst_0
+      63: bastore
+      64: iinc          1, 1
+      67: goto          48
+      70: iconst_0
+      71: istore_1
+      72: iload_1
+      73: aload_0
+      74: getfield      #5                  // Field arraySelections:[Z
+      77: arraylength
+      78: if_icmpge     94
+      81: aload_0
+      82: getfield      #5                  // Field arraySelections:[Z
+      85: iload_1
+      86: iconst_0
+      87: bastore
+      88: iinc          1, 1
+      91: goto          72
+      94: return
+
+  public void addDrivePanelListener(com.apple.xsr.DrivePanelListener);
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+       4: getstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+       7: ifnonnull     22
+      10: ldc           #11                 // String com.apple.xsr.DrivePanelListener
+      12: invokestatic  #12                 // Method com/apple/xsr/DrivePanel$1.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      15: dup
+      16: putstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      19: goto          25
+      22: getstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      25: aload_1
+      26: invokevirtual #13                 // Method javax/swing/event/EventListenerList.add:(Ljava/lang/Class;Ljava/util/EventListener;)V
+      29: return
+
+  public void removeDrivePanelListener(com.apple.xsr.DrivePanelListener);
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+       4: getstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+       7: ifnonnull     22
+      10: ldc           #11                 // String com.apple.xsr.DrivePanelListener
+      12: invokestatic  #12                 // Method com/apple/xsr/DrivePanel$1.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      15: dup
+      16: putstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      19: goto          25
+      22: getstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      25: aload_1
+      26: invokevirtual #14                 // Method javax/swing/event/EventListenerList.remove:(Ljava/lang/Class;Ljava/util/EventListener;)V
+      29: return
+
+  public void setSelectionMode(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #2                  // Field mode:I
+       5: return
+
+  public int getSelectionMode();
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field mode:I
+       4: ireturn
+
+  public void setSelectionStyle(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #3                  // Field style:I
+       5: return
+
+  public int getSelectionStyle();
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field style:I
+       4: ireturn
+
+  public void setSelectionIsAdjusting(boolean);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #6                  // Field isAdjusting:Z
+       5: return
+
+  public void setDriveSelected(int, boolean);
+    Code:
+       0: aload_0
+       1: getfield      #4                  // Field driveSelections:[Z
+       4: iload_1
+       5: iconst_1
+       6: isub
+       7: baload
+       8: iload_2
+       9: if_icmpeq     40
+      12: aload_0
+      13: getfield      #4                  // Field driveSelections:[Z
+      16: iload_1
+      17: iconst_1
+      18: isub
+      19: iload_2
+      20: bastore
+      21: aload_0
+      22: iconst_3
+      23: iload_1
+      24: iload_2
+      25: ifeq          32
+      28: iconst_1
+      29: goto          33
+      32: iconst_2
+      33: aload_0
+      34: getfield      #6                  // Field isAdjusting:Z
+      37: invokespecial #15                 // Method fireValueChanged:(IIIZ)V
+      40: return
+
+  public void setArraySelected(int, boolean);
+    Code:
+       0: aload_0
+       1: getfield      #5                  // Field arraySelections:[Z
+       4: iload_1
+       5: iconst_1
+       6: isub
+       7: baload
+       8: iload_2
+       9: if_icmpeq     40
+      12: aload_0
+      13: getfield      #5                  // Field arraySelections:[Z
+      16: iload_1
+      17: iconst_1
+      18: isub
+      19: iload_2
+      20: bastore
+      21: aload_0
+      22: iconst_4
+      23: iload_1
+      24: iload_2
+      25: ifeq          32
+      28: iconst_1
+      29: goto          33
+      32: iconst_2
+      33: aload_0
+      34: getfield      #6                  // Field isAdjusting:Z
+      37: invokespecial #15                 // Method fireValueChanged:(IIIZ)V
+      40: return
+
+  public void clearSelection();
+    Code:
+       0: iconst_0
+       1: istore_1
+       2: iload_1
+       3: aload_0
+       4: getfield      #4                  // Field driveSelections:[Z
+       7: arraylength
+       8: if_icmpge     24
+      11: aload_0
+      12: getfield      #4                  // Field driveSelections:[Z
+      15: iload_1
+      16: iconst_0
+      17: bastore
+      18: iinc          1, 1
+      21: goto          2
+      24: iconst_0
+      25: istore_1
+      26: iload_1
+      27: aload_0
+      28: getfield      #5                  // Field arraySelections:[Z
+      31: arraylength
+      32: if_icmpge     48
+      35: aload_0
+      36: getfield      #5                  // Field arraySelections:[Z
+      39: iload_1
+      40: iconst_0
+      41: bastore
+      42: iinc          1, 1
+      45: goto          26
+      48: return
+
+  public int[] getSelectedDrives();
+    Code:
+       0: aconst_null
+       1: astore_1
+       2: iconst_0
+       3: istore_2
+       4: iconst_0
+       5: istore_3
+       6: iload_3
+       7: iconst_2
+       8: if_icmpge     70
+      11: iconst_0
+      12: istore        4
+      14: iload         4
+      16: aload_0
+      17: getfield      #4                  // Field driveSelections:[Z
+      20: arraylength
+      21: if_icmpge     54
+      24: aload_0
+      25: getfield      #4                  // Field driveSelections:[Z
+      28: iload         4
+      30: baload
+      31: ifeq          48
+      34: aload_1
+      35: ifnull        45
+      38: aload_1
+      39: iload_2
+      40: iload         4
+      42: iconst_1
+      43: iadd
+      44: iastore
+      45: iinc          2, 1
+      48: iinc          4, 1
+      51: goto          14
+      54: aload_1
+      55: ifnonnull     64
+      58: iload_2
+      59: newarray       int
+      61: astore_1
+      62: iconst_0
+      63: istore_2
+      64: iinc          3, 1
+      67: goto          6
+      70: aload_1
+      71: areturn
+
+  public boolean isDriveSelected(int);
+    Code:
+       0: iload_1
+       1: iconst_1
+       2: if_icmplt     11
+       5: iload_1
+       6: bipush        14
+       8: if_icmple     43
+      11: new           #16                 // class java/lang/IndexOutOfBoundsException
+      14: dup
+      15: new           #17                 // class java/lang/StringBuffer
+      18: dup
+      19: invokespecial #18                 // Method java/lang/StringBuffer."<init>":()V
+      22: ldc           #19                 // String driveID
+      24: invokevirtual #20                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      27: iload_1
+      28: invokevirtual #21                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+      31: ldc           #22                 // String  out of bounds
+      33: invokevirtual #20                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      36: invokevirtual #23                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      39: invokespecial #24                 // Method java/lang/IndexOutOfBoundsException."<init>":(Ljava/lang/String;)V
+      42: athrow
+      43: aload_0
+      44: getfield      #4                  // Field driveSelections:[Z
+      47: iload_1
+      48: iconst_1
+      49: isub
+      50: baload
+      51: ireturn
+
+  public boolean isArraySelected(int);
+    Code:
+       0: iload_1
+       1: iconst_1
+       2: if_icmplt     11
+       5: iload_1
+       6: bipush        8
+       8: if_icmple     43
+      11: new           #16                 // class java/lang/IndexOutOfBoundsException
+      14: dup
+      15: new           #17                 // class java/lang/StringBuffer
+      18: dup
+      19: invokespecial #18                 // Method java/lang/StringBuffer."<init>":()V
+      22: ldc           #25                 // String arrayID
+      24: invokevirtual #20                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      27: iload_1
+      28: invokevirtual #21                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+      31: ldc           #22                 // String  out of bounds
+      33: invokevirtual #20                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      36: invokevirtual #23                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      39: invokespecial #24                 // Method java/lang/IndexOutOfBoundsException."<init>":(Ljava/lang/String;)V
+      42: athrow
+      43: aload_0
+      44: getfield      #5                  // Field arraySelections:[Z
+      47: iload_1
+      48: iconst_1
+      49: isub
+      50: baload
+      51: ireturn
+
+  public int getSelectionCount();
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field mode:I
+       4: iconst_1
+       5: if_icmpne     15
+       8: aload_0
+       9: getfield      #4                  // Field driveSelections:[Z
+      12: goto          19
+      15: aload_0
+      16: getfield      #5                  // Field arraySelections:[Z
+      19: astore_1
+      20: iconst_0
+      21: istore_2
+      22: iconst_0
+      23: istore_3
+      24: iload_3
+      25: aload_1
+      26: arraylength
+      27: if_icmpge     45
+      30: aload_1
+      31: iload_3
+      32: baload
+      33: ifeq          39
+      36: iinc          2, 1
+      39: iinc          3, 1
+      42: goto          24
+      45: iload_2
+      46: ireturn
+
+  private void fireValueChanged(int, int, int, boolean);
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+       4: invokevirtual #26                 // Method javax/swing/event/EventListenerList.getListenerList:()[Ljava/lang/Object;
+       7: astore        5
+       9: aconst_null
+      10: astore        6
+      12: aload         5
+      14: arraylength
+      15: iconst_2
+      16: isub
+      17: istore        7
+      19: iload         7
+      21: iflt          96
+      24: aload         5
+      26: iload         7
+      28: aaload
+      29: getstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      32: ifnonnull     47
+      35: ldc           #11                 // String com.apple.xsr.DrivePanelListener
+      37: invokestatic  #12                 // Method com/apple/xsr/DrivePanel$1.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      40: dup
+      41: putstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      44: goto          50
+      47: getstatic     #10                 // Field com/apple/xsr/DrivePanel$1.class$com$apple$xsr$DrivePanelListener:Ljava/lang/Class;
+      50: if_acmpne     90
+      53: aload         6
+      55: ifnonnull     73
+      58: new           #27                 // class com/apple/xsr/DrivePanelEvent
+      61: dup
+      62: iload_1
+      63: aload_0
+      64: iload_2
+      65: iload_3
+      66: iload         4
+      68: invokespecial #28                 // Method com/apple/xsr/DrivePanelEvent."<init>":(ILjava/lang/Object;IIZ)V
+      71: astore        6
+      73: aload         5
+      75: iload         7
+      77: iconst_1
+      78: iadd
+      79: aaload
+      80: checkcast     #29                 // class com/apple/xsr/DrivePanelListener
+      83: aload         6
+      85: invokeinterface #30,  2           // InterfaceMethod com/apple/xsr/DrivePanelListener.valueChanged:(Lcom/apple/xsr/DrivePanelEvent;)V
+      90: iinc          7, -2
+      93: goto          19
+      96: return
+}
+public class com.apple.xsr.DrivePanel$DefaultSelectionPolicy implements com.apple.xsr.DrivePanelSelectionPolicy {
+  protected int selectableStates;
+
+  protected int selectableTypes;
+
+  public com.apple.xsr.DrivePanel$DefaultSelectionPolicy();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #2                  // Field selectableStates:I
+       9: aload_0
+      10: iconst_0
+      11: putfield      #3                  // Field selectableTypes:I
+      14: return
+
+  public com.apple.xsr.DrivePanel$DefaultSelectionPolicy(int, int);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #2                  // Field selectableStates:I
+       9: aload_0
+      10: iconst_0
+      11: putfield      #3                  // Field selectableTypes:I
+      14: aload_0
+      15: iload_1
+      16: putfield      #2                  // Field selectableStates:I
+      19: aload_0
+      20: iload_2
+      21: putfield      #3                  // Field selectableTypes:I
+      24: return
+
+  public void setSelectableStates(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #2                  // Field selectableStates:I
+       5: return
+
+  public int getSelectableStates();
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field selectableStates:I
+       4: ireturn
+
+  public void setSelectableTypes(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #3                  // Field selectableTypes:I
+       5: return
+
+  public int getSelectableTypes();
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field selectableTypes:I
+       4: ireturn
+
+  public boolean isStateSelectable(int);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field selectableStates:I
+       4: iconst_m1
+       5: if_icmpne     10
+       8: iconst_1
+       9: ireturn
+      10: aload_0
+      11: getfield      #2                  // Field selectableStates:I
+      14: iload_1
+      15: if_icmpne     22
+      18: iconst_1
+      19: goto          23
+      22: iconst_0
+      23: ireturn
+
+  public boolean isTypeSelectable(int);
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field selectableTypes:I
+       4: iconst_m1
+       5: if_icmpne     10
+       8: iconst_1
+       9: ireturn
+      10: aload_0
+      11: getfield      #3                  // Field selectableTypes:I
+      14: iload_1
+      15: if_icmpne     22
+      18: iconst_1
+      19: goto          23
+      22: iconst_0
+      23: ireturn
+
+  public boolean isSelectable(int, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokevirtual #4                  // Method isStateSelectable:(I)Z
+       5: ifeq          20
+       8: aload_0
+       9: iload_2
+      10: invokevirtual #5                  // Method isTypeSelectable:(I)Z
+      13: ifeq          20
+      16: iconst_1
+      17: goto          21
+      20: iconst_0
+      21: ireturn
+}
+public class com.apple.xsr.ArraySelectionPanel extends javax.swing.JPanel {
+  public static final int ARRAY_COUNT = 6;
+
+  public static final int NO_SELECTION = 0;
+
+  public static final int SINGLE_SELECTION = 1;
+
+  public static final int MULTIPLE_SELECTION = 2;
+
+  public static final int STATUS_SELECTION = 3;
+
+  public static final java.lang.String PROP_ARRAY_INDEX = "ArrayIndex";
+
+  public static final java.lang.String PROP_ARRAY_SELECTION = "ArraySelection";
+
+  public static final int ICON_SIZE = 12;
+
+  public static final int ICON_HINT = 4;
+
+  private static final java.awt.Insets labelInsets;
+
+  private static final java.awt.Insets zeroInsets;
+
+  private com.apple.xsr.som.RaidSystem system;
+
+  private com.apple.xsr.RadioButtonGroup radioGroup;
+
+  private int selectionMode;
+
+  private int count;
+
+  private java.util.List arrayLabels;
+
+  static java.lang.Class class$javax$swing$JRadioButton;
+
+  static java.lang.Class class$javax$swing$JCheckBox;
+
+  static java.lang.Class class$java$awt$event$ActionListener;
+
+  public com.apple.xsr.ArraySelectionPanel(int);
+    Code:
+       0: aload_0
+       1: invokespecial #6                  // Method javax/swing/JPanel."<init>":()V
+       4: aload_0
+       5: new           #7                  // class java/util/ArrayList
+       8: dup
+       9: invokespecial #8                  // Method java/util/ArrayList."<init>":()V
+      12: putfield      #9                  // Field arrayLabels:Ljava/util/List;
+      15: aload_0
+      16: invokestatic  #10                 // Method com/apple/gui/GUIFactory.configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      19: pop
+      20: aload_0
+      21: iload_1
+      22: putfield      #11                 // Field selectionMode:I
+      25: aload_0
+      26: new           #12                 // class com/apple/xsr/RadioButtonGroup
+      29: dup
+      30: invokespecial #13                 // Method com/apple/xsr/RadioButtonGroup."<init>":()V
+      33: putfield      #14                 // Field radioGroup:Lcom/apple/xsr/RadioButtonGroup;
+      36: new           #15                 // class java/awt/GridBagLayout
+      39: dup
+      40: invokespecial #16                 // Method java/awt/GridBagLayout."<init>":()V
+      43: astore_2
+      44: new           #17                 // class java/awt/GridBagConstraints
+      47: dup
+      48: invokespecial #18                 // Method java/awt/GridBagConstraints."<init>":()V
+      51: astore_3
+      52: aload_0
+      53: aload_2
+      54: invokevirtual #19                 // Method setLayout:(Ljava/awt/LayoutManager;)V
+      57: aload_3
+      58: iconst_0
+      59: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+      62: aload_3
+      63: iconst_0
+      64: putfield      #21                 // Field java/awt/GridBagConstraints.gridy:I
+      67: aload_3
+      68: iconst_1
+      69: putfield      #22                 // Field java/awt/GridBagConstraints.gridwidth:I
+      72: aload_3
+      73: iconst_1
+      74: putfield      #23                 // Field java/awt/GridBagConstraints.gridheight:I
+      77: aload_3
+      78: bipush        17
+      80: putfield      #24                 // Field java/awt/GridBagConstraints.anchor:I
+      83: aload_3
+      84: iconst_2
+      85: putfield      #25                 // Field java/awt/GridBagConstraints.fill:I
+      88: new           #26                 // class com/apple/xsr/ArraySelectionPanel$1
+      91: dup
+      92: aload_0
+      93: invokespecial #27                 // Method com/apple/xsr/ArraySelectionPanel$1."<init>":(Lcom/apple/xsr/ArraySelectionPanel;)V
+      96: astore        4
+      98: iconst_0
+      99: istore        5
+     101: iconst_0
+     102: istore        6
+     104: iload         6
+     106: bipush        6
+     108: if_icmpge     425
+     111: new           #28                 // class com/apple/xsr/ArraySelectionPanel$ArrayLabel
+     114: dup
+     115: invokespecial #29                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel."<init>":()V
+     118: astore        7
+     120: aload_3
+     121: iload         5
+     123: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     126: aload_0
+     127: getfield      #11                 // Field selectionMode:I
+     130: iconst_3
+     131: if_icmpne     216
+     134: aload         7
+     136: getstatic     #30                 // Field class$javax$swing$JRadioButton:Ljava/lang/Class;
+     139: ifnonnull     154
+     142: ldc           #31                 // String javax.swing.JRadioButton
+     144: invokestatic  #32                 // Method class$:(Ljava/lang/String;)Ljava/lang/Class;
+     147: dup
+     148: putstatic     #30                 // Field class$javax$swing$JRadioButton:Ljava/lang/Class;
+     151: goto          157
+     154: getstatic     #30                 // Field class$javax$swing$JRadioButton:Ljava/lang/Class;
+     157: iconst_0
+     158: invokevirtual #33                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.createButton:(Ljava/lang/Class;Z)Ljavax/swing/JToggleButton;
+     161: astore        8
+     163: aload_0
+     164: getfield      #14                 // Field radioGroup:Lcom/apple/xsr/RadioButtonGroup;
+     167: aload         8
+     169: invokevirtual #34                 // Method com/apple/xsr/RadioButtonGroup.add:(Ljavax/swing/AbstractButton;)V
+     172: aload_0
+     173: aload         8
+     175: aload_3
+     176: invokevirtual #35                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     179: aload_3
+     180: dup
+     181: getfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     184: iconst_1
+     185: iadd
+     186: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     189: aload         7
+     191: invokevirtual #36                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.createStatusLabel:()Ljavax/swing/JLabel;
+     194: astore        9
+     196: aload_0
+     197: aload         9
+     199: aload_3
+     200: invokevirtual #35                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     203: aload_3
+     204: dup
+     205: getfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     208: iconst_1
+     209: iadd
+     210: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     213: goto          336
+     216: aload_0
+     217: getfield      #11                 // Field selectionMode:I
+     220: iconst_1
+     221: if_icmpne     282
+     224: aload         7
+     226: getstatic     #30                 // Field class$javax$swing$JRadioButton:Ljava/lang/Class;
+     229: ifnonnull     244
+     232: ldc           #31                 // String javax.swing.JRadioButton
+     234: invokestatic  #32                 // Method class$:(Ljava/lang/String;)Ljava/lang/Class;
+     237: dup
+     238: putstatic     #30                 // Field class$javax$swing$JRadioButton:Ljava/lang/Class;
+     241: goto          247
+     244: getstatic     #30                 // Field class$javax$swing$JRadioButton:Ljava/lang/Class;
+     247: iconst_1
+     248: invokevirtual #33                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.createButton:(Ljava/lang/Class;Z)Ljavax/swing/JToggleButton;
+     251: astore        8
+     253: aload_0
+     254: getfield      #14                 // Field radioGroup:Lcom/apple/xsr/RadioButtonGroup;
+     257: aload         8
+     259: invokevirtual #34                 // Method com/apple/xsr/RadioButtonGroup.add:(Ljavax/swing/AbstractButton;)V
+     262: aload_0
+     263: aload         8
+     265: aload_3
+     266: invokevirtual #35                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     269: aload_3
+     270: dup
+     271: getfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     274: iconst_1
+     275: iadd
+     276: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     279: goto          336
+     282: aload_0
+     283: getfield      #11                 // Field selectionMode:I
+     286: iconst_2
+     287: if_icmpne     336
+     290: aload         7
+     292: getstatic     #37                 // Field class$javax$swing$JCheckBox:Ljava/lang/Class;
+     295: ifnonnull     310
+     298: ldc           #38                 // String javax.swing.JCheckBox
+     300: invokestatic  #32                 // Method class$:(Ljava/lang/String;)Ljava/lang/Class;
+     303: dup
+     304: putstatic     #37                 // Field class$javax$swing$JCheckBox:Ljava/lang/Class;
+     307: goto          313
+     310: getstatic     #37                 // Field class$javax$swing$JCheckBox:Ljava/lang/Class;
+     313: iconst_1
+     314: invokevirtual #33                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.createButton:(Ljava/lang/Class;Z)Ljavax/swing/JToggleButton;
+     317: astore        8
+     319: aload_0
+     320: aload         8
+     322: aload_3
+     323: invokevirtual #35                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     326: aload_3
+     327: dup
+     328: getfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     331: iconst_1
+     332: iadd
+     333: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     336: aload         7
+     338: invokevirtual #39                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.createDescriptionLabel:()Ljavax/swing/JLabel;
+     341: astore        8
+     343: aload_3
+     344: getstatic     #40                 // Field labelInsets:Ljava/awt/Insets;
+     347: putfield      #41                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     350: aload_0
+     351: aload         8
+     353: aload_3
+     354: invokevirtual #35                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     357: aload_3
+     358: getstatic     #42                 // Field zeroInsets:Ljava/awt/Insets;
+     361: putfield      #41                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     364: aload_3
+     365: dup
+     366: getfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     369: iconst_1
+     370: iadd
+     371: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     374: aload         7
+     376: aload         4
+     378: invokevirtual #43                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.addActionListener:(Ljava/awt/event/ActionListener;)V
+     381: aload_0
+     382: getfield      #9                  // Field arrayLabels:Ljava/util/List;
+     385: aload         7
+     387: invokeinterface #44,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+     392: pop
+     393: aload_3
+     394: dup
+     395: getfield      #21                 // Field java/awt/GridBagConstraints.gridy:I
+     398: iconst_1
+     399: iadd
+     400: putfield      #21                 // Field java/awt/GridBagConstraints.gridy:I
+     403: aload_3
+     404: getfield      #21                 // Field java/awt/GridBagConstraints.gridy:I
+     407: iconst_3
+     408: if_icmpne     419
+     411: aload_3
+     412: iconst_0
+     413: putfield      #21                 // Field java/awt/GridBagConstraints.gridy:I
+     416: iinc          5, 3
+     419: iinc          6, 1
+     422: goto          104
+     425: aload_3
+     426: iload         5
+     428: iconst_3
+     429: iadd
+     430: putfield      #20                 // Field java/awt/GridBagConstraints.gridx:I
+     433: aload_3
+     434: dconst_1
+     435: putfield      #45                 // Field java/awt/GridBagConstraints.weightx:D
+     438: aload_0
+     439: iconst_1
+     440: invokestatic  #46                 // Method javax/swing/Box.createHorizontalStrut:(I)Ljava/awt/Component;
+     443: aload_3
+     444: invokevirtual #35                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     447: aload_3
+     448: dconst_0
+     449: putfield      #45                 // Field java/awt/GridBagConstraints.weightx:D
+     452: return
+
+  public void setRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #47                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       5: aload_0
+       6: aload_0
+       7: getfield      #47                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+      10: invokevirtual #48                 // Method configureForRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+      13: return
+
+  public void updatePanel();
+    Code:
+       0: aload_0
+       1: aload_0
+       2: getfield      #47                 // Field system:Lcom/apple/xsr/som/RaidSystem;
+       5: invokevirtual #48                 // Method configureForRaidSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+       8: return
+
+  public void configureForRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: invokevirtual #49                 // Method resetPanel:()V
+       4: aload_1
+       5: ifnonnull     9
+       8: return
+       9: iconst_2
+      10: newarray       boolean
+      12: dup
+      13: iconst_0
+      14: iconst_0
+      15: bastore
+      16: dup
+      17: iconst_1
+      18: iconst_0
+      19: bastore
+      20: astore_2
+      21: aload_1
+      22: invokevirtual #50                 // Method com/apple/xsr/som/RaidSystem.getRaidControllers:()Ljava/util/Collection;
+      25: invokeinterface #51,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      30: astore_3
+      31: aload_3
+      32: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      37: ifeq          158
+      40: aload_3
+      41: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      46: checkcast     #54                 // class com/apple/xsr/som/RaidController
+      49: astore        4
+      51: aload         4
+      53: invokevirtual #55                 // Method com/apple/xsr/som/RaidController.getRaidSets:()Ljava/util/Collection;
+      56: invokeinterface #56,  1           // InterfaceMethod java/util/Collection.isEmpty:()Z
+      61: ifeq          31
+      64: aload         4
+      66: invokevirtual #57                 // Method com/apple/xsr/som/RaidController.getJbodMaskEnabled:()Z
+      69: ifne          31
+      72: iconst_0
+      73: istore        5
+      75: aload         4
+      77: invokevirtual #58                 // Method com/apple/xsr/som/RaidController.getDisks:()Ljava/util/Collection;
+      80: invokeinterface #51,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      85: astore        6
+      87: aload         6
+      89: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      94: ifeq          133
+      97: aload         6
+      99: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     104: checkcast     #59                 // class com/apple/xsr/som/Disk
+     107: astore        7
+     109: aload         7
+     111: invokevirtual #60                 // Method com/apple/xsr/som/Disk.getType:()I
+     114: iconst_3
+     115: if_icmpne     87
+     118: aload         7
+     120: invokevirtual #61                 // Method com/apple/xsr/som/Disk.getState:()I
+     123: iconst_1
+     124: if_icmpne     87
+     127: iconst_1
+     128: istore        5
+     130: goto          133
+     133: iload         5
+     135: ifeq          31
+     138: aload_2
+     139: aload         4
+     141: invokevirtual #62                 // Method com/apple/xsr/som/RaidController.getId:()I
+     144: iconst_1
+     145: if_icmpne     152
+     148: iconst_0
+     149: goto          153
+     152: iconst_1
+     153: iconst_1
+     154: bastore
+     155: goto          31
+     158: aload_2
+     159: iconst_0
+     160: baload
+     161: ifeq          196
+     164: ldc           #63                 // String som.jbod.description
+     166: invokestatic  #64                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     169: astore_3
+     170: aload_0
+     171: aload_0
+     172: getfield      #65                 // Field count:I
+     175: bipush        -2
+     177: aload_3
+     178: iconst_0
+     179: invokevirtual #66                 // Method updateArrayLabel:(IILjava/lang/String;I)V
+     182: aload_0
+     183: dup
+     184: getfield      #65                 // Field count:I
+     187: iconst_1
+     188: iadd
+     189: putfield      #65                 // Field count:I
+     192: goto          196
+     195: astore_3
+     196: aload_1
+     197: invokevirtual #68                 // Method com/apple/xsr/som/RaidSystem.getRaidSets:()Ljava/util/Collection;
+     200: invokeinterface #51,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+     205: astore_3
+     206: aload_3
+     207: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+     212: ifeq          271
+     215: aload_3
+     216: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     221: checkcast     #69                 // class com/apple/xsr/som/RaidSet
+     224: astore        4
+     226: aload         4
+     228: invokestatic  #70                 // Method com/apple/xsr/SOMLocalizer.getRaidSetLevelAndCapacity:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+     231: astore        5
+     233: aload_0
+     234: aload_0
+     235: getfield      #65                 // Field count:I
+     238: aload         4
+     240: invokevirtual #71                 // Method com/apple/xsr/som/RaidSet.getId:()I
+     243: aload         5
+     245: aload         4
+     247: invokevirtual #72                 // Method com/apple/xsr/som/RaidSet.getStatus:()I
+     250: invokevirtual #66                 // Method updateArrayLabel:(IILjava/lang/String;I)V
+     253: aload_0
+     254: dup
+     255: getfield      #65                 // Field count:I
+     258: iconst_1
+     259: iadd
+     260: putfield      #65                 // Field count:I
+     263: goto          206
+     266: astore        6
+     268: goto          206
+     271: aload_2
+     272: iconst_1
+     273: baload
+     274: ifeq          309
+     277: ldc           #63                 // String som.jbod.description
+     279: invokestatic  #64                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     282: astore_3
+     283: aload_0
+     284: aload_0
+     285: getfield      #65                 // Field count:I
+     288: bipush        -3
+     290: aload_3
+     291: iconst_0
+     292: invokevirtual #66                 // Method updateArrayLabel:(IILjava/lang/String;I)V
+     295: aload_0
+     296: dup
+     297: getfield      #65                 // Field count:I
+     300: iconst_1
+     301: iadd
+     302: putfield      #65                 // Field count:I
+     305: goto          309
+     308: astore_3
+     309: return
+    Exception table:
+       from    to  target type
+         164   192   195   Class java/lang/Exception
+         233   263   266   Class java/lang/Exception
+         277   305   308   Class java/lang/Exception
+
+  public void resetPanel();
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field arrayLabels:Ljava/util/List;
+       4: invokeinterface #73,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       9: astore_1
+      10: aload_1
+      11: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      16: ifeq          34
+      19: aload_1
+      20: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      25: checkcast     #28                 // class com/apple/xsr/ArraySelectionPanel$ArrayLabel
+      28: invokevirtual #74                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.clear:()V
+      31: goto          10
+      34: aload_0
+      35: iconst_0
+      36: putfield      #65                 // Field count:I
+      39: return
+
+  public void setArrayIndex(int);
+    Code:
+       0: iload_1
+       1: ifeq          22
+       4: aload_0
+       5: iload_1
+       6: invokevirtual #75                 // Method getLabelForArrayId:(I)Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       9: astore_2
+      10: aload_2
+      11: ifnull        59
+      14: aload_2
+      15: iconst_1
+      16: invokevirtual #76                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.setSelected:(Z)V
+      19: goto          59
+      22: aload_0
+      23: getfield      #9                  // Field arrayLabels:Ljava/util/List;
+      26: invokeinterface #73,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+      31: astore_3
+      32: aload_3
+      33: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      38: ifeq          59
+      41: aload_3
+      42: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      47: checkcast     #28                 // class com/apple/xsr/ArraySelectionPanel$ArrayLabel
+      50: astore_2
+      51: aload_2
+      52: iconst_0
+      53: invokevirtual #76                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.setSelected:(Z)V
+      56: goto          32
+      59: return
+
+  public void setArrayCheckBoxes(java.util.List);
+    Code:
+       0: aload_1
+       1: ifnonnull     5
+       4: return
+       5: iconst_0
+       6: istore_2
+       7: iload_2
+       8: aload_1
+       9: invokeinterface #77,  1           // InterfaceMethod java/util/List.size:()I
+      14: if_icmpge     52
+      17: aload_0
+      18: iload_2
+      19: iconst_1
+      20: iadd
+      21: invokevirtual #75                 // Method getLabelForArrayId:(I)Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+      24: astore_3
+      25: aload_3
+      26: ifnull        46
+      29: aload_3
+      30: aload_1
+      31: iload_2
+      32: invokeinterface #78,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+      37: checkcast     #79                 // class java/lang/Boolean
+      40: invokevirtual #80                 // Method java/lang/Boolean.booleanValue:()Z
+      43: invokevirtual #76                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.setSelected:(Z)V
+      46: iinc          2, 1
+      49: goto          7
+      52: return
+
+  public java.util.List getArrayCheckBoxes();
+    Code:
+       0: getstatic     #81                 // Field java/util/Collections.EMPTY_LIST:Ljava/util/List;
+       3: areturn
+
+  void updateArrayLabel(int, int, java.lang.String, int);
+    Code:
+       0: iload_1
+       1: iflt          17
+       4: iload_1
+       5: aload_0
+       6: getfield      #9                  // Field arrayLabels:Ljava/util/List;
+       9: invokeinterface #77,  1           // InterfaceMethod java/util/List.size:()I
+      14: if_icmple     44
+      17: new           #82                 // class java/lang/IllegalArgumentException
+      20: dup
+      21: new           #83                 // class java/lang/StringBuffer
+      24: dup
+      25: invokespecial #84                 // Method java/lang/StringBuffer."<init>":()V
+      28: ldc           #85                 // String Invalid index:
+      30: invokevirtual #86                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      33: iload_1
+      34: invokevirtual #87                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+      37: invokevirtual #88                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      40: invokespecial #89                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+      43: athrow
+      44: aload_0
+      45: getfield      #9                  // Field arrayLabels:Ljava/util/List;
+      48: iload_1
+      49: invokeinterface #78,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+      54: checkcast     #28                 // class com/apple/xsr/ArraySelectionPanel$ArrayLabel
+      57: astore        5
+      59: aload         5
+      61: ifnull        101
+      64: aload_0
+      65: getfield      #11                 // Field selectionMode:I
+      68: iconst_1
+      69: if_icmpeq     80
+      72: aload_0
+      73: getfield      #11                 // Field selectionMode:I
+      76: iconst_2
+      77: if_icmpne     84
+      80: iconst_1
+      81: goto          85
+      84: iconst_0
+      85: istore        6
+      87: aload         5
+      89: iload_2
+      90: aload_3
+      91: iload         4
+      93: iload         6
+      95: invokevirtual #90                 // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.setState:(ILjava/lang/String;IZ)V
+      98: goto          133
+     101: new           #91                 // class java/lang/NullPointerException
+     104: dup
+     105: new           #83                 // class java/lang/StringBuffer
+     108: dup
+     109: invokespecial #84                 // Method java/lang/StringBuffer."<init>":()V
+     112: ldc           #92                 // String ArrayLabel at index
+     114: invokevirtual #86                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     117: iload_1
+     118: invokevirtual #87                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     121: ldc           #93                 // String  is null
+     123: invokevirtual #86                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     126: invokevirtual #88                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     129: invokespecial #94                 // Method java/lang/NullPointerException."<init>":(Ljava/lang/String;)V
+     132: athrow
+     133: return
+
+  protected com.apple.xsr.ArraySelectionPanel$ArrayLabel getLabelForArrayId(int);
+    Code:
+       0: aconst_null
+       1: astore_2
+       2: aload_0
+       3: getfield      #9                  // Field arrayLabels:Ljava/util/List;
+       6: invokeinterface #73,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+      11: astore_3
+      12: aload_3
+      13: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      18: ifeq          47
+      21: aload_3
+      22: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      27: checkcast     #28                 // class com/apple/xsr/ArraySelectionPanel$ArrayLabel
+      30: astore        4
+      32: aload         4
+      34: getfield      #95                 // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.id:I
+      37: iload_1
+      38: if_icmpne     12
+      41: aload         4
+      43: astore_2
+      44: goto          47
+      47: aload_2
+      48: areturn
+
+  static java.lang.String[] getArrayDescriptionsFromRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: invokevirtual #68                 // Method com/apple/xsr/som/RaidSystem.getRaidSets:()Ljava/util/Collection;
+       4: astore_1
+       5: aload_1
+       6: invokeinterface #96,  1           // InterfaceMethod java/util/Collection.size:()I
+      11: anewarray     #97                 // class java/lang/String
+      14: astore_2
+      15: aload_1
+      16: invokeinterface #51,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      21: astore_3
+      22: aload_3
+      23: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      28: ifeq          59
+      31: aload_3
+      32: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      37: checkcast     #69                 // class com/apple/xsr/som/RaidSet
+      40: astore        4
+      42: aload_2
+      43: aload         4
+      45: invokevirtual #71                 // Method com/apple/xsr/som/RaidSet.getId:()I
+      48: iconst_1
+      49: isub
+      50: aload         4
+      52: invokestatic  #70                 // Method com/apple/xsr/SOMLocalizer.getRaidSetLevelAndCapacity:(Lcom/apple/xsr/som/RaidSet;)Ljava/lang/String;
+      55: aastore
+      56: goto          22
+      59: aload_2
+      60: areturn
+
+  static int[] getArrayStatusFromRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: invokevirtual #68                 // Method com/apple/xsr/som/RaidSystem.getRaidSets:()Ljava/util/Collection;
+       4: astore_1
+       5: aload_1
+       6: invokeinterface #96,  1           // InterfaceMethod java/util/Collection.size:()I
+      11: newarray       int
+      13: astore_2
+      14: aload_1
+      15: invokeinterface #51,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      20: astore_3
+      21: aload_3
+      22: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      27: ifeq          58
+      30: aload_3
+      31: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      36: checkcast     #69                 // class com/apple/xsr/som/RaidSet
+      39: astore        4
+      41: aload_2
+      42: aload         4
+      44: invokevirtual #71                 // Method com/apple/xsr/som/RaidSet.getId:()I
+      47: iconst_1
+      48: isub
+      49: aload         4
+      51: invokevirtual #72                 // Method com/apple/xsr/som/RaidSet.getStatus:()I
+      54: iastore
+      55: goto          21
+      58: aload_2
+      59: areturn
+
+  static int[] getArrayLevelsFromRaidSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: invokevirtual #68                 // Method com/apple/xsr/som/RaidSystem.getRaidSets:()Ljava/util/Collection;
+       4: astore_1
+       5: aload_1
+       6: invokeinterface #96,  1           // InterfaceMethod java/util/Collection.size:()I
+      11: newarray       int
+      13: astore_2
+      14: aload_1
+      15: invokeinterface #51,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      20: astore_3
+      21: aload_3
+      22: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      27: ifeq          163
+      30: aload_3
+      31: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      36: checkcast     #69                 // class com/apple/xsr/som/RaidSet
+      39: astore        4
+      41: aload         4
+      43: invokevirtual #98                 // Method com/apple/xsr/som/RaidSet.getRaidLevel:()I
+      46: tableswitch   { // 0 to 6
+                     0: 88
+                     1: 94
+                     2: 118
+                     3: 100
+                     4: 118
+                     5: 106
+                     6: 112
+               default: 118
+          }
+      88: iconst_0
+      89: istore        5
+      91: goto          149
+      94: iconst_1
+      95: istore        5
+      97: goto          149
+     100: iconst_2
+     101: istore        5
+     103: goto          149
+     106: iconst_3
+     107: istore        5
+     109: goto          149
+     112: iconst_4
+     113: istore        5
+     115: goto          149
+     118: new           #99                 // class java/lang/RuntimeException
+     121: dup
+     122: new           #83                 // class java/lang/StringBuffer
+     125: dup
+     126: invokespecial #84                 // Method java/lang/StringBuffer."<init>":()V
+     129: ldc           #100                // String Unrecognized RAID level:
+     131: invokevirtual #86                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     134: aload         4
+     136: invokevirtual #98                 // Method com/apple/xsr/som/RaidSet.getRaidLevel:()I
+     139: invokevirtual #87                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     142: invokevirtual #88                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     145: invokespecial #101                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+     148: athrow
+     149: aload_2
+     150: aload         4
+     152: invokevirtual #71                 // Method com/apple/xsr/som/RaidSet.getId:()I
+     155: iconst_1
+     156: isub
+     157: iload         5
+     159: iastore
+     160: goto          21
+     163: aload_2
+     164: areturn
+
+  static java.lang.Class class$(java.lang.String);
+    Code:
+       0: aload_0
+       1: invokestatic  #1                  // Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+       4: areturn
+       5: astore_1
+       6: new           #3                  // class java/lang/NoClassDefFoundError
+       9: dup
+      10: aload_1
+      11: invokevirtual #4                  // Method java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
+      14: invokespecial #5                  // Method java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
+      17: athrow
+    Exception table:
+       from    to  target type
+           0     4     5   Class java/lang/ClassNotFoundException
+
+  static {};
+    Code:
+       0: new           #102                // class java/awt/Insets
+       3: dup
+       4: iconst_0
+       5: iconst_5
+       6: iconst_0
+       7: bipush        10
+       9: invokespecial #103                // Method java/awt/Insets."<init>":(IIII)V
+      12: putstatic     #40                 // Field labelInsets:Ljava/awt/Insets;
+      15: new           #102                // class java/awt/Insets
+      18: dup
+      19: iconst_0
+      20: iconst_0
+      21: iconst_0
+      22: iconst_0
+      23: invokespecial #103                // Method java/awt/Insets."<init>":(IIII)V
+      26: putstatic     #42                 // Field zeroInsets:Ljava/awt/Insets;
+      29: return
+}
+public class com.apple.xsr.ArraySelectionPanel$ArrayLabel {
+  int id;
+
+  javax.swing.JToggleButton button;
+
+  javax.swing.JLabel descriptionLabel;
+
+  javax.swing.JLabel statusLabel;
+
+  protected java.awt.event.MouseListener mouseListener;
+
+  protected boolean displayed;
+
+  protected static javax.swing.ImageIcon jbodBadge;
+
+  protected final javax.swing.event.EventListenerList listenerList;
+
+  private static final java.awt.Color BADGE_COLOR;
+
+  public com.apple.xsr.ArraySelectionPanel$ArrayLabel();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #2                  // Field id:I
+       9: aload_0
+      10: iconst_0
+      11: putfield      #3                  // Field displayed:Z
+      14: aload_0
+      15: new           #4                  // class javax/swing/event/EventListenerList
+      18: dup
+      19: invokespecial #5                  // Method javax/swing/event/EventListenerList."<init>":()V
+      22: putfield      #6                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+      25: return
+
+  public void setState(int, java.lang.String, int, boolean);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #2                  // Field id:I
+       5: aload_0
+       6: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+       9: ifnull        20
+      12: aload_0
+      13: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      16: aload_2
+      17: invokevirtual #8                  // Method javax/swing/JLabel.setText:(Ljava/lang/String;)V
+      20: aload_0
+      21: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      24: ifnull        38
+      27: aload_0
+      28: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      31: iload_3
+      32: invokestatic  #10                 // Method com/apple/xsr/StatusIcon.getSmallStatusIconInstance:(I)Lcom/apple/xsr/StatusIcon;
+      35: invokevirtual #11                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+      38: aload_0
+      39: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      42: ifnull        54
+      45: aload_0
+      46: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      49: iload         4
+      51: invokevirtual #13                 // Method javax/swing/JToggleButton.setVisible:(Z)V
+      54: aload_0
+      55: getfield      #3                  // Field displayed:Z
+      58: ifeq          65
+      61: aload_0
+      62: invokevirtual #14                 // Method updateIcon:()V
+      65: return
+
+  public void clear();
+    Code:
+       0: aload_0
+       1: iconst_0
+       2: putfield      #2                  // Field id:I
+       5: aload_0
+       6: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+       9: ifnull        29
+      12: aload_0
+      13: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      16: ldc           #15                 // String
+      18: invokevirtual #8                  // Method javax/swing/JLabel.setText:(Ljava/lang/String;)V
+      21: aload_0
+      22: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      25: aconst_null
+      26: invokevirtual #11                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+      29: aload_0
+      30: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      33: ifnull        44
+      36: aload_0
+      37: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      40: aconst_null
+      41: invokevirtual #11                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+      44: aload_0
+      45: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      48: ifnull        59
+      51: aload_0
+      52: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      55: iconst_0
+      56: invokevirtual #13                 // Method javax/swing/JToggleButton.setVisible:(Z)V
+      59: return
+
+  public void setSelected(boolean);
+    Code:
+       0: aload_0
+       1: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+       4: ifnull        15
+       7: aload_0
+       8: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      11: iload_1
+      12: invokevirtual #16                 // Method javax/swing/JToggleButton.setSelected:(Z)V
+      15: return
+
+  public javax.swing.JToggleButton createButton(java.lang.Class, boolean);
+    Code:
+       0: aload_1
+       1: ifnonnull     14
+       4: new           #17                 // class java/lang/IllegalArgumentException
+       7: dup
+       8: ldc           #18                 // String Button type cannot be null
+      10: invokespecial #19                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+      13: athrow
+      14: aload_0
+      15: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      18: ifnull        35
+      21: aload_0
+      22: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      25: invokevirtual #20                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      28: aload_1
+      29: invokevirtual #21                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+      32: ifne          158
+      35: aload_1
+      36: getstatic     #22                 // Field com/apple/xsr/ArraySelectionPanel.class$javax$swing$JRadioButton:Ljava/lang/Class;
+      39: ifnonnull     54
+      42: ldc           #23                 // String javax.swing.JRadioButton
+      44: invokestatic  #24                 // Method com/apple/xsr/ArraySelectionPanel.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      47: dup
+      48: putstatic     #22                 // Field com/apple/xsr/ArraySelectionPanel.class$javax$swing$JRadioButton:Ljava/lang/Class;
+      51: goto          57
+      54: getstatic     #22                 // Field com/apple/xsr/ArraySelectionPanel.class$javax$swing$JRadioButton:Ljava/lang/Class;
+      57: invokevirtual #21                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+      60: ifeq          73
+      63: aload_0
+      64: invokestatic  #25                 // Method com/apple/gui/GUIFactory.newRadioButton:()Ljavax/swing/JRadioButton;
+      67: putfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      70: goto          143
+      73: aload_1
+      74: getstatic     #26                 // Field com/apple/xsr/ArraySelectionPanel.class$javax$swing$JCheckBox:Ljava/lang/Class;
+      77: ifnonnull     92
+      80: ldc           #27                 // String javax.swing.JCheckBox
+      82: invokestatic  #24                 // Method com/apple/xsr/ArraySelectionPanel.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      85: dup
+      86: putstatic     #26                 // Field com/apple/xsr/ArraySelectionPanel.class$javax$swing$JCheckBox:Ljava/lang/Class;
+      89: goto          95
+      92: getstatic     #26                 // Field com/apple/xsr/ArraySelectionPanel.class$javax$swing$JCheckBox:Ljava/lang/Class;
+      95: invokevirtual #21                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+      98: ifeq          111
+     101: aload_0
+     102: invokestatic  #28                 // Method com/apple/gui/GUIFactory.newCheckBox:()Ljavax/swing/JCheckBox;
+     105: putfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+     108: goto          143
+     111: new           #17                 // class java/lang/IllegalArgumentException
+     114: dup
+     115: new           #29                 // class java/lang/StringBuffer
+     118: dup
+     119: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+     122: ldc           #31                 // String Unsupported button type \"
+     124: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     127: aload_1
+     128: invokevirtual #33                 // Method java/lang/StringBuffer.append:(Ljava/lang/Object;)Ljava/lang/StringBuffer;
+     131: ldc           #34                 // String \"
+     133: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     136: invokevirtual #35                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     139: invokespecial #19                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+     142: athrow
+     143: aload_0
+     144: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+     147: new           #36                 // class com/apple/xsr/ArraySelectionPanel$2
+     150: dup
+     151: aload_0
+     152: invokespecial #37                 // Method com/apple/xsr/ArraySelectionPanel$2."<init>":(Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;)V
+     155: invokevirtual #38                 // Method javax/swing/JToggleButton.addActionListener:(Ljava/awt/event/ActionListener;)V
+     158: aload_0
+     159: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+     162: iload_2
+     163: invokevirtual #13                 // Method javax/swing/JToggleButton.setVisible:(Z)V
+     166: aload_0
+     167: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+     170: areturn
+
+  public javax.swing.JLabel createStatusLabel();
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+       4: ifnonnull     41
+       7: aload_0
+       8: new           #39                 // class javax/swing/JLabel
+      11: dup
+      12: new           #40                 // class javax/swing/ImageIcon
+      15: dup
+      16: ldc           #41                 // String icon.status.green
+      18: invokestatic  #42                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+      21: invokespecial #43                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+      24: invokespecial #44                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+      27: putfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      30: aload_0
+      31: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      34: aload_0
+      35: invokespecial #45                 // Method getMouseListener:()Ljava/awt/event/MouseListener;
+      38: invokevirtual #46                 // Method javax/swing/JLabel.addMouseListener:(Ljava/awt/event/MouseListener;)V
+      41: aload_0
+      42: getfield      #9                  // Field statusLabel:Ljavax/swing/JLabel;
+      45: areturn
+
+  public javax.swing.JLabel createDescriptionLabel();
+    Code:
+       0: aload_0
+       1: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+       4: ifnonnull     54
+       7: aload_0
+       8: new           #39                 // class javax/swing/JLabel
+      11: dup
+      12: invokespecial #47                 // Method javax/swing/JLabel."<init>":()V
+      15: putfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      18: aload_0
+      19: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      22: getstatic     #48                 // Field com/apple/gui/GUIFactory.FONT_SMALL:Ljava/awt/Font;
+      25: invokevirtual #49                 // Method javax/swing/JLabel.setFont:(Ljava/awt/Font;)V
+      28: aload_0
+      29: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      32: aload_0
+      33: invokespecial #45                 // Method getMouseListener:()Ljava/awt/event/MouseListener;
+      36: invokevirtual #46                 // Method javax/swing/JLabel.addMouseListener:(Ljava/awt/event/MouseListener;)V
+      39: aload_0
+      40: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      43: new           #50                 // class com/apple/xsr/ArraySelectionPanel$3
+      46: dup
+      47: aload_0
+      48: invokespecial #51                 // Method com/apple/xsr/ArraySelectionPanel$3."<init>":(Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;)V
+      51: invokevirtual #52                 // Method javax/swing/JLabel.addAncestorListener:(Ljavax/swing/event/AncestorListener;)V
+      54: aload_0
+      55: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      58: areturn
+
+  public void addActionListener(java.awt.event.ActionListener);
+    Code:
+       0: aload_0
+       1: getfield      #6                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+       4: getstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+       7: ifnonnull     22
+      10: ldc           #54                 // String java.awt.event.ActionListener
+      12: invokestatic  #24                 // Method com/apple/xsr/ArraySelectionPanel.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      15: dup
+      16: putstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      19: goto          25
+      22: getstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      25: aload_1
+      26: invokevirtual #55                 // Method javax/swing/event/EventListenerList.add:(Ljava/lang/Class;Ljava/util/EventListener;)V
+      29: return
+
+  public void removeActionListener(java.awt.event.ActionListener);
+    Code:
+       0: aload_0
+       1: getfield      #6                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+       4: getstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+       7: ifnonnull     22
+      10: ldc           #54                 // String java.awt.event.ActionListener
+      12: invokestatic  #24                 // Method com/apple/xsr/ArraySelectionPanel.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      15: dup
+      16: putstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      19: goto          25
+      22: getstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      25: aload_1
+      26: invokevirtual #56                 // Method javax/swing/event/EventListenerList.remove:(Ljava/lang/Class;Ljava/util/EventListener;)V
+      29: return
+
+  void fireActionPerformed(java.awt.event.ActionEvent);
+    Code:
+       0: aload_0
+       1: getfield      #6                  // Field listenerList:Ljavax/swing/event/EventListenerList;
+       4: invokevirtual #57                 // Method javax/swing/event/EventListenerList.getListenerList:()[Ljava/lang/Object;
+       7: astore_2
+       8: aload_2
+       9: arraylength
+      10: iconst_2
+      11: isub
+      12: istore_3
+      13: iload_3
+      14: iflt          110
+      17: aload_2
+      18: iload_3
+      19: aaload
+      20: getstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      23: ifnonnull     38
+      26: ldc           #54                 // String java.awt.event.ActionListener
+      28: invokestatic  #24                 // Method com/apple/xsr/ArraySelectionPanel.class$:(Ljava/lang/String;)Ljava/lang/Class;
+      31: dup
+      32: putstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      35: goto          41
+      38: getstatic     #53                 // Field com/apple/xsr/ArraySelectionPanel.class$java$awt$event$ActionListener:Ljava/lang/Class;
+      41: if_acmpne     104
+      44: aload_1
+      45: ifnonnull     90
+      48: aload_0
+      49: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      52: ifnull        72
+      55: aload_0
+      56: getfield      #12                 // Field button:Ljavax/swing/JToggleButton;
+      59: instanceof    #58                 // class javax/swing/JCheckBox
+      62: ifeq          72
+      65: ldc           #59                 // String ArraySelection
+      67: astore        4
+      69: goto          76
+      72: ldc           #60                 // String ArrayIndex
+      74: astore        4
+      76: new           #61                 // class java/awt/event/ActionEvent
+      79: dup
+      80: aload_0
+      81: sipush        1001
+      84: aload         4
+      86: invokespecial #62                 // Method java/awt/event/ActionEvent."<init>":(Ljava/lang/Object;ILjava/lang/String;)V
+      89: astore_1
+      90: aload_2
+      91: iload_3
+      92: iconst_1
+      93: iadd
+      94: aaload
+      95: checkcast     #63                 // class java/awt/event/ActionListener
+      98: aload_1
+      99: invokeinterface #64,  2           // InterfaceMethod java/awt/event/ActionListener.actionPerformed:(Ljava/awt/event/ActionEvent;)V
+     104: iinc          3, -2
+     107: goto          13
+     110: return
+
+  protected void updateIcon();
+    Code:
+       0: aload_0
+       1: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+       4: ifnull        46
+       7: aload_0
+       8: getfield      #2                  // Field id:I
+      11: ifne          25
+      14: aload_0
+      15: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      18: aconst_null
+      19: invokevirtual #11                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+      22: goto          46
+      25: aload_0
+      26: aload_0
+      27: getfield      #2                  // Field id:I
+      30: invokespecial #65                 // Method createBadge:(I)Ljavax/swing/ImageIcon;
+      33: astore_1
+      34: aload_1
+      35: ifnull        46
+      38: aload_0
+      39: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      42: aload_1
+      43: invokevirtual #11                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+      46: return
+
+  private javax.swing.ImageIcon createBadge(int);
+    Code:
+       0: aconst_null
+       1: astore_2
+       2: aload_0
+       3: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+       6: ifnull        13
+       9: iload_1
+      10: ifne          15
+      13: aconst_null
+      14: areturn
+      15: iload_1
+      16: ifgt          25
+      19: getstatic     #66                 // Field jbodBadge:Ljavax/swing/ImageIcon;
+      22: ifnonnull     151
+      25: aload_0
+      26: getfield      #7                  // Field descriptionLabel:Ljavax/swing/JLabel;
+      29: bipush        10
+      31: bipush        11
+      33: invokevirtual #67                 // Method javax/swing/JLabel.createImage:(II)Ljava/awt/Image;
+      36: astore_3
+      37: aload_3
+      38: ifnull        155
+      41: aload_3
+      42: invokevirtual #68                 // Method java/awt/Image.getGraphics:()Ljava/awt/Graphics;
+      45: astore        4
+      47: aload         4
+      49: getstatic     #69                 // Field BADGE_COLOR:Ljava/awt/Color;
+      52: invokevirtual #70                 // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+      55: aload         4
+      57: iconst_0
+      58: iconst_0
+      59: bipush        10
+      61: bipush        10
+      63: invokevirtual #71                 // Method java/awt/Graphics.fillRect:(IIII)V
+      66: aload         4
+      68: getstatic     #72                 // Field java/awt/Color.white:Ljava/awt/Color;
+      71: invokevirtual #70                 // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+      74: aload         4
+      76: getstatic     #73                 // Field com/apple/gui/GUIFactory.FONT_BADGE:Ljava/awt/Font;
+      79: invokevirtual #74                 // Method java/awt/Graphics.setFont:(Ljava/awt/Font;)V
+      82: iload_1
+      83: ifle          125
+      86: aload         4
+      88: new           #29                 // class java/lang/StringBuffer
+      91: dup
+      92: invokespecial #30                 // Method java/lang/StringBuffer."<init>":()V
+      95: iload_1
+      96: invokevirtual #75                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+      99: ldc           #15                 // String
+     101: invokevirtual #32                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     104: invokevirtual #35                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     107: iconst_2
+     108: bipush        9
+     110: invokevirtual #76                 // Method java/awt/Graphics.drawString:(Ljava/lang/String;II)V
+     113: new           #40                 // class javax/swing/ImageIcon
+     116: dup
+     117: aload_3
+     118: invokespecial #43                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     121: astore_2
+     122: goto          155
+     125: aload         4
+     127: ldc           #77                 // String J
+     129: iconst_4
+     130: bipush        8
+     132: invokevirtual #76                 // Method java/awt/Graphics.drawString:(Ljava/lang/String;II)V
+     135: new           #40                 // class javax/swing/ImageIcon
+     138: dup
+     139: aload_3
+     140: invokespecial #43                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+     143: astore_2
+     144: aload_2
+     145: putstatic     #66                 // Field jbodBadge:Ljavax/swing/ImageIcon;
+     148: goto          155
+     151: getstatic     #66                 // Field jbodBadge:Ljavax/swing/ImageIcon;
+     154: astore_2
+     155: aload_2
+     156: areturn
+
+  private java.awt.event.MouseListener getMouseListener();
+    Code:
+       0: aload_0
+       1: getfield      #78                 // Field mouseListener:Ljava/awt/event/MouseListener;
+       4: ifnonnull     19
+       7: aload_0
+       8: new           #79                 // class com/apple/xsr/ArraySelectionPanel$4
+      11: dup
+      12: aload_0
+      13: invokespecial #80                 // Method com/apple/xsr/ArraySelectionPanel$4."<init>":(Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;)V
+      16: putfield      #78                 // Field mouseListener:Ljava/awt/event/MouseListener;
+      19: aload_0
+      20: getfield      #78                 // Field mouseListener:Ljava/awt/event/MouseListener;
+      23: areturn
+
+  static {};
+    Code:
+       0: fconst_0
+       1: fconst_0
+       2: ldc           #81                 // float 0.38f
+       4: invokestatic  #82                 // Method java/awt/Color.getHSBColor:(FFF)Ljava/awt/Color;
+       7: putstatic     #69                 // Field BADGE_COLOR:Ljava/awt/Color;
+      10: return
+}

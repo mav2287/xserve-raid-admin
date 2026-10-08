@@ -1,0 +1,708 @@
+public class com.apple.xsr.SystemInfoPane extends javax.swing.JPanel {
+  public static final int SUMMARY_TAB = 0;
+
+  public static final int ARRAYS_DRIVES_TAB = 1;
+
+  public static final int MODULES_TAB = 2;
+
+  public static final int FIBRE_CHANNEL_TAB = 3;
+
+  public static final int NETWORK_TAB = 4;
+
+  public static final int EVENT_LOG_TAB = 5;
+
+  public static final int COLUMN_WIDTH = 250;
+
+  public static final int COMBO_LABEL_WIDTH = 64;
+
+  public static final int COMBO_WIDTH = 150;
+
+  private static final javax.swing.border.Border TAB_BORDER;
+
+  private javax.swing.JTabbedPane tabbedPane;
+
+  private com.apple.xsr.SystemInfoPane$InfoPanel infoPanel;
+
+  private com.apple.xsr.SystemInfoPane$ComponentsPanel componentsPanel;
+
+  private com.apple.xsr.SystemInfoPane$ArrayDrivePanel arraysAndDrivesPanel;
+
+  private com.apple.xsr.SystemInfoPane$FibreChannelPanel fibreChannelPanel;
+
+  private com.apple.xsr.SystemInfoPane$NetworkPanel networkPanel;
+
+  private com.apple.xsr.eventlog.EventLogPane eventPanel;
+
+  public com.apple.xsr.SystemInfoPane();
+    Code:
+       0: aload_0
+       1: invokespecial #2                  // Method javax/swing/JPanel."<init>":()V
+       4: aload_0
+       5: invokestatic  #3                  // Method com/apple/gui/GUIFactory.configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+       8: pop
+       9: aload_0
+      10: new           #4                  // class java/awt/BorderLayout
+      13: dup
+      14: invokespecial #5                  // Method java/awt/BorderLayout."<init>":()V
+      17: invokevirtual #6                  // Method setLayout:(Ljava/awt/LayoutManager;)V
+      20: aload_0
+      21: new           #7                  // class javax/swing/JTabbedPane
+      24: dup
+      25: iconst_1
+      26: invokespecial #8                  // Method javax/swing/JTabbedPane."<init>":(I)V
+      29: putfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+      32: aload_0
+      33: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+      36: getstatic     #10                 // Field com/apple/gui/GUIFactory.FONT_SMALL:Ljava/awt/Font;
+      39: invokevirtual #11                 // Method javax/swing/JTabbedPane.setFont:(Ljava/awt/Font;)V
+      42: aload_0
+      43: new           #12                 // class com/apple/xsr/SystemInfoPane$InfoPanel
+      46: dup
+      47: invokespecial #13                 // Method com/apple/xsr/SystemInfoPane$InfoPanel."<init>":()V
+      50: putfield      #14                 // Field infoPanel:Lcom/apple/xsr/SystemInfoPane$InfoPanel;
+      53: aload_0
+      54: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+      57: ldc           #15                 // String systemInfo.tab.summary
+      59: invokestatic  #16                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      62: aload_0
+      63: getfield      #14                 // Field infoPanel:Lcom/apple/xsr/SystemInfoPane$InfoPanel;
+      66: invokevirtual #17                 // Method javax/swing/JTabbedPane.addTab:(Ljava/lang/String;Ljava/awt/Component;)V
+      69: aload_0
+      70: new           #18                 // class com/apple/xsr/SystemInfoPane$ArrayDrivePanel
+      73: dup
+      74: invokespecial #19                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel."<init>":()V
+      77: putfield      #20                 // Field arraysAndDrivesPanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      80: aload_0
+      81: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+      84: ldc           #21                 // String systemInfo.tab.arraysAndDrives
+      86: invokestatic  #16                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      89: aload_0
+      90: getfield      #20                 // Field arraysAndDrivesPanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      93: invokevirtual #17                 // Method javax/swing/JTabbedPane.addTab:(Ljava/lang/String;Ljava/awt/Component;)V
+      96: aload_0
+      97: new           #22                 // class com/apple/xsr/SystemInfoPane$ComponentsPanel
+     100: dup
+     101: invokespecial #23                 // Method com/apple/xsr/SystemInfoPane$ComponentsPanel."<init>":()V
+     104: putfield      #24                 // Field componentsPanel:Lcom/apple/xsr/SystemInfoPane$ComponentsPanel;
+     107: aload_0
+     108: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+     111: ldc           #25                 // String systemInfo.tab.modules
+     113: invokestatic  #16                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     116: aload_0
+     117: getfield      #24                 // Field componentsPanel:Lcom/apple/xsr/SystemInfoPane$ComponentsPanel;
+     120: invokevirtual #17                 // Method javax/swing/JTabbedPane.addTab:(Ljava/lang/String;Ljava/awt/Component;)V
+     123: aload_0
+     124: new           #26                 // class com/apple/xsr/SystemInfoPane$FibreChannelPanel
+     127: dup
+     128: invokespecial #27                 // Method com/apple/xsr/SystemInfoPane$FibreChannelPanel."<init>":()V
+     131: putfield      #28                 // Field fibreChannelPanel:Lcom/apple/xsr/SystemInfoPane$FibreChannelPanel;
+     134: aload_0
+     135: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+     138: ldc           #29                 // String systemInfo.tab.fibreChannel
+     140: invokestatic  #16                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     143: aload_0
+     144: getfield      #28                 // Field fibreChannelPanel:Lcom/apple/xsr/SystemInfoPane$FibreChannelPanel;
+     147: invokevirtual #17                 // Method javax/swing/JTabbedPane.addTab:(Ljava/lang/String;Ljava/awt/Component;)V
+     150: aload_0
+     151: new           #30                 // class com/apple/xsr/SystemInfoPane$NetworkPanel
+     154: dup
+     155: invokespecial #31                 // Method com/apple/xsr/SystemInfoPane$NetworkPanel."<init>":()V
+     158: putfield      #32                 // Field networkPanel:Lcom/apple/xsr/SystemInfoPane$NetworkPanel;
+     161: aload_0
+     162: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+     165: ldc           #33                 // String systemInfo.tab.network
+     167: invokestatic  #16                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     170: aload_0
+     171: getfield      #32                 // Field networkPanel:Lcom/apple/xsr/SystemInfoPane$NetworkPanel;
+     174: invokevirtual #17                 // Method javax/swing/JTabbedPane.addTab:(Ljava/lang/String;Ljava/awt/Component;)V
+     177: aload_0
+     178: new           #34                 // class com/apple/xsr/eventlog/EventLogPane
+     181: dup
+     182: invokespecial #35                 // Method com/apple/xsr/eventlog/EventLogPane."<init>":()V
+     185: putfield      #36                 // Field eventPanel:Lcom/apple/xsr/eventlog/EventLogPane;
+     188: aload_0
+     189: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+     192: ldc           #37                 // String systemInfo.tab.events
+     194: invokestatic  #16                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     197: aload_0
+     198: getfield      #36                 // Field eventPanel:Lcom/apple/xsr/eventlog/EventLogPane;
+     201: invokevirtual #17                 // Method javax/swing/JTabbedPane.addTab:(Ljava/lang/String;Ljava/awt/Component;)V
+     204: aload_0
+     205: aload_0
+     206: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+     209: ldc           #38                 // String Center
+     211: invokevirtual #39                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     214: return
+
+  public void setSelectedTab(int);
+    Code:
+       0: iload_1
+       1: iflt          15
+       4: iload_1
+       5: aload_0
+       6: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+       9: invokevirtual #40                 // Method javax/swing/JTabbedPane.getTabCount:()I
+      12: if_icmplt     42
+      15: new           #41                 // class java/lang/IllegalArgumentException
+      18: dup
+      19: new           #42                 // class java/lang/StringBuffer
+      22: dup
+      23: invokespecial #43                 // Method java/lang/StringBuffer."<init>":()V
+      26: ldc           #44                 // String Illegal tab:
+      28: invokevirtual #45                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      31: iload_1
+      32: invokevirtual #46                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+      35: invokevirtual #47                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      38: invokespecial #48                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+      41: athrow
+      42: aload_0
+      43: getfield      #9                  // Field tabbedPane:Ljavax/swing/JTabbedPane;
+      46: iload_1
+      47: invokevirtual #49                 // Method javax/swing/JTabbedPane.setSelectedIndex:(I)V
+      50: return
+
+  public void setSystem(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: getfield      #14                 // Field infoPanel:Lcom/apple/xsr/SystemInfoPane$InfoPanel;
+       4: aload_1
+       5: invokevirtual #50                 // Method com/apple/xsr/SystemInfoPane$InfoPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+       8: aload_1
+       9: ifnull        63
+      12: aload_1
+      13: invokevirtual #51                 // Method com/apple/xsr/som/RaidSystem.getPowerState:()I
+      16: iconst_1
+      17: if_icmpne     63
+      20: aload_0
+      21: getfield      #24                 // Field componentsPanel:Lcom/apple/xsr/SystemInfoPane$ComponentsPanel;
+      24: aload_1
+      25: invokevirtual #52                 // Method com/apple/xsr/SystemInfoPane$ComponentsPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      28: aload_0
+      29: getfield      #20                 // Field arraysAndDrivesPanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      32: aload_1
+      33: invokevirtual #53                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      36: aload_0
+      37: getfield      #28                 // Field fibreChannelPanel:Lcom/apple/xsr/SystemInfoPane$FibreChannelPanel;
+      40: aload_1
+      41: invokevirtual #54                 // Method com/apple/xsr/SystemInfoPane$FibreChannelPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      44: aload_0
+      45: getfield      #32                 // Field networkPanel:Lcom/apple/xsr/SystemInfoPane$NetworkPanel;
+      48: aload_1
+      49: invokevirtual #55                 // Method com/apple/xsr/SystemInfoPane$NetworkPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      52: aload_0
+      53: getfield      #36                 // Field eventPanel:Lcom/apple/xsr/eventlog/EventLogPane;
+      56: aload_1
+      57: invokevirtual #56                 // Method com/apple/xsr/eventlog/EventLogPane.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      60: goto          103
+      63: aload_0
+      64: getfield      #24                 // Field componentsPanel:Lcom/apple/xsr/SystemInfoPane$ComponentsPanel;
+      67: aconst_null
+      68: invokevirtual #52                 // Method com/apple/xsr/SystemInfoPane$ComponentsPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      71: aload_0
+      72: getfield      #20                 // Field arraysAndDrivesPanel:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      75: aconst_null
+      76: invokevirtual #53                 // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      79: aload_0
+      80: getfield      #28                 // Field fibreChannelPanel:Lcom/apple/xsr/SystemInfoPane$FibreChannelPanel;
+      83: aconst_null
+      84: invokevirtual #54                 // Method com/apple/xsr/SystemInfoPane$FibreChannelPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      87: aload_0
+      88: getfield      #32                 // Field networkPanel:Lcom/apple/xsr/SystemInfoPane$NetworkPanel;
+      91: aconst_null
+      92: invokevirtual #55                 // Method com/apple/xsr/SystemInfoPane$NetworkPanel.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+      95: aload_0
+      96: getfield      #36                 // Field eventPanel:Lcom/apple/xsr/eventlog/EventLogPane;
+      99: aconst_null
+     100: invokevirtual #56                 // Method com/apple/xsr/eventlog/EventLogPane.updateInfo:(Lcom/apple/xsr/som/RaidSystem;)V
+     103: return
+
+  public void updateInfo(com.apple.xsr.som.RaidSystem);
+    Code:
+       0: new           #57                 // class com/apple/xsr/SystemInfoPane$1
+       3: dup
+       4: aload_0
+       5: aload_1
+       6: invokespecial #58                 // Method com/apple/xsr/SystemInfoPane$1."<init>":(Lcom/apple/xsr/SystemInfoPane;Lcom/apple/xsr/som/RaidSystem;)V
+       9: invokestatic  #59                 // Method javax/swing/SwingUtilities.invokeLater:(Ljava/lang/Runnable;)V
+      12: return
+
+  static javax.swing.border.Border access$000();
+    Code:
+       0: getstatic     #1                  // Field TAB_BORDER:Ljavax/swing/border/Border;
+       3: areturn
+
+  static {};
+    Code:
+       0: new           #60                 // class javax/swing/border/EmptyBorder
+       3: dup
+       4: bipush        10
+       6: bipush        10
+       8: iconst_0
+       9: bipush        10
+      11: invokespecial #61                 // Method javax/swing/border/EmptyBorder."<init>":(IIII)V
+      14: putstatic     #1                  // Field TAB_BORDER:Ljavax/swing/border/Border;
+      17: return
+}
+public class com.apple.gui.GUIFactory {
+  public static final java.awt.Font FONT_NORMAL;
+
+  public static final java.awt.Font FONT_NORMAL_BOLD;
+
+  public static final java.awt.Font FONT_SMALL;
+
+  public static final java.awt.Font FONT_LABEL;
+
+  public static final java.awt.Font FONT_TINY;
+
+  public static final java.awt.Font FONT_BADGE;
+
+  public static final java.awt.Font FONT_PRINT;
+
+  public static final javax.swing.border.Border TEXT_FIELD_BORDER_FIELD;
+
+  public static final javax.swing.border.Border TEXT_FIELD_BORDER_LABEL;
+
+  public com.apple.gui.GUIFactory();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static javax.swing.JPanel newPanel();
+    Code:
+       0: new           #2                  // class javax/swing/JPanel
+       3: dup
+       4: invokespecial #3                  // Method javax/swing/JPanel."<init>":()V
+       7: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      10: checkcast     #2                  // class javax/swing/JPanel
+      13: areturn
+
+  public static javax.swing.JPanel newPanel(java.awt.LayoutManager);
+    Code:
+       0: new           #2                  // class javax/swing/JPanel
+       3: dup
+       4: aload_0
+       5: invokespecial #5                  // Method javax/swing/JPanel."<init>":(Ljava/awt/LayoutManager;)V
+       8: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      11: checkcast     #2                  // class javax/swing/JPanel
+      14: areturn
+
+  public static javax.swing.JCheckBox newCheckBox();
+    Code:
+       0: new           #6                  // class javax/swing/JCheckBox
+       3: dup
+       4: invokespecial #7                  // Method javax/swing/JCheckBox."<init>":()V
+       7: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      10: checkcast     #6                  // class javax/swing/JCheckBox
+      13: areturn
+
+  public static javax.swing.JCheckBox newCheckBox(java.lang.String);
+    Code:
+       0: new           #6                  // class javax/swing/JCheckBox
+       3: dup
+       4: aload_0
+       5: invokespecial #8                  // Method javax/swing/JCheckBox."<init>":(Ljava/lang/String;)V
+       8: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      11: checkcast     #6                  // class javax/swing/JCheckBox
+      14: areturn
+
+  public static javax.swing.JCheckBox newCheckBox(java.lang.String, boolean);
+    Code:
+       0: new           #6                  // class javax/swing/JCheckBox
+       3: dup
+       4: aload_0
+       5: iload_1
+       6: invokespecial #9                  // Method javax/swing/JCheckBox."<init>":(Ljava/lang/String;Z)V
+       9: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      12: checkcast     #6                  // class javax/swing/JCheckBox
+      15: areturn
+
+  public static javax.swing.JRadioButton newRadioButton();
+    Code:
+       0: new           #10                 // class javax/swing/JRadioButton
+       3: dup
+       4: invokespecial #11                 // Method javax/swing/JRadioButton."<init>":()V
+       7: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      10: checkcast     #10                 // class javax/swing/JRadioButton
+      13: areturn
+
+  public static javax.swing.JRadioButton newRadioButton(java.lang.String);
+    Code:
+       0: new           #10                 // class javax/swing/JRadioButton
+       3: dup
+       4: aload_0
+       5: invokespecial #12                 // Method javax/swing/JRadioButton."<init>":(Ljava/lang/String;)V
+       8: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      11: checkcast     #10                 // class javax/swing/JRadioButton
+      14: areturn
+
+  public static javax.swing.JRadioButton newRadioButton(java.lang.String, boolean);
+    Code:
+       0: new           #10                 // class javax/swing/JRadioButton
+       3: dup
+       4: aload_0
+       5: iload_1
+       6: invokespecial #13                 // Method javax/swing/JRadioButton."<init>":(Ljava/lang/String;Z)V
+       9: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      12: checkcast     #10                 // class javax/swing/JRadioButton
+      15: areturn
+
+  public static javax.swing.JButton newButton();
+    Code:
+       0: new           #14                 // class javax/swing/JButton
+       3: dup
+       4: invokespecial #15                 // Method javax/swing/JButton."<init>":()V
+       7: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      10: checkcast     #14                 // class javax/swing/JButton
+      13: areturn
+
+  public static javax.swing.JButton newButton(java.lang.String);
+    Code:
+       0: new           #14                 // class javax/swing/JButton
+       3: dup
+       4: aload_0
+       5: invokespecial #16                 // Method javax/swing/JButton."<init>":(Ljava/lang/String;)V
+       8: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      11: checkcast     #14                 // class javax/swing/JButton
+      14: areturn
+
+  public static javax.swing.JButton newButton(javax.swing.ImageIcon);
+    Code:
+       0: new           #14                 // class javax/swing/JButton
+       3: dup
+       4: aload_0
+       5: invokespecial #17                 // Method javax/swing/JButton."<init>":(Ljavax/swing/Icon;)V
+       8: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      11: checkcast     #14                 // class javax/swing/JButton
+      14: areturn
+
+  public static javax.swing.JComboBox newComboBox();
+    Code:
+       0: new           #18                 // class javax/swing/JComboBox
+       3: dup
+       4: invokespecial #19                 // Method javax/swing/JComboBox."<init>":()V
+       7: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      10: checkcast     #18                 // class javax/swing/JComboBox
+      13: areturn
+
+  public static javax.swing.JTextField newTextField();
+    Code:
+       0: new           #20                 // class com/apple/gui/TextField
+       3: dup
+       4: invokespecial #21                 // Method com/apple/gui/TextField."<init>":()V
+       7: areturn
+
+  public static javax.swing.JTextField newTextField(java.lang.String);
+    Code:
+       0: new           #20                 // class com/apple/gui/TextField
+       3: dup
+       4: aload_0
+       5: invokespecial #22                 // Method com/apple/gui/TextField."<init>":(Ljava/lang/String;)V
+       8: areturn
+
+  public static javax.swing.JTextField newTextField(int);
+    Code:
+       0: new           #20                 // class com/apple/gui/TextField
+       3: dup
+       4: iload_0
+       5: invokespecial #23                 // Method com/apple/gui/TextField."<init>":(I)V
+       8: areturn
+
+  public static javax.swing.JTextField newTextField(java.lang.String, int);
+    Code:
+       0: new           #20                 // class com/apple/gui/TextField
+       3: dup
+       4: aload_0
+       5: iload_1
+       6: invokespecial #24                 // Method com/apple/gui/TextField."<init>":(Ljava/lang/String;I)V
+       9: areturn
+
+  public static com.apple.gui.RestrictedTextField newRestrictedTextField();
+    Code:
+       0: new           #25                 // class com/apple/gui/RestrictedTextField
+       3: dup
+       4: invokespecial #26                 // Method com/apple/gui/RestrictedTextField."<init>":()V
+       7: areturn
+
+  public static com.apple.gui.RestrictedTextField newRestrictedTextField(java.lang.String);
+    Code:
+       0: new           #25                 // class com/apple/gui/RestrictedTextField
+       3: dup
+       4: aload_0
+       5: invokespecial #27                 // Method com/apple/gui/RestrictedTextField."<init>":(Ljava/lang/String;)V
+       8: areturn
+
+  public static com.apple.gui.RestrictedTextField newRestrictedTextField(int);
+    Code:
+       0: new           #25                 // class com/apple/gui/RestrictedTextField
+       3: dup
+       4: iload_0
+       5: invokespecial #28                 // Method com/apple/gui/RestrictedTextField."<init>":(I)V
+       8: areturn
+
+  public static com.apple.gui.RestrictedTextField newRestrictedTextField(java.lang.String, int);
+    Code:
+       0: new           #25                 // class com/apple/gui/RestrictedTextField
+       3: dup
+       4: aload_0
+       5: iload_1
+       6: invokespecial #29                 // Method com/apple/gui/RestrictedTextField."<init>":(Ljava/lang/String;I)V
+       9: areturn
+
+  public static javax.swing.JPasswordField newPasswordField();
+    Code:
+       0: new           #30                 // class com/apple/gui/PasswordField
+       3: dup
+       4: invokespecial #31                 // Method com/apple/gui/PasswordField."<init>":()V
+       7: areturn
+
+  public static javax.swing.JPasswordField newPasswordField(int);
+    Code:
+       0: new           #30                 // class com/apple/gui/PasswordField
+       3: dup
+       4: iload_0
+       5: invokespecial #32                 // Method com/apple/gui/PasswordField."<init>":(I)V
+       8: areturn
+
+  public static javax.swing.JTextPane newTextPane();
+    Code:
+       0: new           #33                 // class com/apple/gui/TextPane
+       3: dup
+       4: invokespecial #34                 // Method com/apple/gui/TextPane."<init>":()V
+       7: areturn
+
+  public static javax.swing.JTextPane newTextPane(java.lang.String);
+    Code:
+       0: new           #33                 // class com/apple/gui/TextPane
+       3: dup
+       4: aload_0
+       5: invokespecial #35                 // Method com/apple/gui/TextPane."<init>":(Ljava/lang/String;)V
+       8: areturn
+
+  public static javax.swing.JTextPane newTextPane(java.lang.String, int);
+    Code:
+       0: new           #33                 // class com/apple/gui/TextPane
+       3: dup
+       4: aload_0
+       5: iload_1
+       6: invokespecial #36                 // Method com/apple/gui/TextPane."<init>":(Ljava/lang/String;I)V
+       9: areturn
+
+  public static javax.swing.JTable newTable();
+    Code:
+       0: new           #37                 // class com/apple/gui/AlternatingTable
+       3: dup
+       4: invokespecial #38                 // Method com/apple/gui/AlternatingTable."<init>":()V
+       7: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      10: checkcast     #39                 // class javax/swing/JTable
+      13: areturn
+
+  public static javax.swing.JTable newTable(javax.swing.table.TableModel);
+    Code:
+       0: new           #37                 // class com/apple/gui/AlternatingTable
+       3: dup
+       4: aload_0
+       5: invokespecial #40                 // Method com/apple/gui/AlternatingTable."<init>":(Ljavax/swing/table/TableModel;)V
+       8: invokestatic  #4                  // Method configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+      11: checkcast     #39                 // class javax/swing/JTable
+      14: areturn
+
+  public static javax.swing.JButton newOKButton();
+    Code:
+       0: ldc           #41                 // String ok
+       2: invokestatic  #42                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+       5: invokestatic  #43                 // Method newButton:(Ljava/lang/String;)Ljavax/swing/JButton;
+       8: areturn
+
+  public static javax.swing.JButton newCancelButton();
+    Code:
+       0: ldc           #44                 // String cancel
+       2: invokestatic  #42                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+       5: invokestatic  #43                 // Method newButton:(Ljava/lang/String;)Ljavax/swing/JButton;
+       8: areturn
+
+  public static javax.swing.JButton newContinueButton();
+    Code:
+       0: ldc           #45                 // String continue
+       2: invokestatic  #42                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+       5: invokestatic  #43                 // Method newButton:(Ljava/lang/String;)Ljavax/swing/JButton;
+       8: areturn
+
+  public static javax.swing.JButton newGoBackButton();
+    Code:
+       0: ldc           #46                 // String goBack
+       2: invokestatic  #42                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+       5: invokestatic  #43                 // Method newButton:(Ljava/lang/String;)Ljavax/swing/JButton;
+       8: areturn
+
+  public static javax.swing.JMenuBar newMenuBar();
+    Code:
+       0: new           #47                 // class com/apple/gui/menu/MenuBar
+       3: dup
+       4: invokespecial #48                 // Method com/apple/gui/menu/MenuBar."<init>":()V
+       7: areturn
+
+  public static javax.swing.JMenu newMenu();
+    Code:
+       0: new           #49                 // class com/apple/gui/menu/Menu
+       3: dup
+       4: invokespecial #50                 // Method com/apple/gui/menu/Menu."<init>":()V
+       7: areturn
+
+  public static javax.swing.JMenuItem newMenuItem();
+    Code:
+       0: new           #51                 // class com/apple/gui/menu/MenuItem
+       3: dup
+       4: invokespecial #52                 // Method com/apple/gui/menu/MenuItem."<init>":()V
+       7: areturn
+
+  public static javax.swing.JTextField configureTextFieldAsLabel(javax.swing.JTextField);
+    Code:
+       0: aload_0
+       1: ifnull        21
+       4: aload_0
+       5: iconst_0
+       6: invokevirtual #53                 // Method javax/swing/JTextField.setEditable:(Z)V
+       9: aload_0
+      10: iconst_0
+      11: invokevirtual #54                 // Method javax/swing/JTextField.setOpaque:(Z)V
+      14: aload_0
+      15: getstatic     #55                 // Field TEXT_FIELD_BORDER_LABEL:Ljavax/swing/border/Border;
+      18: invokevirtual #56                 // Method javax/swing/JTextField.setBorder:(Ljavax/swing/border/Border;)V
+      21: aload_0
+      22: areturn
+
+  public static javax.swing.JTextField configureTextFieldAsField(javax.swing.JTextField);
+    Code:
+       0: aload_0
+       1: ifnull        21
+       4: aload_0
+       5: iconst_1
+       6: invokevirtual #53                 // Method javax/swing/JTextField.setEditable:(Z)V
+       9: aload_0
+      10: iconst_1
+      11: invokevirtual #54                 // Method javax/swing/JTextField.setOpaque:(Z)V
+      14: aload_0
+      15: getstatic     #57                 // Field TEXT_FIELD_BORDER_FIELD:Ljavax/swing/border/Border;
+      18: invokevirtual #56                 // Method javax/swing/JTextField.setBorder:(Ljavax/swing/border/Border;)V
+      21: aload_0
+      22: areturn
+
+  public static java.awt.Component configureComponentForPlatform(java.awt.Component);
+    Code:
+       0: aload_0
+       1: instanceof    #58                 // class javax/swing/JTextField
+       4: ifeq          36
+       7: aload_0
+       8: instanceof    #20                 // class com/apple/gui/TextField
+      11: ifne          36
+      14: aload_0
+      15: instanceof    #30                 // class com/apple/gui/PasswordField
+      18: ifne          36
+      21: new           #59                 // class com/apple/gui/TextField$TextSelector
+      24: dup
+      25: aload_0
+      26: checkcast     #58                 // class javax/swing/JTextField
+      29: invokespecial #60                 // Method com/apple/gui/TextField$TextSelector."<init>":(Ljavax/swing/JTextField;)V
+      32: pop
+      33: goto          47
+      36: aload_0
+      37: instanceof    #61                 // class java/awt/Frame
+      40: ifeq          47
+      43: aload_0
+      44: invokestatic  #62                 // Method imposeMinimumSize:(Ljava/awt/Component;)V
+      47: getstatic     #63                 // Field com/apple/util/Gestalt.isAquaLookAndFeel:Z
+      50: ifeq          128
+      53: aload_0
+      54: instanceof    #14                 // class javax/swing/JButton
+      57: ifne          74
+      60: aload_0
+      61: instanceof    #6                  // class javax/swing/JCheckBox
+      64: ifne          74
+      67: aload_0
+      68: instanceof    #10                 // class javax/swing/JRadioButton
+      71: ifeq          95
+      74: aload_0
+      75: checkcast     #64                 // class javax/swing/AbstractButton
+      78: getstatic     #65                 // Field com/apple/util/Gestalt.showFocusRings:Z
+      81: invokevirtual #66                 // Method javax/swing/AbstractButton.setFocusPainted:(Z)V
+      84: aload_0
+      85: checkcast     #64                 // class javax/swing/AbstractButton
+      88: iconst_0
+      89: invokevirtual #67                 // Method javax/swing/AbstractButton.setContentAreaFilled:(Z)V
+      92: goto          128
+      95: aload_0
+      96: instanceof    #2                  // class javax/swing/JPanel
+      99: ifeq          113
+     102: aload_0
+     103: checkcast     #2                  // class javax/swing/JPanel
+     106: iconst_0
+     107: invokevirtual #68                 // Method javax/swing/JPanel.setOpaque:(Z)V
+     110: goto          128
+     113: aload_0
+     114: instanceof    #18                 // class javax/swing/JComboBox
+     117: ifeq          128
+     120: aload_0
+     121: checkcast     #18                 // class javax/swing/JComboBox
+     124: iconst_0
+     125: invokevirtual #69                 // Method javax/swing/JComboBox.setOpaque:(Z)V
+     128: aload_0
+     129: areturn
+
+  private static void imposeMinimumSize(java.awt.Component);
+    Code:
+       0: aload_0
+       1: new           #70                 // class com/apple/gui/GUIFactory$1
+       4: dup
+       5: invokespecial #71                 // Method com/apple/gui/GUIFactory$1."<init>":()V
+       8: invokevirtual #72                 // Method java/awt/Component.addComponentListener:(Ljava/awt/event/ComponentListener;)V
+      11: return
+
+  static {};
+    Code:
+       0: new           #73                 // class javax/swing/JLabel
+       3: dup
+       4: invokespecial #74                 // Method javax/swing/JLabel."<init>":()V
+       7: invokevirtual #75                 // Method javax/swing/JLabel.getFont:()Ljava/awt/Font;
+      10: putstatic     #76                 // Field FONT_NORMAL:Ljava/awt/Font;
+      13: getstatic     #76                 // Field FONT_NORMAL:Ljava/awt/Font;
+      16: iconst_1
+      17: invokevirtual #77                 // Method java/awt/Font.deriveFont:(I)Ljava/awt/Font;
+      20: putstatic     #78                 // Field FONT_NORMAL_BOLD:Ljava/awt/Font;
+      23: getstatic     #76                 // Field FONT_NORMAL:Ljava/awt/Font;
+      26: ldc           #79                 // float 11.0f
+      28: invokevirtual #80                 // Method java/awt/Font.deriveFont:(F)Ljava/awt/Font;
+      31: putstatic     #81                 // Field FONT_SMALL:Ljava/awt/Font;
+      34: getstatic     #76                 // Field FONT_NORMAL:Ljava/awt/Font;
+      37: ldc           #82                 // float 10.0f
+      39: invokevirtual #80                 // Method java/awt/Font.deriveFont:(F)Ljava/awt/Font;
+      42: putstatic     #83                 // Field FONT_LABEL:Ljava/awt/Font;
+      45: getstatic     #76                 // Field FONT_NORMAL:Ljava/awt/Font;
+      48: ldc           #84                 // float 9.0f
+      50: invokevirtual #80                 // Method java/awt/Font.deriveFont:(F)Ljava/awt/Font;
+      53: putstatic     #85                 // Field FONT_TINY:Ljava/awt/Font;
+      56: getstatic     #76                 // Field FONT_NORMAL:Ljava/awt/Font;
+      59: ldc           #84                 // float 9.0f
+      61: invokevirtual #80                 // Method java/awt/Font.deriveFont:(F)Ljava/awt/Font;
+      64: putstatic     #86                 // Field FONT_BADGE:Ljava/awt/Font;
+      67: new           #87                 // class java/awt/Font
+      70: dup
+      71: ldc           #88                 // String eventLog.print.fontFaceName
+      73: invokestatic  #42                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      76: iconst_0
+      77: bipush        9
+      79: invokespecial #89                 // Method java/awt/Font."<init>":(Ljava/lang/String;II)V
+      82: putstatic     #90                 // Field FONT_PRINT:Ljava/awt/Font;
+      85: new           #58                 // class javax/swing/JTextField
+      88: dup
+      89: invokespecial #91                 // Method javax/swing/JTextField."<init>":()V
+      92: invokevirtual #92                 // Method javax/swing/JTextField.getBorder:()Ljavax/swing/border/Border;
+      95: putstatic     #57                 // Field TEXT_FIELD_BORDER_FIELD:Ljavax/swing/border/Border;
+      98: iconst_2
+      99: iconst_5
+     100: iconst_2
+     101: iconst_0
+     102: invokestatic  #93                 // Method javax/swing/BorderFactory.createEmptyBorder:(IIII)Ljavax/swing/border/Border;
+     105: putstatic     #55                 // Field TEXT_FIELD_BORDER_LABEL:Ljavax/swing/border/Border;
+     108: return
+}

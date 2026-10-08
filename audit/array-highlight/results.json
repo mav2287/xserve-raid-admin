@@ -1,0 +1,43 @@
+{
+  "inputs": {
+    "build/secure-clean-1/RAID Admin.app/Contents/Resources/RAID_Admin.jar": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+    "original/RAID_Admin_original.jar": "5505d8d9a08aafb338150cd0ca54a163048961172df15ee3a0749c4192f59449",
+    "tests/java/fixture/FixtureIdentity.java": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "tests/java/uifixture/ArrayHighlightObservation.java": "f9a0fc0f3f8bf05929f1f69cae89e27a50b969bf59225e83d2ca3e05684af9b0",
+    "tools/check_array_highlight.py": "f1c30d583b62c89b44837462ad418d98d1557c8dc37aecc2d7c72979a856cad1"
+  },
+  "runs": [
+    {
+      "architecture": "aarch64",
+      "empty_stderr": true,
+      "jar": "original",
+      "runtime_tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "stdout": "PASS array highlight; transitions=1000; pixel_checks=14000; drive_to_array=true; cleared_row_paths=2; zero_tints_unassigned=true; minus_ten_clears=true; fresh_buffer_only=true; forbidden_operations=0"
+    },
+    {
+      "architecture": "aarch64",
+      "empty_stderr": true,
+      "jar": "current",
+      "runtime_tree_sha256": "ce517f501fe31bc60d7a745f42a71fa506f8c067315ff20db625eb69790a4187",
+      "stdout": "PASS array highlight; transitions=1000; pixel_checks=14000; drive_to_array=true; cleared_row_paths=2; zero_tints_unassigned=true; minus_ten_clears=true; fresh_buffer_only=true; forbidden_operations=0"
+    },
+    {
+      "architecture": "x64",
+      "empty_stderr": true,
+      "jar": "original",
+      "runtime_tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+      "stdout": "PASS array highlight; transitions=1000; pixel_checks=14000; drive_to_array=true; cleared_row_paths=2; zero_tints_unassigned=true; minus_ten_clears=true; fresh_buffer_only=true; forbidden_operations=0"
+    },
+    {
+      "architecture": "x64",
+      "empty_stderr": true,
+      "jar": "current",
+      "runtime_tree_sha256": "6aa1fb2c27cde9d87aa4dd99963a0543d5115ad688b746ce94f77f3a538674d9",
+      "stdout": "PASS array highlight; transitions=1000; pixel_checks=14000; drive_to_array=true; cleared_row_paths=2; zero_tints_unassigned=true; minus_ten_clears=true; fresh_buffer_only=true; forbidden_operations=0"
+    }
+  ],
+  "scope": "fresh headless raster rendering; no native display or live model qualification",
+  "source_commit": "dcd8269f6cfc903f15f85304578236b671d467cb",
+  "source_dirty": false
+}

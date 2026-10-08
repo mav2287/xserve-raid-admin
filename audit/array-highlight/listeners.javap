@@ -1,0 +1,143 @@
+class com.apple.xsr.ArraySelectionPanel$1 implements java.awt.event.ActionListener {
+  private final com.apple.xsr.ArraySelectionPanel this$0;
+
+  com.apple.xsr.ArraySelectionPanel$1(com.apple.xsr.ArraySelectionPanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel;
+       9: return
+
+  public void actionPerformed(java.awt.event.ActionEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/awt/event/ActionEvent.getSource:()Ljava/lang/Object;
+       4: checkcast     #4                  // class com/apple/xsr/ArraySelectionPanel$ArrayLabel
+       7: astore_2
+       8: aload_0
+       9: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel;
+      12: aload_1
+      13: invokevirtual #5                  // Method java/awt/event/ActionEvent.getActionCommand:()Ljava/lang/String;
+      16: iconst_m1
+      17: aload_2
+      18: getfield      #6                  // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.id:I
+      21: invokevirtual #7                  // Method com/apple/xsr/ArraySelectionPanel.firePropertyChange:(Ljava/lang/String;II)V
+      24: return
+}
+class com.apple.xsr.ArraySelectionPanel$2 implements java.awt.event.ActionListener {
+  private final com.apple.xsr.ArraySelectionPanel$ArrayLabel this$0;
+
+  com.apple.xsr.ArraySelectionPanel$2(com.apple.xsr.ArraySelectionPanel$ArrayLabel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       9: return
+
+  public void actionPerformed(java.awt.event.ActionEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       4: aconst_null
+       5: invokevirtual #3                  // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.fireActionPerformed:(Ljava/awt/event/ActionEvent;)V
+       8: return
+}
+class com.apple.xsr.ArraySelectionPanel$3 implements javax.swing.event.AncestorListener {
+  private final com.apple.xsr.ArraySelectionPanel$ArrayLabel this$0;
+
+  com.apple.xsr.ArraySelectionPanel$3(com.apple.xsr.ArraySelectionPanel$ArrayLabel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       9: return
+
+  public void ancestorAdded(javax.swing.event.AncestorEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       4: getfield      #3                  // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.displayed:Z
+       7: ifne          36
+      10: aload_0
+      11: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+      14: iconst_1
+      15: putfield      #3                  // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.displayed:Z
+      18: aload_0
+      19: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+      22: invokevirtual #4                  // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.updateIcon:()V
+      25: aload_0
+      26: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+      29: getfield      #5                  // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.descriptionLabel:Ljavax/swing/JLabel;
+      32: aload_0
+      33: invokevirtual #6                  // Method javax/swing/JLabel.removeAncestorListener:(Ljavax/swing/event/AncestorListener;)V
+      36: return
+
+  public void ancestorMoved(javax.swing.event.AncestorEvent);
+    Code:
+       0: return
+
+  public void ancestorRemoved(javax.swing.event.AncestorEvent);
+    Code:
+       0: return
+}
+class com.apple.xsr.ArraySelectionPanel$4 extends java.awt.event.MouseAdapter {
+  private final com.apple.xsr.ArraySelectionPanel$ArrayLabel this$0;
+
+  com.apple.xsr.ArraySelectionPanel$4(com.apple.xsr.ArraySelectionPanel$ArrayLabel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/awt/event/MouseAdapter."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       9: return
+
+  public void mouseReleased(java.awt.event.MouseEvent);
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+       4: getfield      #3                  // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.button:Ljavax/swing/JToggleButton;
+       7: ifnull        23
+      10: aload_0
+      11: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+      14: getfield      #3                  // Field com/apple/xsr/ArraySelectionPanel$ArrayLabel.button:Ljavax/swing/JToggleButton;
+      17: invokevirtual #4                  // Method javax/swing/JToggleButton.doClick:()V
+      20: goto          31
+      23: aload_0
+      24: getfield      #2                  // Field this$0:Lcom/apple/xsr/ArraySelectionPanel$ArrayLabel;
+      27: aconst_null
+      28: invokevirtual #5                  // Method com/apple/xsr/ArraySelectionPanel$ArrayLabel.fireActionPerformed:(Ljava/awt/event/ActionEvent;)V
+      31: return
+}
+class com.apple.xsr.SystemInfoPane$1 implements java.lang.Runnable {
+  private final com.apple.xsr.som.RaidSystem val$system;
+
+  private final com.apple.xsr.SystemInfoPane this$0;
+
+  com.apple.xsr.SystemInfoPane$1(com.apple.xsr.SystemInfoPane, com.apple.xsr.som.RaidSystem);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane;
+       9: aload_0
+      10: aload_2
+      11: putfield      #3                  // Field val$system:Lcom/apple/xsr/som/RaidSystem;
+      14: return
+
+  public void run();
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane;
+       4: aload_0
+       5: getfield      #3                  // Field val$system:Lcom/apple/xsr/som/RaidSystem;
+       8: invokevirtual #4                  // Method com/apple/xsr/SystemInfoPane.setSystem:(Lcom/apple/xsr/som/RaidSystem;)V
+      11: return
+}

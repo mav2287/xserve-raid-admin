@@ -70,7 +70,8 @@ The fixture checks 1,000 alternating array selections (14,000 tint pixels per
 run), a drive-to-array transition, synthetic mixed membership with indices
 1/2/0/-10, and the actual cleared ArrayLabel's mouse-release action. It also
 checks unchanged drive membership/state. In particular it observes that a
-cleared row emits id 0, zero tints scattered zero-index slots, and -10 clears
+cleared row emits id 0 through both the button-less and hidden-radio paths,
+zero tints scattered zero-index slots, and -10 clears
 those highlights. It does not execute the complete SystemInfoPane wiring;
 that connection is bytecode evidence.
 
@@ -78,8 +79,13 @@ The first two development attempts did not qualify the fixture: one supplied
 the wrong runtime verifier argument, and another omitted resource-bundle
 initialization. Neither ran an application or contacted a controller. The
 corrected initial fresh-buffer fixture passed original/current on native ARM
-and x64 under Rosetta in interpreted mode. Final results and source identities
-are recorded separately in `audit/array-highlight/` when qualification finishes.
+and x64 under Rosetta in interpreted mode. The final expanded fixture passed
+four runs starting at clean source `dcd8269`: original/current on each pinned
+runtime, with no forbidden operations and empty stderr. Fixture and input hashes
+still matched after execution. [Results](array-highlight/results.json), class
+identity manifests, probe hashes, bytecode and Claude reviews are recorded in
+`audit/array-highlight/`. These are rendering-boundary observations, not native
+display or full workflow qualification.
 Rosetta evidence is not physical Intel qualification.
 
 ## Open questions and next implementation boundary
@@ -96,6 +102,23 @@ is native rendering, establish that with a detached guarded UI fixture before
 altering image allocation. A successful headless test is not proof of a fixed
 macOS display bug. No speculative product patch or new release is justified by
 the current evidence.
+
+Claude's second review recommends a narrow information-view zero-to-minus-ten
+conversion as independently justified hardening, while keeping the operator
+symptom open. That implementation requires a separate candidate, exact
+whole-class reversal, positive and negative forwarding tests, and regression
+qualification; the current commit contains fixture/documentation changes only.
+
+Reproduce locally with the pinned Python and JDK and a fresh build output:
+
+```
+/opt/homebrew/bin/python3 -E -s tools/check_array_highlight.py \
+  --jdk /Users/mav2287/Library/Java/JavaVirtualMachines/corretto-1.8.0_362/Contents/Home \
+  --output build/ui-selection-fresh-run
+```
+
+The runner requires the historical local audit28 common build and packaged
+runtime directories. It verifies their locked contents before executing.
 
 Claude reviewed the bytecode and fixture design independently. Its proposals
 remain advice: its initial thread-race hypothesis was refined by the actual
