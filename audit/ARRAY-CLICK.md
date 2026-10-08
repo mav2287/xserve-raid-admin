@@ -30,12 +30,11 @@ included. Original Apple reference bytes and audit28/audit29 releases remain fix
 The source includes a guarded before/after fixture with 300 mixed transitions per
 run, real row and mode listeners, actual offline-drive selection, both cards,
 selected details, 14 icon samples and unchanged synthetic model arrays. It compares
-ordered button state/action/item traces and checks exact doClick(int) arguments:
+ordered button state/action traces and checks exact doClick(int) arguments:
 0 within the information view, 68 outside it, and preserved null failures.
 
 An initial interpreted ARM/Rosetta comparison passed event parity and retained
-outside/default delay. Canonical clean-source build and release observations will
-be added separately. Pilot records are not release qualification. SystemInfoPane
+outside/default delay. Accepted clean-source build and release observations are recorded below. Pilot records are not release qualification. SystemInfoPane
 ancestry is synthetic to avoid constructors that initialize profiles. Original
 constructor bytecode establishes the real containment path, but a full native
 interface session is not claimed. No Main, real profiles, credentials, controller,
@@ -43,7 +42,7 @@ production volumes or installed app was used by these fixtures.
 
 Claude independently identified the same delay and reviewed the scoped approach.
 The initial review refers to an abandoned subclass prototype; that constructor
-change was removed. Final source review is recorded separately when available.
+change was removed. Final source review and follow-up are recorded in `array-click/`.
 
 ## Reproduce
 
@@ -66,14 +65,21 @@ files, modes and input hashes. Common JAR SHA-256:
 `3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059`.
 
 [Four clean interpreted runs](array-click/listener-results.json) pass 300 mixed
-rounds each on native ARM and x64 under Rosetta. Actual patched row and mode
-listeners record delay argument 0; exact audit29 records 68; outside rows record
-68 in both. Ordered button state/action/item traces match. Direct helper argument
+rounds each on native ARM and x64 under Rosetta. Separate 12-sample row-click measurements inside and outside the information
+view and 12 mode-switch measurements run in each process. Actual patched row and
+mode listeners assert delay argument 0 using probe buttons; exact audit29 asserts
+68; outside rows assert 68 in both. Ordered button state/action traces match; no item transitions occurred in these traces. Direct helper argument
 and null tests, real mode handlers, offline-drive selection, detail/card/icon and
 unchanged-model checks pass. Guards report no prohibited operation. Medians for
 row clicks were 87.96 → 3.96 ms on ARM and 83.63 → 2.21 ms on Rosetta x64;
 mode switches 80.29 → 4.12 and 80.82 → 2.54 ms. These are headless interpreted
 observations, not native screen presentation measurements or general benchmarks.
+The timed event traces exercise already-selected row buttons; they contain no
+item transitions, so item-event parity is not newly qualified. The 300-round
+loop checks mixed selection state through original private selection and mode
+handlers/direct array property events, separately from the patched row-handler
+measurements and delay-argument assertions. `fixed=true` in original/fixed stdout
+refers to the retained audit29 sentinel correction, not this click-delay change.
 The deterministic argument checks establish the fix without a fragile upper
 latency threshold. Full Python suite: 196 tests, six existing skips.
 

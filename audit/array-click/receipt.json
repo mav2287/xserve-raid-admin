@@ -27,6 +27,7 @@
     "claude-final-review.json": "ab9eb17eddd33ec566e456ba524cf4dfab7ac73a02806691acb25996227f178f",
     "claude-followup.json": "e11d8f74be707176afb79973e09707e9d7a8ece71bbda2abe03547965f456f6b",
     "claude-initial-review.json": "86c8d5ce1658baf790a7cf724b2a6738a00e4e9b7473d182db124a77d122ea58",
+    "claude-publication.json": "b2bb6e5324a9945f126d85871e7f69c4036375b80deb1755ec6c66ca8d2409c0",
     "common-3-provenance.json": "5aabf8019786a4b08e83475065e6ee234556b0081e081aa7891d282d5efa318e",
     "common-4-provenance.json": "c934edada2260d84a19b1547df2f2683ec6045da64c01ea9cf2defe04b55fbe9",
     "listener-results.json": "0a69c0644141a807922be1aeeab3b9dfc09376ede76f7ea761a5a3d59799f3af",
