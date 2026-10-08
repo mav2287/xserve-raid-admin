@@ -1,0 +1,67 @@
+class com.apple.xsr.SystemInfoPane$4 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$4(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: iload_2
+      12: iconst_4
+      13: if_icmpne     29
+      16: aload_0
+      17: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      20: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$300:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JRadioButton;
+      23: invokevirtual #7                  // Method javax/swing/JRadioButton.doClick:()V
+      26: goto          44
+      29: iload_2
+      30: iconst_3
+      31: if_icmpne     44
+      34: aload_0
+      35: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      38: invokestatic  #8                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$400:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;)Ljavax/swing/JRadioButton;
+      41: invokevirtual #7                  // Method javax/swing/JRadioButton.doClick:()V
+      44: return
+}
+class com.apple.xsr.SystemInfoPane$3 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$3(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: aload_0
+      12: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      15: iload_2
+      16: iconst_1
+      17: isub
+      18: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$202:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)I
+      21: pop
+      22: aload_0
+      23: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      26: invokevirtual #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.refreshInfoForSelectedArray:()V
+      29: return
+}

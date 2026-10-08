@@ -1,0 +1,29 @@
+class com.apple.xsr.SystemInfoPane$2 implements java.beans.PropertyChangeListener {
+  private final com.apple.xsr.SystemInfoPane$ArrayDrivePanel this$0;
+
+  com.apple.xsr.SystemInfoPane$2(com.apple.xsr.SystemInfoPane$ArrayDrivePanel);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+       9: return
+
+  public void propertyChange(java.beans.PropertyChangeEvent);
+    Code:
+       0: aload_1
+       1: invokevirtual #3                  // Method java/beans/PropertyChangeEvent.getNewValue:()Ljava/lang/Object;
+       4: checkcast     #4                  // class java/lang/Integer
+       7: invokevirtual #5                  // Method java/lang/Integer.intValue:()I
+      10: istore_2
+      11: aload_0
+      12: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      15: iload_2
+      16: invokestatic  #6                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.access$102:(Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;I)I
+      19: pop
+      20: aload_0
+      21: getfield      #2                  // Field this$0:Lcom/apple/xsr/SystemInfoPane$ArrayDrivePanel;
+      24: invokevirtual #7                  // Method com/apple/xsr/SystemInfoPane$ArrayDrivePanel.refreshInfoForSelectedDrive:()V
+      27: return
+}

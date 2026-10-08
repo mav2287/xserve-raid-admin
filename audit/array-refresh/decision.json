@@ -1,0 +1,13 @@
+{
+  "decision": "Hold product changes; no verified cause or meaningful native-latency measurement",
+  "normal_refresh": "SystemInfoPane.updateInfo queues setSystem via SwingUtilities.invokeLater; CP scan finds ArrayDrivePanel.updateInfo called only by itself/outer pane",
+  "prototypes": "Unshipped image-allocation and redundant-redraw prototypes remain under ignored build/; production JAR and release unchanged",
+  "qualification": false,
+  "restricted_operations": false,
+  "timing_limits": [
+    "Exploratory C1 timing ran concurrently, excluded from performance acceptance",
+    "ARM timing logged CodeCache compilation-disabled diagnostics, excluded as compiled qualification",
+    "Headless interpreted/software measurements cannot establish native paint delay"
+  ],
+  "user_report": "Audit29 improves highlights. Selection and details stay correct. Highlights catch up by themselves before covering/uncovering can be tested; not linked to redraw of other views."
+}

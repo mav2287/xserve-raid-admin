@@ -1,0 +1,637 @@
+Compiled from "CGLGraphicsConfig.java"
+public final class sun.java2d.opengl.CGLGraphicsConfig extends sun.awt.CGraphicsConfig implements sun.java2d.opengl.OGLGraphicsConfig {
+  private static final int kOpenGLSwapInterval;
+
+  private static boolean cglAvailable;
+
+  private static java.awt.ImageCapabilities imageCaps;
+
+  private int pixfmt;
+
+  private java.awt.BufferCapabilities bufferCaps;
+
+  private long pConfigInfo;
+
+  private sun.java2d.pipe.hw.ContextCapabilities oglCaps;
+
+  private sun.java2d.opengl.OGLContext context;
+
+  private final java.lang.Object disposerReferent;
+
+  private final int maxTextureSize;
+
+  private static native boolean initCGL();
+
+  private static native long getCGLConfigInfo(int, int, int);
+
+  private static native int getOGLCapabilities(long);
+
+  private static native int nativeGetMaxTextureSize();
+
+  private sun.java2d.opengl.CGLGraphicsConfig(sun.awt.CGraphicsDevice, int, long, int, sun.java2d.pipe.hw.ContextCapabilities);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokespecial #4                  // Method sun/awt/CGraphicsConfig."<init>":(Lsun/awt/CGraphicsDevice;)V
+       5: aload_0
+       6: new           #5                  // class java/lang/Object
+       9: dup
+      10: invokespecial #6                  // Method java/lang/Object."<init>":()V
+      13: putfield      #7                  // Field disposerReferent:Ljava/lang/Object;
+      16: aload_0
+      17: iload_2
+      18: putfield      #8                  // Field pixfmt:I
+      21: aload_0
+      22: lload_3
+      23: putfield      #9                  // Field pConfigInfo:J
+      26: aload_0
+      27: aload         6
+      29: putfield      #10                 // Field oglCaps:Lsun/java2d/pipe/hw/ContextCapabilities;
+      32: aload_0
+      33: iload         5
+      35: putfield      #11                 // Field maxTextureSize:I
+      38: aload_0
+      39: new           #12                 // class sun/java2d/opengl/OGLContext
+      42: dup
+      43: invokestatic  #13                 // Method sun/java2d/opengl/OGLRenderQueue.getInstance:()Lsun/java2d/opengl/OGLRenderQueue;
+      46: aload_0
+      47: invokespecial #14                 // Method sun/java2d/opengl/OGLContext."<init>":(Lsun/java2d/pipe/RenderQueue;Lsun/java2d/opengl/OGLGraphicsConfig;)V
+      50: putfield      #15                 // Field context:Lsun/java2d/opengl/OGLContext;
+      53: aload_0
+      54: getfield      #7                  // Field disposerReferent:Ljava/lang/Object;
+      57: new           #16                 // class sun/java2d/opengl/CGLGraphicsConfig$CGLGCDisposerRecord
+      60: dup
+      61: aload_0
+      62: getfield      #9                  // Field pConfigInfo:J
+      65: invokespecial #17                 // Method sun/java2d/opengl/CGLGraphicsConfig$CGLGCDisposerRecord."<init>":(J)V
+      68: invokestatic  #18                 // Method sun/java2d/Disposer.addRecord:(Ljava/lang/Object;Lsun/java2d/DisposerRecord;)V
+      71: return
+
+  public java.lang.Object getProxyKey();
+    Code:
+       0: aload_0
+       1: areturn
+
+  public sun.java2d.SurfaceData createManagedSurface(int, int, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: iload_2
+       3: aload_0
+       4: iload_3
+       5: invokevirtual #19                 // Method getColorModel:(I)Ljava/awt/image/ColorModel;
+       8: aconst_null
+       9: iconst_3
+      10: invokestatic  #20                 // Method sun/java2d/opengl/CGLSurfaceData.createData:(Lsun/java2d/opengl/CGLGraphicsConfig;IILjava/awt/image/ColorModel;Ljava/awt/Image;I)Lsun/java2d/opengl/CGLSurfaceData$CGLOffScreenSurfaceData;
+      13: areturn
+
+  public static sun.java2d.opengl.CGLGraphicsConfig getConfig(sun.awt.CGraphicsDevice, int);
+    Code:
+       0: getstatic     #21                 // Field cglAvailable:Z
+       3: ifne          8
+       6: aconst_null
+       7: areturn
+       8: lconst_0
+       9: lstore_2
+      10: iconst_0
+      11: istore        4
+      13: iconst_1
+      14: anewarray     #22                 // class java/lang/String
+      17: astore        5
+      19: invokestatic  #13                 // Method sun/java2d/opengl/OGLRenderQueue.getInstance:()Lsun/java2d/opengl/OGLRenderQueue;
+      22: astore        6
+      24: aload         6
+      26: invokevirtual #23                 // Method sun/java2d/opengl/OGLRenderQueue.lock:()V
+      29: invokestatic  #24                 // Method sun/java2d/opengl/OGLContext.invalidateCurrentContext:()V
+      32: aload_0
+      33: invokevirtual #25                 // Method sun/awt/CGraphicsDevice.getCGDisplayID:()I
+      36: iload_1
+      37: iconst_0
+      38: invokestatic  #27                 // Method getCGLConfigInfo:(III)J
+      41: lstore_2
+      42: lload_2
+      43: lconst_0
+      44: lcmp
+      45: ifeq          89
+      48: invokestatic  #28                 // Method nativeGetMaxTextureSize:()I
+      51: istore        4
+      53: iload         4
+      55: sipush        16384
+      58: if_icmpgt     68
+      61: iload         4
+      63: iconst_2
+      64: idiv
+      65: goto          71
+      68: sipush        8192
+      71: istore        4
+      73: lload_2
+      74: invokestatic  #29                 // Method sun/java2d/opengl/OGLContext.setScratchSurface:(J)V
+      77: aload         6
+      79: aload         5
+      81: invokedynamic #30,  0             // InvokeDynamic #0:run:([Ljava/lang/String;)Ljava/lang/Runnable;
+      86: invokevirtual #31                 // Method sun/java2d/opengl/OGLRenderQueue.flushAndInvokeNow:(Ljava/lang/Runnable;)V
+      89: aload         6
+      91: invokevirtual #32                 // Method sun/java2d/opengl/OGLRenderQueue.unlock:()V
+      94: goto          107
+      97: astore        7
+      99: aload         6
+     101: invokevirtual #32                 // Method sun/java2d/opengl/OGLRenderQueue.unlock:()V
+     104: aload         7
+     106: athrow
+     107: lload_2
+     108: lconst_0
+     109: lcmp
+     110: ifne          115
+     113: aconst_null
+     114: areturn
+     115: lload_2
+     116: invokestatic  #33                 // Method getOGLCapabilities:(J)I
+     119: istore        7
+     121: new           #1                  // class sun/java2d/opengl/OGLContext$OGLContextCaps
+     124: dup
+     125: iload         7
+     127: aload         5
+     129: iconst_0
+     130: aaload
+     131: invokespecial #34                 // Method sun/java2d/opengl/OGLContext$OGLContextCaps."<init>":(ILjava/lang/String;)V
+     134: astore        8
+     136: new           #26                 // class sun/java2d/opengl/CGLGraphicsConfig
+     139: dup
+     140: aload_0
+     141: iload_1
+     142: lload_2
+     143: iload         4
+     145: aload         8
+     147: invokespecial #35                 // Method "<init>":(Lsun/awt/CGraphicsDevice;IJILsun/java2d/pipe/hw/ContextCapabilities;)V
+     150: areturn
+    Exception table:
+       from    to  target type
+          29    89    97   any
+          97    99    97   any
+
+  public static boolean isCGLAvailable();
+    Code:
+       0: getstatic     #21                 // Field cglAvailable:Z
+       3: ireturn
+
+  public boolean isCapPresent(int);
+    Code:
+       0: aload_0
+       1: getfield      #10                 // Field oglCaps:Lsun/java2d/pipe/hw/ContextCapabilities;
+       4: invokevirtual #36                 // Method sun/java2d/pipe/hw/ContextCapabilities.getCaps:()I
+       7: iload_1
+       8: iand
+       9: ifeq          16
+      12: iconst_1
+      13: goto          17
+      16: iconst_0
+      17: ireturn
+
+  public long getNativeConfigInfo();
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field pConfigInfo:J
+       4: lreturn
+
+  public sun.java2d.opengl.OGLContext getContext();
+    Code:
+       0: aload_0
+       1: getfield      #15                 // Field context:Lsun/java2d/opengl/OGLContext;
+       4: areturn
+
+  public java.awt.image.BufferedImage createCompatibleImage(int, int);
+    Code:
+       0: new           #37                 // class java/awt/image/DirectColorModel
+       3: dup
+       4: bipush        24
+       6: ldc           #38                 // int 16711680
+       8: ldc           #39                 // int 65280
+      10: sipush        255
+      13: invokespecial #40                 // Method java/awt/image/DirectColorModel."<init>":(IIII)V
+      16: astore_3
+      17: aload_3
+      18: iload_1
+      19: iload_2
+      20: invokevirtual #41                 // Method java/awt/image/ColorModel.createCompatibleWritableRaster:(II)Ljava/awt/image/WritableRaster;
+      23: astore        4
+      25: new           #42                 // class java/awt/image/BufferedImage
+      28: dup
+      29: aload_3
+      30: aload         4
+      32: aload_3
+      33: invokevirtual #43                 // Method java/awt/image/ColorModel.isAlphaPremultiplied:()Z
+      36: aconst_null
+      37: invokespecial #44                 // Method java/awt/image/BufferedImage."<init>":(Ljava/awt/image/ColorModel;Ljava/awt/image/WritableRaster;ZLjava/util/Hashtable;)V
+      40: areturn
+
+  public java.awt.image.ColorModel getColorModel(int);
+    Code:
+       0: iload_1
+       1: tableswitch   { // 1 to 3
+                     1: 28
+                     2: 45
+                     3: 64
+               default: 93
+          }
+      28: new           #37                 // class java/awt/image/DirectColorModel
+      31: dup
+      32: bipush        24
+      34: ldc           #38                 // int 16711680
+      36: ldc           #39                 // int 65280
+      38: sipush        255
+      41: invokespecial #40                 // Method java/awt/image/DirectColorModel."<init>":(IIII)V
+      44: areturn
+      45: new           #37                 // class java/awt/image/DirectColorModel
+      48: dup
+      49: bipush        25
+      51: ldc           #38                 // int 16711680
+      53: ldc           #39                 // int 65280
+      55: sipush        255
+      58: ldc           #45                 // int 16777216
+      60: invokespecial #46                 // Method java/awt/image/DirectColorModel."<init>":(IIIII)V
+      63: areturn
+      64: sipush        1000
+      67: invokestatic  #48                 // Method java/awt/color/ColorSpace.getInstance:(I)Ljava/awt/color/ColorSpace;
+      70: astore_2
+      71: new           #37                 // class java/awt/image/DirectColorModel
+      74: dup
+      75: aload_2
+      76: bipush        32
+      78: ldc           #38                 // int 16711680
+      80: ldc           #39                 // int 65280
+      82: sipush        255
+      85: ldc           #49                 // int -16777216
+      87: iconst_1
+      88: iconst_3
+      89: invokespecial #51                 // Method java/awt/image/DirectColorModel."<init>":(Ljava/awt/color/ColorSpace;IIIIIZI)V
+      92: areturn
+      93: aconst_null
+      94: areturn
+
+  public boolean isDoubleBuffered();
+    Code:
+       0: aload_0
+       1: ldc           #52                 // int 65536
+       3: invokevirtual #53                 // Method isCapPresent:(I)Z
+       6: ireturn
+
+  public synchronized void displayChanged();
+    Code:
+       0: invokestatic  #13                 // Method sun/java2d/opengl/OGLRenderQueue.getInstance:()Lsun/java2d/opengl/OGLRenderQueue;
+       3: astore_1
+       4: aload_1
+       5: invokevirtual #23                 // Method sun/java2d/opengl/OGLRenderQueue.lock:()V
+       8: invokestatic  #24                 // Method sun/java2d/opengl/OGLContext.invalidateCurrentContext:()V
+      11: aload_1
+      12: invokevirtual #32                 // Method sun/java2d/opengl/OGLRenderQueue.unlock:()V
+      15: goto          25
+      18: astore_2
+      19: aload_1
+      20: invokevirtual #32                 // Method sun/java2d/opengl/OGLRenderQueue.unlock:()V
+      23: aload_2
+      24: athrow
+      25: return
+    Exception table:
+       from    to  target type
+           8    11    18   any
+
+  public java.lang.String toString();
+    Code:
+       0: aload_0
+       1: invokevirtual #54                 // Method getDevice:()Lsun/awt/CGraphicsDevice;
+       4: invokevirtual #25                 // Method sun/awt/CGraphicsDevice.getCGDisplayID:()I
+       7: istore_1
+       8: new           #55                 // class java/lang/StringBuilder
+      11: dup
+      12: invokespecial #56                 // Method java/lang/StringBuilder."<init>":()V
+      15: ldc           #57                 // String CGLGraphicsConfig[dev=
+      17: invokevirtual #58                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      20: iload_1
+      21: invokevirtual #59                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      24: ldc           #60                 // String ,pixfmt=
+      26: invokevirtual #58                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      29: aload_0
+      30: getfield      #8                  // Field pixfmt:I
+      33: invokevirtual #59                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      36: ldc           #61                 // String ]
+      38: invokevirtual #58                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      41: invokevirtual #62                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      44: areturn
+
+  public sun.java2d.SurfaceData createSurfaceData(sun.lwawt.macosx.CPlatformView);
+    Code:
+       0: aload_1
+       1: invokestatic  #63                 // Method sun/java2d/opengl/CGLSurfaceData.createData:(Lsun/lwawt/macosx/CPlatformView;)Lsun/java2d/opengl/CGLSurfaceData$CGLWindowSurfaceData;
+       4: areturn
+
+  public sun.java2d.SurfaceData createSurfaceData(sun.java2d.opengl.CGLLayer);
+    Code:
+       0: aload_1
+       1: invokestatic  #64                 // Method sun/java2d/opengl/CGLSurfaceData.createData:(Lsun/java2d/opengl/CGLLayer;)Lsun/java2d/opengl/CGLSurfaceData$CGLLayerSurfaceData;
+       4: areturn
+
+  public java.awt.Image createAcceleratedImage(java.awt.Component, int, int);
+    Code:
+       0: aload_0
+       1: iconst_1
+       2: invokevirtual #19                 // Method getColorModel:(I)Ljava/awt/image/ColorModel;
+       5: astore        4
+       7: aload         4
+       9: iload_2
+      10: iload_3
+      11: invokevirtual #41                 // Method java/awt/image/ColorModel.createCompatibleWritableRaster:(II)Ljava/awt/image/WritableRaster;
+      14: astore        5
+      16: new           #66                 // class sun/awt/image/OffScreenImage
+      19: dup
+      20: aload_1
+      21: aload         4
+      23: aload         5
+      25: aload         4
+      27: invokevirtual #43                 // Method java/awt/image/ColorModel.isAlphaPremultiplied:()Z
+      30: invokespecial #67                 // Method sun/awt/image/OffScreenImage."<init>":(Ljava/awt/Component;Ljava/awt/image/ColorModel;Ljava/awt/image/WritableRaster;Z)V
+      33: areturn
+
+  public void assertOperationSupported(int, java.awt.BufferCapabilities) throws java.awt.AWTException;
+    Code:
+       0: iload_1
+       1: iconst_2
+       2: if_icmpeq     15
+       5: new           #68                 // class java/awt/AWTException
+       8: dup
+       9: ldc           #69                 // String Only double buffering is supported
+      11: invokespecial #70                 // Method java/awt/AWTException."<init>":(Ljava/lang/String;)V
+      14: athrow
+      15: aload_0
+      16: invokevirtual #71                 // Method getBufferCapabilities:()Ljava/awt/BufferCapabilities;
+      19: astore_3
+      20: aload_3
+      21: invokevirtual #72                 // Method java/awt/BufferCapabilities.isPageFlipping:()Z
+      24: ifne          37
+      27: new           #68                 // class java/awt/AWTException
+      30: dup
+      31: ldc           #73                 // String Page flipping is not supported
+      33: invokespecial #70                 // Method java/awt/AWTException."<init>":(Ljava/lang/String;)V
+      36: athrow
+      37: aload_2
+      38: invokevirtual #74                 // Method java/awt/BufferCapabilities.getFlipContents:()Ljava/awt/BufferCapabilities$FlipContents;
+      41: getstatic     #75                 // Field java/awt/BufferCapabilities$FlipContents.PRIOR:Ljava/awt/BufferCapabilities$FlipContents;
+      44: if_acmpne     57
+      47: new           #68                 // class java/awt/AWTException
+      50: dup
+      51: ldc           #76                 // String FlipContents.PRIOR is not supported
+      53: invokespecial #70                 // Method java/awt/AWTException."<init>":(Ljava/lang/String;)V
+      56: athrow
+      57: return
+
+  public java.awt.Image createBackBuffer(sun.lwawt.LWComponentPeer<?, ?>);
+    Code:
+       0: aload_1
+       1: invokevirtual #77                 // Method sun/lwawt/LWComponentPeer.getBounds:()Ljava/awt/Rectangle;
+       4: astore_2
+       5: iconst_1
+       6: aload_2
+       7: getfield      #78                 // Field java/awt/Rectangle.width:I
+      10: invokestatic  #79                 // Method java/lang/Math.max:(II)I
+      13: istore_3
+      14: iconst_1
+      15: aload_2
+      16: getfield      #80                 // Field java/awt/Rectangle.height:I
+      19: invokestatic  #79                 // Method java/lang/Math.max:(II)I
+      22: istore        4
+      24: aload_1
+      25: invokevirtual #81                 // Method sun/lwawt/LWComponentPeer.isTranslucent:()Z
+      28: ifeq          35
+      31: iconst_3
+      32: goto          36
+      35: iconst_1
+      36: istore        5
+      38: new           #82                 // class sun/awt/image/SunVolatileImage
+      41: dup
+      42: aload_0
+      43: iload_3
+      44: iload         4
+      46: iload         5
+      48: aconst_null
+      49: invokespecial #83                 // Method sun/awt/image/SunVolatileImage."<init>":(Ljava/awt/GraphicsConfiguration;IIILjava/awt/ImageCapabilities;)V
+      52: areturn
+
+  public void destroyBackBuffer(java.awt.Image);
+    Code:
+       0: aload_1
+       1: ifnull        8
+       4: aload_1
+       5: invokevirtual #84                 // Method java/awt/Image.flush:()V
+       8: return
+
+  public void flip(sun.lwawt.LWComponentPeer<?, ?>, java.awt.Image, int, int, int, int, java.awt.BufferCapabilities$FlipContents);
+    Code:
+       0: aload_1
+       1: invokevirtual #85                 // Method sun/lwawt/LWComponentPeer.getGraphics:()Ljava/awt/Graphics;
+       4: astore        8
+       6: aload         8
+       8: aload_2
+       9: iload_3
+      10: iload         4
+      12: iload         5
+      14: iload         6
+      16: iload_3
+      17: iload         4
+      19: iload         5
+      21: iload         6
+      23: aconst_null
+      24: invokevirtual #86                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IIIIIIIILjava/awt/image/ImageObserver;)Z
+      27: pop
+      28: aload         8
+      30: invokevirtual #87                 // Method java/awt/Graphics.dispose:()V
+      33: goto          46
+      36: astore        9
+      38: aload         8
+      40: invokevirtual #87                 // Method java/awt/Graphics.dispose:()V
+      43: aload         9
+      45: athrow
+      46: aload         7
+      48: getstatic     #88                 // Field java/awt/BufferCapabilities$FlipContents.BACKGROUND:Ljava/awt/BufferCapabilities$FlipContents;
+      51: if_acmpne     107
+      54: aload_2
+      55: invokevirtual #89                 // Method java/awt/Image.getGraphics:()Ljava/awt/Graphics;
+      58: checkcast     #90                 // class java/awt/Graphics2D
+      61: astore        9
+      63: aload         9
+      65: aload_1
+      66: invokevirtual #91                 // Method sun/lwawt/LWComponentPeer.getBackground:()Ljava/awt/Color;
+      69: invokevirtual #92                 // Method java/awt/Graphics2D.setBackground:(Ljava/awt/Color;)V
+      72: aload         9
+      74: iconst_0
+      75: iconst_0
+      76: aload_2
+      77: aconst_null
+      78: invokevirtual #93                 // Method java/awt/Image.getWidth:(Ljava/awt/image/ImageObserver;)I
+      81: aload_2
+      82: aconst_null
+      83: invokevirtual #94                 // Method java/awt/Image.getHeight:(Ljava/awt/image/ImageObserver;)I
+      86: invokevirtual #95                 // Method java/awt/Graphics2D.clearRect:(IIII)V
+      89: aload         9
+      91: invokevirtual #96                 // Method java/awt/Graphics2D.dispose:()V
+      94: goto          107
+      97: astore        10
+      99: aload         9
+     101: invokevirtual #96                 // Method java/awt/Graphics2D.dispose:()V
+     104: aload         10
+     106: athrow
+     107: return
+    Exception table:
+       from    to  target type
+           6    28    36   any
+          36    38    36   any
+          63    89    97   any
+          97    99    97   any
+
+  public java.awt.BufferCapabilities getBufferCapabilities();
+    Code:
+       0: aload_0
+       1: getfield      #97                 // Field bufferCaps:Ljava/awt/BufferCapabilities;
+       4: ifnonnull     22
+       7: aload_0
+       8: new           #98                 // class sun/java2d/opengl/CGLGraphicsConfig$CGLBufferCaps
+      11: dup
+      12: aload_0
+      13: invokevirtual #99                 // Method isDoubleBuffered:()Z
+      16: invokespecial #100                // Method sun/java2d/opengl/CGLGraphicsConfig$CGLBufferCaps."<init>":(Z)V
+      19: putfield      #97                 // Field bufferCaps:Ljava/awt/BufferCapabilities;
+      22: aload_0
+      23: getfield      #97                 // Field bufferCaps:Ljava/awt/BufferCapabilities;
+      26: areturn
+
+  public java.awt.ImageCapabilities getImageCapabilities();
+    Code:
+       0: getstatic     #3                  // Field imageCaps:Ljava/awt/ImageCapabilities;
+       3: areturn
+
+  public java.awt.image.VolatileImage createCompatibleVolatileImage(int, int, int, int);
+    Code:
+       0: iload         4
+       2: iconst_5
+       3: if_icmpeq     12
+       6: iload         4
+       8: iconst_3
+       9: if_icmpne     32
+      12: iload_3
+      13: iconst_2
+      14: if_icmpeq     32
+      17: iload         4
+      19: iconst_5
+      20: if_icmpne     34
+      23: aload_0
+      24: bipush        12
+      26: invokevirtual #53                 // Method isCapPresent:(I)Z
+      29: ifne          34
+      32: aconst_null
+      33: areturn
+      34: new           #101                // class sun/java2d/pipe/hw/AccelTypedVolatileImage
+      37: dup
+      38: aload_0
+      39: iload_1
+      40: iload_2
+      41: iload_3
+      42: iload         4
+      44: invokespecial #102                // Method sun/java2d/pipe/hw/AccelTypedVolatileImage."<init>":(Ljava/awt/GraphicsConfiguration;IIII)V
+      47: astore        5
+      49: aload         5
+      51: invokevirtual #103                // Method sun/awt/image/SunVolatileImage.getDestSurface:()Lsun/java2d/Surface;
+      54: astore        6
+      56: aload         6
+      58: instanceof    #104                // class sun/java2d/pipe/hw/AccelSurface
+      61: ifeq          79
+      64: aload         6
+      66: checkcast     #104                // class sun/java2d/pipe/hw/AccelSurface
+      69: invokeinterface #105,  1          // InterfaceMethod sun/java2d/pipe/hw/AccelSurface.getType:()I
+      74: iload         4
+      76: if_icmpeq     87
+      79: aload         5
+      81: invokevirtual #106                // Method sun/awt/image/SunVolatileImage.flush:()V
+      84: aconst_null
+      85: astore        5
+      87: aload         5
+      89: areturn
+
+  public sun.java2d.pipe.hw.ContextCapabilities getContextCapabilities();
+    Code:
+       0: aload_0
+       1: getfield      #10                 // Field oglCaps:Lsun/java2d/pipe/hw/ContextCapabilities;
+       4: areturn
+
+  public void addDeviceEventListener(sun.java2d.pipe.hw.AccelDeviceEventListener);
+    Code:
+       0: aload_0
+       1: invokevirtual #54                 // Method getDevice:()Lsun/awt/CGraphicsDevice;
+       4: invokevirtual #25                 // Method sun/awt/CGraphicsDevice.getCGDisplayID:()I
+       7: istore_2
+       8: aload_1
+       9: iload_2
+      10: invokestatic  #107                // Method sun/java2d/pipe/hw/AccelDeviceEventNotifier.addListener:(Lsun/java2d/pipe/hw/AccelDeviceEventListener;I)V
+      13: return
+
+  public void removeDeviceEventListener(sun.java2d.pipe.hw.AccelDeviceEventListener);
+    Code:
+       0: aload_1
+       1: invokestatic  #108                // Method sun/java2d/pipe/hw/AccelDeviceEventNotifier.removeListener:(Lsun/java2d/pipe/hw/AccelDeviceEventListener;)V
+       4: return
+
+  public int getMaxTextureWidth();
+    Code:
+       0: aload_0
+       1: getfield      #11                 // Field maxTextureSize:I
+       4: aload_0
+       5: invokevirtual #54                 // Method getDevice:()Lsun/awt/CGraphicsDevice;
+       8: invokevirtual #109                // Method sun/awt/CGraphicsDevice.getScaleFactor:()I
+      11: idiv
+      12: aload_0
+      13: invokevirtual #110                // Method getBounds:()Ljava/awt/Rectangle;
+      16: getfield      #78                 // Field java/awt/Rectangle.width:I
+      19: invokestatic  #79                 // Method java/lang/Math.max:(II)I
+      22: ireturn
+
+  public int getMaxTextureHeight();
+    Code:
+       0: aload_0
+       1: getfield      #11                 // Field maxTextureSize:I
+       4: aload_0
+       5: invokevirtual #54                 // Method getDevice:()Lsun/awt/CGraphicsDevice;
+       8: invokevirtual #109                // Method sun/awt/CGraphicsDevice.getScaleFactor:()I
+      11: idiv
+      12: aload_0
+      13: invokevirtual #110                // Method getBounds:()Ljava/awt/Rectangle;
+      16: getfield      #80                 // Field java/awt/Rectangle.height:I
+      19: invokestatic  #79                 // Method java/lang/Math.max:(II)I
+      22: ireturn
+
+  public sun.java2d.pipe.BufferedContext getContext();
+    Code:
+       0: aload_0
+       1: invokevirtual #111                // Method getContext:()Lsun/java2d/opengl/OGLContext;
+       4: areturn
+
+  private static void lambda$getConfig$0(java.lang.String[]);
+    Code:
+       0: aload_0
+       1: iconst_0
+       2: invokestatic  #112                // Method sun/java2d/opengl/OGLContext.getOGLIdString:()Ljava/lang/String;
+       5: aastore
+       6: return
+
+  static java.awt.ImageCapabilities access$100();
+    Code:
+       0: getstatic     #3                  // Field imageCaps:Ljava/awt/ImageCapabilities;
+       3: areturn
+
+  static {};
+    Code:
+       0: new           #113                // class sun/java2d/opengl/CGLGraphicsConfig$CGLImageCaps
+       3: dup
+       4: aconst_null
+       5: invokespecial #114                // Method sun/java2d/opengl/CGLGraphicsConfig$CGLImageCaps."<init>":(Lsun/java2d/opengl/CGLGraphicsConfig$1;)V
+       8: putstatic     #3                  // Field imageCaps:Ljava/awt/ImageCapabilities;
+      11: invokestatic  #115                // Method initCGL:()Z
+      14: putstatic     #21                 // Field cglAvailable:Z
+      17: return
+}
