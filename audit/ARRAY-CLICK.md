@@ -1,0 +1,59 @@
+# Information-view selection responsiveness — audit30
+
+## Diagnosis and scope
+
+**Fact:** ArraySelectionPanel$4.mouseReleased invokes AbstractButton.doClick(),
+which calls doClick(68) in the bundled Java 8 runtime. Its simulated press sleeps
+on the calling thread before releasing the button and firing the action. Array-row
+text clicks run this on the event thread. SystemInfoPane$4 also uses that default
+for internal selection-mode radio changes. These are concrete, avoidable delays.
+
+**Inference:** queued 68 ms waits fit the operator's briefly stale, self-resolving
+highlights during rapid clicks. This does not prove all native presentation delay
+has the same cause. Audit29's zero/no-selection correction remains intact.
+
+The new helper uses doClick(0) only for array-row buttons descended from the
+original SystemInfoPane and its private selection-mode listener. Outside that
+information view, shared row code still calls original doClick(). All original
+armed/pressed/released, item/action and selection processing remains synchronous;
+the simulated pressed flash is shortened. Manual radio-button mouse behavior,
+controller commands, polling, retries and all wizard code retain their semantics.
+
+The exact three invocation substitutions affect two original listener classes.
+One Java 8 helper is added. Instruction widths and stack effects are unchanged;
+full-class inverses and every other JAR entry are checked. No subclass, constructor
+change, repaint forcing, global rendering flag or redundant-render shortcut is
+included. Original Apple reference bytes and audit28/audit29 releases remain fixed.
+
+## Validation and limits
+
+The source includes a guarded before/after fixture with 300 mixed transitions per
+run, real row and mode listeners, actual offline-drive selection, both cards,
+selected details, 14 icon samples and unchanged synthetic model arrays. It compares
+ordered button state/action/item traces and checks exact doClick(int) arguments:
+0 within the information view, 68 outside it, and preserved null failures.
+
+An initial interpreted ARM/Rosetta comparison passed event parity and retained
+outside/default delay. Canonical clean-source build and release observations will
+be added separately. Pilot records are not release qualification. SystemInfoPane
+ancestry is synthetic to avoid constructors that initialize profiles. Original
+constructor bytecode establishes the real containment path, but a full native
+interface session is not claimed. No Main, real profiles, credentials, controller,
+production volumes or installed app was used by these fixtures.
+
+Claude independently identified the same delay and reviewed the scoped approach.
+The initial review refers to an abandoned subclass prototype; that constructor
+change was removed. Final source review is recorded separately when available.
+
+## Reproduce
+
+Use the locked compiler, Python, runtime trees and SPDX validator; new output
+folders and clean Git source are required.
+
+```sh
+/opt/homebrew/bin/python3 -E -s tools/array_responsiveness_build.py --jdk /path/to/locked-corretto-8.362/Contents/Home --output build/new-click-common
+/opt/homebrew/bin/python3 -E -s tools/check_array_clicks.py --jdk /path/to/locked-corretto-8.362/Contents/Home --build build/new-click-common --output build/new-click-check
+/opt/homebrew/bin/python3 -I -S tools/array_responsiveness_release.py --build build/new-click-common --architecture aarch64 --runtime 'build/secure-release-aarch64-6/RAID Admin.app/Contents/PlugIns/Runtime.jdk' --validator build/spdx-validator --created 2026-10-08T00:00:00Z --output build/new-click-arm
+```
+
+Repeat for x64. These tools never launch or install the application.
