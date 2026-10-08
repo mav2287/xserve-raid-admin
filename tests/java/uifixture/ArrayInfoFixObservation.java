@@ -112,7 +112,7 @@ public final class ArrayInfoFixObservation {
             int effective = fixed && id == 0 ? -10 : id;
             check(panel.calls == calls + 1 && panel.getArrayIndex() == effective, "forwarding");
             check(field(infoClass, "selectedArray").getInt(info) == id - 1, "detail-selection");
-            check(panel.getSelectionMode() == 4 && radio.isSelected() && arraysCard.isVisible() && !drivesCard.isVisible(), "view-state");
+            check(field(DriveSelectionPanel.class, "selectionMode").getInt(panel) == 4 && radio.isSelected() && arraysCard.isVisible() && !drivesCard.isVisible(), "view-state");
             check(((Status)field(infoClass, "arrayStatus").get(info)).status == -3, "null-system-refresh");
             for (int i = 0; i < 14; i++) check(pixel(icons[i]) == (memberships[i] == effective ? selectedPixel : basePixel), "pixels");
         }
