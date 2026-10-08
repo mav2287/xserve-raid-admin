@@ -1,0 +1,2841 @@
+Compiled from "LWComponentPeer.java"
+public abstract class sun.lwawt.LWComponentPeer<T extends java.awt.Component, D extends javax.swing.JComponent> implements java.awt.peer.ComponentPeer, java.awt.dnd.peer.DropTargetPeer {
+  private static final sun.util.logging.PlatformLogger focusLog;
+
+  private final java.lang.Object stateLock;
+
+  private static final java.lang.Object peerTreeLock;
+
+  private final T target;
+
+  private final sun.lwawt.LWContainerPeer<?, ?> containerPeer;
+
+  private final sun.lwawt.LWWindowPeer windowPeer;
+
+  private final java.util.concurrent.atomic.AtomicBoolean disposed;
+
+  private final java.awt.Rectangle bounds;
+
+  private sun.java2d.pipe.Region region;
+
+  private boolean visible;
+
+  private boolean enabled;
+
+  private java.awt.Color background;
+
+  private java.awt.Color foreground;
+
+  private java.awt.Font font;
+
+  private final sun.awt.RepaintArea targetPaintArea;
+
+  private volatile boolean isLayouting;
+
+  private final D delegate;
+
+  private java.awt.Container delegateContainer;
+
+  private java.awt.Component delegateDropTarget;
+
+  private final java.lang.Object dropTargetLock;
+
+  private int fNumDropTargets;
+
+  private sun.lwawt.macosx.CDropTarget fDropTarget;
+
+  private final sun.lwawt.PlatformComponent platformComponent;
+
+  static final char WIDE_CHAR;
+
+  private java.awt.Image backBuffer;
+
+  static final boolean $assertionsDisabled;
+
+  sun.lwawt.LWComponentPeer(T, sun.lwawt.PlatformComponent);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: new           #2                  // class java/lang/Object
+       8: dup
+       9: invokespecial #1                  // Method java/lang/Object."<init>":()V
+      12: putfield      #3                  // Field stateLock:Ljava/lang/Object;
+      15: aload_0
+      16: new           #4                  // class java/util/concurrent/atomic/AtomicBoolean
+      19: dup
+      20: iconst_0
+      21: invokespecial #5                  // Method java/util/concurrent/atomic/AtomicBoolean."<init>":(Z)V
+      24: putfield      #6                  // Field disposed:Ljava/util/concurrent/atomic/AtomicBoolean;
+      27: aload_0
+      28: new           #7                  // class java/awt/Rectangle
+      31: dup
+      32: invokespecial #8                  // Method java/awt/Rectangle."<init>":()V
+      35: putfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      38: aload_0
+      39: iconst_0
+      40: putfield      #10                 // Field visible:Z
+      43: aload_0
+      44: iconst_1
+      45: putfield      #11                 // Field enabled:Z
+      48: aload_0
+      49: new           #2                  // class java/lang/Object
+      52: dup
+      53: invokespecial #1                  // Method java/lang/Object."<init>":()V
+      56: putfield      #12                 // Field dropTargetLock:Ljava/lang/Object;
+      59: aload_0
+      60: iconst_0
+      61: putfield      #13                 // Field fNumDropTargets:I
+      64: aload_0
+      65: aconst_null
+      66: putfield      #14                 // Field fDropTarget:Lsun/lwawt/macosx/CDropTarget;
+      69: aload_0
+      70: new           #15                 // class sun/lwawt/LWRepaintArea
+      73: dup
+      74: invokespecial #16                 // Method sun/lwawt/LWRepaintArea."<init>":()V
+      77: putfield      #17                 // Field targetPaintArea:Lsun/awt/RepaintArea;
+      80: aload_0
+      81: aload_1
+      82: putfield      #18                 // Field target:Ljava/awt/Component;
+      85: aload_0
+      86: aload_2
+      87: putfield      #19                 // Field platformComponent:Lsun/lwawt/PlatformComponent;
+      90: aload_1
+      91: invokestatic  #20                 // Method sun/awt/SunToolkit.getNativeContainer:(Ljava/awt/Component;)Ljava/awt/Container;
+      94: astore_3
+      95: aload_0
+      96: aload_3
+      97: invokestatic  #21                 // Method sun/lwawt/LWToolkit.targetToPeer:(Ljava/lang/Object;)Ljava/lang/Object;
+     100: checkcast     #22                 // class sun/lwawt/LWContainerPeer
+     103: putfield      #23                 // Field containerPeer:Lsun/lwawt/LWContainerPeer;
+     106: aload_0
+     107: aload_0
+     108: getfield      #23                 // Field containerPeer:Lsun/lwawt/LWContainerPeer;
+     111: ifnull        124
+     114: aload_0
+     115: getfield      #23                 // Field containerPeer:Lsun/lwawt/LWContainerPeer;
+     118: invokevirtual #24                 // Method sun/lwawt/LWContainerPeer.getWindowPeerOrSelf:()Lsun/lwawt/LWWindowPeer;
+     121: goto          125
+     124: aconst_null
+     125: putfield      #25                 // Field windowPeer:Lsun/lwawt/LWWindowPeer;
+     128: aload_0
+     129: getfield      #23                 // Field containerPeer:Lsun/lwawt/LWContainerPeer;
+     132: ifnull        143
+     135: aload_0
+     136: getfield      #23                 // Field containerPeer:Lsun/lwawt/LWContainerPeer;
+     139: aload_0
+     140: invokevirtual #26                 // Method sun/lwawt/LWContainerPeer.addChildPeer:(Lsun/lwawt/LWComponentPeer;)V
+     143: aconst_null
+     144: astore        4
+     146: invokestatic  #27                 // Method java/awt/Toolkit.getDefaultToolkit:()Ljava/awt/Toolkit;
+     149: dup
+     150: astore        5
+     152: monitorenter
+     153: aload_0
+     154: invokevirtual #28                 // Method getToolkitAWTEventListener:()Ljava/awt/event/AWTEventListener;
+     157: astore        4
+     159: aload_0
+     160: aconst_null
+     161: invokevirtual #29                 // Method setToolkitAWTEventListener:(Ljava/awt/event/AWTEventListener;)V
+     164: aload_0
+     165: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+     168: dup
+     169: astore        6
+     171: monitorenter
+     172: aload_0
+     173: aload_0
+     174: invokevirtual #31                 // Method createDelegate:()Ljavax/swing/JComponent;
+     177: putfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     180: aload_0
+     181: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     184: ifnull        251
+     187: aload_0
+     188: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     191: iconst_0
+     192: invokevirtual #33                 // Method javax/swing/JComponent.setVisible:(Z)V
+     195: aload_0
+     196: new           #34                 // class sun/lwawt/LWComponentPeer$DelegateContainer
+     199: dup
+     200: aload_0
+     201: invokespecial #35                 // Method sun/lwawt/LWComponentPeer$DelegateContainer."<init>":(Lsun/lwawt/LWComponentPeer;)V
+     204: putfield      #36                 // Field delegateContainer:Ljava/awt/Container;
+     207: aload_0
+     208: getfield      #36                 // Field delegateContainer:Ljava/awt/Container;
+     211: aload_0
+     212: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     215: invokevirtual #37                 // Method java/awt/Container.add:(Ljava/awt/Component;)Ljava/awt/Component;
+     218: pop
+     219: aload_0
+     220: getfield      #36                 // Field delegateContainer:Ljava/awt/Container;
+     223: invokevirtual #38                 // Method java/awt/Container.addNotify:()V
+     226: aload_0
+     227: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     230: invokevirtual #39                 // Method javax/swing/JComponent.addNotify:()V
+     233: aload_0
+     234: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     237: invokestatic  #40                 // Method resetColorsAndFont:(Ljava/awt/Container;)V
+     240: aload_0
+     241: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     244: iconst_1
+     245: invokevirtual #41                 // Method javax/swing/JComponent.setOpaque:(Z)V
+     248: goto          264
+     251: aload         6
+     253: monitorexit
+     254: aload_0
+     255: aload         4
+     257: invokevirtual #29                 // Method setToolkitAWTEventListener:(Ljava/awt/event/AWTEventListener;)V
+     260: aload         5
+     262: monitorexit
+     263: return
+     264: aload         6
+     266: monitorexit
+     267: goto          278
+     270: astore        7
+     272: aload         6
+     274: monitorexit
+     275: aload         7
+     277: athrow
+     278: aload_0
+     279: aload         4
+     281: invokevirtual #29                 // Method setToolkitAWTEventListener:(Ljava/awt/event/AWTEventListener;)V
+     284: goto          298
+     287: astore        8
+     289: aload_0
+     290: aload         4
+     292: invokevirtual #29                 // Method setToolkitAWTEventListener:(Ljava/awt/event/AWTEventListener;)V
+     295: aload         8
+     297: athrow
+     298: aload_0
+     299: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     302: new           #42                 // class sun/lwawt/LWComponentPeer$1
+     305: dup
+     306: aload_0
+     307: invokespecial #43                 // Method sun/lwawt/LWComponentPeer$1."<init>":(Lsun/lwawt/LWComponentPeer;)V
+     310: invokestatic  #44                 // Method com/sun/java/swing/SwingUtilities3.setDelegateRepaintManager:(Ljavax/swing/JComponent;Ljavax/swing/RepaintManager;)V
+     313: aload         5
+     315: monitorexit
+     316: goto          327
+     319: astore        9
+     321: aload         5
+     323: monitorexit
+     324: aload         9
+     326: athrow
+     327: return
+    Exception table:
+       from    to  target type
+         172   254   270   any
+         264   267   270   any
+         270   275   270   any
+         153   254   287   any
+         264   278   287   any
+         287   289   287   any
+         153   263   319   any
+         264   316   319   any
+         319   324   319   any
+
+  protected final java.awt.event.AWTEventListener getToolkitAWTEventListener();
+    Code:
+       0: new           #45                 // class sun/lwawt/LWComponentPeer$2
+       3: dup
+       4: aload_0
+       5: invokespecial #46                 // Method sun/lwawt/LWComponentPeer$2."<init>":(Lsun/lwawt/LWComponentPeer;)V
+       8: invokestatic  #47                 // Method java/security/AccessController.doPrivileged:(Ljava/security/PrivilegedAction;)Ljava/lang/Object;
+      11: checkcast     #48                 // class java/awt/event/AWTEventListener
+      14: areturn
+
+  protected final void setToolkitAWTEventListener(java.awt.event.AWTEventListener);
+    Code:
+       0: new           #49                 // class sun/lwawt/LWComponentPeer$3
+       3: dup
+       4: aload_0
+       5: aload_1
+       6: invokespecial #50                 // Method sun/lwawt/LWComponentPeer$3."<init>":(Lsun/lwawt/LWComponentPeer;Ljava/awt/event/AWTEventListener;)V
+       9: invokestatic  #47                 // Method java/security/AccessController.doPrivileged:(Ljava/security/PrivilegedAction;)Ljava/lang/Object;
+      12: pop
+      13: return
+
+  D createDelegate();
+    Code:
+       0: aconst_null
+       1: areturn
+
+  final D getDelegate();
+    Code:
+       0: aload_0
+       1: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+       4: areturn
+
+  java.awt.Component getDelegateFocusOwner();
+    Code:
+       0: aload_0
+       1: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+       4: areturn
+
+  public final void initialize();
+    Code:
+       0: aload_0
+       1: getfield      #19                 // Field platformComponent:Lsun/lwawt/PlatformComponent;
+       4: aload_0
+       5: invokevirtual #52                 // Method getPlatformWindow:()Lsun/lwawt/PlatformWindow;
+       8: invokeinterface #53,  2           // InterfaceMethod sun/lwawt/PlatformComponent.initialize:(Lsun/lwawt/PlatformWindow;)V
+      13: aload_0
+      14: invokevirtual #54                 // Method initializeImpl:()V
+      17: aload_0
+      18: aload_0
+      19: getfield      #18                 // Field target:Ljava/awt/Component;
+      22: invokevirtual #55                 // Method java/awt/Component.isVisible:()Z
+      25: invokevirtual #56                 // Method setVisible:(Z)V
+      28: return
+
+  void initializeImpl();
+    Code:
+       0: aload_0
+       1: aload_0
+       2: getfield      #18                 // Field target:Ljava/awt/Component;
+       5: invokevirtual #57                 // Method java/awt/Component.getBackground:()Ljava/awt/Color;
+       8: invokevirtual #58                 // Method setBackground:(Ljava/awt/Color;)V
+      11: aload_0
+      12: aload_0
+      13: getfield      #18                 // Field target:Ljava/awt/Component;
+      16: invokevirtual #59                 // Method java/awt/Component.getForeground:()Ljava/awt/Color;
+      19: invokevirtual #60                 // Method setForeground:(Ljava/awt/Color;)V
+      22: aload_0
+      23: aload_0
+      24: getfield      #18                 // Field target:Ljava/awt/Component;
+      27: invokevirtual #61                 // Method java/awt/Component.getFont:()Ljava/awt/Font;
+      30: invokevirtual #62                 // Method setFont:(Ljava/awt/Font;)V
+      33: aload_0
+      34: aload_0
+      35: getfield      #18                 // Field target:Ljava/awt/Component;
+      38: invokevirtual #63                 // Method java/awt/Component.getBounds:()Ljava/awt/Rectangle;
+      41: invokevirtual #64                 // Method setBounds:(Ljava/awt/Rectangle;)V
+      44: aload_0
+      45: aload_0
+      46: getfield      #18                 // Field target:Ljava/awt/Component;
+      49: invokevirtual #65                 // Method java/awt/Component.isEnabled:()Z
+      52: invokevirtual #66                 // Method setEnabled:(Z)V
+      55: return
+
+  private static void resetColorsAndFont(java.awt.Container);
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: invokevirtual #67                 // Method java/awt/Container.setBackground:(Ljava/awt/Color;)V
+       5: aload_0
+       6: aconst_null
+       7: invokevirtual #68                 // Method java/awt/Container.setForeground:(Ljava/awt/Color;)V
+      10: aload_0
+      11: aconst_null
+      12: invokevirtual #69                 // Method java/awt/Container.setFont:(Ljava/awt/Font;)V
+      15: iconst_0
+      16: istore_1
+      17: iload_1
+      18: aload_0
+      19: invokevirtual #70                 // Method java/awt/Container.getComponentCount:()I
+      22: if_icmpge     42
+      25: aload_0
+      26: iload_1
+      27: invokevirtual #71                 // Method java/awt/Container.getComponent:(I)Ljava/awt/Component;
+      30: checkcast     #72                 // class java/awt/Container
+      33: invokestatic  #40                 // Method resetColorsAndFont:(Ljava/awt/Container;)V
+      36: iinc          1, 1
+      39: goto          17
+      42: return
+
+  final java.lang.Object getStateLock();
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field stateLock:Ljava/lang/Object;
+       4: areturn
+
+  final java.lang.Object getDelegateLock();
+    Code:
+       0: aload_0
+       1: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       4: invokevirtual #74                 // Method java/awt/Component.getTreeLock:()Ljava/lang/Object;
+       7: areturn
+
+  protected static final java.lang.Object getPeerTreeLock();
+    Code:
+       0: getstatic     #75                 // Field peerTreeLock:Ljava/lang/Object;
+       3: areturn
+
+  public final T getTarget();
+    Code:
+       0: aload_0
+       1: getfield      #18                 // Field target:Ljava/awt/Component;
+       4: areturn
+
+  protected final sun.lwawt.LWWindowPeer getWindowPeer();
+    Code:
+       0: aload_0
+       1: getfield      #25                 // Field windowPeer:Lsun/lwawt/LWWindowPeer;
+       4: areturn
+
+  protected sun.lwawt.LWWindowPeer getWindowPeerOrSelf();
+    Code:
+       0: aload_0
+       1: invokevirtual #76                 // Method getWindowPeer:()Lsun/lwawt/LWWindowPeer;
+       4: areturn
+
+  protected final sun.lwawt.LWContainerPeer<?, ?> getContainerPeer();
+    Code:
+       0: aload_0
+       1: getfield      #23                 // Field containerPeer:Lsun/lwawt/LWContainerPeer;
+       4: areturn
+
+  public sun.lwawt.PlatformWindow getPlatformWindow();
+    Code:
+       0: aload_0
+       1: invokevirtual #76                 // Method getWindowPeer:()Lsun/lwawt/LWWindowPeer;
+       4: astore_1
+       5: aload_1
+       6: invokevirtual #77                 // Method sun/lwawt/LWWindowPeer.getPlatformWindow:()Lsun/lwawt/PlatformWindow;
+       9: areturn
+
+  public sun.lwawt.LWToolkit getLWToolkit();
+    Code:
+       0: invokestatic  #78                 // Method sun/lwawt/LWToolkit.getLWToolkit:()Lsun/lwawt/LWToolkit;
+       3: areturn
+
+  public final void dispose();
+    Code:
+       0: aload_0
+       1: getfield      #6                  // Field disposed:Ljava/util/concurrent/atomic/AtomicBoolean;
+       4: iconst_0
+       5: iconst_1
+       6: invokevirtual #79                 // Method java/util/concurrent/atomic/AtomicBoolean.compareAndSet:(ZZ)Z
+       9: ifeq          16
+      12: aload_0
+      13: invokevirtual #80                 // Method disposeImpl:()V
+      16: return
+
+  protected void disposeImpl();
+    Code:
+       0: aload_0
+       1: invokevirtual #81                 // Method destroyBuffers:()V
+       4: aload_0
+       5: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+       8: astore_1
+       9: aload_1
+      10: ifnull        18
+      13: aload_1
+      14: aload_0
+      15: invokevirtual #83                 // Method sun/lwawt/LWContainerPeer.removeChildPeer:(Lsun/lwawt/LWComponentPeer;)V
+      18: aload_0
+      19: getfield      #19                 // Field platformComponent:Lsun/lwawt/PlatformComponent;
+      22: invokeinterface #84,  1           // InterfaceMethod sun/lwawt/PlatformComponent.dispose:()V
+      27: aload_0
+      28: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      31: aload_0
+      32: invokestatic  #85                 // Method sun/lwawt/LWToolkit.targetDisposedPeer:(Ljava/lang/Object;Ljava/lang/Object;)V
+      35: return
+
+  public final boolean isDisposed();
+    Code:
+       0: aload_0
+       1: getfield      #6                  // Field disposed:Ljava/util/concurrent/atomic/AtomicBoolean;
+       4: invokevirtual #86                 // Method java/util/concurrent/atomic/AtomicBoolean.get:()Z
+       7: ireturn
+
+  public java.awt.GraphicsConfiguration getGraphicsConfiguration();
+    Code:
+       0: aload_0
+       1: invokevirtual #76                 // Method getWindowPeer:()Lsun/lwawt/LWWindowPeer;
+       4: invokevirtual #87                 // Method sun/lwawt/LWWindowPeer.getGraphicsConfiguration:()Ljava/awt/GraphicsConfiguration;
+       7: areturn
+
+  public final sun.lwawt.LWGraphicsConfig getLWGC();
+    Code:
+       0: aload_0
+       1: invokevirtual #88                 // Method getGraphicsConfiguration:()Ljava/awt/GraphicsConfiguration;
+       4: checkcast     #89                 // class sun/lwawt/LWGraphicsConfig
+       7: areturn
+
+  public boolean updateGraphicsData(java.awt.GraphicsConfiguration);
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public java.awt.Graphics getGraphics();
+    Code:
+       0: aload_0
+       1: invokevirtual #90                 // Method getOnscreenGraphics:()Ljava/awt/Graphics;
+       4: astore_1
+       5: aload_1
+       6: ifnull        30
+       9: invokestatic  #91                 // Method getPeerTreeLock:()Ljava/lang/Object;
+      12: dup
+      13: astore_2
+      14: monitorenter
+      15: aload_0
+      16: aload_1
+      17: invokespecial #92                 // Method applyConstrain:(Ljava/awt/Graphics;)V
+      20: aload_2
+      21: monitorexit
+      22: goto          30
+      25: astore_3
+      26: aload_2
+      27: monitorexit
+      28: aload_3
+      29: athrow
+      30: aload_1
+      31: areturn
+    Exception table:
+       from    to  target type
+          15    22    25   any
+          25    28    25   any
+
+  public final java.awt.Graphics getOnscreenGraphics();
+    Code:
+       0: aload_0
+       1: invokevirtual #93                 // Method getWindowPeerOrSelf:()Lsun/lwawt/LWWindowPeer;
+       4: astore_1
+       5: aload_1
+       6: aload_0
+       7: invokevirtual #94                 // Method getForeground:()Ljava/awt/Color;
+      10: aload_0
+      11: invokevirtual #95                 // Method getBackground:()Ljava/awt/Color;
+      14: aload_0
+      15: invokevirtual #96                 // Method getFont:()Ljava/awt/Font;
+      18: invokevirtual #97                 // Method sun/lwawt/LWWindowPeer.getOnscreenGraphics:(Ljava/awt/Color;Ljava/awt/Color;Ljava/awt/Font;)Ljava/awt/Graphics;
+      21: areturn
+
+  private void applyConstrain(java.awt.Graphics);
+    Code:
+       0: aload_1
+       1: checkcast     #98                 // class sun/java2d/SunGraphics2D
+       4: astore_2
+       5: aload_0
+       6: aload_0
+       7: invokevirtual #99                 // Method getSize:()Ljava/awt/Rectangle;
+      10: invokevirtual #100                // Method localToWindow:(Ljava/awt/Rectangle;)Ljava/awt/Rectangle;
+      13: astore_3
+      14: aload_2
+      15: aload_3
+      16: getfield      #101                // Field java/awt/Rectangle.x:I
+      19: aload_3
+      20: getfield      #102                // Field java/awt/Rectangle.y:I
+      23: aload_3
+      24: getfield      #103                // Field java/awt/Rectangle.width:I
+      27: aload_3
+      28: getfield      #104                // Field java/awt/Rectangle.height:I
+      31: aload_0
+      32: invokevirtual #105                // Method getVisibleRegion:()Lsun/java2d/pipe/Region;
+      35: invokevirtual #106                // Method sun/java2d/SunGraphics2D.constrain:(IIIILsun/java2d/pipe/Region;)V
+      38: return
+
+  sun.java2d.pipe.Region getVisibleRegion();
+    Code:
+       0: aload_0
+       1: aload_0
+       2: invokevirtual #107                // Method getRegion:()Lsun/java2d/pipe/Region;
+       5: invokestatic  #108                // Method computeVisibleRect:(Lsun/lwawt/LWComponentPeer;Lsun/java2d/pipe/Region;)Lsun/java2d/pipe/Region;
+       8: areturn
+
+  static final sun.java2d.pipe.Region computeVisibleRect(sun.lwawt.LWComponentPeer<?, ?>, sun.java2d.pipe.Region);
+    Code:
+       0: aload_0
+       1: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+       4: astore_2
+       5: aload_2
+       6: ifnull        73
+       9: aload_0
+      10: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+      13: astore_3
+      14: aload_1
+      15: aload_3
+      16: getfield      #101                // Field java/awt/Rectangle.x:I
+      19: aload_3
+      20: getfield      #102                // Field java/awt/Rectangle.y:I
+      23: invokevirtual #110                // Method sun/java2d/pipe/Region.getTranslatedRegion:(II)Lsun/java2d/pipe/Region;
+      26: astore_1
+      27: aload_1
+      28: aload_2
+      29: invokevirtual #111                // Method sun/lwawt/LWContainerPeer.getRegion:()Lsun/java2d/pipe/Region;
+      32: invokevirtual #112                // Method sun/java2d/pipe/Region.getIntersection:(Lsun/java2d/pipe/Region;)Lsun/java2d/pipe/Region;
+      35: astore_1
+      36: aload_1
+      37: aload_2
+      38: invokevirtual #113                // Method sun/lwawt/LWContainerPeer.getContentSize:()Ljava/awt/Rectangle;
+      41: invokevirtual #114                // Method sun/java2d/pipe/Region.getIntersection:(Ljava/awt/Rectangle;)Lsun/java2d/pipe/Region;
+      44: astore_1
+      45: aload_2
+      46: aload_1
+      47: aload_0
+      48: invokevirtual #115                // Method sun/lwawt/LWContainerPeer.cutChildren:(Lsun/java2d/pipe/Region;Lsun/lwawt/LWComponentPeer;)Lsun/java2d/pipe/Region;
+      51: astore_1
+      52: aload_2
+      53: aload_1
+      54: invokestatic  #108                // Method computeVisibleRect:(Lsun/lwawt/LWComponentPeer;Lsun/java2d/pipe/Region;)Lsun/java2d/pipe/Region;
+      57: astore_1
+      58: aload_1
+      59: aload_3
+      60: getfield      #101                // Field java/awt/Rectangle.x:I
+      63: ineg
+      64: aload_3
+      65: getfield      #102                // Field java/awt/Rectangle.y:I
+      68: ineg
+      69: invokevirtual #110                // Method sun/java2d/pipe/Region.getTranslatedRegion:(II)Lsun/java2d/pipe/Region;
+      72: astore_1
+      73: aload_1
+      74: areturn
+
+  public java.awt.image.ColorModel getColorModel();
+    Code:
+       0: aload_0
+       1: invokevirtual #88                 // Method getGraphicsConfiguration:()Ljava/awt/GraphicsConfiguration;
+       4: invokevirtual #116                // Method java/awt/GraphicsConfiguration.getColorModel:()Ljava/awt/image/ColorModel;
+       7: areturn
+
+  public boolean isTranslucent();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public final void createBuffers(int, java.awt.BufferCapabilities) throws java.awt.AWTException;
+    Code:
+       0: aload_0
+       1: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+       4: iload_1
+       5: aload_2
+       6: invokeinterface #118,  3          // InterfaceMethod sun/lwawt/LWGraphicsConfig.assertOperationSupported:(ILjava/awt/BufferCapabilities;)V
+      11: aload_0
+      12: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+      15: aload_0
+      16: invokeinterface #119,  2          // InterfaceMethod sun/lwawt/LWGraphicsConfig.createBackBuffer:(Lsun/lwawt/LWComponentPeer;)Ljava/awt/Image;
+      21: astore_3
+      22: aload_0
+      23: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+      26: dup
+      27: astore        4
+      29: monitorenter
+      30: aload_0
+      31: aload_3
+      32: putfield      #121                // Field backBuffer:Ljava/awt/Image;
+      35: aload         4
+      37: monitorexit
+      38: goto          49
+      41: astore        5
+      43: aload         4
+      45: monitorexit
+      46: aload         5
+      48: athrow
+      49: return
+    Exception table:
+       from    to  target type
+          30    38    41   any
+          41    46    41   any
+
+  public final java.awt.Image getBackBuffer();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #121                // Field backBuffer:Ljava/awt/Image;
+      11: ifnull        21
+      14: aload_0
+      15: getfield      #121                // Field backBuffer:Ljava/awt/Image;
+      18: aload_1
+      19: monitorexit
+      20: areturn
+      21: aload_1
+      22: monitorexit
+      23: goto          31
+      26: astore_2
+      27: aload_1
+      28: monitorexit
+      29: aload_2
+      30: athrow
+      31: new           #122                // class java/lang/IllegalStateException
+      34: dup
+      35: ldc           #123                // String Buffers have not been created
+      37: invokespecial #124                // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+      40: athrow
+    Exception table:
+       from    to  target type
+           7    20    26   any
+          21    23    26   any
+          26    29    26   any
+
+  public final void flip(int, int, int, int, java.awt.BufferCapabilities$FlipContents);
+    Code:
+       0: aload_0
+       1: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+       4: aload_0
+       5: aload_0
+       6: invokevirtual #125                // Method getBackBuffer:()Ljava/awt/Image;
+       9: iload_1
+      10: iload_2
+      11: iload_3
+      12: iload         4
+      14: aload         5
+      16: invokeinterface #126,  8          // InterfaceMethod sun/lwawt/LWGraphicsConfig.flip:(Lsun/lwawt/LWComponentPeer;Ljava/awt/Image;IIIILjava/awt/BufferCapabilities$FlipContents;)V
+      21: return
+
+  public final void destroyBuffers();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_2
+       6: monitorenter
+       7: aload_0
+       8: getfield      #121                // Field backBuffer:Ljava/awt/Image;
+      11: astore_1
+      12: aload_0
+      13: aconst_null
+      14: putfield      #121                // Field backBuffer:Ljava/awt/Image;
+      17: aload_2
+      18: monitorexit
+      19: goto          27
+      22: astore_3
+      23: aload_2
+      24: monitorexit
+      25: aload_3
+      26: athrow
+      27: aload_0
+      28: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+      31: aload_1
+      32: invokeinterface #127,  2          // InterfaceMethod sun/lwawt/LWGraphicsConfig.destroyBackBuffer:(Ljava/awt/Image;)V
+      37: return
+    Exception table:
+       from    to  target type
+           7    19    22   any
+          22    25    22   any
+
+  public void setBounds(java.awt.Rectangle);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: getfield      #101                // Field java/awt/Rectangle.x:I
+       5: aload_1
+       6: getfield      #102                // Field java/awt/Rectangle.y:I
+       9: aload_1
+      10: getfield      #103                // Field java/awt/Rectangle.width:I
+      13: aload_1
+      14: getfield      #104                // Field java/awt/Rectangle.height:I
+      17: iconst_3
+      18: invokevirtual #129                // Method setBounds:(IIIII)V
+      21: return
+
+  public void setBounds(int, int, int, int, int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: iload_2
+       3: iload_3
+       4: iload         4
+       6: iload         5
+       8: iconst_1
+       9: iconst_0
+      10: invokevirtual #130                // Method setBounds:(IIIIIZZ)V
+      13: return
+
+  protected void setBounds(int, int, int, int, int, boolean, boolean);
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore        9
+       7: monitorenter
+       8: new           #7                  // class java/awt/Rectangle
+      11: dup
+      12: aload_0
+      13: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      16: invokespecial #131                // Method java/awt/Rectangle."<init>":(Ljava/awt/Rectangle;)V
+      19: astore        8
+      21: iload         5
+      23: iconst_3
+      24: iand
+      25: ifeq          44
+      28: aload_0
+      29: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      32: iload_1
+      33: putfield      #101                // Field java/awt/Rectangle.x:I
+      36: aload_0
+      37: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      40: iload_2
+      41: putfield      #102                // Field java/awt/Rectangle.y:I
+      44: iload         5
+      46: iconst_3
+      47: iand
+      48: ifeq          68
+      51: aload_0
+      52: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      55: iload_3
+      56: putfield      #103                // Field java/awt/Rectangle.width:I
+      59: aload_0
+      60: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      63: iload         4
+      65: putfield      #104                // Field java/awt/Rectangle.height:I
+      68: aload         9
+      70: monitorexit
+      71: goto          82
+      74: astore        10
+      76: aload         9
+      78: monitorexit
+      79: aload         10
+      81: athrow
+      82: aload         8
+      84: getfield      #101                // Field java/awt/Rectangle.x:I
+      87: iload_1
+      88: if_icmpne     100
+      91: aload         8
+      93: getfield      #102                // Field java/awt/Rectangle.y:I
+      96: iload_2
+      97: if_icmpeq     104
+     100: iconst_1
+     101: goto          105
+     104: iconst_0
+     105: istore        9
+     107: aload         8
+     109: getfield      #103                // Field java/awt/Rectangle.width:I
+     112: iload_3
+     113: if_icmpne     126
+     116: aload         8
+     118: getfield      #104                // Field java/awt/Rectangle.height:I
+     121: iload         4
+     123: if_icmpeq     130
+     126: iconst_1
+     127: goto          131
+     130: iconst_0
+     131: istore        10
+     133: iload         9
+     135: ifne          144
+     138: iload         10
+     140: ifne          144
+     143: return
+     144: aload_0
+     145: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+     148: astore        11
+     150: aload         11
+     152: ifnull        206
+     155: aload_0
+     156: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+     159: dup
+     160: astore        12
+     162: monitorenter
+     163: aload_0
+     164: getfield      #36                 // Field delegateContainer:Ljava/awt/Container;
+     167: iconst_0
+     168: iconst_0
+     169: iload_3
+     170: iload         4
+     172: invokevirtual #132                // Method java/awt/Container.setBounds:(IIII)V
+     175: aload         11
+     177: aload_0
+     178: getfield      #36                 // Field delegateContainer:Ljava/awt/Container;
+     181: invokevirtual #133                // Method java/awt/Container.getBounds:()Ljava/awt/Rectangle;
+     184: invokevirtual #134                // Method javax/swing/JComponent.setBounds:(Ljava/awt/Rectangle;)V
+     187: aload         11
+     189: invokevirtual #135                // Method javax/swing/JComponent.validate:()V
+     192: aload         12
+     194: monitorexit
+     195: goto          206
+     198: astore        13
+     200: aload         12
+     202: monitorexit
+     203: aload         13
+     205: athrow
+     206: aload_0
+     207: iconst_0
+     208: iconst_0
+     209: invokevirtual #136                // Method localToWindow:(II)Ljava/awt/Point;
+     212: astore        12
+     214: aload_0
+     215: getfield      #19                 // Field platformComponent:Lsun/lwawt/PlatformComponent;
+     218: aload         12
+     220: getfield      #137                // Field java/awt/Point.x:I
+     223: aload         12
+     225: getfield      #138                // Field java/awt/Point.y:I
+     228: iload_3
+     229: iload         4
+     231: invokeinterface #139,  5          // InterfaceMethod sun/lwawt/PlatformComponent.setBounds:(IIII)V
+     236: iload         6
+     238: ifeq          274
+     241: aload_0
+     242: aload         8
+     244: invokevirtual #140                // Method repaintOldNewBounds:(Ljava/awt/Rectangle;)V
+     247: iload         10
+     249: ifeq          261
+     252: aload_0
+     253: iload_3
+     254: iload         4
+     256: iload         7
+     258: invokevirtual #141                // Method handleResize:(IIZ)V
+     261: iload         9
+     263: ifeq          274
+     266: aload_0
+     267: iload_1
+     268: iload_2
+     269: iload         7
+     271: invokevirtual #142                // Method handleMove:(IIZ)V
+     274: return
+    Exception table:
+       from    to  target type
+           8    71    74   any
+          74    79    74   any
+         163   195   198   any
+         198   203   198   any
+
+  public final java.awt.Rectangle getBounds();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      11: invokevirtual #143                // Method java/awt/Rectangle.getBounds:()Ljava/awt/Rectangle;
+      14: aload_1
+      15: monitorexit
+      16: areturn
+      17: astore_2
+      18: aload_1
+      19: monitorexit
+      20: aload_2
+      21: athrow
+    Exception table:
+       from    to  target type
+           7    16    17   any
+          17    20    17   any
+
+  public final java.awt.Rectangle getSize();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: new           #7                  // class java/awt/Rectangle
+      10: dup
+      11: aload_0
+      12: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      15: getfield      #103                // Field java/awt/Rectangle.width:I
+      18: aload_0
+      19: getfield      #9                  // Field bounds:Ljava/awt/Rectangle;
+      22: getfield      #104                // Field java/awt/Rectangle.height:I
+      25: invokespecial #144                // Method java/awt/Rectangle."<init>":(II)V
+      28: aload_1
+      29: monitorexit
+      30: areturn
+      31: astore_2
+      32: aload_1
+      33: monitorexit
+      34: aload_2
+      35: athrow
+    Exception table:
+       from    to  target type
+           7    30    31   any
+          31    34    31   any
+
+  public java.awt.Point getLocationOnScreen();
+    Code:
+       0: aload_0
+       1: invokevirtual #76                 // Method getWindowPeer:()Lsun/lwawt/LWWindowPeer;
+       4: invokevirtual #145                // Method sun/lwawt/LWWindowPeer.getLocationOnScreen:()Ljava/awt/Point;
+       7: astore_1
+       8: aload_0
+       9: iconst_0
+      10: iconst_0
+      11: invokevirtual #136                // Method localToWindow:(II)Ljava/awt/Point;
+      14: astore_2
+      15: new           #146                // class java/awt/Point
+      18: dup
+      19: aload_1
+      20: getfield      #137                // Field java/awt/Point.x:I
+      23: aload_2
+      24: getfield      #137                // Field java/awt/Point.x:I
+      27: iadd
+      28: aload_1
+      29: getfield      #138                // Field java/awt/Point.y:I
+      32: aload_2
+      33: getfield      #138                // Field java/awt/Point.y:I
+      36: iadd
+      37: invokespecial #147                // Method java/awt/Point."<init>":(II)V
+      40: areturn
+
+  java.awt.Cursor getCursor(java.awt.Point);
+    Code:
+       0: aload_0
+       1: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       4: invokevirtual #148                // Method java/awt/Component.getCursor:()Ljava/awt/Cursor;
+       7: areturn
+
+  public void setBackground(java.awt.Color);
+    Code:
+       0: aload_0
+       1: invokevirtual #95                 // Method getBackground:()Ljava/awt/Color;
+       4: astore_2
+       5: aload_2
+       6: aload_1
+       7: if_acmpeq     22
+      10: aload_2
+      11: ifnull        23
+      14: aload_2
+      15: aload_1
+      16: invokevirtual #149                // Method java/awt/Color.equals:(Ljava/lang/Object;)Z
+      19: ifeq          23
+      22: return
+      23: aload_0
+      24: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+      27: dup
+      28: astore_3
+      29: monitorenter
+      30: aload_0
+      31: aload_1
+      32: putfield      #150                // Field background:Ljava/awt/Color;
+      35: aload_3
+      36: monitorexit
+      37: goto          47
+      40: astore        4
+      42: aload_3
+      43: monitorexit
+      44: aload         4
+      46: athrow
+      47: aload_0
+      48: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      51: astore_3
+      52: aload_3
+      53: ifnull        86
+      56: aload_0
+      57: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      60: dup
+      61: astore        4
+      63: monitorenter
+      64: aload_3
+      65: aload_1
+      66: invokevirtual #151                // Method javax/swing/JComponent.setBackground:(Ljava/awt/Color;)V
+      69: aload         4
+      71: monitorexit
+      72: goto          83
+      75: astore        5
+      77: aload         4
+      79: monitorexit
+      80: aload         5
+      82: athrow
+      83: goto          90
+      86: aload_0
+      87: invokevirtual #152                // Method repaintPeer:()V
+      90: return
+    Exception table:
+       from    to  target type
+          30    37    40   any
+          40    44    40   any
+          64    72    75   any
+          75    80    75   any
+
+  public final java.awt.Color getBackground();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #150                // Field background:Ljava/awt/Color;
+      11: aload_1
+      12: monitorexit
+      13: areturn
+      14: astore_2
+      15: aload_1
+      16: monitorexit
+      17: aload_2
+      18: athrow
+    Exception table:
+       from    to  target type
+           7    13    14   any
+          14    17    14   any
+
+  public void setForeground(java.awt.Color);
+    Code:
+       0: aload_0
+       1: invokevirtual #94                 // Method getForeground:()Ljava/awt/Color;
+       4: astore_2
+       5: aload_2
+       6: aload_1
+       7: if_acmpeq     22
+      10: aload_2
+      11: ifnull        23
+      14: aload_2
+      15: aload_1
+      16: invokevirtual #149                // Method java/awt/Color.equals:(Ljava/lang/Object;)Z
+      19: ifeq          23
+      22: return
+      23: aload_0
+      24: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+      27: dup
+      28: astore_3
+      29: monitorenter
+      30: aload_0
+      31: aload_1
+      32: putfield      #153                // Field foreground:Ljava/awt/Color;
+      35: aload_3
+      36: monitorexit
+      37: goto          47
+      40: astore        4
+      42: aload_3
+      43: monitorexit
+      44: aload         4
+      46: athrow
+      47: aload_0
+      48: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      51: astore_3
+      52: aload_3
+      53: ifnull        86
+      56: aload_0
+      57: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      60: dup
+      61: astore        4
+      63: monitorenter
+      64: aload_3
+      65: aload_1
+      66: invokevirtual #154                // Method javax/swing/JComponent.setForeground:(Ljava/awt/Color;)V
+      69: aload         4
+      71: monitorexit
+      72: goto          83
+      75: astore        5
+      77: aload         4
+      79: monitorexit
+      80: aload         5
+      82: athrow
+      83: goto          90
+      86: aload_0
+      87: invokevirtual #152                // Method repaintPeer:()V
+      90: return
+    Exception table:
+       from    to  target type
+          30    37    40   any
+          40    44    40   any
+          64    72    75   any
+          75    80    75   any
+
+  protected final java.awt.Color getForeground();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #153                // Field foreground:Ljava/awt/Color;
+      11: aload_1
+      12: monitorexit
+      13: areturn
+      14: astore_2
+      15: aload_1
+      16: monitorexit
+      17: aload_2
+      18: athrow
+    Exception table:
+       from    to  target type
+           7    13    14   any
+          14    17    14   any
+
+  public void setFont(java.awt.Font);
+    Code:
+       0: aload_0
+       1: invokevirtual #96                 // Method getFont:()Ljava/awt/Font;
+       4: astore_2
+       5: aload_2
+       6: aload_1
+       7: if_acmpeq     22
+      10: aload_2
+      11: ifnull        23
+      14: aload_2
+      15: aload_1
+      16: invokevirtual #155                // Method java/awt/Font.equals:(Ljava/lang/Object;)Z
+      19: ifeq          23
+      22: return
+      23: aload_0
+      24: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+      27: dup
+      28: astore_3
+      29: monitorenter
+      30: aload_0
+      31: aload_1
+      32: putfield      #156                // Field font:Ljava/awt/Font;
+      35: aload_3
+      36: monitorexit
+      37: goto          47
+      40: astore        4
+      42: aload_3
+      43: monitorexit
+      44: aload         4
+      46: athrow
+      47: aload_0
+      48: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      51: astore_3
+      52: aload_3
+      53: ifnull        86
+      56: aload_0
+      57: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      60: dup
+      61: astore        4
+      63: monitorenter
+      64: aload_3
+      65: aload_1
+      66: invokevirtual #157                // Method javax/swing/JComponent.setFont:(Ljava/awt/Font;)V
+      69: aload         4
+      71: monitorexit
+      72: goto          83
+      75: astore        5
+      77: aload         4
+      79: monitorexit
+      80: aload         5
+      82: athrow
+      83: goto          90
+      86: aload_0
+      87: invokevirtual #152                // Method repaintPeer:()V
+      90: return
+    Exception table:
+       from    to  target type
+          30    37    40   any
+          40    44    40   any
+          64    72    75   any
+          75    80    75   any
+
+  protected final java.awt.Font getFont();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #156                // Field font:Ljava/awt/Font;
+      11: aload_1
+      12: monitorexit
+      13: areturn
+      14: astore_2
+      15: aload_1
+      16: monitorexit
+      17: aload_2
+      18: athrow
+    Exception table:
+       from    to  target type
+           7    13    14   any
+          14    17    14   any
+
+  public java.awt.FontMetrics getFontMetrics(java.awt.Font);
+    Code:
+       0: aload_0
+       1: invokevirtual #90                 // Method getOnscreenGraphics:()Ljava/awt/Graphics;
+       4: astore_2
+       5: aload_2
+       6: ifnull        30
+       9: aload_2
+      10: aload_1
+      11: invokevirtual #158                // Method java/awt/Graphics.getFontMetrics:(Ljava/awt/Font;)Ljava/awt/FontMetrics;
+      14: astore_3
+      15: aload_2
+      16: invokevirtual #159                // Method java/awt/Graphics.dispose:()V
+      19: aload_3
+      20: areturn
+      21: astore        4
+      23: aload_2
+      24: invokevirtual #159                // Method java/awt/Graphics.dispose:()V
+      27: aload         4
+      29: athrow
+      30: aload_0
+      31: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      34: dup
+      35: astore_3
+      36: monitorenter
+      37: aload_0
+      38: getfield      #36                 // Field delegateContainer:Ljava/awt/Container;
+      41: aload_1
+      42: invokevirtual #160                // Method java/awt/Container.getFontMetrics:(Ljava/awt/Font;)Ljava/awt/FontMetrics;
+      45: aload_3
+      46: monitorexit
+      47: areturn
+      48: astore        5
+      50: aload_3
+      51: monitorexit
+      52: aload         5
+      54: athrow
+    Exception table:
+       from    to  target type
+           9    15    21   any
+          21    23    21   any
+          37    47    48   any
+          48    52    48   any
+
+  public void setEnabled(boolean);
+    Code:
+       0: iload_1
+       1: istore_2
+       2: aload_0
+       3: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+       6: astore_3
+       7: aload_3
+       8: ifnull        18
+      11: iload_2
+      12: aload_3
+      13: invokevirtual #161                // Method isEnabled:()Z
+      16: iand
+      17: istore_2
+      18: aload_0
+      19: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+      22: dup
+      23: astore        4
+      25: monitorenter
+      26: aload_0
+      27: getfield      #11                 // Field enabled:Z
+      30: iload_2
+      31: if_icmpne     38
+      34: aload         4
+      36: monitorexit
+      37: return
+      38: aload_0
+      39: iload_2
+      40: putfield      #11                 // Field enabled:Z
+      43: aload         4
+      45: monitorexit
+      46: goto          57
+      49: astore        5
+      51: aload         4
+      53: monitorexit
+      54: aload         5
+      56: athrow
+      57: aload_0
+      58: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      61: astore        4
+      63: aload         4
+      65: ifnull        99
+      68: aload_0
+      69: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      72: dup
+      73: astore        5
+      75: monitorenter
+      76: aload         4
+      78: iload_2
+      79: invokevirtual #162                // Method javax/swing/JComponent.setEnabled:(Z)V
+      82: aload         5
+      84: monitorexit
+      85: goto          96
+      88: astore        6
+      90: aload         5
+      92: monitorexit
+      93: aload         6
+      95: athrow
+      96: goto          103
+      99: aload_0
+     100: invokevirtual #152                // Method repaintPeer:()V
+     103: return
+    Exception table:
+       from    to  target type
+          26    37    49   any
+          38    46    49   any
+          49    54    49   any
+          76    85    88   any
+          88    93    88   any
+
+  public final boolean isEnabled();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #11                 // Field enabled:Z
+      11: aload_1
+      12: monitorexit
+      13: ireturn
+      14: astore_2
+      15: aload_1
+      16: monitorexit
+      17: aload_2
+      18: athrow
+    Exception table:
+       from    to  target type
+           7    13    14   any
+          14    17    14   any
+
+  public void setVisible(boolean);
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_2
+       6: monitorenter
+       7: aload_0
+       8: getfield      #10                 // Field visible:Z
+      11: iload_1
+      12: if_icmpne     18
+      15: aload_2
+      16: monitorexit
+      17: return
+      18: aload_0
+      19: iload_1
+      20: putfield      #10                 // Field visible:Z
+      23: aload_2
+      24: monitorexit
+      25: goto          33
+      28: astore_3
+      29: aload_2
+      30: monitorexit
+      31: aload_3
+      32: athrow
+      33: aload_0
+      34: iload_1
+      35: invokevirtual #163                // Method setVisibleImpl:(Z)V
+      38: return
+    Exception table:
+       from    to  target type
+           7    17    28   any
+          18    25    28   any
+          28    31    28   any
+
+  protected void setVisibleImpl(boolean);
+    Code:
+       0: aload_0
+       1: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+       4: astore_2
+       5: aload_2
+       6: ifnull        33
+       9: aload_0
+      10: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      13: dup
+      14: astore_3
+      15: monitorenter
+      16: aload_2
+      17: iload_1
+      18: invokevirtual #33                 // Method javax/swing/JComponent.setVisible:(Z)V
+      21: aload_3
+      22: monitorexit
+      23: goto          33
+      26: astore        4
+      28: aload_3
+      29: monitorexit
+      30: aload         4
+      32: athrow
+      33: aload_0
+      34: getfield      #10                 // Field visible:Z
+      37: ifeq          47
+      40: aload_0
+      41: invokevirtual #152                // Method repaintPeer:()V
+      44: goto          55
+      47: aload_0
+      48: aload_0
+      49: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+      52: invokevirtual #164                // Method repaintParent:(Ljava/awt/Rectangle;)V
+      55: return
+    Exception table:
+       from    to  target type
+          16    23    26   any
+          26    30    26   any
+
+  public final boolean isVisible();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #10                 // Field visible:Z
+      11: aload_1
+      12: monitorexit
+      13: ireturn
+      14: astore_2
+      15: aload_1
+      16: monitorexit
+      17: aload_2
+      18: athrow
+    Exception table:
+       from    to  target type
+           7    13    14   any
+          14    17    14   any
+
+  public void paint(java.awt.Graphics);
+    Code:
+       0: aload_0
+       1: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       4: aload_1
+       5: invokevirtual #165                // Method java/awt/Component.paint:(Ljava/awt/Graphics;)V
+       8: return
+
+  public void print(java.awt.Graphics);
+    Code:
+       0: aload_0
+       1: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       4: aload_1
+       5: invokevirtual #166                // Method java/awt/Component.print:(Ljava/awt/Graphics;)V
+       8: return
+
+  public void reparent(java.awt.peer.ContainerPeer);
+    Code:
+       0: new           #167                // class java/lang/UnsupportedOperationException
+       3: dup
+       4: ldc           #168                // String ComponentPeer.reparent()
+       6: invokespecial #169                // Method java/lang/UnsupportedOperationException."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  public boolean isReparentSupported();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public void setZOrder(java.awt.peer.ComponentPeer);
+    Code:
+       0: aload_0
+       1: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+       4: astore_2
+       5: aload_2
+       6: aload_0
+       7: aload_1
+       8: checkcast     #170                // class sun/lwawt/LWComponentPeer
+      11: invokevirtual #171                // Method sun/lwawt/LWContainerPeer.setChildPeerZOrder:(Lsun/lwawt/LWComponentPeer;Lsun/lwawt/LWComponentPeer;)V
+      14: return
+
+  public void coalescePaintEvent(java.awt.event.PaintEvent);
+    Code:
+       0: aload_1
+       1: instanceof    #172                // class sun/awt/event/IgnorePaintEvent
+       4: ifne          35
+       7: aload_1
+       8: invokevirtual #173                // Method java/awt/event/PaintEvent.getUpdateRect:()Ljava/awt/Rectangle;
+      11: astore_2
+      12: aload_2
+      13: ifnull        35
+      16: aload_2
+      17: invokevirtual #174                // Method java/awt/Rectangle.isEmpty:()Z
+      20: ifne          35
+      23: aload_0
+      24: getfield      #17                 // Field targetPaintArea:Lsun/awt/RepaintArea;
+      27: aload_2
+      28: aload_1
+      29: invokevirtual #175                // Method java/awt/event/PaintEvent.getID:()I
+      32: invokevirtual #176                // Method sun/awt/RepaintArea.add:(Ljava/awt/Rectangle;I)V
+      35: return
+
+  public void layout();
+    Code:
+       0: return
+
+  public boolean isObscured();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public boolean canDetermineObscurity();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public java.awt.Dimension getPreferredSize();
+    Code:
+       0: aload_0
+       1: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_2
+       6: monitorenter
+       7: aload_0
+       8: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      11: invokevirtual #177                // Method javax/swing/JComponent.getPreferredSize:()Ljava/awt/Dimension;
+      14: astore_1
+      15: aload_2
+      16: monitorexit
+      17: goto          25
+      20: astore_3
+      21: aload_2
+      22: monitorexit
+      23: aload_3
+      24: athrow
+      25: aload_0
+      26: aload_1
+      27: invokespecial #178                // Method validateSize:(Ljava/awt/Dimension;)Ljava/awt/Dimension;
+      30: areturn
+    Exception table:
+       from    to  target type
+           7    17    20   any
+          20    23    20   any
+
+  public java.awt.Dimension getMinimumSize();
+    Code:
+       0: aload_0
+       1: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_2
+       6: monitorenter
+       7: aload_0
+       8: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      11: invokevirtual #179                // Method javax/swing/JComponent.getMinimumSize:()Ljava/awt/Dimension;
+      14: astore_1
+      15: aload_2
+      16: monitorexit
+      17: goto          25
+      20: astore_3
+      21: aload_2
+      22: monitorexit
+      23: aload_3
+      24: athrow
+      25: aload_0
+      26: aload_1
+      27: invokespecial #178                // Method validateSize:(Ljava/awt/Dimension;)Ljava/awt/Dimension;
+      30: areturn
+    Exception table:
+       from    to  target type
+           7    17    20   any
+          20    23    20   any
+
+  private java.awt.Dimension validateSize(java.awt.Dimension);
+    Code:
+       0: aload_1
+       1: getfield      #180                // Field java/awt/Dimension.width:I
+       4: ifeq          14
+       7: aload_1
+       8: getfield      #181                // Field java/awt/Dimension.height:I
+      11: ifne          41
+      14: aload_0
+      15: aload_0
+      16: invokevirtual #96                 // Method getFont:()Ljava/awt/Font;
+      19: invokevirtual #182                // Method getFontMetrics:(Ljava/awt/Font;)Ljava/awt/FontMetrics;
+      22: astore_2
+      23: aload_1
+      24: aload_2
+      25: bipush        48
+      27: invokevirtual #183                // Method java/awt/FontMetrics.charWidth:(C)I
+      30: putfield      #180                // Field java/awt/Dimension.width:I
+      33: aload_1
+      34: aload_2
+      35: invokevirtual #184                // Method java/awt/FontMetrics.getHeight:()I
+      38: putfield      #181                // Field java/awt/Dimension.height:I
+      41: aload_1
+      42: areturn
+
+  public void updateCursorImmediately();
+    Code:
+       0: aload_0
+       1: invokevirtual #185                // Method getLWToolkit:()Lsun/lwawt/LWToolkit;
+       4: invokevirtual #186                // Method sun/lwawt/LWToolkit.getCursorManager:()Lsun/lwawt/LWCursorManager;
+       7: invokevirtual #187                // Method sun/lwawt/LWCursorManager.updateCursor:()V
+      10: return
+
+  public boolean isFocusable();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public boolean requestFocus(java.awt.Component, boolean, boolean, long, sun.awt.CausedFocusEvent$Cause);
+    Code:
+       0: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+       3: getstatic     #189                // Field sun/util/logging/PlatformLogger$Level.FINEST:Lsun/util/logging/PlatformLogger$Level;
+       6: invokevirtual #190                // Method sun/util/logging/PlatformLogger.isLoggable:(Lsun/util/logging/PlatformLogger$Level;)Z
+       9: ifeq          75
+      12: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+      15: new           #191                // class java/lang/StringBuilder
+      18: dup
+      19: invokespecial #192                // Method java/lang/StringBuilder."<init>":()V
+      22: ldc           #193                // String lightweightChild=
+      24: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      27: aload_1
+      28: invokevirtual #195                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+      31: ldc           #196                // String , temporary=
+      33: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      36: iload_2
+      37: invokevirtual #197                // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+      40: ldc           #198                // String , focusedWindowChangeAllowed=
+      42: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      45: iload_3
+      46: invokevirtual #197                // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+      49: ldc           #199                // String , time=
+      51: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      54: lload         4
+      56: invokevirtual #200                // Method java/lang/StringBuilder.append:(J)Ljava/lang/StringBuilder;
+      59: ldc           #201                // String , cause=
+      61: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      64: aload         6
+      66: invokevirtual #195                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+      69: invokevirtual #202                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      72: invokevirtual #203                // Method sun/util/logging/PlatformLogger.finest:(Ljava/lang/String;)V
+      75: aload_0
+      76: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      79: aload_1
+      80: iload_2
+      81: iload_3
+      82: lload         4
+      84: invokestatic  #204                // Method sun/lwawt/LWKeyboardFocusManagerPeer.processSynchronousLightweightTransfer:(Ljava/awt/Component;Ljava/awt/Component;ZZJ)Z
+      87: ifeq          92
+      90: iconst_1
+      91: ireturn
+      92: aload_0
+      93: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      96: aload_1
+      97: iload_2
+      98: iload_3
+      99: lload         4
+     101: aload         6
+     103: invokestatic  #205                // Method sun/lwawt/LWKeyboardFocusManagerPeer.shouldNativelyFocusHeavyweight:(Ljava/awt/Component;Ljava/awt/Component;ZZJLsun/awt/CausedFocusEvent$Cause;)I
+     106: istore        7
+     108: iload         7
+     110: tableswitch   { // 0 to 2
+                     0: 136
+                     1: 408
+                     2: 138
+               default: 410
+          }
+     136: iconst_0
+     137: ireturn
+     138: aload_0
+     139: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     142: invokestatic  #206                // Method sun/awt/SunToolkit.getContainingWindow:(Ljava/awt/Component;)Ljava/awt/Window;
+     145: astore        8
+     147: aload         8
+     149: ifnonnull     169
+     152: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+     155: ldc           #207                // String request rejected, parentWindow is null
+     157: invokevirtual #208                // Method sun/util/logging/PlatformLogger.fine:(Ljava/lang/String;)V
+     160: aload_0
+     161: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     164: invokestatic  #209                // Method sun/lwawt/LWKeyboardFocusManagerPeer.removeLastFocusRequest:(Ljava/awt/Component;)V
+     167: iconst_0
+     168: ireturn
+     169: invokestatic  #210                // Method sun/awt/AWTAccessor.getComponentAccessor:()Lsun/awt/AWTAccessor$ComponentAccessor;
+     172: aload         8
+     174: invokeinterface #211,  2          // InterfaceMethod sun/awt/AWTAccessor$ComponentAccessor.getPeer:(Ljava/awt/Component;)Ljava/awt/peer/ComponentPeer;
+     179: checkcast     #212                // class sun/lwawt/LWWindowPeer
+     182: astore        9
+     184: aload         9
+     186: ifnonnull     206
+     189: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+     192: ldc           #213                // String request rejected, parentPeer is null
+     194: invokevirtual #208                // Method sun/util/logging/PlatformLogger.fine:(Ljava/lang/String;)V
+     197: aload_0
+     198: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     201: invokestatic  #209                // Method sun/lwawt/LWKeyboardFocusManagerPeer.removeLastFocusRequest:(Ljava/awt/Component;)V
+     204: iconst_0
+     205: ireturn
+     206: iload_3
+     207: ifne          295
+     210: aload         9
+     212: invokevirtual #214                // Method sun/lwawt/LWWindowPeer.isSimpleWindow:()Z
+     215: ifeq          226
+     218: aload         9
+     220: invokestatic  #215                // Method sun/lwawt/LWWindowPeer.getOwnerFrameDialog:(Lsun/lwawt/LWWindowPeer;)Lsun/lwawt/LWWindowPeer;
+     223: goto          228
+     226: aload         9
+     228: astore        10
+     230: aload         10
+     232: ifnull        248
+     235: aload         10
+     237: invokevirtual #77                 // Method sun/lwawt/LWWindowPeer.getPlatformWindow:()Lsun/lwawt/PlatformWindow;
+     240: invokeinterface #216,  1          // InterfaceMethod sun/lwawt/PlatformWindow.isActive:()Z
+     245: ifne          295
+     248: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+     251: getstatic     #217                // Field sun/util/logging/PlatformLogger$Level.FINE:Lsun/util/logging/PlatformLogger$Level;
+     254: invokevirtual #190                // Method sun/util/logging/PlatformLogger.isLoggable:(Lsun/util/logging/PlatformLogger$Level;)Z
+     257: ifeq          286
+     260: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+     263: new           #191                // class java/lang/StringBuilder
+     266: dup
+     267: invokespecial #192                // Method java/lang/StringBuilder."<init>":()V
+     270: ldc           #218                // String request rejected, focusedWindowChangeAllowed==false, decoratedPeer is inactive:
+     272: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     275: aload         10
+     277: invokevirtual #195                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     280: invokevirtual #202                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     283: invokevirtual #208                // Method sun/util/logging/PlatformLogger.fine:(Ljava/lang/String;)V
+     286: aload_0
+     287: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     290: invokestatic  #209                // Method sun/lwawt/LWKeyboardFocusManagerPeer.removeLastFocusRequest:(Ljava/awt/Component;)V
+     293: iconst_0
+     294: ireturn
+     295: aload         9
+     297: aload         6
+     299: invokevirtual #219                // Method sun/lwawt/LWWindowPeer.requestWindowFocus:(Lsun/awt/CausedFocusEvent$Cause;)Z
+     302: istore        10
+     304: iload         10
+     306: ifeq          317
+     309: aload         8
+     311: invokevirtual #220                // Method java/awt/Window.isFocused:()Z
+     314: ifne          377
+     317: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+     320: getstatic     #217                // Field sun/util/logging/PlatformLogger$Level.FINE:Lsun/util/logging/PlatformLogger$Level;
+     323: invokevirtual #190                // Method sun/util/logging/PlatformLogger.isLoggable:(Lsun/util/logging/PlatformLogger$Level;)Z
+     326: ifeq          368
+     329: getstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+     332: new           #191                // class java/lang/StringBuilder
+     335: dup
+     336: invokespecial #192                // Method java/lang/StringBuilder."<init>":()V
+     339: ldc           #221                // String request rejected, res=
+     341: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     344: iload         10
+     346: invokevirtual #197                // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+     349: ldc           #222                // String , parentWindow.isFocused()=
+     351: invokevirtual #194                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     354: aload         8
+     356: invokevirtual #220                // Method java/awt/Window.isFocused:()Z
+     359: invokevirtual #197                // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+     362: invokevirtual #202                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     365: invokevirtual #208                // Method sun/util/logging/PlatformLogger.fine:(Ljava/lang/String;)V
+     368: aload_0
+     369: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     372: invokestatic  #209                // Method sun/lwawt/LWKeyboardFocusManagerPeer.removeLastFocusRequest:(Ljava/awt/Component;)V
+     375: iconst_0
+     376: ireturn
+     377: invokestatic  #223                // Method sun/lwawt/LWKeyboardFocusManagerPeer.getInstance:()Lsun/lwawt/LWKeyboardFocusManagerPeer;
+     380: astore        11
+     382: aload         11
+     384: invokeinterface #224,  1          // InterfaceMethod java/awt/peer/KeyboardFocusManagerPeer.getCurrentFocusOwner:()Ljava/awt/Component;
+     389: astore        12
+     391: aload_1
+     392: aload_0
+     393: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     396: iload_2
+     397: iload_3
+     398: lload         4
+     400: aload         6
+     402: aload         12
+     404: invokestatic  #225                // Method sun/lwawt/LWKeyboardFocusManagerPeer.deliverFocus:(Ljava/awt/Component;Ljava/awt/Component;ZZJLsun/awt/CausedFocusEvent$Cause;Ljava/awt/Component;)Z
+     407: ireturn
+     408: iconst_1
+     409: ireturn
+     410: iconst_0
+     411: ireturn
+
+  public final java.awt.Image createImage(java.awt.image.ImageProducer);
+    Code:
+       0: new           #226                // class sun/awt/image/ToolkitImage
+       3: dup
+       4: aload_1
+       5: invokespecial #227                // Method sun/awt/image/ToolkitImage."<init>":(Ljava/awt/image/ImageProducer;)V
+       8: areturn
+
+  public final java.awt.Image createImage(int, int);
+    Code:
+       0: aload_0
+       1: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+       4: aload_0
+       5: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       8: iload_1
+       9: iload_2
+      10: invokeinterface #228,  4          // InterfaceMethod sun/lwawt/LWGraphicsConfig.createAcceleratedImage:(Ljava/awt/Component;II)Ljava/awt/Image;
+      15: areturn
+
+  public final java.awt.image.VolatileImage createVolatileImage(int, int);
+    Code:
+       0: new           #229                // class sun/awt/image/SunVolatileImage
+       3: dup
+       4: aload_0
+       5: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       8: iload_1
+       9: iload_2
+      10: invokespecial #230                // Method sun/awt/image/SunVolatileImage."<init>":(Ljava/awt/Component;II)V
+      13: areturn
+
+  public boolean prepareImage(java.awt.Image, int, int, java.awt.image.ImageObserver);
+    Code:
+       0: invokestatic  #27                 // Method java/awt/Toolkit.getDefaultToolkit:()Ljava/awt/Toolkit;
+       3: aload_1
+       4: iload_2
+       5: iload_3
+       6: aload         4
+       8: invokevirtual #231                // Method java/awt/Toolkit.prepareImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)Z
+      11: ireturn
+
+  public int checkImage(java.awt.Image, int, int, java.awt.image.ImageObserver);
+    Code:
+       0: invokestatic  #27                 // Method java/awt/Toolkit.getDefaultToolkit:()Ljava/awt/Toolkit;
+       3: aload_1
+       4: iload_2
+       5: iload_3
+       6: aload         4
+       8: invokevirtual #232                // Method java/awt/Toolkit.checkImage:(Ljava/awt/Image;IILjava/awt/image/ImageObserver;)I
+      11: ireturn
+
+  public boolean handlesWheelScrolling();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  public final void applyShape(sun.java2d.pipe.Region);
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_2
+       6: monitorenter
+       7: aload_0
+       8: getfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      11: aload_1
+      12: if_acmpeq     33
+      15: aload_0
+      16: getfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      19: ifnull        36
+      22: aload_0
+      23: getfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      26: aload_1
+      27: invokevirtual #234                // Method sun/java2d/pipe/Region.equals:(Ljava/lang/Object;)Z
+      30: ifeq          36
+      33: aload_2
+      34: monitorexit
+      35: return
+      36: aload_2
+      37: monitorexit
+      38: goto          46
+      41: astore_3
+      42: aload_2
+      43: monitorexit
+      44: aload_3
+      45: athrow
+      46: aload_0
+      47: aload_1
+      48: invokevirtual #235                // Method applyShapeImpl:(Lsun/java2d/pipe/Region;)V
+      51: return
+    Exception table:
+       from    to  target type
+           7    35    41   any
+          36    38    41   any
+          41    44    41   any
+
+  void applyShapeImpl(sun.java2d.pipe.Region);
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_2
+       6: monitorenter
+       7: aload_1
+       8: ifnull        25
+      11: aload_0
+      12: getstatic     #236                // Field sun/java2d/pipe/Region.WHOLE_REGION:Lsun/java2d/pipe/Region;
+      15: aload_1
+      16: invokevirtual #112                // Method sun/java2d/pipe/Region.getIntersection:(Lsun/java2d/pipe/Region;)Lsun/java2d/pipe/Region;
+      19: putfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      22: goto          30
+      25: aload_0
+      26: aconst_null
+      27: putfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      30: aload_2
+      31: monitorexit
+      32: goto          40
+      35: astore_3
+      36: aload_2
+      37: monitorexit
+      38: aload_3
+      39: athrow
+      40: aload_0
+      41: aload_0
+      42: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+      45: invokevirtual #164                // Method repaintParent:(Ljava/awt/Rectangle;)V
+      48: return
+    Exception table:
+       from    to  target type
+           7    32    35   any
+          35    38    35   any
+
+  protected final sun.java2d.pipe.Region getRegion();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: invokevirtual #237                // Method isShaped:()Z
+      11: ifeq          21
+      14: aload_0
+      15: getfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      18: goto          28
+      21: aload_0
+      22: invokevirtual #99                 // Method getSize:()Ljava/awt/Rectangle;
+      25: invokestatic  #238                // Method sun/java2d/pipe/Region.getInstance:(Ljava/awt/Rectangle;)Lsun/java2d/pipe/Region;
+      28: aload_1
+      29: monitorexit
+      30: areturn
+      31: astore_2
+      32: aload_1
+      33: monitorexit
+      34: aload_2
+      35: athrow
+    Exception table:
+       from    to  target type
+           7    30    31   any
+          31    34    31   any
+
+  public boolean isShaped();
+    Code:
+       0: aload_0
+       1: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       4: dup
+       5: astore_1
+       6: monitorenter
+       7: aload_0
+       8: getfield      #233                // Field region:Lsun/java2d/pipe/Region;
+      11: ifnull        18
+      14: iconst_1
+      15: goto          19
+      18: iconst_0
+      19: aload_1
+      20: monitorexit
+      21: ireturn
+      22: astore_2
+      23: aload_1
+      24: monitorexit
+      25: aload_2
+      26: athrow
+    Exception table:
+       from    to  target type
+           7    21    22   any
+          22    25    22   any
+
+  public void addDropTarget(java.awt.dnd.DropTarget);
+    Code:
+       0: aload_0
+       1: invokevirtual #93                 // Method getWindowPeerOrSelf:()Lsun/lwawt/LWWindowPeer;
+       4: astore_2
+       5: aload_2
+       6: ifnull        22
+       9: aload_2
+      10: aload_0
+      11: if_acmpeq     22
+      14: aload_2
+      15: aload_1
+      16: invokevirtual #239                // Method sun/lwawt/LWWindowPeer.addDropTarget:(Ljava/awt/dnd/DropTarget;)V
+      19: goto          84
+      22: aload_0
+      23: getfield      #12                 // Field dropTargetLock:Ljava/lang/Object;
+      26: dup
+      27: astore_3
+      28: monitorenter
+      29: aload_0
+      30: dup
+      31: getfield      #13                 // Field fNumDropTargets:I
+      34: iconst_1
+      35: iadd
+      36: dup_x1
+      37: putfield      #13                 // Field fNumDropTargets:I
+      40: iconst_1
+      41: if_icmpne     72
+      44: aload_0
+      45: getfield      #14                 // Field fDropTarget:Lsun/lwawt/macosx/CDropTarget;
+      48: ifnull        59
+      51: getstatic     #240                // Field java/lang/System.err:Ljava/io/PrintStream;
+      54: ldc           #241                // String CComponent.addDropTarget(): current drop target is non-null.
+      56: invokevirtual #242                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      59: aload_0
+      60: aload_1
+      61: aload_0
+      62: getfield      #18                 // Field target:Ljava/awt/Component;
+      65: aload_0
+      66: invokestatic  #243                // Method sun/lwawt/macosx/CDropTarget.createDropTarget:(Ljava/awt/dnd/DropTarget;Ljava/awt/Component;Ljava/awt/peer/ComponentPeer;)Lsun/lwawt/macosx/CDropTarget;
+      69: putfield      #14                 // Field fDropTarget:Lsun/lwawt/macosx/CDropTarget;
+      72: aload_3
+      73: monitorexit
+      74: goto          84
+      77: astore        4
+      79: aload_3
+      80: monitorexit
+      81: aload         4
+      83: athrow
+      84: return
+    Exception table:
+       from    to  target type
+          29    74    77   any
+          77    81    77   any
+
+  public void removeDropTarget(java.awt.dnd.DropTarget);
+    Code:
+       0: aload_0
+       1: invokevirtual #93                 // Method getWindowPeerOrSelf:()Lsun/lwawt/LWWindowPeer;
+       4: astore_2
+       5: aload_2
+       6: ifnull        22
+       9: aload_2
+      10: aload_0
+      11: if_acmpeq     22
+      14: aload_2
+      15: aload_1
+      16: invokevirtual #244                // Method sun/lwawt/LWWindowPeer.removeDropTarget:(Ljava/awt/dnd/DropTarget;)V
+      19: goto          85
+      22: aload_0
+      23: getfield      #12                 // Field dropTargetLock:Ljava/lang/Object;
+      26: dup
+      27: astore_3
+      28: monitorenter
+      29: aload_0
+      30: dup
+      31: getfield      #13                 // Field fNumDropTargets:I
+      34: iconst_1
+      35: isub
+      36: dup_x1
+      37: putfield      #13                 // Field fNumDropTargets:I
+      40: ifne          73
+      43: aload_0
+      44: getfield      #14                 // Field fDropTarget:Lsun/lwawt/macosx/CDropTarget;
+      47: ifnull        65
+      50: aload_0
+      51: getfield      #14                 // Field fDropTarget:Lsun/lwawt/macosx/CDropTarget;
+      54: invokevirtual #245                // Method sun/lwawt/macosx/CDropTarget.dispose:()V
+      57: aload_0
+      58: aconst_null
+      59: putfield      #14                 // Field fDropTarget:Lsun/lwawt/macosx/CDropTarget;
+      62: goto          73
+      65: getstatic     #240                // Field java/lang/System.err:Ljava/io/PrintStream;
+      68: ldc           #246                // String CComponent.removeDropTarget(): current drop target is null.
+      70: invokevirtual #242                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      73: aload_3
+      74: monitorexit
+      75: goto          85
+      78: astore        4
+      80: aload_3
+      81: monitorexit
+      82: aload         4
+      84: athrow
+      85: return
+    Exception table:
+       from    to  target type
+          29    75    78   any
+          78    82    78   any
+
+  protected final void handleMove(int, int, boolean);
+    Code:
+       0: iload_3
+       1: ifeq          18
+       4: invokestatic  #210                // Method sun/awt/AWTAccessor.getComponentAccessor:()Lsun/awt/AWTAccessor$ComponentAccessor;
+       7: aload_0
+       8: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      11: iload_1
+      12: iload_2
+      13: invokeinterface #247,  4          // InterfaceMethod sun/awt/AWTAccessor$ComponentAccessor.setLocation:(Ljava/awt/Component;II)V
+      18: aload_0
+      19: new           #248                // class java/awt/event/ComponentEvent
+      22: dup
+      23: aload_0
+      24: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      27: bipush        100
+      29: invokespecial #249                // Method java/awt/event/ComponentEvent."<init>":(Ljava/awt/Component;I)V
+      32: invokevirtual #250                // Method postEvent:(Ljava/awt/AWTEvent;)V
+      35: return
+
+  protected final void handleResize(int, int, boolean);
+    Code:
+       0: aconst_null
+       1: astore        4
+       3: aload_0
+       4: invokevirtual #120                // Method getStateLock:()Ljava/lang/Object;
+       7: dup
+       8: astore        5
+      10: monitorenter
+      11: aload_0
+      12: getfield      #121                // Field backBuffer:Ljava/awt/Image;
+      15: ifnull        38
+      18: aload_0
+      19: getfield      #121                // Field backBuffer:Ljava/awt/Image;
+      22: astore        4
+      24: aload_0
+      25: aload_0
+      26: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+      29: aload_0
+      30: invokeinterface #119,  2          // InterfaceMethod sun/lwawt/LWGraphicsConfig.createBackBuffer:(Lsun/lwawt/LWComponentPeer;)Ljava/awt/Image;
+      35: putfield      #121                // Field backBuffer:Ljava/awt/Image;
+      38: aload         5
+      40: monitorexit
+      41: goto          52
+      44: astore        6
+      46: aload         5
+      48: monitorexit
+      49: aload         6
+      51: athrow
+      52: aload_0
+      53: invokevirtual #117                // Method getLWGC:()Lsun/lwawt/LWGraphicsConfig;
+      56: aload         4
+      58: invokeinterface #127,  2          // InterfaceMethod sun/lwawt/LWGraphicsConfig.destroyBackBuffer:(Ljava/awt/Image;)V
+      63: iload_3
+      64: ifeq          81
+      67: invokestatic  #210                // Method sun/awt/AWTAccessor.getComponentAccessor:()Lsun/awt/AWTAccessor$ComponentAccessor;
+      70: aload_0
+      71: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      74: iload_1
+      75: iload_2
+      76: invokeinterface #251,  4          // InterfaceMethod sun/awt/AWTAccessor$ComponentAccessor.setSize:(Ljava/awt/Component;II)V
+      81: aload_0
+      82: new           #248                // class java/awt/event/ComponentEvent
+      85: dup
+      86: aload_0
+      87: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      90: bipush        101
+      92: invokespecial #249                // Method java/awt/event/ComponentEvent."<init>":(Ljava/awt/Component;I)V
+      95: invokevirtual #250                // Method postEvent:(Ljava/awt/AWTEvent;)V
+      98: return
+    Exception table:
+       from    to  target type
+          11    41    44   any
+          44    49    44   any
+
+  protected final void repaintOldNewBounds(java.awt.Rectangle);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #164                // Method repaintParent:(Ljava/awt/Rectangle;)V
+       5: aload_0
+       6: aload_0
+       7: invokevirtual #99                 // Method getSize:()Ljava/awt/Rectangle;
+      10: invokevirtual #252                // Method repaintPeer:(Ljava/awt/Rectangle;)V
+      13: return
+
+  protected final void repaintParent(java.awt.Rectangle);
+    Code:
+       0: aload_0
+       1: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+       4: astore_2
+       5: aload_2
+       6: ifnull        21
+       9: aload_2
+      10: aload_2
+      11: invokevirtual #113                // Method sun/lwawt/LWContainerPeer.getContentSize:()Ljava/awt/Rectangle;
+      14: aload_1
+      15: invokevirtual #253                // Method java/awt/Rectangle.intersection:(Ljava/awt/Rectangle;)Ljava/awt/Rectangle;
+      18: invokevirtual #254                // Method sun/lwawt/LWContainerPeer.repaintPeer:(Ljava/awt/Rectangle;)V
+      21: return
+
+  public void postEvent(java.awt.AWTEvent);
+    Code:
+       0: aload_1
+       1: invokestatic  #255                // Method sun/lwawt/LWToolkit.postEvent:(Ljava/awt/AWTEvent;)V
+       4: return
+
+  protected void postPaintEvent(int, int, int, int);
+    Code:
+       0: invokestatic  #210                // Method sun/awt/AWTAccessor.getComponentAccessor:()Lsun/awt/AWTAccessor$ComponentAccessor;
+       3: aload_0
+       4: getfield      #18                 // Field target:Ljava/awt/Component;
+       7: invokeinterface #256,  2          // InterfaceMethod sun/awt/AWTAccessor$ComponentAccessor.getIgnoreRepaint:(Ljava/awt/Component;)Z
+      12: ifeq          16
+      15: return
+      16: invokestatic  #257                // Method sun/awt/PaintEventDispatcher.getPaintEventDispatcher:()Lsun/awt/PaintEventDispatcher;
+      19: aload_0
+      20: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      23: iload_1
+      24: iload_2
+      25: iload_3
+      26: iload         4
+      28: invokevirtual #258                // Method sun/awt/PaintEventDispatcher.createPaintEvent:(Ljava/awt/Component;IIII)Ljava/awt/event/PaintEvent;
+      31: astore        5
+      33: aload         5
+      35: ifnull        44
+      38: aload_0
+      39: aload         5
+      41: invokevirtual #250                // Method postEvent:(Ljava/awt/AWTEvent;)V
+      44: return
+
+  public void handleEvent(java.awt.AWTEvent);
+    Code:
+       0: aload_1
+       1: instanceof    #259                // class java/awt/event/InputEvent
+       4: ifeq          18
+       7: aload_1
+       8: checkcast     #259                // class java/awt/event/InputEvent
+      11: invokevirtual #260                // Method java/awt/event/InputEvent.isConsumed:()Z
+      14: ifeq          18
+      17: return
+      18: aload_1
+      19: invokevirtual #261                // Method java/awt/AWTEvent.getID:()I
+      22: lookupswitch  { // 5
+                   501: 90
+                   800: 83
+                   801: 83
+                  1004: 72
+                  1005: 72
+               default: 98
+          }
+      72: aload_0
+      73: aload_1
+      74: checkcast     #262                // class java/awt/event/FocusEvent
+      77: invokevirtual #263                // Method handleJavaFocusEvent:(Ljava/awt/event/FocusEvent;)V
+      80: goto          98
+      83: aload_0
+      84: invokespecial #264                // Method handleJavaPaintEvent:()V
+      87: goto          98
+      90: aload_0
+      91: aload_1
+      92: checkcast     #265                // class java/awt/event/MouseEvent
+      95: invokevirtual #266                // Method handleJavaMouseEvent:(Ljava/awt/event/MouseEvent;)V
+      98: aload_0
+      99: aload_1
+     100: invokevirtual #267                // Method sendEventToDelegate:(Ljava/awt/AWTEvent;)V
+     103: return
+
+  protected void sendEventToDelegate(java.awt.AWTEvent);
+    Code:
+       0: aload_0
+       1: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+       4: ifnull        21
+       7: aload_0
+       8: invokevirtual #268                // Method isShowing:()Z
+      11: ifeq          21
+      14: aload_0
+      15: invokevirtual #161                // Method isEnabled:()Z
+      18: ifne          22
+      21: return
+      22: aload_0
+      23: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      26: dup
+      27: astore_2
+      28: monitorenter
+      29: aload_0
+      30: aload_1
+      31: invokespecial #269                // Method createDelegateEvent:(Ljava/awt/AWTEvent;)Ljava/awt/AWTEvent;
+      34: astore_3
+      35: aload_3
+      36: ifnull        74
+      39: invokestatic  #210                // Method sun/awt/AWTAccessor.getComponentAccessor:()Lsun/awt/AWTAccessor$ComponentAccessor;
+      42: aload_3
+      43: invokevirtual #270                // Method java/awt/AWTEvent.getSource:()Ljava/lang/Object;
+      46: checkcast     #271                // class java/awt/Component
+      49: aload_3
+      50: invokeinterface #272,  3          // InterfaceMethod sun/awt/AWTAccessor$ComponentAccessor.processEvent:(Ljava/awt/Component;Ljava/awt/AWTEvent;)V
+      55: aload_3
+      56: instanceof    #273                // class java/awt/event/KeyEvent
+      59: ifeq          74
+      62: aload_3
+      63: checkcast     #273                // class java/awt/event/KeyEvent
+      66: astore        4
+      68: aload         4
+      70: invokestatic  #274                // Method javax/swing/SwingUtilities.processKeyBindings:(Ljava/awt/event/KeyEvent;)Z
+      73: pop
+      74: aload_2
+      75: monitorexit
+      76: goto          86
+      79: astore        5
+      81: aload_2
+      82: monitorexit
+      83: aload         5
+      85: athrow
+      86: return
+    Exception table:
+       from    to  target type
+          29    76    79   any
+          79    83    79   any
+
+  private java.awt.AWTEvent createDelegateEvent(java.awt.AWTEvent);
+    Code:
+       0: aconst_null
+       1: astore_2
+       2: aload_1
+       3: instanceof    #275                // class java/awt/event/MouseWheelEvent
+       6: ifeq          69
+       9: aload_1
+      10: checkcast     #275                // class java/awt/event/MouseWheelEvent
+      13: astore_3
+      14: new           #275                // class java/awt/event/MouseWheelEvent
+      17: dup
+      18: aload_0
+      19: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+      22: aload_3
+      23: invokevirtual #276                // Method java/awt/event/MouseWheelEvent.getID:()I
+      26: aload_3
+      27: invokevirtual #277                // Method java/awt/event/MouseWheelEvent.getWhen:()J
+      30: aload_3
+      31: invokevirtual #278                // Method java/awt/event/MouseWheelEvent.getModifiers:()I
+      34: aload_3
+      35: invokevirtual #279                // Method java/awt/event/MouseWheelEvent.getX:()I
+      38: aload_3
+      39: invokevirtual #280                // Method java/awt/event/MouseWheelEvent.getY:()I
+      42: aload_3
+      43: invokevirtual #281                // Method java/awt/event/MouseWheelEvent.getClickCount:()I
+      46: aload_3
+      47: invokevirtual #282                // Method java/awt/event/MouseWheelEvent.isPopupTrigger:()Z
+      50: aload_3
+      51: invokevirtual #283                // Method java/awt/event/MouseWheelEvent.getScrollType:()I
+      54: aload_3
+      55: invokevirtual #284                // Method java/awt/event/MouseWheelEvent.getScrollAmount:()I
+      58: aload_3
+      59: invokevirtual #285                // Method java/awt/event/MouseWheelEvent.getWheelRotation:()I
+      62: invokespecial #286                // Method java/awt/event/MouseWheelEvent."<init>":(Ljava/awt/Component;IJIIIIZIII)V
+      65: astore_2
+      66: goto          283
+      69: aload_1
+      70: instanceof    #265                // class java/awt/event/MouseEvent
+      73: ifeq          183
+      76: aload_1
+      77: checkcast     #265                // class java/awt/event/MouseEvent
+      80: astore_3
+      81: aload_0
+      82: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+      85: aload_3
+      86: invokevirtual #287                // Method java/awt/event/MouseEvent.getX:()I
+      89: aload_3
+      90: invokevirtual #288                // Method java/awt/event/MouseEvent.getY:()I
+      93: invokestatic  #289                // Method javax/swing/SwingUtilities.getDeepestComponentAt:(Ljava/awt/Component;II)Ljava/awt/Component;
+      96: astore        4
+      98: aload_3
+      99: invokevirtual #290                // Method java/awt/event/MouseEvent.getID:()I
+     102: sipush        506
+     105: if_icmpne     130
+     108: aload_0
+     109: getfield      #291                // Field delegateDropTarget:Ljava/awt/Component;
+     112: ifnonnull     124
+     115: aload_0
+     116: aload         4
+     118: putfield      #291                // Field delegateDropTarget:Ljava/awt/Component;
+     121: goto          130
+     124: aload_0
+     125: getfield      #291                // Field delegateDropTarget:Ljava/awt/Component;
+     128: astore        4
+     130: aload_3
+     131: invokevirtual #290                // Method java/awt/event/MouseEvent.getID:()I
+     134: sipush        502
+     137: if_icmpne     158
+     140: aload_0
+     141: getfield      #291                // Field delegateDropTarget:Ljava/awt/Component;
+     144: ifnull        158
+     147: aload_0
+     148: getfield      #291                // Field delegateDropTarget:Ljava/awt/Component;
+     151: astore        4
+     153: aload_0
+     154: aconst_null
+     155: putfield      #291                // Field delegateDropTarget:Ljava/awt/Component;
+     158: aload         4
+     160: ifnonnull     169
+     163: aload_0
+     164: getfield      #32                 // Field delegate:Ljavax/swing/JComponent;
+     167: astore        4
+     169: aload_0
+     170: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+     173: aload_3
+     174: aload         4
+     176: invokestatic  #292                // Method javax/swing/SwingUtilities.convertMouseEvent:(Ljava/awt/Component;Ljava/awt/event/MouseEvent;Ljava/awt/Component;)Ljava/awt/event/MouseEvent;
+     179: astore_2
+     180: goto          283
+     183: aload_1
+     184: instanceof    #273                // class java/awt/event/KeyEvent
+     187: ifeq          251
+     190: aload_1
+     191: checkcast     #273                // class java/awt/event/KeyEvent
+     194: astore_3
+     195: new           #273                // class java/awt/event/KeyEvent
+     198: dup
+     199: aload_0
+     200: invokevirtual #293                // Method getDelegateFocusOwner:()Ljava/awt/Component;
+     203: aload_3
+     204: invokevirtual #294                // Method java/awt/event/KeyEvent.getID:()I
+     207: aload_3
+     208: invokevirtual #295                // Method java/awt/event/KeyEvent.getWhen:()J
+     211: aload_3
+     212: invokevirtual #296                // Method java/awt/event/KeyEvent.getModifiers:()I
+     215: aload_3
+     216: invokevirtual #297                // Method java/awt/event/KeyEvent.getKeyCode:()I
+     219: aload_3
+     220: invokevirtual #298                // Method java/awt/event/KeyEvent.getKeyChar:()C
+     223: aload_3
+     224: invokevirtual #299                // Method java/awt/event/KeyEvent.getKeyLocation:()I
+     227: invokespecial #300                // Method java/awt/event/KeyEvent."<init>":(Ljava/awt/Component;IJIICI)V
+     230: astore_2
+     231: invokestatic  #301                // Method sun/awt/AWTAccessor.getKeyEventAccessor:()Lsun/awt/AWTAccessor$KeyEventAccessor;
+     234: aload_2
+     235: checkcast     #273                // class java/awt/event/KeyEvent
+     238: aload_3
+     239: invokevirtual #302                // Method java/awt/event/KeyEvent.getExtendedKeyCode:()I
+     242: i2l
+     243: invokeinterface #303,  4          // InterfaceMethod sun/awt/AWTAccessor$KeyEventAccessor.setExtendedKeyCode:(Ljava/awt/event/KeyEvent;J)V
+     248: goto          283
+     251: aload_1
+     252: instanceof    #262                // class java/awt/event/FocusEvent
+     255: ifeq          283
+     258: aload_1
+     259: checkcast     #262                // class java/awt/event/FocusEvent
+     262: astore_3
+     263: new           #262                // class java/awt/event/FocusEvent
+     266: dup
+     267: aload_0
+     268: invokevirtual #293                // Method getDelegateFocusOwner:()Ljava/awt/Component;
+     271: aload_3
+     272: invokevirtual #304                // Method java/awt/event/FocusEvent.getID:()I
+     275: aload_3
+     276: invokevirtual #305                // Method java/awt/event/FocusEvent.isTemporary:()Z
+     279: invokespecial #306                // Method java/awt/event/FocusEvent."<init>":(Ljava/awt/Component;IZ)V
+     282: astore_2
+     283: aload_2
+     284: areturn
+
+  protected void handleJavaMouseEvent(java.awt.event.MouseEvent);
+    Code:
+       0: aload_0
+       1: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+       4: astore_2
+       5: getstatic     #307                // Field $assertionsDisabled:Z
+       8: ifne          27
+      11: aload_1
+      12: invokevirtual #308                // Method java/awt/event/MouseEvent.getSource:()Ljava/lang/Object;
+      15: aload_2
+      16: if_acmpeq     27
+      19: new           #309                // class java/lang/AssertionError
+      22: dup
+      23: invokespecial #310                // Method java/lang/AssertionError."<init>":()V
+      26: athrow
+      27: aload_2
+      28: invokevirtual #311                // Method java/awt/Component.isFocusOwner:()Z
+      31: ifne          49
+      34: aload_2
+      35: invokestatic  #312                // Method sun/lwawt/LWKeyboardFocusManagerPeer.shouldFocusOnClick:(Ljava/awt/Component;)Z
+      38: ifeq          49
+      41: aload_2
+      42: getstatic     #313                // Field sun/awt/CausedFocusEvent$Cause.MOUSE_EVENT:Lsun/awt/CausedFocusEvent$Cause;
+      45: invokestatic  #314                // Method sun/lwawt/LWKeyboardFocusManagerPeer.requestFocusFor:(Ljava/awt/Component;Lsun/awt/CausedFocusEvent$Cause;)Z
+      48: pop
+      49: return
+
+  void handleJavaFocusEvent(java.awt.event.FocusEvent);
+    Code:
+       0: invokestatic  #223                // Method sun/lwawt/LWKeyboardFocusManagerPeer.getInstance:()Lsun/lwawt/LWKeyboardFocusManagerPeer;
+       3: astore_2
+       4: aload_2
+       5: aload_1
+       6: invokevirtual #304                // Method java/awt/event/FocusEvent.getID:()I
+       9: sipush        1004
+      12: if_icmpne     22
+      15: aload_0
+      16: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      19: goto          23
+      22: aconst_null
+      23: invokeinterface #315,  2          // InterfaceMethod java/awt/peer/KeyboardFocusManagerPeer.setCurrentFocusOwner:(Ljava/awt/Component;)V
+      28: return
+
+  protected final boolean shouldClearRectBeforePaint();
+    Code:
+       0: iconst_1
+       1: ireturn
+
+  private void handleJavaPaintEvent();
+    Code:
+       0: aload_0
+       1: invokespecial #316                // Method isLayouting:()Z
+       4: ifne          22
+       7: aload_0
+       8: getfield      #17                 // Field targetPaintArea:Lsun/awt/RepaintArea;
+      11: aload_0
+      12: invokevirtual #73                 // Method getTarget:()Ljava/awt/Component;
+      15: aload_0
+      16: invokevirtual #317                // Method shouldClearRectBeforePaint:()Z
+      19: invokevirtual #318                // Method sun/awt/RepaintArea.paint:(Ljava/lang/Object;Z)V
+      22: return
+
+  sun.lwawt.LWComponentPeer<?, ?> findPeerAt(int, int);
+    Code:
+       0: aload_0
+       1: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+       4: astore_3
+       5: aload_0
+       6: invokevirtual #107                // Method getRegion:()Lsun/java2d/pipe/Region;
+       9: astore        4
+      11: aload_0
+      12: invokevirtual #319                // Method isVisible:()Z
+      15: ifeq          42
+      18: aload         4
+      20: iload_1
+      21: aload_3
+      22: getfield      #101                // Field java/awt/Rectangle.x:I
+      25: isub
+      26: iload_2
+      27: aload_3
+      28: getfield      #102                // Field java/awt/Rectangle.y:I
+      31: isub
+      32: invokevirtual #320                // Method sun/java2d/pipe/Region.contains:(II)Z
+      35: ifeq          42
+      38: iconst_1
+      39: goto          43
+      42: iconst_0
+      43: istore        5
+      45: iload         5
+      47: ifeq          54
+      50: aload_0
+      51: goto          55
+      54: aconst_null
+      55: areturn
+
+  public java.awt.Point windowToLocal(int, int, sun.lwawt.LWWindowPeer);
+    Code:
+       0: aload_0
+       1: new           #146                // class java/awt/Point
+       4: dup
+       5: iload_1
+       6: iload_2
+       7: invokespecial #147                // Method java/awt/Point."<init>":(II)V
+      10: aload_3
+      11: invokevirtual #321                // Method windowToLocal:(Ljava/awt/Point;Lsun/lwawt/LWWindowPeer;)Ljava/awt/Point;
+      14: areturn
+
+  public java.awt.Point windowToLocal(java.awt.Point, sun.lwawt.LWWindowPeer);
+    Code:
+       0: aload_0
+       1: astore_3
+       2: aload_3
+       3: aload_2
+       4: if_acmpeq     49
+       7: aload_3
+       8: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+      11: astore        4
+      13: aload_1
+      14: dup
+      15: getfield      #137                // Field java/awt/Point.x:I
+      18: aload         4
+      20: getfield      #101                // Field java/awt/Rectangle.x:I
+      23: isub
+      24: putfield      #137                // Field java/awt/Point.x:I
+      27: aload_1
+      28: dup
+      29: getfield      #138                // Field java/awt/Point.y:I
+      32: aload         4
+      34: getfield      #102                // Field java/awt/Rectangle.y:I
+      37: isub
+      38: putfield      #138                // Field java/awt/Point.y:I
+      41: aload_3
+      42: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+      45: astore_3
+      46: goto          2
+      49: new           #146                // class java/awt/Point
+      52: dup
+      53: aload_1
+      54: invokespecial #322                // Method java/awt/Point."<init>":(Ljava/awt/Point;)V
+      57: areturn
+
+  public java.awt.Rectangle windowToLocal(java.awt.Rectangle, sun.lwawt.LWWindowPeer);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #323                // Method java/awt/Rectangle.getLocation:()Ljava/awt/Point;
+       5: aload_2
+       6: invokevirtual #321                // Method windowToLocal:(Ljava/awt/Point;Lsun/lwawt/LWWindowPeer;)Ljava/awt/Point;
+       9: astore_3
+      10: new           #7                  // class java/awt/Rectangle
+      13: dup
+      14: aload_3
+      15: aload_1
+      16: invokevirtual #324                // Method java/awt/Rectangle.getSize:()Ljava/awt/Dimension;
+      19: invokespecial #325                // Method java/awt/Rectangle."<init>":(Ljava/awt/Point;Ljava/awt/Dimension;)V
+      22: areturn
+
+  public java.awt.Point localToWindow(int, int);
+    Code:
+       0: aload_0
+       1: new           #146                // class java/awt/Point
+       4: dup
+       5: iload_1
+       6: iload_2
+       7: invokespecial #147                // Method java/awt/Point."<init>":(II)V
+      10: invokevirtual #326                // Method localToWindow:(Ljava/awt/Point;)Ljava/awt/Point;
+      13: areturn
+
+  public java.awt.Point localToWindow(java.awt.Point);
+    Code:
+       0: aload_0
+       1: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+       4: astore_2
+       5: aload_0
+       6: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+       9: astore_3
+      10: aload_2
+      11: ifnull        53
+      14: aload_1
+      15: dup
+      16: getfield      #137                // Field java/awt/Point.x:I
+      19: aload_3
+      20: getfield      #101                // Field java/awt/Rectangle.x:I
+      23: iadd
+      24: putfield      #137                // Field java/awt/Point.x:I
+      27: aload_1
+      28: dup
+      29: getfield      #138                // Field java/awt/Point.y:I
+      32: aload_3
+      33: getfield      #102                // Field java/awt/Rectangle.y:I
+      36: iadd
+      37: putfield      #138                // Field java/awt/Point.y:I
+      40: aload_2
+      41: invokevirtual #109                // Method getBounds:()Ljava/awt/Rectangle;
+      44: astore_3
+      45: aload_2
+      46: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+      49: astore_2
+      50: goto          10
+      53: new           #146                // class java/awt/Point
+      56: dup
+      57: aload_1
+      58: invokespecial #322                // Method java/awt/Point."<init>":(Ljava/awt/Point;)V
+      61: areturn
+
+  public java.awt.Rectangle localToWindow(java.awt.Rectangle);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #323                // Method java/awt/Rectangle.getLocation:()Ljava/awt/Point;
+       5: invokevirtual #326                // Method localToWindow:(Ljava/awt/Point;)Ljava/awt/Point;
+       8: astore_2
+       9: new           #7                  // class java/awt/Rectangle
+      12: dup
+      13: aload_2
+      14: aload_1
+      15: invokevirtual #324                // Method java/awt/Rectangle.getSize:()Ljava/awt/Dimension;
+      18: invokespecial #325                // Method java/awt/Rectangle."<init>":(Ljava/awt/Point;Ljava/awt/Dimension;)V
+      21: areturn
+
+  public final void repaintPeer();
+    Code:
+       0: aload_0
+       1: aload_0
+       2: invokevirtual #99                 // Method getSize:()Ljava/awt/Rectangle;
+       5: invokevirtual #252                // Method repaintPeer:(Ljava/awt/Rectangle;)V
+       8: return
+
+  void repaintPeer(java.awt.Rectangle);
+    Code:
+       0: aload_0
+       1: invokevirtual #99                 // Method getSize:()Ljava/awt/Rectangle;
+       4: aload_1
+       5: invokevirtual #253                // Method java/awt/Rectangle.intersection:(Ljava/awt/Rectangle;)Ljava/awt/Rectangle;
+       8: astore_2
+       9: aload_0
+      10: invokevirtual #268                // Method isShowing:()Z
+      13: ifeq          23
+      16: aload_2
+      17: invokevirtual #174                // Method java/awt/Rectangle.isEmpty:()Z
+      20: ifeq          24
+      23: return
+      24: aload_0
+      25: aload_2
+      26: getfield      #101                // Field java/awt/Rectangle.x:I
+      29: aload_2
+      30: getfield      #102                // Field java/awt/Rectangle.y:I
+      33: aload_2
+      34: getfield      #103                // Field java/awt/Rectangle.width:I
+      37: aload_2
+      38: getfield      #104                // Field java/awt/Rectangle.height:I
+      41: invokevirtual #327                // Method postPaintEvent:(IIII)V
+      44: return
+
+  protected final boolean isShowing();
+    Code:
+       0: invokestatic  #91                 // Method getPeerTreeLock:()Ljava/lang/Object;
+       3: dup
+       4: astore_1
+       5: monitorenter
+       6: aload_0
+       7: invokevirtual #319                // Method isVisible:()Z
+      10: ifeq          37
+      13: aload_0
+      14: invokevirtual #82                 // Method getContainerPeer:()Lsun/lwawt/LWContainerPeer;
+      17: astore_2
+      18: aload_2
+      19: ifnull        29
+      22: aload_2
+      23: invokevirtual #328                // Method sun/lwawt/LWContainerPeer.isShowing:()Z
+      26: ifeq          33
+      29: iconst_1
+      30: goto          34
+      33: iconst_0
+      34: aload_1
+      35: monitorexit
+      36: ireturn
+      37: aload_1
+      38: monitorexit
+      39: goto          47
+      42: astore_3
+      43: aload_1
+      44: monitorexit
+      45: aload_3
+      46: athrow
+      47: iconst_0
+      48: ireturn
+    Exception table:
+       from    to  target type
+           6    36    42   any
+          37    39    42   any
+          42    45    42   any
+
+  protected final void paintPeer(java.awt.Graphics);
+    Code:
+       0: aload_0
+       1: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+       4: astore_2
+       5: aload_2
+       6: ifnull        53
+       9: invokestatic  #329                // Method javax/swing/SwingUtilities.isEventDispatchThread:()Z
+      12: ifne          26
+      15: new           #330                // class java/lang/InternalError
+      18: dup
+      19: ldc_w         #331                // String Painting must be done on EDT
+      22: invokespecial #332                // Method java/lang/InternalError."<init>":(Ljava/lang/String;)V
+      25: athrow
+      26: aload_0
+      27: invokevirtual #30                 // Method getDelegateLock:()Ljava/lang/Object;
+      30: dup
+      31: astore_3
+      32: monitorenter
+      33: aload_0
+      34: invokevirtual #51                 // Method getDelegate:()Ljavax/swing/JComponent;
+      37: aload_1
+      38: invokevirtual #333                // Method javax/swing/JComponent.print:(Ljava/awt/Graphics;)V
+      41: aload_3
+      42: monitorexit
+      43: goto          53
+      46: astore        4
+      48: aload_3
+      49: monitorexit
+      50: aload         4
+      52: athrow
+      53: return
+    Exception table:
+       from    to  target type
+          33    43    46   any
+          46    50    46   any
+
+  protected static final void flushOnscreenGraphics();
+    Code:
+       0: invokestatic  #334                // Method sun/java2d/opengl/OGLRenderQueue.getInstance:()Lsun/java2d/opengl/OGLRenderQueue;
+       3: astore_0
+       4: aload_0
+       5: invokevirtual #335                // Method sun/java2d/opengl/OGLRenderQueue.lock:()V
+       8: aload_0
+       9: invokevirtual #336                // Method sun/java2d/opengl/OGLRenderQueue.flushNow:()V
+      12: aload_0
+      13: invokevirtual #337                // Method sun/java2d/opengl/OGLRenderQueue.unlock:()V
+      16: goto          26
+      19: astore_1
+      20: aload_0
+      21: invokevirtual #337                // Method sun/java2d/opengl/OGLRenderQueue.unlock:()V
+      24: aload_1
+      25: athrow
+      26: return
+    Exception table:
+       from    to  target type
+           8    12    19   any
+
+  protected final void setLayouting(boolean);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #338                // Field isLayouting:Z
+       5: return
+
+  private final boolean isLayouting();
+    Code:
+       0: aload_0
+       1: getfield      #338                // Field isLayouting:Z
+       4: ireturn
+
+  static {};
+    Code:
+       0: ldc           #170                // class sun/lwawt/LWComponentPeer
+       2: invokevirtual #339                // Method java/lang/Class.desiredAssertionStatus:()Z
+       5: ifne          12
+       8: iconst_1
+       9: goto          13
+      12: iconst_0
+      13: putstatic     #307                // Field $assertionsDisabled:Z
+      16: ldc_w         #340                // String sun.lwawt.focus.LWComponentPeer
+      19: invokestatic  #341                // Method sun/util/logging/PlatformLogger.getLogger:(Ljava/lang/String;)Lsun/util/logging/PlatformLogger;
+      22: putstatic     #188                // Field focusLog:Lsun/util/logging/PlatformLogger;
+      25: new           #2                  // class java/lang/Object
+      28: dup
+      29: invokespecial #1                  // Method java/lang/Object."<init>":()V
+      32: putstatic     #75                 // Field peerTreeLock:Ljava/lang/Object;
+      35: return
+}

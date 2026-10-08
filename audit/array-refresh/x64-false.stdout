@@ -1,0 +1,1 @@
+PASS array transitions; rounds=300; offscreen=false; fixed=true; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0

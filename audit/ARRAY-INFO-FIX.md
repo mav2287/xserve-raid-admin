@@ -129,3 +129,8 @@ Array & Drives selection. Confirmation that intermittent stale highlights are
 gone remains open. Full GUI, physical Intel, actual controller workflows,
 Developer ID/notarization, other filesystems/OS versions and future macOS remain
 unqualified. Legacy HTTP remains plaintext.
+
+
+## Later operator evidence — 2026-10-08
+
+The user reports the patch improves the symptom. Selection and details remain correct; rapid transitions still produce a short, self-resolving highlight delay. [The follow-up investigation](ARRAY-REFRESH.md) preserves this distinction. No additional product changes or hardware acceptance follow from the new report.

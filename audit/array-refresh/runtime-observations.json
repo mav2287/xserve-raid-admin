@@ -1,0 +1,70 @@
+{
+  "qualification": false,
+  "rows": [
+    {
+      "architecture": "aarch64",
+      "class": "sun.lwawt.LWComponentPeer",
+      "path": "build/array-native-renderer-inspection/aarch64-LWComponentPeer.javap",
+      "runtime_rt_sha256": "c48e6edb78b00ea6cb9415093a31a6e521d890422ddca69761516bdd35fdc366",
+      "runtime_tools_sha256": "df3720e7126e6400b31fe3fe65c40a7de690d150087b16e054c297b128eaa707",
+      "sha256": "0abc44743bb38f1777e22628bdc2d5c1b9796668b81169e9891edaf0afea5498"
+    },
+    {
+      "architecture": "aarch64",
+      "class": "sun.java2d.opengl.CGLGraphicsConfig",
+      "path": "build/array-native-renderer-inspection/aarch64-CGLGraphicsConfig.javap",
+      "runtime_rt_sha256": "c48e6edb78b00ea6cb9415093a31a6e521d890422ddca69761516bdd35fdc366",
+      "runtime_tools_sha256": "df3720e7126e6400b31fe3fe65c40a7de690d150087b16e054c297b128eaa707",
+      "sha256": "f77cdb1e25107a7483ee4d374986e43dc1df8b0d4a8a508d1d794c62578a9ee9"
+    },
+    {
+      "architecture": "aarch64",
+      "class": "sun.awt.image.OffScreenImage",
+      "path": "build/array-native-renderer-inspection/aarch64-OffScreenImage.javap",
+      "runtime_rt_sha256": "c48e6edb78b00ea6cb9415093a31a6e521d890422ddca69761516bdd35fdc366",
+      "runtime_tools_sha256": "df3720e7126e6400b31fe3fe65c40a7de690d150087b16e054c297b128eaa707",
+      "sha256": "56c9021071805361f31ef15016f760ca4e200cd8c839c12de6717178f22509c4"
+    },
+    {
+      "architecture": "aarch64",
+      "class": "java.awt.Image",
+      "path": "build/array-native-renderer-inspection/aarch64-Image.javap",
+      "runtime_rt_sha256": "c48e6edb78b00ea6cb9415093a31a6e521d890422ddca69761516bdd35fdc366",
+      "runtime_tools_sha256": "df3720e7126e6400b31fe3fe65c40a7de690d150087b16e054c297b128eaa707",
+      "sha256": "41d3bf2b6e78b57857739e82a214abb71b374bcc2c88a06a03055c6cdb9d0461"
+    },
+    {
+      "architecture": "x64",
+      "class": "sun.lwawt.LWComponentPeer",
+      "path": "build/array-native-renderer-inspection/x64-LWComponentPeer.javap",
+      "runtime_rt_sha256": "2bb5d01a1c8911f4cc968af3672586c872131e1826cd7c7c558cb3667bb674c1",
+      "runtime_tools_sha256": "541c6c1a9b9238fa82c302bc1691cfde88d04b0897ce3f84df564a7002e6e9d6",
+      "sha256": "0abc44743bb38f1777e22628bdc2d5c1b9796668b81169e9891edaf0afea5498"
+    },
+    {
+      "architecture": "x64",
+      "class": "sun.java2d.opengl.CGLGraphicsConfig",
+      "path": "build/array-native-renderer-inspection/x64-CGLGraphicsConfig.javap",
+      "runtime_rt_sha256": "2bb5d01a1c8911f4cc968af3672586c872131e1826cd7c7c558cb3667bb674c1",
+      "runtime_tools_sha256": "541c6c1a9b9238fa82c302bc1691cfde88d04b0897ce3f84df564a7002e6e9d6",
+      "sha256": "f77cdb1e25107a7483ee4d374986e43dc1df8b0d4a8a508d1d794c62578a9ee9"
+    },
+    {
+      "architecture": "x64",
+      "class": "sun.awt.image.OffScreenImage",
+      "path": "build/array-native-renderer-inspection/x64-OffScreenImage.javap",
+      "runtime_rt_sha256": "2bb5d01a1c8911f4cc968af3672586c872131e1826cd7c7c558cb3667bb674c1",
+      "runtime_tools_sha256": "541c6c1a9b9238fa82c302bc1691cfde88d04b0897ce3f84df564a7002e6e9d6",
+      "sha256": "56c9021071805361f31ef15016f760ca4e200cd8c839c12de6717178f22509c4"
+    },
+    {
+      "architecture": "x64",
+      "class": "java.awt.Image",
+      "path": "build/array-native-renderer-inspection/x64-Image.javap",
+      "runtime_rt_sha256": "2bb5d01a1c8911f4cc968af3672586c872131e1826cd7c7c558cb3667bb674c1",
+      "runtime_tools_sha256": "541c6c1a9b9238fa82c302bc1691cfde88d04b0897ce3f84df564a7002e6e9d6",
+      "sha256": "41d3bf2b6e78b57857739e82a214abb71b374bcc2c88a06a03055c6cdb9d0461"
+    }
+  ],
+  "scope": "Read-only bytecode of actual pinned bundled runtime; no native window or Main"
+}

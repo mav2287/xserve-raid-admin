@@ -1,0 +1,130 @@
+Compiled from "OffScreenImage.java"
+public class sun.awt.image.OffScreenImage extends java.awt.image.BufferedImage {
+  protected java.awt.Component c;
+
+  private sun.awt.image.OffScreenImageSource osis;
+
+  private java.awt.Font defaultFont;
+
+  public sun.awt.image.OffScreenImage(java.awt.Component, java.awt.image.ColorModel, java.awt.image.WritableRaster, boolean);
+    Code:
+       0: aload_0
+       1: aload_2
+       2: aload_3
+       3: iload         4
+       5: aconst_null
+       6: invokespecial #1                  // Method java/awt/image/BufferedImage."<init>":(Ljava/awt/image/ColorModel;Ljava/awt/image/WritableRaster;ZLjava/util/Hashtable;)V
+       9: aload_0
+      10: aload_1
+      11: putfield      #2                  // Field c:Ljava/awt/Component;
+      14: aload_0
+      15: aload_3
+      16: invokevirtual #3                  // Method java/awt/image/WritableRaster.getWidth:()I
+      19: aload_3
+      20: invokevirtual #4                  // Method java/awt/image/WritableRaster.getHeight:()I
+      23: invokespecial #5                  // Method initSurface:(II)V
+      26: return
+
+  public java.awt.Graphics getGraphics();
+    Code:
+       0: aload_0
+       1: invokevirtual #6                  // Method createGraphics:()Ljava/awt/Graphics2D;
+       4: areturn
+
+  public java.awt.Graphics2D createGraphics();
+    Code:
+       0: aload_0
+       1: getfield      #2                  // Field c:Ljava/awt/Component;
+       4: ifnonnull     17
+       7: invokestatic  #7                  // Method java/awt/GraphicsEnvironment.getLocalGraphicsEnvironment:()Ljava/awt/GraphicsEnvironment;
+      10: astore_1
+      11: aload_1
+      12: aload_0
+      13: invokevirtual #8                  // Method java/awt/GraphicsEnvironment.createGraphics:(Ljava/awt/image/BufferedImage;)Ljava/awt/Graphics2D;
+      16: areturn
+      17: aload_0
+      18: getfield      #2                  // Field c:Ljava/awt/Component;
+      21: invokevirtual #9                  // Method java/awt/Component.getBackground:()Ljava/awt/Color;
+      24: astore_1
+      25: aload_1
+      26: ifnonnull     33
+      29: getstatic     #10                 // Field java/awt/SystemColor.window:Ljava/awt/SystemColor;
+      32: astore_1
+      33: aload_0
+      34: getfield      #2                  // Field c:Ljava/awt/Component;
+      37: invokevirtual #11                 // Method java/awt/Component.getForeground:()Ljava/awt/Color;
+      40: astore_2
+      41: aload_2
+      42: ifnonnull     49
+      45: getstatic     #12                 // Field java/awt/SystemColor.windowText:Ljava/awt/SystemColor;
+      48: astore_2
+      49: aload_0
+      50: getfield      #2                  // Field c:Ljava/awt/Component;
+      53: invokevirtual #13                 // Method java/awt/Component.getFont:()Ljava/awt/Font;
+      56: astore_3
+      57: aload_3
+      58: ifnonnull     89
+      61: aload_0
+      62: getfield      #14                 // Field defaultFont:Ljava/awt/Font;
+      65: ifnonnull     84
+      68: aload_0
+      69: new           #15                 // class java/awt/Font
+      72: dup
+      73: ldc           #16                 // String Dialog
+      75: iconst_0
+      76: bipush        12
+      78: invokespecial #17                 // Method java/awt/Font."<init>":(Ljava/lang/String;II)V
+      81: putfield      #14                 // Field defaultFont:Ljava/awt/Font;
+      84: aload_0
+      85: getfield      #14                 // Field defaultFont:Ljava/awt/Font;
+      88: astore_3
+      89: new           #18                 // class sun/java2d/SunGraphics2D
+      92: dup
+      93: aload_0
+      94: invokestatic  #19                 // Method sun/java2d/SurfaceData.getPrimarySurfaceData:(Ljava/awt/Image;)Lsun/java2d/SurfaceData;
+      97: aload_2
+      98: aload_1
+      99: aload_3
+     100: invokespecial #20                 // Method sun/java2d/SunGraphics2D."<init>":(Lsun/java2d/SurfaceData;Ljava/awt/Color;Ljava/awt/Color;Ljava/awt/Font;)V
+     103: areturn
+
+  private void initSurface(int, int);
+    Code:
+       0: aload_0
+       1: invokevirtual #6                  // Method createGraphics:()Ljava/awt/Graphics2D;
+       4: astore_3
+       5: aload_3
+       6: iconst_0
+       7: iconst_0
+       8: iload_1
+       9: iload_2
+      10: invokevirtual #21                 // Method java/awt/Graphics2D.clearRect:(IIII)V
+      13: aload_3
+      14: invokevirtual #22                 // Method java/awt/Graphics2D.dispose:()V
+      17: goto          29
+      20: astore        4
+      22: aload_3
+      23: invokevirtual #22                 // Method java/awt/Graphics2D.dispose:()V
+      26: aload         4
+      28: athrow
+      29: return
+    Exception table:
+       from    to  target type
+           5    13    20   any
+          20    22    20   any
+
+  public java.awt.image.ImageProducer getSource();
+    Code:
+       0: aload_0
+       1: getfield      #23                 // Field osis:Lsun/awt/image/OffScreenImageSource;
+       4: ifnonnull     19
+       7: aload_0
+       8: new           #24                 // class sun/awt/image/OffScreenImageSource
+      11: dup
+      12: aload_0
+      13: invokespecial #25                 // Method sun/awt/image/OffScreenImageSource."<init>":(Ljava/awt/image/BufferedImage;)V
+      16: putfield      #23                 // Field osis:Lsun/awt/image/OffScreenImageSource;
+      19: aload_0
+      20: getfield      #23                 // Field osis:Lsun/awt/image/OffScreenImageSource;
+      23: areturn
+}

@@ -15,7 +15,7 @@ Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS
 
 These are **unsigned, unnotarized audit builds**. Offline checks passed on native ARM and on x64 under Rosetta; physical Intel, full native interface/startup and real-controller workflows still need qualification. Successful launch is not proof that every feature works. See [completion and remaining acceptance](COMPLETION-STATUS.md).
 
-Audit29 adds a narrow information-view fix: a cleared array selection now clears the drive highlights instead of selecting unassigned drives. Offline original/fixed tests pass; whether this resolves the user’s intermittent stale highlights still needs an operator check. See [fix and test evidence](audit/ARRAY-INFO-FIX.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
+Audit29 adds a narrow information-view fix: a cleared array selection now clears the drive highlights instead of selecting unassigned drives. Offline original/fixed tests pass. The user reports improvement and correct selection/details, with a remaining brief highlight delay that self-resolves. [The follow-up investigation](audit/ARRAY-REFRESH.md) records expanded transition tests; native paint latency remains unqualified. See [fix and test evidence](audit/ARRAY-INFO-FIX.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
 
 ## Installation and use
 

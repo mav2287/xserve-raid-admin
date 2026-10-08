@@ -129,3 +129,8 @@ approval is not an additional project permission rule. User restrictions govern.
 ## Authorized narrow fix — audit29
 
 The user authorized a careful patch after these observations. [Audit29 evidence](ARRAY-INFO-FIX.md) records the information-listener-only conversion of cleared array ID `0` to the drive panel’s `INDEX_NONE`, exact unchanged controller code and both architecture offline tests. This fixes the reproducible cleared-selection mismatch; the user-reported intermittent native highlights remain unconfirmed until retried. The preceding audit28 observations retain their original scope.
+
+
+## Operator follow-up — 2026-10-08
+
+The user reports audit29 is better. Rapid switching or drive-to-array transitions can briefly delay highlights, while selection/details stay correct. The highlights catch up without another view refresh, before cover/uncover can be tested. [Residual presentation investigation](ARRAY-REFRESH.md) records four guarded mixed-transition runs and the decision to keep product code unchanged. The remaining latency is not independently measured or claimed resolved.

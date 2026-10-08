@@ -1,0 +1,44 @@
+{
+  "qualification": false,
+  "source_commit": "83f9726f7f6586bb916be13deb5180c59d9abad8",
+  "product_sha256": "99d317b47e553bfb9a63739ecd6586efd96333a2b95218533e72d74796b7a883",
+  "inputs": {
+    "build/ArrayInfoTransitionObservation.java": "fde2656f0ac6d0dcd9e6c87660d70b0d99f29aa5460338a9631d3dd7cacee4c6",
+    "build/TransitionGuard.java": "3f062670441d409709f17e2cb458d4a00b1d50c292860aff88debdb4a0c6c34e",
+    "tests/java/fixture/FixtureIdentity.java": "ef8f0f33eb21589264c9076c8e2ef9c6c3dedae1bf43391fc5695cdcd414e43a"
+  },
+  "runs": [
+    {
+      "architecture": "aarch64",
+      "offscreen": "false",
+      "returncode": 0,
+      "stdout": "CodeCache: size=131072Kb used=1960Kb max_used=1960Kb free=129112Kb\n bounds [0x00000001086ac000, 0x000000010891c000, 0x00000001106ac000]\n total_blobs=1020 nmethods=579 adapters=358\n compilation: disabled (not enough contiguous free space left)\nTIMING samples=600 median_ns=1141958 p95_ns=1646750 index_total_ns=773129761 mode_total_ns=0\nPASS array transitions; rounds=300; offscreen=false; fixed=true; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0\n",
+      "stderr": "OpenJDK 64-Bit Server VM warning: CodeCache is full. Compiler has been disabled.\nOpenJDK 64-Bit Server VM warning: Try increasing the code cache size using -XX:ReservedCodeCacheSize=\n"
+    },
+    {
+      "architecture": "aarch64",
+      "offscreen": "true",
+      "returncode": 0,
+      "stdout": "CodeCache: size=131072Kb used=1975Kb max_used=1975Kb free=129096Kb\n bounds [0x0000000108384000, 0x00000001085f4000, 0x0000000110384000]\n total_blobs=1067 nmethods=598 adapters=386\n compilation: disabled (not enough contiguous free space left)\nTIMING samples=600 median_ns=1393833 p95_ns=1964333 index_total_ns=939086964 mode_total_ns=0\nPASS array transitions; rounds=300; offscreen=true; fixed=true; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0\n",
+      "stderr": "OpenJDK 64-Bit Server VM warning: CodeCache is full. Compiler has been disabled.\nOpenJDK 64-Bit Server VM warning: Try increasing the code cache size using -XX:ReservedCodeCacheSize=\n"
+    },
+    {
+      "architecture": "x64",
+      "offscreen": "false",
+      "returncode": 0,
+      "stdout": "TIMING samples=600 median_ns=166709 p95_ns=264875 index_total_ns=130377294 mode_total_ns=0\nPASS array transitions; rounds=300; offscreen=false; fixed=true; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0\n",
+      "stderr": ""
+    },
+    {
+      "architecture": "x64",
+      "offscreen": "true",
+      "returncode": 0,
+      "stdout": "TIMING samples=600 median_ns=190708 p95_ns=281333 index_total_ns=139663957 mode_total_ns=0\nPASS array transitions; rounds=300; offscreen=true; fixed=true; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0\n",
+      "stderr": ""
+    }
+  ],
+  "limits": [
+    "No native display, no app Main, no controllers",
+    "OffScreenImage test is headless and does not exercise native upload caches"
+  ]
+}

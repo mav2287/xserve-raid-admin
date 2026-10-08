@@ -1,0 +1,144 @@
+Compiled from "Image.java"
+public abstract class java.awt.Image {
+  private static java.awt.ImageCapabilities defaultImageCaps;
+
+  protected float accelerationPriority;
+
+  public static final java.lang.Object UndefinedProperty;
+
+  public static final int SCALE_DEFAULT;
+
+  public static final int SCALE_FAST;
+
+  public static final int SCALE_SMOOTH;
+
+  public static final int SCALE_REPLICATE;
+
+  public static final int SCALE_AREA_AVERAGING;
+
+  sun.awt.image.SurfaceManager surfaceManager;
+
+  public java.awt.Image();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: ldc           #2                  // float 0.5f
+       7: putfield      #3                  // Field accelerationPriority:F
+      10: return
+
+  public abstract int getWidth(java.awt.image.ImageObserver);
+
+  public abstract int getHeight(java.awt.image.ImageObserver);
+
+  public abstract java.awt.image.ImageProducer getSource();
+
+  public abstract java.awt.Graphics getGraphics();
+
+  public abstract java.lang.Object getProperty(java.lang.String, java.awt.image.ImageObserver);
+
+  public java.awt.Image getScaledInstance(int, int, int);
+    Code:
+       0: iload_3
+       1: bipush        20
+       3: iand
+       4: ifeq          21
+       7: new           #5                  // class java/awt/image/AreaAveragingScaleFilter
+      10: dup
+      11: iload_1
+      12: iload_2
+      13: invokespecial #6                  // Method java/awt/image/AreaAveragingScaleFilter."<init>":(II)V
+      16: astore        4
+      18: goto          32
+      21: new           #7                  // class java/awt/image/ReplicateScaleFilter
+      24: dup
+      25: iload_1
+      26: iload_2
+      27: invokespecial #8                  // Method java/awt/image/ReplicateScaleFilter."<init>":(II)V
+      30: astore        4
+      32: new           #9                  // class java/awt/image/FilteredImageSource
+      35: dup
+      36: aload_0
+      37: invokevirtual #10                 // Method getSource:()Ljava/awt/image/ImageProducer;
+      40: aload         4
+      42: invokespecial #11                 // Method java/awt/image/FilteredImageSource."<init>":(Ljava/awt/image/ImageProducer;Ljava/awt/image/ImageFilter;)V
+      45: astore        5
+      47: invokestatic  #12                 // Method java/awt/Toolkit.getDefaultToolkit:()Ljava/awt/Toolkit;
+      50: aload         5
+      52: invokevirtual #13                 // Method java/awt/Toolkit.createImage:(Ljava/awt/image/ImageProducer;)Ljava/awt/Image;
+      55: areturn
+
+  public void flush();
+    Code:
+       0: aload_0
+       1: getfield      #14                 // Field surfaceManager:Lsun/awt/image/SurfaceManager;
+       4: ifnull        14
+       7: aload_0
+       8: getfield      #14                 // Field surfaceManager:Lsun/awt/image/SurfaceManager;
+      11: invokevirtual #15                 // Method sun/awt/image/SurfaceManager.flush:()V
+      14: return
+
+  public java.awt.ImageCapabilities getCapabilities(java.awt.GraphicsConfiguration);
+    Code:
+       0: aload_0
+       1: getfield      #14                 // Field surfaceManager:Lsun/awt/image/SurfaceManager;
+       4: ifnull        16
+       7: aload_0
+       8: getfield      #14                 // Field surfaceManager:Lsun/awt/image/SurfaceManager;
+      11: aload_1
+      12: invokevirtual #16                 // Method sun/awt/image/SurfaceManager.getCapabilities:(Ljava/awt/GraphicsConfiguration;)Ljava/awt/ImageCapabilities;
+      15: areturn
+      16: getstatic     #17                 // Field defaultImageCaps:Ljava/awt/ImageCapabilities;
+      19: areturn
+
+  public void setAccelerationPriority(float);
+    Code:
+       0: fload_1
+       1: fconst_0
+       2: fcmpg
+       3: iflt          12
+       6: fload_1
+       7: fconst_1
+       8: fcmpl
+       9: ifle          22
+      12: new           #18                 // class java/lang/IllegalArgumentException
+      15: dup
+      16: ldc           #19                 // String Priority must be a value between 0 and 1, inclusive
+      18: invokespecial #20                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+      21: athrow
+      22: aload_0
+      23: fload_1
+      24: putfield      #3                  // Field accelerationPriority:F
+      27: aload_0
+      28: getfield      #14                 // Field surfaceManager:Lsun/awt/image/SurfaceManager;
+      31: ifnull        45
+      34: aload_0
+      35: getfield      #14                 // Field surfaceManager:Lsun/awt/image/SurfaceManager;
+      38: aload_0
+      39: getfield      #3                  // Field accelerationPriority:F
+      42: invokevirtual #21                 // Method sun/awt/image/SurfaceManager.setAccelerationPriority:(F)V
+      45: return
+
+  public float getAccelerationPriority();
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field accelerationPriority:F
+       4: freturn
+
+  static {};
+    Code:
+       0: new           #22                 // class java/awt/ImageCapabilities
+       3: dup
+       4: iconst_0
+       5: invokespecial #23                 // Method java/awt/ImageCapabilities."<init>":(Z)V
+       8: putstatic     #17                 // Field defaultImageCaps:Ljava/awt/ImageCapabilities;
+      11: new           #24                 // class java/lang/Object
+      14: dup
+      15: invokespecial #1                  // Method java/lang/Object."<init>":()V
+      18: putstatic     #25                 // Field UndefinedProperty:Ljava/lang/Object;
+      21: new           #26                 // class java/awt/Image$1
+      24: dup
+      25: invokespecial #27                 // Method java/awt/Image$1."<init>":()V
+      28: invokestatic  #28                 // Method sun/awt/image/SurfaceManager.setImageAccessor:(Lsun/awt/image/SurfaceManager$ImageAccessor;)V
+      31: return
+}
