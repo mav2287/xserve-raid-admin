@@ -4,18 +4,18 @@ Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS
 
 ## Download
 
-[Get the audit28 release](https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.28).
+[Get the audit29 release](https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.29).
 
 | Your Mac | Download |
 | --- | --- |
-| Apple silicon (M-series) | [Apple silicon ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-1.5.1-modern.audit.28-aarch64-unsigned.zip) |
-| Intel | [Intel ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.28/RAID-Admin-1.5.1-modern.audit.28-x64-unsigned.zip) |
+| Apple silicon (M-series) | [Apple silicon ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.29/RAID-Admin-1.5.1-modern.audit.29-aarch64-unsigned.zip) |
+| Intel | [Intel ZIP](https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.29/RAID-Admin-1.5.1-modern.audit.29-x64-unsigned.zip) |
 
 **You do not need to download or install Corretto 8 or any other Java runtime.** Each ZIP includes the matching pinned Amazon Corretto 8.504.04.1 runtime inside `RAID Admin.app`. The launcher uses that bundled runtime rather than your system Java. Both packages contain the same application JAR; their runtimes and native helpers differ by CPU architecture.
 
 These are **unsigned, unnotarized audit builds**. Offline checks passed on native ARM and on x64 under Rosetta; physical Intel, full native interface/startup and real-controller workflows still need qualification. Successful launch is not proof that every feature works. See [completion and remaining acceptance](COMPLETION-STATUS.md).
 
-A user has reported intermittent stale drive highlights in Array & Drives. This remains under investigation; see [operator observations and offline checks](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
+Audit29 adds a narrow information-view fix: a cleared array selection now clears the drive highlights instead of selecting unassigned drives. Offline original/fixed tests pass; whether this resolves the user’s intermittent stale highlights still needs an operator check. See [fix and test evidence](audit/ARRAY-INFO-FIX.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
 
 ## Installation and use
 
@@ -25,7 +25,7 @@ A user has reported intermittent stale drive highlights in Array & Drives. This 
 
 If macOS blocks this unsigned app as unverified, first verify the downloaded checksum and decide whether you trust the source. Apple documents the per-app **Privacy & Security → Open Anyway** approval path in [Open apps safely on your Mac](https://support.apple.com/en-gb/102445). Availability depends on your macOS/security policy; this project has not qualified Gatekeeper installation behavior.
 
-The release includes `SHA256SUMS.txt` for the uploaded filenames, plus architecture-specific SPDX SBOM, provenance and observations. The unchanged `SHA256SUMS` records the original local metadata paths; the release notes provide the mapping to uploaded filenames.
+The release includes `SHA256SUMS.txt` for the uploaded filenames, plus architecture-specific SPDX SBOM, provenance and observations. Use `SHA256SUMS.txt` against the exact uploaded filenames.
 
 The original application offers a **+** workflow for discovery or manual IP entry. Discovery uses `_xserveraid._tcp`; controller communication uses the legacy ACPX protocol over **plaintext HTTP**. Monitoring credentials retain reversible legacy obfuscation. Private mode 0600 preference saves are access control, not encryption.
 
@@ -53,7 +53,9 @@ This is compatibility and preservation work, not a rewrite of Apple's interface 
 
 ## Build and artifact provenance
 
-The public audit28 packages are the frozen unsigned artifacts recorded in [audit/SECURE-PREFERENCES.md](audit/SECURE-PREFERENCES.md), not a new build attributed to later documentation commits.
+The current audit29 packages were built and packaged at clean source commit `26d7ec7921d9839d1dfcb9f0158e3af1a2824c6c`. Both contain common JAR SHA-256 `d616359dbea9fa8c9bd61f107b86e65b3563353f833a35430b314036d1a03fc6`. Two independent common builds and repeated architecture packages passed. See [audit29 evidence and reproduction](audit/ARRAY-INFO-FIX.md). Later documentation/release-tag commits do not change that product provenance.
+
+The previous audit28 packages remain the frozen unsigned artifacts recorded in [audit/SECURE-PREFERENCES.md](audit/SECURE-PREFERENCES.md), not a new build attributed to later documentation commits.
 
 - Product source: `e005b9a2877133d98af4cf86fd5b625532b06fcb`.
 - Isolated package/release tooling: `fd94ee9e3efc4d80e0b0cfba02f77555a4fd0cf8`.
@@ -67,7 +69,7 @@ Two builds, repeated architecture-specific packages/ZIPs and packaged-code fixtu
 python3 -I -S audit/credential-persistence/verify.py
 ```
 
-This verifier requires the recorded local build artifacts to be present. It is not an end-user installation step. For source/package reproduction, use the recorded release tooling commit and [reproduction commands](audit/secure-release/reproduction.txt), or create a fresh clean-source build and new qualification evidence. Historical qualification is not relabeled at a later HEAD.
+This historical verifier requires the recorded local build artifacts and original installed-intake JAR identity. An installation of a newer release makes its final installed-reference check fail; it does not update the old expected hash. It is not an end-user installation step. For source/package reproduction, use the recorded release tooling commit and [reproduction commands](audit/secure-release/reproduction.txt), or create a fresh clean-source build and new qualification evidence. Historical qualification is not relabeled at a later HEAD.
 
 ## Project records
 
@@ -76,6 +78,7 @@ This verifier requires the recorded local build artifacts to be present. It is n
 - [Protocol inventory](PROTOCOL-INVENTORY.md)
 - [Dependencies and licensing evidence](DEPENDENCIES.md)
 - [Acceptance matrix](ACCEPTANCE-MATRIX.md) and [documented gaps](GAPS.md)
+- [Audit29 array information fix and release evidence](audit/ARRAY-INFO-FIX.md)
 - [Audit28 implementation/release evidence](audit/SECURE-PREFERENCES.md)
 - [Credential persistence boundary evidence](audit/CREDENTIAL-PERSISTENCE.md)
 - [Current completion and remaining acceptance](COMPLETION-STATUS.md)

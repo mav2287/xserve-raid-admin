@@ -1,0 +1,125 @@
+{
+  "archives": {
+    "aarch64": {
+      "local_path": "build/array-info-release-aarch64-3/RAID-Admin-1.5.1-modern.audit.29-aarch64-unsigned.zip",
+      "name": "RAID-Admin-1.5.1-modern.audit.29-aarch64-unsigned.zip",
+      "sha256": "00fe38c8f6b04a971bd2a48aad38e1c2491c76c5b4ee33cd6f0dbf663010c993"
+    },
+    "x64": {
+      "local_path": "build/array-info-release-x64-3/RAID-Admin-1.5.1-modern.audit.29-x64-unsigned.zip",
+      "name": "RAID-Admin-1.5.1-modern.audit.29-x64-unsigned.zip",
+      "sha256": "dffdc274fa546b9fe1fbfb46a9e7cf74746670c05a1984073c784fc28639878c"
+    }
+  },
+  "common_rebuilds_equal": true,
+  "files": {
+    "aarch64-SBOM.spdx.json": "285e9df80900d9d4386be242626ee3c8c65dc59d936cec66e77403898689a2ad",
+    "aarch64-preference-regression.json": "204d4562bd7414cae194e3a5f94023a39ffd5ddf43415207100406b437a00501",
+    "aarch64-provenance.json": "a36ddf53bcc5af431048bbb083a467a47315df4c3a7b9299167a29fda9799bd5",
+    "aarch64-release-observations.json": "3c682cacf3184eca1ebbf0f24bacf765233b345004f085aaeda94a894f8a158b",
+    "claude-code.json": "00324d063939212061452010d72593d9b7034d52a2d77c6a2212a24f9a73dde0",
+    "claude-design.json": "379808e843a1b61e2fa90047946edcaf2d0d7ec1f93879aff495f8d90d059d19",
+    "claude-final-release.json": "70403a1a9de3cb3bc03f57ed201827fd42fb148cf24dedca5a06ee3bb5492e78",
+    "claude-fixture-final.json": "2e0bbb7228924223241733157f6165129a5b3a9d45728b3b9cf25d8f476baa5b",
+    "claude-jit.json": "83c0dfbb4c601f2ec556aeb97ada12d344d6c1d84c6705e5b8ab185dee122895",
+    "common-7-provenance.json": "3a9cddb4949859345f2568bc5d53c1d41d6957ba30dc116964952422477a8b0d",
+    "common-8-provenance.json": "19ea32f525ce3121e8e559fae3f40e97ce47411f8e29d023553a943a90e0e7f2",
+    "historical-installed-reference-check.json": "61ea1518afbb39738424a825b8f501ba8a08ef43cb1367892328c4b97ba808a9",
+    "info-drive-panel-consumers.json": "1d90b34a248c337b7a0eb80f924f3afa4198affb629f22b27ce4a679af8b753a",
+    "jit-aarch64-after-positive.xml.gz": "7d6f4e58d70b31d2ade264fb441c5f9c209b328d5550167f9959c65058a1e71c",
+    "jit-aarch64-before-negative.xml.gz": "4b52ad0812d94d66ddebf9668313b3abb621cb872e8d4b9a4027d82393d3056a",
+    "jit-aarch64-before-positive.xml.gz": "9d0dbb9d6298423ee6e436f573c2d0beb3a2e686648864b9d1fd8677fdc43ba6",
+    "jit-x64-after-positive.xml.gz": "442da6ed51c669581bdd4c69de124c06e4701e0afbd2dc31c830e83aac30af50",
+    "jit-x64-before-negative.xml.gz": "fdd94191f4e15adecc132f32c7a17bcd784e1677d1474d9feabf8e7a017cea43",
+    "jit-x64-before-positive.xml.gz": "6e9eb029b023a96aec749d23b58104609278a78ce4838f8232ef9f3d66f0199f",
+    "label-support.javap": "d62b972fe5212257d866b9e6d29650747ffb728e8d212338ca0e5a5976880a77",
+    "listener-after.javap": "1547871b6f0729da6038c416e1e2bc2d94aca91d1231e307751f5bfcc768d58c",
+    "listener-before.javap": "d6320bd459aeb67a6463e0a72468740829ca2f7a1a2deefeb0056b0d876dbe5f",
+    "listener-identity-aarch64-after.tsv": "2d466c189d6ab66317f0d4e6a4b63adfe6bc3c981fb8d228452c58ea0358b703",
+    "listener-identity-aarch64-before.tsv": "714aea42a5255c9e0475cf83e7a5b408f6c594d48fbeb55ac609cfac3c253886",
+    "listener-identity-x64-after.tsv": "2d466c189d6ab66317f0d4e6a4b63adfe6bc3c981fb8d228452c58ea0358b703",
+    "listener-identity-x64-before.tsv": "714aea42a5255c9e0475cf83e7a5b408f6c594d48fbeb55ac609cfac3c253886",
+    "listener-results.json": "cd6d96b2db7e03e5682dffbf7d00be206932c1fdd4114396c0c96ea97564ca93",
+    "packaged-preference-driver.py": "2dbcdabb9eb5cc659f4819248e53d627026d367c9c64904c4f622afef3039fc2",
+    "panel-support.javap": "c4b70eb122867f8f347394e4a7fddf8f76c48c1f6e880874910f2e70b02ce93e",
+    "plist-version-diff.json": "027f423ab376c1d40ce51929a8ef6b39bb5482919c98c580d5b209fca5f86b36",
+    "rejected-broad-Xcomp-stderr.txt": "50acc29a6dfd1eb8f42c76dffee72ff8120d22e7cc84e1a0427b3b51e08f2d3f",
+    "rejected-broad-Xcomp-stdout.txt": "33168b03d6af571b933e2592dd06946c32d4ff516492e418592a61f3d629232e",
+    "units.stderr": "b1747e1c52b51edb5465fb0dc1e106b830fc867e4f646b0780d09d8927df7d94",
+    "units.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify.py": "c9848740bf787a5197e97e9a099171e4ee3fb58c1d8bb6c4421307dfa68594ff",
+    "x64-SBOM.spdx.json": "f9d21be461c2649ac789ccc92bd725c4f01f0efda42cffb4576a392eb858e4aa",
+    "x64-preference-regression.json": "9cb6d6fddb77073a927a85a01ac69184e99d56fbfc40b0dc9b09485bb2901875",
+    "x64-provenance.json": "4cf6db34861e0de4cd716616636bdade91d34a227517351f77b5711669211d91",
+    "x64-release-observations.json": "c3bf369487aa9b7f612debf8aa35f5824447369acc59d508bc7ce0072c066396"
+  },
+  "jit_logs": {
+    "jit-aarch64-after-positive.xml": {
+      "archive": "jit-aarch64-after-positive.xml.gz",
+      "archive_sha256": "7d6f4e58d70b31d2ade264fb441c5f9c209b328d5550167f9959c65058a1e71c",
+      "raw_sha256": "0d5736d590ddda38ad9d9498efbb275b5df707a846efa38e74c0bb3f6cb3f604"
+    },
+    "jit-aarch64-before-negative.xml": {
+      "archive": "jit-aarch64-before-negative.xml.gz",
+      "archive_sha256": "4b52ad0812d94d66ddebf9668313b3abb621cb872e8d4b9a4027d82393d3056a",
+      "raw_sha256": "ad2e45e56b21ee533c782061f827582c0fd4f96cc1c401e42902d43b198ee977"
+    },
+    "jit-aarch64-before-positive.xml": {
+      "archive": "jit-aarch64-before-positive.xml.gz",
+      "archive_sha256": "9d0dbb9d6298423ee6e436f573c2d0beb3a2e686648864b9d1fd8677fdc43ba6",
+      "raw_sha256": "d2a61ffa64fa45a75fc6dd25c0e01efb870dec838316fb136d032b78f3806a61"
+    },
+    "jit-x64-after-positive.xml": {
+      "archive": "jit-x64-after-positive.xml.gz",
+      "archive_sha256": "442da6ed51c669581bdd4c69de124c06e4701e0afbd2dc31c830e83aac30af50",
+      "raw_sha256": "cb02c2b9548ba739d7436518936f54b31f2ddb07e6a65adcb25227c2b3cb6f1f"
+    },
+    "jit-x64-before-negative.xml": {
+      "archive": "jit-x64-before-negative.xml.gz",
+      "archive_sha256": "fdd94191f4e15adecc132f32c7a17bcd784e1677d1474d9feabf8e7a017cea43",
+      "raw_sha256": "e649a3215348fb007ef8a3db140f1d12efa3dee0321d0f299a7e2baa29cc8f38"
+    },
+    "jit-x64-before-positive.xml": {
+      "archive": "jit-x64-before-positive.xml.gz",
+      "archive_sha256": "6e9eb029b023a96aec749d23b58104609278a78ce4838f8232ef9f3d66f0199f",
+      "raw_sha256": "2d35ce55aab84c40c5bcb00d9087fff024c660e10191dec3e07f4edeeebb14ed"
+    }
+  },
+  "launcher_stub_runs": 10,
+  "limits": [
+    "Operator stale-highlight symptom not confirmed fixed",
+    "Physical Intel, full GUI, controllers, signing/notarization and future macOS unqualified"
+  ],
+  "listener_positive_runs": 8,
+  "original_negative_controls": 4,
+  "package_comparison_to_audit28": {
+    "aarch64": {
+      "changed_files": [
+        "Contents/Info.plist",
+        "Contents/Resources/RAID_Admin.jar"
+      ],
+      "directory_modes_unchanged": true,
+      "file_modes_unchanged": true,
+      "file_set_unchanged": true
+    },
+    "x64": {
+      "changed_files": [
+        "Contents/Info.plist",
+        "Contents/Resources/RAID_Admin.jar"
+      ],
+      "directory_modes_unchanged": true,
+      "file_modes_unchanged": true,
+      "file_set_unchanged": true
+    }
+  },
+  "packaged_preference_runs": 10,
+  "qualification": false,
+  "scope": "Offline information-listener fix and packaged regression only; no Main, native display, profiles or controller",
+  "source_commit": "26d7ec7921d9839d1dfcb9f0158e3af1a2824c6c",
+  "source_dirty": false,
+  "unit_tests": {
+    "result": "passed",
+    "run": 192,
+    "skipped": 6
+  }
+}

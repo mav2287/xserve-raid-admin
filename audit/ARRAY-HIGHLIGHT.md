@@ -124,3 +124,8 @@ Claude reviewed the bytecode and fixture design independently. Its proposals
 remain advice: its initial thread-race hypothesis was refined by the actual
 invokeLater source evidence, and its suggestion that non-headless work requires
 approval is not an additional project permission rule. User restrictions govern.
+
+
+## Authorized narrow fix — audit29
+
+The user authorized a careful patch after these observations. [Audit29 evidence](ARRAY-INFO-FIX.md) records the information-listener-only conversion of cleared array ID `0` to the drive panel’s `INDEX_NONE`, exact unchanged controller code and both architecture offline tests. This fixes the reproducible cleared-selection mismatch; the user-reported intermittent native highlights remain unconfirmed until retried. The preceding audit28 observations retain their original scope.

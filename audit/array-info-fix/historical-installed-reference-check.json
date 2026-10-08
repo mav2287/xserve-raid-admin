@@ -1,0 +1,15 @@
+{
+  "earlier_checks_completed": [
+    "archived records and handoff hashes",
+    "historical Git source proofs",
+    "exact audit28 ZIP files/modes",
+    "audit27 preservation",
+    "immutable original JAR hash and mode"
+  ],
+  "frozen_verifier": "audit/secure-release/verify.txt",
+  "historical_installed_jar_sha256": "aa5de223d524e9a518b4a8a6a1adcacac066bfe5bc2b96e964ded7716f9b7236",
+  "interpretation": "Current installed JAR matches audit28 product, rather than the old intake artifact; installation history is not inferred. No files or frozen verifier were modified.",
+  "observed_installed_jar_sha256": "bf5f630be51d992be918f2dd3cef8beed3f3873aae60efc2defdfd20cee5fb9e",
+  "qualification": false,
+  "result": "failed at final historical installed-reference check"
+}

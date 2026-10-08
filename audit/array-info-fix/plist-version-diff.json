@@ -1,0 +1,22 @@
+{
+  "aarch64": {
+    "CFBundleShortVersionString": {
+      "after": "1.5.1-modern.audit.29",
+      "before": "1.5.1-modern.audit.28"
+    },
+    "CFBundleVersion": {
+      "after": "29",
+      "before": "28"
+    }
+  },
+  "x64": {
+    "CFBundleShortVersionString": {
+      "after": "1.5.1-modern.audit.29",
+      "before": "1.5.1-modern.audit.28"
+    },
+    "CFBundleVersion": {
+      "after": "29",
+      "before": "28"
+    }
+  }
+}
