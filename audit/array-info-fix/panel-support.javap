@@ -1,0 +1,489 @@
+public class com.apple.xsr.SelectableLabel extends com.apple.gui.TextField {
+  private static java.lang.String ellipsis;
+
+  private static int LABEL_WIDTH;
+
+  private java.lang.String actualText;
+
+  public com.apple.xsr.SelectableLabel();
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: invokespecial #2                  // Method "<init>":(Ljava/lang/String;)V
+       5: return
+
+  public com.apple.xsr.SelectableLabel(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokespecial #3                  // Method com/apple/gui/TextField."<init>":(Ljava/lang/String;)V
+       5: aload_0
+       6: ldc           #4                  // String
+       8: putfield      #1                  // Field actualText:Ljava/lang/String;
+      11: aload_0
+      12: iconst_0
+      13: invokevirtual #5                  // Method setEditable:(Z)V
+      16: aload_0
+      17: iconst_0
+      18: invokevirtual #6                  // Method setOpaque:(Z)V
+      21: getstatic     #7                  // Field com/apple/util/Gestalt.isJava141OrLater:Z
+      24: ifeq          35
+      27: aload_0
+      28: aconst_null
+      29: invokevirtual #8                  // Method setBorder:(Ljavax/swing/border/Border;)V
+      32: goto          46
+      35: aload_0
+      36: iconst_0
+      37: iconst_0
+      38: iconst_2
+      39: iconst_0
+      40: invokestatic  #9                  // Method javax/swing/BorderFactory.createEmptyBorder:(IIII)Ljavax/swing/border/Border;
+      43: invokevirtual #8                  // Method setBorder:(Ljavax/swing/border/Border;)V
+      46: aload_0
+      47: new           #10                 // class com/apple/xsr/SelectableLabel$1
+      50: dup
+      51: aload_0
+      52: invokespecial #11                 // Method com/apple/xsr/SelectableLabel$1."<init>":(Lcom/apple/xsr/SelectableLabel;)V
+      55: invokevirtual #12                 // Method addComponentListener:(Ljava/awt/event/ComponentListener;)V
+      58: return
+
+  public void setText(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #1                  // Field actualText:Ljava/lang/String;
+       5: aload_0
+       6: aload_0
+       7: aload_1
+       8: invokespecial #13                 // Method truncateText:(Ljava/lang/String;)Ljava/lang/String;
+      11: invokespecial #14                 // Method com/apple/gui/TextField.setText:(Ljava/lang/String;)V
+      14: return
+
+  public java.awt.Dimension getPreferredSize();
+    Code:
+       0: new           #15                 // class java/awt/Dimension
+       3: dup
+       4: getstatic     #16                 // Field LABEL_WIDTH:I
+       7: aload_0
+       8: aload_0
+       9: invokevirtual #17                 // Method getFont:()Ljava/awt/Font;
+      12: invokevirtual #18                 // Method getFontMetrics:(Ljava/awt/Font;)Ljava/awt/FontMetrics;
+      15: invokevirtual #19                 // Method java/awt/FontMetrics.getHeight:()I
+      18: invokespecial #20                 // Method java/awt/Dimension."<init>":(II)V
+      21: areturn
+
+  public java.awt.Dimension getMinimumSize();
+    Code:
+       0: new           #15                 // class java/awt/Dimension
+       3: dup
+       4: getstatic     #16                 // Field LABEL_WIDTH:I
+       7: aload_0
+       8: aload_0
+       9: invokevirtual #17                 // Method getFont:()Ljava/awt/Font;
+      12: invokevirtual #18                 // Method getFontMetrics:(Ljava/awt/Font;)Ljava/awt/FontMetrics;
+      15: invokevirtual #19                 // Method java/awt/FontMetrics.getHeight:()I
+      18: invokespecial #20                 // Method java/awt/Dimension."<init>":(II)V
+      21: areturn
+
+  private java.lang.String truncateText(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_0
+       2: invokevirtual #17                 // Method getFont:()Ljava/awt/Font;
+       5: invokevirtual #18                 // Method getFontMetrics:(Ljava/awt/Font;)Ljava/awt/FontMetrics;
+       8: astore_2
+       9: aload_0
+      10: invokevirtual #21                 // Method getWidth:()I
+      13: istore_3
+      14: aload_2
+      15: aload_1
+      16: invokevirtual #22                 // Method java/awt/FontMetrics.stringWidth:(Ljava/lang/String;)I
+      19: iload_3
+      20: if_icmpge     25
+      23: aload_1
+      24: areturn
+      25: iload_3
+      26: aload_2
+      27: getstatic     #23                 // Field ellipsis:Ljava/lang/String;
+      30: invokevirtual #22                 // Method java/awt/FontMetrics.stringWidth:(Ljava/lang/String;)I
+      33: isub
+      34: istore_3
+      35: ldc           #4                  // String
+      37: astore        4
+      39: aload_1
+      40: invokevirtual #24                 // Method java/lang/String.length:()I
+      43: istore        5
+      45: iconst_0
+      46: istore        6
+      48: iload         6
+      50: iload         5
+      52: if_icmpge     112
+      55: aload_1
+      56: iload         6
+      58: iload         6
+      60: iconst_1
+      61: iadd
+      62: invokevirtual #25                 // Method java/lang/String.substring:(II)Ljava/lang/String;
+      65: astore        7
+      67: aload_2
+      68: aload         4
+      70: invokevirtual #22                 // Method java/awt/FontMetrics.stringWidth:(Ljava/lang/String;)I
+      73: aload_2
+      74: aload         7
+      76: invokevirtual #22                 // Method java/awt/FontMetrics.stringWidth:(Ljava/lang/String;)I
+      79: iadd
+      80: iload_3
+      81: if_icmpge     112
+      84: new           #26                 // class java/lang/StringBuffer
+      87: dup
+      88: invokespecial #27                 // Method java/lang/StringBuffer."<init>":()V
+      91: aload         4
+      93: invokevirtual #28                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      96: aload         7
+      98: invokevirtual #28                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     101: invokevirtual #29                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     104: astore        4
+     106: iinc          6, 1
+     109: goto          48
+     112: new           #26                 // class java/lang/StringBuffer
+     115: dup
+     116: invokespecial #27                 // Method java/lang/StringBuffer."<init>":()V
+     119: aload         4
+     121: invokevirtual #30                 // Method java/lang/String.trim:()Ljava/lang/String;
+     124: invokevirtual #28                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     127: getstatic     #23                 // Field ellipsis:Ljava/lang/String;
+     130: invokevirtual #28                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     133: invokevirtual #29                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     136: areturn
+
+  static java.lang.String access$000(com.apple.xsr.SelectableLabel);
+    Code:
+       0: aload_0
+       1: getfield      #1                  // Field actualText:Ljava/lang/String;
+       4: areturn
+
+  static {};
+    Code:
+       0: ldc           #31                 // String …
+       2: putstatic     #23                 // Field ellipsis:Ljava/lang/String;
+       5: sipush        130
+       8: putstatic     #16                 // Field LABEL_WIDTH:I
+      11: return
+}
+public class com.apple.xsr.SelectableStatusLabel extends javax.swing.JPanel {
+  public static final int NOT_INSTALLED = -2;
+
+  public static final int NOT_APPLICABLE = -3;
+
+  private javax.swing.JLabel iconLabel;
+
+  private com.apple.xsr.SelectableLabel textLabel;
+
+  private static final int ICON_SIZE = 10;
+
+  public com.apple.xsr.SelectableStatusLabel();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method javax/swing/JPanel."<init>":()V
+       4: aload_0
+       5: invokestatic  #2                  // Method com/apple/gui/GUIFactory.configureComponentForPlatform:(Ljava/awt/Component;)Ljava/awt/Component;
+       8: pop
+       9: new           #3                  // class java/awt/GridBagLayout
+      12: dup
+      13: invokespecial #4                  // Method java/awt/GridBagLayout."<init>":()V
+      16: astore_1
+      17: new           #5                  // class java/awt/GridBagConstraints
+      20: dup
+      21: invokespecial #6                  // Method java/awt/GridBagConstraints."<init>":()V
+      24: astore_2
+      25: aload_0
+      26: aload_1
+      27: invokevirtual #7                  // Method setLayout:(Ljava/awt/LayoutManager;)V
+      30: aload_0
+      31: new           #8                  // class javax/swing/JLabel
+      34: dup
+      35: iconst_m1
+      36: invokestatic  #9                  // Method com/apple/xsr/StatusIcon.getSmallStatusIconInstance:(I)Lcom/apple/xsr/StatusIcon;
+      39: invokespecial #10                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+      42: putfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+      45: aload_0
+      46: getfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+      49: iconst_0
+      50: invokevirtual #12                 // Method javax/swing/JLabel.setVisible:(Z)V
+      53: aload_2
+      54: iconst_0
+      55: putfield      #13                 // Field java/awt/GridBagConstraints.gridx:I
+      58: aload_2
+      59: iconst_0
+      60: putfield      #14                 // Field java/awt/GridBagConstraints.gridy:I
+      63: aload_2
+      64: bipush        17
+      66: putfield      #15                 // Field java/awt/GridBagConstraints.anchor:I
+      69: aload_2
+      70: iconst_0
+      71: putfield      #16                 // Field java/awt/GridBagConstraints.fill:I
+      74: aload_2
+      75: new           #17                 // class java/awt/Insets
+      78: dup
+      79: iconst_0
+      80: iconst_0
+      81: iconst_0
+      82: iconst_4
+      83: invokespecial #18                 // Method java/awt/Insets."<init>":(IIII)V
+      86: putfield      #19                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+      89: aload_0
+      90: aload_0
+      91: getfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+      94: aload_0
+      95: aload_1
+      96: aload_2
+      97: invokespecial #20                 // Method addComponent:(Ljava/awt/Component;Ljava/awt/Container;Ljava/awt/GridBagLayout;Ljava/awt/GridBagConstraints;)V
+     100: aload_2
+     101: new           #17                 // class java/awt/Insets
+     104: dup
+     105: iconst_0
+     106: iconst_0
+     107: iconst_0
+     108: iconst_0
+     109: invokespecial #18                 // Method java/awt/Insets."<init>":(IIII)V
+     112: putfield      #19                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     115: aload_0
+     116: new           #21                 // class com/apple/xsr/SelectableLabel
+     119: dup
+     120: invokespecial #22                 // Method com/apple/xsr/SelectableLabel."<init>":()V
+     123: putfield      #23                 // Field textLabel:Lcom/apple/xsr/SelectableLabel;
+     126: aload_2
+     127: iconst_1
+     128: putfield      #13                 // Field java/awt/GridBagConstraints.gridx:I
+     131: aload_2
+     132: iconst_0
+     133: putfield      #14                 // Field java/awt/GridBagConstraints.gridy:I
+     136: aload_2
+     137: iconst_1
+     138: putfield      #16                 // Field java/awt/GridBagConstraints.fill:I
+     141: aload_2
+     142: dconst_1
+     143: putfield      #24                 // Field java/awt/GridBagConstraints.weightx:D
+     146: aload_0
+     147: aload_0
+     148: getfield      #23                 // Field textLabel:Lcom/apple/xsr/SelectableLabel;
+     151: aload_0
+     152: aload_1
+     153: aload_2
+     154: invokespecial #20                 // Method addComponent:(Ljava/awt/Component;Ljava/awt/Container;Ljava/awt/GridBagLayout;Ljava/awt/GridBagConstraints;)V
+     157: aload_2
+     158: dconst_0
+     159: putfield      #24                 // Field java/awt/GridBagConstraints.weightx:D
+     162: return
+
+  public void setStatusAndText(int, java.lang.String);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokevirtual #25                 // Method setStatus:(I)V
+       5: aload_0
+       6: aload_2
+       7: invokevirtual #26                 // Method setText:(Ljava/lang/String;)V
+      10: return
+
+  public void setText(java.lang.String);
+    Code:
+       0: aload_0
+       1: getfield      #23                 // Field textLabel:Lcom/apple/xsr/SelectableLabel;
+       4: aload_1
+       5: invokevirtual #27                 // Method com/apple/xsr/SelectableLabel.setText:(Ljava/lang/String;)V
+       8: return
+
+  public void setIcon(javax.swing.ImageIcon);
+    Code:
+       0: aload_0
+       1: getfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+       4: aload_1
+       5: invokevirtual #28                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+       8: return
+
+  public void setFont(java.awt.Font);
+    Code:
+       0: aload_0
+       1: getfield      #23                 // Field textLabel:Lcom/apple/xsr/SelectableLabel;
+       4: ifnull        15
+       7: aload_0
+       8: getfield      #23                 // Field textLabel:Lcom/apple/xsr/SelectableLabel;
+      11: aload_1
+      12: invokevirtual #29                 // Method com/apple/xsr/SelectableLabel.setFont:(Ljava/awt/Font;)V
+      15: return
+
+  public void setStatus(int);
+    Code:
+       0: iload_1
+       1: iconst_m1
+       2: if_icmpeq     11
+       5: iload_1
+       6: bipush        -3
+       8: if_icmpne     22
+      11: aload_0
+      12: getfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+      15: iconst_0
+      16: invokevirtual #12                 // Method javax/swing/JLabel.setVisible:(Z)V
+      19: goto          41
+      22: aload_0
+      23: getfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+      26: iload_1
+      27: invokestatic  #9                  // Method com/apple/xsr/StatusIcon.getSmallStatusIconInstance:(I)Lcom/apple/xsr/StatusIcon;
+      30: invokevirtual #28                 // Method javax/swing/JLabel.setIcon:(Ljavax/swing/Icon;)V
+      33: aload_0
+      34: getfield      #11                 // Field iconLabel:Ljavax/swing/JLabel;
+      37: iconst_1
+      38: invokevirtual #12                 // Method javax/swing/JLabel.setVisible:(Z)V
+      41: return
+
+  private void addComponent(java.awt.Component, java.awt.Container, java.awt.GridBagLayout, java.awt.GridBagConstraints);
+    Code:
+       0: aload_3
+       1: aload_1
+       2: aload         4
+       4: invokevirtual #30                 // Method java/awt/GridBagLayout.setConstraints:(Ljava/awt/Component;Ljava/awt/GridBagConstraints;)V
+       7: aload_2
+       8: aload_1
+       9: invokevirtual #31                 // Method java/awt/Container.add:(Ljava/awt/Component;)Ljava/awt/Component;
+      12: pop
+      13: return
+}
+class com.apple.xsr.SystemInfoPane$ArrayDrivePanel$MessagePanel extends javax.swing.JPanel {
+  private javax.swing.JLabel icon;
+
+  private javax.swing.JLabel label;
+
+  public com.apple.xsr.SystemInfoPane$ArrayDrivePanel$MessagePanel();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method javax/swing/JPanel."<init>":()V
+       4: aload_0
+       5: new           #2                  // class java/awt/GridBagLayout
+       8: dup
+       9: invokespecial #3                  // Method java/awt/GridBagLayout."<init>":()V
+      12: invokevirtual #4                  // Method setLayout:(Ljava/awt/LayoutManager;)V
+      15: aload_0
+      16: iconst_0
+      17: invokevirtual #5                  // Method setOpaque:(Z)V
+      20: new           #6                  // class java/awt/GridBagConstraints
+      23: dup
+      24: invokespecial #7                  // Method java/awt/GridBagConstraints."<init>":()V
+      27: astore_1
+      28: aload_0
+      29: new           #8                  // class javax/swing/JLabel
+      32: dup
+      33: new           #9                  // class javax/swing/ImageIcon
+      36: dup
+      37: ldc           #10                 // String icon.validate
+      39: invokestatic  #11                 // Method com/apple/xsr/Resources.getImage:(Ljava/lang/String;)Ljava/awt/Image;
+      42: invokespecial #12                 // Method javax/swing/ImageIcon."<init>":(Ljava/awt/Image;)V
+      45: invokespecial #13                 // Method javax/swing/JLabel."<init>":(Ljavax/swing/Icon;)V
+      48: putfield      #14                 // Field icon:Ljavax/swing/JLabel;
+      51: aload_1
+      52: iconst_0
+      53: putfield      #15                 // Field java/awt/GridBagConstraints.gridx:I
+      56: aload_1
+      57: iconst_0
+      58: putfield      #16                 // Field java/awt/GridBagConstraints.gridy:I
+      61: aload_1
+      62: iconst_1
+      63: putfield      #17                 // Field java/awt/GridBagConstraints.gridwidth:I
+      66: aload_1
+      67: iconst_1
+      68: putfield      #18                 // Field java/awt/GridBagConstraints.gridheight:I
+      71: aload_1
+      72: dconst_0
+      73: putfield      #19                 // Field java/awt/GridBagConstraints.weightx:D
+      76: aload_1
+      77: dconst_0
+      78: putfield      #20                 // Field java/awt/GridBagConstraints.weighty:D
+      81: aload_1
+      82: bipush        10
+      84: putfield      #21                 // Field java/awt/GridBagConstraints.anchor:I
+      87: aload_1
+      88: iconst_0
+      89: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+      92: aload_1
+      93: new           #23                 // class java/awt/Insets
+      96: dup
+      97: iconst_0
+      98: iconst_0
+      99: iconst_0
+     100: iconst_5
+     101: invokespecial #24                 // Method java/awt/Insets."<init>":(IIII)V
+     104: putfield      #25                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     107: aload_1
+     108: iconst_0
+     109: putfield      #26                 // Field java/awt/GridBagConstraints.ipadx:I
+     112: aload_1
+     113: iconst_0
+     114: putfield      #27                 // Field java/awt/GridBagConstraints.ipady:I
+     117: aload_0
+     118: aload_0
+     119: getfield      #14                 // Field icon:Ljavax/swing/JLabel;
+     122: aload_1
+     123: invokevirtual #28                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     126: aload_0
+     127: new           #8                  // class javax/swing/JLabel
+     130: dup
+     131: invokespecial #29                 // Method javax/swing/JLabel."<init>":()V
+     134: putfield      #30                 // Field label:Ljavax/swing/JLabel;
+     137: aload_0
+     138: getfield      #30                 // Field label:Ljavax/swing/JLabel;
+     141: getstatic     #31                 // Field com/apple/gui/GUIFactory.FONT_SMALL:Ljava/awt/Font;
+     144: invokevirtual #32                 // Method javax/swing/JLabel.setFont:(Ljava/awt/Font;)V
+     147: aload_1
+     148: iconst_1
+     149: putfield      #15                 // Field java/awt/GridBagConstraints.gridx:I
+     152: aload_1
+     153: iconst_0
+     154: putfield      #16                 // Field java/awt/GridBagConstraints.gridy:I
+     157: aload_1
+     158: iconst_1
+     159: putfield      #17                 // Field java/awt/GridBagConstraints.gridwidth:I
+     162: aload_1
+     163: iconst_1
+     164: putfield      #18                 // Field java/awt/GridBagConstraints.gridheight:I
+     167: aload_1
+     168: dconst_0
+     169: putfield      #19                 // Field java/awt/GridBagConstraints.weightx:D
+     172: aload_1
+     173: dconst_0
+     174: putfield      #20                 // Field java/awt/GridBagConstraints.weighty:D
+     177: aload_1
+     178: bipush        17
+     180: putfield      #21                 // Field java/awt/GridBagConstraints.anchor:I
+     183: aload_1
+     184: iconst_0
+     185: putfield      #22                 // Field java/awt/GridBagConstraints.fill:I
+     188: aload_1
+     189: new           #23                 // class java/awt/Insets
+     192: dup
+     193: iconst_0
+     194: iconst_0
+     195: iconst_0
+     196: iconst_0
+     197: invokespecial #24                 // Method java/awt/Insets."<init>":(IIII)V
+     200: putfield      #25                 // Field java/awt/GridBagConstraints.insets:Ljava/awt/Insets;
+     203: aload_1
+     204: iconst_0
+     205: putfield      #26                 // Field java/awt/GridBagConstraints.ipadx:I
+     208: aload_1
+     209: iconst_0
+     210: putfield      #27                 // Field java/awt/GridBagConstraints.ipady:I
+     213: aload_0
+     214: aload_0
+     215: getfield      #30                 // Field label:Ljavax/swing/JLabel;
+     218: aload_1
+     219: invokevirtual #28                 // Method add:(Ljava/awt/Component;Ljava/lang/Object;)V
+     222: return
+
+  public void setText(java.lang.String);
+    Code:
+       0: aload_0
+       1: getfield      #30                 // Field label:Ljavax/swing/JLabel;
+       4: aload_1
+       5: invokevirtual #33                 // Method javax/swing/JLabel.setText:(Ljava/lang/String;)V
+       8: return
+}

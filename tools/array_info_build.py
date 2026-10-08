@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args(); verify_python(); verify_jdk(args.jdk)
     initial = state(); out = args.output.resolve()
-    if initial['dirty'] or out.exists() or not out.is_relative_to((ROOT / 'build').resolve()):
+    if initial['dirty'] or (ROOT / 'build').is_symlink() or out.exists() or not out.is_relative_to((ROOT / 'build').resolve()):
         raise ValueError('Clean source and fresh build output required')
     out.mkdir(); base = out / 'audit28-reference'
     result = subprocess.run([sys.executable, '-E', '-s', str(ROOT / 'tools/secure_build.py'),
@@ -50,6 +50,12 @@ def main():
     record['input_hashes'] = dict(baseline['input_hashes']); record['input_hashes'][str(helper_source.relative_to(ROOT))] = sha(helper_source)
     record['array_info_delta'] = {'base_jar_sha256':BASE_SHA, 'modified':[ENTRY], 'added':[HELPER],
                                 'helper_sha256':sha(classes / HELPER), 'base_provenance_sha256':sha(base / 'provenance.json')}
+    record['audit28_reference'] = {'jar_sha256':BASE_SHA, 'provenance_sha256':sha(base / 'provenance.json'),
+                                 'source_commit':baseline['source_commit'],
+                                 'audit27_jar_sha256':record.pop('audit27_jar_sha256'),
+                                 'audit27_provenance_sha256':record.pop('audit27_provenance_sha256')}
+    record['jar_delta'] = {'reference':'audit28', 'modified':[ENTRY], 'added':[HELPER]}
+    record['helper_hashes'] = {**baseline['helper_hashes'], HELPER:sha(classes / HELPER)}
     # The native helper is reused byte-for-byte from this fresh, pinned audit28 rebuild.
     for spec in record['native_helpers'].values(): spec['path'] = 'audit28-reference/' + spec['path']
     record['bundle_tree_sha256'] = digest({'files':record['files'], 'file_modes':record['file_modes']})

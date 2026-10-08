@@ -39,7 +39,8 @@ def normalize(data):
 
 
 def verify_delta(before, after, helper):
-    if (set(after) - set(before) != {HELPER} or set(before) - set(after)
+    if (ENTRY not in before or ENTRY not in after or HELPER in before
+            or set(after) - set(before) != {HELPER} or set(before) - set(after)
             or {n for n in before if before[n] != after[n]} != {ENTRY}
             or after[HELPER] != helper or helper[6:8] != b'\x00\x34'
             or normalize(after[ENTRY]) != before[ENTRY]):

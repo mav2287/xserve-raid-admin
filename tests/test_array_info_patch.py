@@ -49,3 +49,9 @@ class ArrayInfoPatchTests(unittest.TestCase):
         verify_delta(before, after, helper)
         for changed in ({**after, 'unchanged': b'changed'}, {**after, 'extra': b'added'}, {k:v for k,v in after.items() if k != 'unchanged'}):
             with self.assertRaises(ValueError): verify_delta(before, changed, helper)
+        for changed in ({**after, 'compat/ArrayInfoSelection.class': b'wrong'},
+                        {k:v for k,v in after.items() if k != 'compat/ArrayInfoSelection.class'},
+                        {k:v for k,v in after.items() if k != ENTRY}):
+            with self.assertRaises(ValueError): verify_delta(before, changed, helper)
+        wrong_version = helper[:6] + b'\x00\x35'
+        with self.assertRaises(ValueError): verify_delta(before, {**after, 'compat/ArrayInfoSelection.class': wrong_version}, wrong_version)

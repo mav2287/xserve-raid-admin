@@ -32,11 +32,13 @@ public final class ArrayInfoFixObservation {
     // Constructors are never run: SelectableLabel -> Gestalt initializes legacy preferences.
     public static final class Label extends com.apple.xsr.SelectableLabel {
         String text;
+        public Label() { super(); } // Never executed.
         @Override public void setText(String value) { text = value; }
         @Override public void setVisible(boolean value) {}
     }
     public static final class Status extends com.apple.xsr.SelectableStatusLabel {
         String text; int status;
+        public Status() { super(); } // Never executed.
         @Override public void setText(String value) { text = value; }
         @Override public void setStatus(int value) { status = value; }
     }
@@ -104,6 +106,7 @@ public final class ArrayInfoFixObservation {
         }
         for (int id : new int[]{1, 2, 3, 4, 5, 6, -2, -3, -10, 0, 1, 0, 2}) {
             int calls = panel.calls;
+            ((Status)field(infoClass, "arrayStatus").get(info)).status = -999;
             layout.show(cards, "drives"); radio.setSelected(false);
             listener.propertyChange(new PropertyChangeEvent(info, "ArrayIndex", -1, id));
             int effective = fixed && id == 0 ? -10 : id;
@@ -113,30 +116,38 @@ public final class ArrayInfoFixObservation {
             check(((Status)field(infoClass, "arrayStatus").get(info)).status == -3, "null-system-refresh");
             for (int i = 0; i < 14; i++) check(pixel(icons[i]) == (memberships[i] == effective ? selectedPixel : basePixel), "pixels");
         }
-        // The old listener must fail the FIXED oracle specifically at forwarding.
+        // The old listener must fail the fixed no-selection oracle (fixed=false, requireFixed=true).
         if (Boolean.getBoolean("fixture.requireFixed")) {
             listener.propertyChange(new PropertyChangeEvent(info, "ArrayIndex", -1, 0));
             check(panel.getArrayIndex() == -10, "missing-fix");
         }
         // Actual cleared-row radio event, feeding the original/candidate listener.
         Class<?> rowClass = Class.forName("com.apple.xsr.ArraySelectionPanel$ArrayLabel");
-        Object row = rowClass.newInstance();
+        final Object row = rowClass.newInstance();
+        final int[] rowEvents = {0};
         rowClass.getMethod("createButton", Class.class, boolean.class).invoke(row, JRadioButton.class, false);
         rowClass.getMethod("addActionListener", java.awt.event.ActionListener.class).invoke(row,
             new java.awt.event.ActionListener() { public void actionPerformed(java.awt.event.ActionEvent event) {
-                listener.propertyChange(new PropertyChangeEvent(event.getSource(), "ArrayIndex", -1, 0));
+                try {
+                    check(event.getSource() == row && "ArrayIndex".equals(event.getActionCommand()), "row-event");
+                    int id = field(row.getClass(), "id").getInt(row);
+                    check(id == 0, "cleared-row-id"); rowEvents[0]++;
+                    listener.propertyChange(new PropertyChangeEvent(event.getSource(), "ArrayIndex", -1, id));
+                } catch (Exception value) { throw new AssertionError("array-info:row-event"); }
             }});
         JLabel description = (JLabel)rowClass.getMethod("createDescriptionLabel").invoke(row);
         rowClass.getMethod("clear").invoke(row);
+        panel.setArrayIndex(2); int beforeRowCalls = panel.calls;
         for (java.awt.event.MouseListener mouse : description.getMouseListeners())
             mouse.mouseReleased(new java.awt.event.MouseEvent(description, java.awt.event.MouseEvent.MOUSE_RELEASED, 0L, 0, 1, 1, 1, false));
-        check(panel.getArrayIndex() == (fixed ? -10 : 0), "radio-row");
+        check(rowEvents[0] == 1 && panel.calls == beforeRowCalls + 1 && panel.getArrayIndex() == (fixed ? -10 : 0), "radio-row");
         panel.setSelectionMode(3); panel.setSelectionMode(4);
         for (int i = 0; i < 14; i++) check(pixel(icons[i]) == (!fixed && memberships[i] == 0 ? selectedPixel : basePixel), "mode-transition");
         // Repeated listener calls in compiled mode; real info listener and refresh remain executed.
         for (int i = 0; i < 100; i++) listener.propertyChange(new PropertyChangeEvent(info, "ArrayIndex", -1, i % 7));
         check(Arrays.equals(states, initialStates) && Arrays.equals(memberships, initialMemberships), "model-unchanged");
         check(field(infoClass, "system").get(info) == null, "no-model");
+        check(!((JPanel)field(infoClass, "messagePanel").get(info)).isVisible(), "message-noop");
     }
     static int pixel(JLabel label) { return ((BufferedImage)((ImageIcon)label.getIcon()).getImage()).getRGB(3, 3); }
     public static void main(String[] args) throws Exception {

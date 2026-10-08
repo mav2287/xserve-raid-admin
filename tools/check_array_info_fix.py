@@ -36,6 +36,7 @@ def main():
     baseline = args.build.resolve() / 'audit28-reference/RAID Admin.app/Contents/Resources/RAID_Admin.jar'
     candidate = args.build.resolve() / 'RAID Admin.app/Contents/Resources/RAID_Admin.jar'
     before, after = entries(baseline), entries(candidate); verify_delta(before, after, after[HELPER])
+    if HELPER in before: raise ValueError('Original control contains candidate helper')
     sources = [ROOT / 'tests/java' / n for n in SOURCE_NAMES]
     inputs = {str(p.relative_to(ROOT)):sha(p) for p in sources + sorted((ROOT / 'tools').glob('*.py'))}
     out.mkdir(); probes = out / 'probes'; probes.mkdir()
@@ -69,6 +70,7 @@ def main():
             for mode in ['-Xint', '-Xcomp']:
                 flags = JAVA_FLAGS + [mode, '-Xverify:all', '-Djava.awt.headless=true', '-Dlog4j.defaultInitOverride=true',
                                      '-Dfixture.expectedArch=' + expected_arch, '-Dfixture.fixed=' + fixed,
+                                     '-Dfixture.requireFixed=' + fixed,
                                      '-Dfixture.identitymanifest=' + str(manifest), '-cp', str(probes) + ':' + str(jar)]
                 command = [str(runtime / 'Contents/Home/bin/java')] + flags + ['uifixture.ArrayInfoFixObservation']
                 result = subprocess.run(command, env=isolated_env(), capture_output=True, timeout=180)

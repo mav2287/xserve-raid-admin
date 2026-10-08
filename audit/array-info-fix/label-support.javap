@@ -1,0 +1,844 @@
+public class com.apple.gui.TextField extends javax.swing.JTextField {
+  public com.apple.gui.TextField();
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: aconst_null
+       3: iconst_0
+       4: invokespecial #1                  // Method "<init>":(Ljavax/swing/text/Document;Ljava/lang/String;I)V
+       7: return
+
+  public com.apple.gui.TextField(int);
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: aconst_null
+       3: iload_1
+       4: invokespecial #1                  // Method "<init>":(Ljavax/swing/text/Document;Ljava/lang/String;I)V
+       7: return
+
+  public com.apple.gui.TextField(java.lang.String);
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: aload_1
+       3: iconst_0
+       4: invokespecial #1                  // Method "<init>":(Ljavax/swing/text/Document;Ljava/lang/String;I)V
+       7: return
+
+  public com.apple.gui.TextField(java.lang.String, int);
+    Code:
+       0: aload_0
+       1: aconst_null
+       2: aload_1
+       3: iload_2
+       4: invokespecial #1                  // Method "<init>":(Ljavax/swing/text/Document;Ljava/lang/String;I)V
+       7: return
+
+  public com.apple.gui.TextField(javax.swing.text.Document, java.lang.String, int);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: aload_2
+       3: iload_3
+       4: invokespecial #2                  // Method javax/swing/JTextField."<init>":(Ljavax/swing/text/Document;Ljava/lang/String;I)V
+       7: new           #3                  // class com/apple/gui/TextField$TextSelector
+      10: dup
+      11: aload_0
+      12: invokespecial #4                  // Method com/apple/gui/TextField$TextSelector."<init>":(Ljavax/swing/JTextField;)V
+      15: pop
+      16: return
+
+  public boolean isFocusTraversable();
+    Code:
+       0: aload_0
+       1: invokevirtual #5                  // Method isEditable:()Z
+       4: ireturn
+}
+public class com.apple.util.Gestalt {
+  public static final int UNKNOWN = 0;
+
+  public static final int MAC = 1;
+
+  public static final int WINDOWS = 2;
+
+  public static final java.lang.String MAC_LAF_USE_SCREEN_MENU_BAR = "com.apple.macos.useScreenMenuBar";
+
+  public static final java.lang.String AQUA_LAF_USE_SCREEN_MENU_BAR = "apple.laf.useScreenMenuBar";
+
+  public static int platform;
+
+  public static final int UNITS_METRIC = 0;
+
+  public static final int UNITS_IMPERIAL = 1;
+
+  public static final int UNITS_BOTH = 2;
+
+  public static int units;
+
+  public static final int TIME_FORMAT_12_HOUR = 12;
+
+  public static final int TIME_FORMAT_24_HOUR = 24;
+
+  public static int timeFormat;
+
+  public static boolean isMacLookAndFeel;
+
+  public static boolean isAquaLookAndFeel;
+
+  public static boolean showFocusRings;
+
+  public static boolean isJava141OrLater;
+
+  private com.apple.util.Gestalt();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static void invalidateInfo();
+    Code:
+       0: invokestatic  #2                  // Method gatherInfo:()V
+       3: return
+
+  public static boolean isMacOS();
+    Code:
+       0: getstatic     #3                  // Field platform:I
+       3: iconst_1
+       4: if_icmpne     11
+       7: iconst_1
+       8: goto          12
+      11: iconst_0
+      12: ireturn
+
+  public static boolean isWindowsOS();
+    Code:
+       0: getstatic     #3                  // Field platform:I
+       3: iconst_2
+       4: if_icmpne     11
+       7: iconst_1
+       8: goto          12
+      11: iconst_0
+      12: ireturn
+
+  static void gatherInfo();
+    Code:
+       0: invokestatic  #4                  // Method javax/swing/UIManager.getLookAndFeel:()Ljavax/swing/LookAndFeel;
+       3: astore_0
+       4: aload_0
+       5: ifnull        31
+       8: aload_0
+       9: invokevirtual #5                  // Method javax/swing/LookAndFeel.getID:()Ljava/lang/String;
+      12: ldc           #6                  // String Mac
+      14: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      17: ifeq          31
+      20: iconst_1
+      21: putstatic     #8                  // Field isMacLookAndFeel:Z
+      24: iconst_0
+      25: putstatic     #9                  // Field showFocusRings:Z
+      28: goto          74
+      31: aload_0
+      32: ifnull        62
+      35: aload_0
+      36: invokevirtual #5                  // Method javax/swing/LookAndFeel.getID:()Ljava/lang/String;
+      39: ldc           #10                 // String Aqua
+      41: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      44: ifeq          62
+      47: iconst_1
+      48: putstatic     #8                  // Field isMacLookAndFeel:Z
+      51: iconst_1
+      52: putstatic     #11                 // Field isAquaLookAndFeel:Z
+      55: iconst_0
+      56: putstatic     #9                  // Field showFocusRings:Z
+      59: goto          74
+      62: iconst_0
+      63: putstatic     #8                  // Field isMacLookAndFeel:Z
+      66: iconst_0
+      67: putstatic     #11                 // Field isAquaLookAndFeel:Z
+      70: iconst_1
+      71: putstatic     #9                  // Field showFocusRings:Z
+      74: ldc           #12                 // String os.name
+      76: invokestatic  #13                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+      79: astore_1
+      80: aload_1
+      81: ldc           #14                 // String Mac OS
+      83: invokevirtual #15                 // Method java/lang/String.startsWith:(Ljava/lang/String;)Z
+      86: ifeq          96
+      89: iconst_1
+      90: putstatic     #3                  // Field platform:I
+      93: goto          116
+      96: aload_1
+      97: ldc           #16                 // String Windows
+      99: invokevirtual #15                 // Method java/lang/String.startsWith:(Ljava/lang/String;)Z
+     102: ifeq          112
+     105: iconst_2
+     106: putstatic     #3                  // Field platform:I
+     109: goto          116
+     112: iconst_0
+     113: putstatic     #3                  // Field platform:I
+     116: ldc           #17                 // String gestalt.hint.units
+     118: invokestatic  #18                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     121: astore_2
+     122: aload_2
+     123: ldc           #19                 // String M
+     125: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     128: ifeq          138
+     131: iconst_0
+     132: putstatic     #20                 // Field units:I
+     135: goto          167
+     138: aload_2
+     139: ldc           #21                 // String I
+     141: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     144: ifeq          154
+     147: iconst_1
+     148: putstatic     #20                 // Field units:I
+     151: goto          167
+     154: aload_2
+     155: ldc           #22                 // String B
+     157: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     160: ifeq          167
+     163: iconst_2
+     164: putstatic     #20                 // Field units:I
+     167: ldc           #23                 // String gestalt.hint.timeFormat
+     169: invokestatic  #18                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     172: astore_3
+     173: aload_3
+     174: ldc           #24                 // String 12
+     176: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     179: ifeq          190
+     182: bipush        12
+     184: putstatic     #25                 // Field timeFormat:I
+     187: goto          204
+     190: aload_3
+     191: ldc           #26                 // String 24
+     193: invokevirtual #7                  // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     196: ifeq          204
+     199: bipush        24
+     201: putstatic     #25                 // Field timeFormat:I
+     204: ldc           #27                 // String java.version
+     206: invokestatic  #13                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     209: ldc           #28                 // String 1.4.1
+     211: invokevirtual #29                 // Method java/lang/String.compareTo:(Ljava/lang/String;)I
+     214: iflt          224
+     217: iconst_1
+     218: putstatic     #30                 // Field isJava141OrLater:Z
+     221: goto          228
+     224: iconst_0
+     225: putstatic     #30                 // Field isJava141OrLater:Z
+     228: return
+
+  static {};
+    Code:
+       0: iconst_0
+       1: putstatic     #3                  // Field platform:I
+       4: iconst_2
+       5: putstatic     #20                 // Field units:I
+       8: bipush        12
+      10: putstatic     #25                 // Field timeFormat:I
+      13: iconst_0
+      14: putstatic     #8                  // Field isMacLookAndFeel:Z
+      17: iconst_0
+      18: putstatic     #11                 // Field isAquaLookAndFeel:Z
+      21: iconst_1
+      22: putstatic     #9                  // Field showFocusRings:Z
+      25: iconst_0
+      26: putstatic     #30                 // Field isJava141OrLater:Z
+      29: invokestatic  #2                  // Method gatherInfo:()V
+      32: return
+}
+public class com.apple.xsr.StatusIcon implements javax.swing.Icon {
+  public static final int NOTINSTALLED = -2;
+
+  public static final int CLEAR = -1;
+
+  public static final int GREEN = 0;
+
+  public static final int AMBER = 1;
+
+  public static final int RED = 2;
+
+  public static final int GRAY = 3;
+
+  public static final int NONE = 0;
+
+  public static final int MODULE = 1;
+
+  public static final int DRIVE = 2;
+
+  public static final int FIBRE = 3;
+
+  public static final int NETWORK = 4;
+
+  private static java.awt.Image GRAY_IMAGE;
+
+  private static java.awt.Image CLEAR_IMAGE;
+
+  private static java.awt.Image CLEAR_SHAPE_IMAGE;
+
+  private static java.awt.Image GREEN_IMAGE;
+
+  private static java.awt.Image GREEN_SHAPE_IMAGE;
+
+  private static java.awt.Image AMBER_IMAGE;
+
+  private static java.awt.Image AMBER_SHAPE_IMAGE;
+
+  private static java.awt.Image RED_IMAGE;
+
+  private static java.awt.Image RED_SHAPE_IMAGE;
+
+  private static java.awt.Image NOTINSTALLED_IMAGE;
+
+  private static boolean useShapes;
+
+  private static final com.apple.xsr.StatusIcon[][][][] allIcons;
+
+  private static final int KIND_BLOB = 0;
+
+  private static final int KIND_SHAPE = 1;
+
+  private static final int SCALE_NORMAL = 0;
+
+  private static final int SCALE_SMALL = 1;
+
+  public static final int STATE_NORMAL = 0;
+
+  public static final int STATE_DIMMED = 1;
+
+  public static final int STATE_WHITENED = 2;
+
+  private static final java.awt.Dimension NORMAL_SIZE;
+
+  private static final java.awt.Dimension SMALL_SIZE;
+
+  private int state;
+
+  private boolean scaled;
+
+  private java.awt.Image statusImage;
+
+  private java.awt.Image infoImage;
+
+  private java.awt.Dimension iconsize;
+
+  private com.apple.xsr.StatusIcon(int, int, boolean, java.awt.Dimension);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iload_2
+       6: putfield      #2                  // Field state:I
+       9: aload_0
+      10: iload_1
+      11: iload_3
+      12: invokespecial #3                  // Method setStatusImage:(IZ)V
+      15: aload         4
+      17: ifnonnull     57
+      20: aload_0
+      21: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+      24: ifnull        57
+      27: aload_0
+      28: new           #5                  // class java/awt/Dimension
+      31: dup
+      32: aload_0
+      33: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+      36: aconst_null
+      37: invokevirtual #6                  // Method java/awt/Image.getWidth:(Ljava/awt/image/ImageObserver;)I
+      40: aload_0
+      41: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+      44: aconst_null
+      45: invokevirtual #7                  // Method java/awt/Image.getHeight:(Ljava/awt/image/ImageObserver;)I
+      48: invokespecial #8                  // Method java/awt/Dimension."<init>":(II)V
+      51: putfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+      54: goto          63
+      57: aload_0
+      58: aload         4
+      60: putfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+      63: aload_0
+      64: iconst_1
+      65: putfield      #10                 // Field scaled:Z
+      68: return
+
+  public static com.apple.xsr.StatusIcon getStatusIconInstance(int);
+    Code:
+       0: getstatic     #11                 // Field allIcons:[[[[Lcom/apple/xsr/StatusIcon;
+       3: iconst_2
+       4: iload_0
+       5: iadd
+       6: aaload
+       7: getstatic     #12                 // Field useShapes:Z
+      10: ifeq          17
+      13: iconst_1
+      14: goto          18
+      17: iconst_0
+      18: aaload
+      19: iconst_0
+      20: aaload
+      21: iconst_0
+      22: aaload
+      23: areturn
+
+  public static com.apple.xsr.StatusIcon getStatusIconInstance(int, int);
+    Code:
+       0: getstatic     #11                 // Field allIcons:[[[[Lcom/apple/xsr/StatusIcon;
+       3: iconst_2
+       4: iload_0
+       5: iadd
+       6: aaload
+       7: getstatic     #12                 // Field useShapes:Z
+      10: ifeq          17
+      13: iconst_1
+      14: goto          18
+      17: iconst_0
+      18: aaload
+      19: iconst_0
+      20: aaload
+      21: iload_1
+      22: aaload
+      23: areturn
+
+  public static com.apple.xsr.StatusIcon getSmallStatusIconInstance(int);
+    Code:
+       0: getstatic     #11                 // Field allIcons:[[[[Lcom/apple/xsr/StatusIcon;
+       3: iconst_2
+       4: iload_0
+       5: iadd
+       6: aaload
+       7: getstatic     #12                 // Field useShapes:Z
+      10: ifeq          17
+      13: iconst_1
+      14: goto          18
+      17: iconst_0
+      18: aaload
+      19: iconst_1
+      20: aaload
+      21: iconst_0
+      22: aaload
+      23: areturn
+
+  public int getIconWidth();
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+       4: getfield      #13                 // Field java/awt/Dimension.width:I
+       7: ireturn
+
+  public int getIconHeight();
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+       4: getfield      #14                 // Field java/awt/Dimension.height:I
+       7: ireturn
+
+  public void paintIcon(java.awt.Component, java.awt.Graphics, int, int);
+    Code:
+       0: aload_2
+       1: getstatic     #15                 // Field java/awt/Color.black:Ljava/awt/Color;
+       4: invokevirtual #16                 // Method java/awt/Graphics.setColor:(Ljava/awt/Color;)V
+       7: aload_0
+       8: getfield      #10                 // Field scaled:Z
+      11: ifeq          144
+      14: new           #17                 // class java/awt/MediaTracker
+      17: dup
+      18: aload_1
+      19: invokespecial #18                 // Method java/awt/MediaTracker."<init>":(Ljava/awt/Component;)V
+      22: astore        5
+      24: new           #19                 // class java/awt/image/AreaAveragingScaleFilter
+      27: dup
+      28: aload_0
+      29: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+      32: getfield      #13                 // Field java/awt/Dimension.width:I
+      35: aload_0
+      36: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+      39: getfield      #14                 // Field java/awt/Dimension.height:I
+      42: invokespecial #20                 // Method java/awt/image/AreaAveragingScaleFilter."<init>":(II)V
+      45: astore        6
+      47: aload_0
+      48: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+      51: ifnull        88
+      54: aload_0
+      55: aload_1
+      56: new           #21                 // class java/awt/image/FilteredImageSource
+      59: dup
+      60: aload_0
+      61: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+      64: invokevirtual #22                 // Method java/awt/Image.getSource:()Ljava/awt/image/ImageProducer;
+      67: aload         6
+      69: invokespecial #23                 // Method java/awt/image/FilteredImageSource."<init>":(Ljava/awt/image/ImageProducer;Ljava/awt/image/ImageFilter;)V
+      72: invokevirtual #24                 // Method java/awt/Component.createImage:(Ljava/awt/image/ImageProducer;)Ljava/awt/Image;
+      75: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+      78: aload         5
+      80: aload_0
+      81: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+      84: iconst_0
+      85: invokevirtual #25                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+      88: aload_0
+      89: getfield      #26                 // Field infoImage:Ljava/awt/Image;
+      92: ifnull        129
+      95: aload_0
+      96: aload_1
+      97: new           #21                 // class java/awt/image/FilteredImageSource
+     100: dup
+     101: aload_0
+     102: getfield      #26                 // Field infoImage:Ljava/awt/Image;
+     105: invokevirtual #22                 // Method java/awt/Image.getSource:()Ljava/awt/image/ImageProducer;
+     108: aload         6
+     110: invokespecial #23                 // Method java/awt/image/FilteredImageSource."<init>":(Ljava/awt/image/ImageProducer;Ljava/awt/image/ImageFilter;)V
+     113: invokevirtual #24                 // Method java/awt/Component.createImage:(Ljava/awt/image/ImageProducer;)Ljava/awt/Image;
+     116: putfield      #26                 // Field infoImage:Ljava/awt/Image;
+     119: aload         5
+     121: aload_0
+     122: getfield      #26                 // Field infoImage:Ljava/awt/Image;
+     125: iconst_0
+     126: invokevirtual #25                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     129: aload         5
+     131: invokevirtual #27                 // Method java/awt/MediaTracker.waitForAll:()V
+     134: goto          139
+     137: astore        7
+     139: aload_0
+     140: iconst_0
+     141: putfield      #10                 // Field scaled:Z
+     144: aload_0
+     145: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     148: ifnull        272
+     151: aload_0
+     152: getfield      #2                  // Field state:I
+     155: iconst_1
+     156: if_icmpeq     167
+     159: aload_0
+     160: getfield      #2                  // Field state:I
+     163: iconst_2
+     164: if_icmpne     272
+     167: aload_0
+     168: getfield      #2                  // Field state:I
+     171: iconst_1
+     172: if_icmpne     203
+     175: aload_0
+     176: aload_1
+     177: new           #21                 // class java/awt/image/FilteredImageSource
+     180: dup
+     181: aload_0
+     182: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     185: invokevirtual #22                 // Method java/awt/Image.getSource:()Ljava/awt/image/ImageProducer;
+     188: invokestatic  #29                 // Method com/apple/util/ImageUtilities.getDimmingFilterInstance:()Ljava/awt/image/RGBImageFilter;
+     191: invokespecial #23                 // Method java/awt/image/FilteredImageSource."<init>":(Ljava/awt/image/ImageProducer;Ljava/awt/image/ImageFilter;)V
+     194: invokevirtual #24                 // Method java/awt/Component.createImage:(Ljava/awt/image/ImageProducer;)Ljava/awt/Image;
+     197: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+     200: goto          228
+     203: aload_0
+     204: aload_1
+     205: new           #21                 // class java/awt/image/FilteredImageSource
+     208: dup
+     209: aload_0
+     210: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     213: invokevirtual #22                 // Method java/awt/Image.getSource:()Ljava/awt/image/ImageProducer;
+     216: invokestatic  #30                 // Method com/apple/util/ImageUtilities.getWhiteningFilterInstance:()Ljava/awt/image/RGBImageFilter;
+     219: invokespecial #23                 // Method java/awt/image/FilteredImageSource."<init>":(Ljava/awt/image/ImageProducer;Ljava/awt/image/ImageFilter;)V
+     222: invokevirtual #24                 // Method java/awt/Component.createImage:(Ljava/awt/image/ImageProducer;)Ljava/awt/Image;
+     225: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+     228: new           #17                 // class java/awt/MediaTracker
+     231: dup
+     232: aload_1
+     233: invokespecial #18                 // Method java/awt/MediaTracker."<init>":(Ljava/awt/Component;)V
+     236: astore        5
+     238: aload         5
+     240: aload_0
+     241: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     244: iconst_0
+     245: invokevirtual #25                 // Method java/awt/MediaTracker.addImage:(Ljava/awt/Image;I)V
+     248: aload         5
+     250: invokevirtual #27                 // Method java/awt/MediaTracker.waitForAll:()V
+     253: goto          258
+     256: astore        6
+     258: aload         5
+     260: aload_0
+     261: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     264: invokevirtual #31                 // Method java/awt/MediaTracker.removeImage:(Ljava/awt/Image;)V
+     267: aload_0
+     268: iconst_0
+     269: putfield      #2                  // Field state:I
+     272: aload_0
+     273: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     276: ifnull        306
+     279: aload_2
+     280: aload_0
+     281: getfield      #4                  // Field statusImage:Ljava/awt/Image;
+     284: iload_3
+     285: iload         4
+     287: aload_0
+     288: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+     291: getfield      #13                 // Field java/awt/Dimension.width:I
+     294: aload_0
+     295: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+     298: getfield      #14                 // Field java/awt/Dimension.height:I
+     301: aconst_null
+     302: invokevirtual #32                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IIIILjava/awt/image/ImageObserver;)Z
+     305: pop
+     306: aload_0
+     307: getfield      #26                 // Field infoImage:Ljava/awt/Image;
+     310: ifnull        340
+     313: aload_2
+     314: aload_0
+     315: getfield      #26                 // Field infoImage:Ljava/awt/Image;
+     318: iload_3
+     319: iload         4
+     321: aload_0
+     322: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+     325: getfield      #13                 // Field java/awt/Dimension.width:I
+     328: aload_0
+     329: getfield      #9                  // Field iconsize:Ljava/awt/Dimension;
+     332: getfield      #14                 // Field java/awt/Dimension.height:I
+     335: aconst_null
+     336: invokevirtual #32                 // Method java/awt/Graphics.drawImage:(Ljava/awt/Image;IIIILjava/awt/image/ImageObserver;)Z
+     339: pop
+     340: return
+    Exception table:
+       from    to  target type
+         129   134   137   Class java/lang/Exception
+         248   253   256   Class java/lang/Exception
+
+  private void setStatusImage(int, boolean);
+    Code:
+       0: iload_1
+       1: tableswitch   { // -2 to 3
+                    -2: 140
+                    -1: 120
+                     0: 60
+                     1: 80
+                     2: 100
+                     3: 40
+               default: 160
+          }
+      40: aload_0
+      41: iload_2
+      42: ifeq          51
+      45: getstatic     #33                 // Field GRAY_IMAGE:Ljava/awt/Image;
+      48: goto          54
+      51: getstatic     #33                 // Field GRAY_IMAGE:Ljava/awt/Image;
+      54: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+      57: goto          187
+      60: aload_0
+      61: iload_2
+      62: ifeq          71
+      65: getstatic     #34                 // Field GREEN_SHAPE_IMAGE:Ljava/awt/Image;
+      68: goto          74
+      71: getstatic     #35                 // Field GREEN_IMAGE:Ljava/awt/Image;
+      74: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+      77: goto          187
+      80: aload_0
+      81: iload_2
+      82: ifeq          91
+      85: getstatic     #36                 // Field AMBER_SHAPE_IMAGE:Ljava/awt/Image;
+      88: goto          94
+      91: getstatic     #37                 // Field AMBER_IMAGE:Ljava/awt/Image;
+      94: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+      97: goto          187
+     100: aload_0
+     101: iload_2
+     102: ifeq          111
+     105: getstatic     #38                 // Field RED_SHAPE_IMAGE:Ljava/awt/Image;
+     108: goto          114
+     111: getstatic     #39                 // Field RED_IMAGE:Ljava/awt/Image;
+     114: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+     117: goto          187
+     120: aload_0
+     121: iload_2
+     122: ifeq          131
+     125: getstatic     #40                 // Field CLEAR_SHAPE_IMAGE:Ljava/awt/Image;
+     128: goto          134
+     131: getstatic     #41                 // Field CLEAR_IMAGE:Ljava/awt/Image;
+     134: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+     137: goto          187
+     140: aload_0
+     141: iload_2
+     142: ifeq          151
+     145: getstatic     #42                 // Field NOTINSTALLED_IMAGE:Ljava/awt/Image;
+     148: goto          154
+     151: getstatic     #42                 // Field NOTINSTALLED_IMAGE:Ljava/awt/Image;
+     154: putfield      #4                  // Field statusImage:Ljava/awt/Image;
+     157: goto          187
+     160: new           #43                 // class java/lang/IllegalArgumentException
+     163: dup
+     164: new           #44                 // class java/lang/StringBuffer
+     167: dup
+     168: invokespecial #45                 // Method java/lang/StringBuffer."<init>":()V
+     171: ldc           #46                 // String Illegal status
+     173: invokevirtual #47                 // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+     176: iload_1
+     177: invokevirtual #48                 // Method java/lang/StringBuffer.append:(I)Ljava/lang/StringBuffer;
+     180: invokevirtual #49                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+     183: invokespecial #50                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+     186: athrow
+     187: return
+
+  public static boolean getUseShapes();
+    Code:
+       0: getstatic     #12                 // Field useShapes:Z
+       3: ireturn
+
+  public static void syncUseShapes();
+    Code:
+       0: ldc           #51                 // String com.apple.RAIDAdmin.plist
+       2: invokestatic  #52                 // Method com/apple/util/prefs/Preferences.getPreferences:(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;
+       5: astore_0
+       6: aload_0
+       7: ifnull        20
+      10: aload_0
+      11: ldc           #53                 // String UseShapes
+      13: iconst_0
+      14: invokevirtual #54                 // Method com/apple/util/prefs/Preferences.getBoolean:(Ljava/lang/String;Z)Z
+      17: putstatic     #12                 // Field useShapes:Z
+      20: return
+
+  static {};
+    Code:
+       0: iconst_1
+       1: putstatic     #12                 // Field useShapes:Z
+       4: bipush        6
+       6: iconst_2
+       7: iconst_2
+       8: iconst_3
+       9: multianewarray #55,  4            // class "[[[[Lcom/apple/xsr/StatusIcon;"
+      13: putstatic     #11                 // Field allIcons:[[[[Lcom/apple/xsr/StatusIcon;
+      16: new           #5                  // class java/awt/Dimension
+      19: dup
+      20: bipush        16
+      22: bipush        16
+      24: invokespecial #8                  // Method java/awt/Dimension."<init>":(II)V
+      27: putstatic     #56                 // Field NORMAL_SIZE:Ljava/awt/Dimension;
+      30: new           #5                  // class java/awt/Dimension
+      33: dup
+      34: bipush        12
+      36: bipush        12
+      38: invokespecial #8                  // Method java/awt/Dimension."<init>":(II)V
+      41: putstatic     #57                 // Field SMALL_SIZE:Ljava/awt/Dimension;
+      44: ldc           #58                 // String icon.status.clear
+      46: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      49: iconst_1
+      50: aconst_null
+      51: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+      54: putstatic     #41                 // Field CLEAR_IMAGE:Ljava/awt/Image;
+      57: ldc           #61                 // String icon.status.clearShape
+      59: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      62: iconst_1
+      63: aconst_null
+      64: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+      67: putstatic     #40                 // Field CLEAR_SHAPE_IMAGE:Ljava/awt/Image;
+      70: ldc           #62                 // String icon.status.green
+      72: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      75: iconst_1
+      76: aconst_null
+      77: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+      80: putstatic     #35                 // Field GREEN_IMAGE:Ljava/awt/Image;
+      83: ldc           #63                 // String icon.status.greenShape
+      85: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+      88: iconst_1
+      89: aconst_null
+      90: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+      93: putstatic     #34                 // Field GREEN_SHAPE_IMAGE:Ljava/awt/Image;
+      96: ldc           #64                 // String icon.status.amber
+      98: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     101: iconst_1
+     102: aconst_null
+     103: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+     106: putstatic     #37                 // Field AMBER_IMAGE:Ljava/awt/Image;
+     109: ldc           #65                 // String icon.status.amberShape
+     111: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     114: iconst_1
+     115: aconst_null
+     116: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+     119: putstatic     #36                 // Field AMBER_SHAPE_IMAGE:Ljava/awt/Image;
+     122: ldc           #66                 // String icon.status.red
+     124: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     127: iconst_1
+     128: aconst_null
+     129: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+     132: putstatic     #39                 // Field RED_IMAGE:Ljava/awt/Image;
+     135: ldc           #67                 // String icon.status.redShape
+     137: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     140: iconst_1
+     141: aconst_null
+     142: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+     145: putstatic     #38                 // Field RED_SHAPE_IMAGE:Ljava/awt/Image;
+     148: ldc           #68                 // String icon.status.gray
+     150: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     153: iconst_1
+     154: aconst_null
+     155: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+     158: putstatic     #33                 // Field GRAY_IMAGE:Ljava/awt/Image;
+     161: ldc           #69                 // String icon.status.notinstalled
+     163: invokestatic  #59                 // Method com/apple/xsr/Resources.getString:(Ljava/lang/String;)Ljava/lang/String;
+     166: iconst_1
+     167: aconst_null
+     168: invokestatic  #60                 // Method com/apple/xsr/Utilities.getImage:(Ljava/lang/String;ZLjava/awt/Component;)Ljava/awt/Image;
+     171: putstatic     #42                 // Field NOTINSTALLED_IMAGE:Ljava/awt/Image;
+     174: bipush        -2
+     176: istore_0
+     177: iload_0
+     178: iconst_3
+     179: if_icmpgt     280
+     182: iconst_0
+     183: istore_1
+     184: iload_1
+     185: iconst_1
+     186: if_icmpgt     274
+     189: iconst_0
+     190: istore_2
+     191: iload_2
+     192: iconst_1
+     193: if_icmpgt     268
+     196: iconst_0
+     197: istore_3
+     198: iload_3
+     199: iconst_2
+     200: if_icmpgt     262
+     203: iload_1
+     204: iconst_1
+     205: if_icmpne     212
+     208: iconst_1
+     209: goto          213
+     212: iconst_0
+     213: istore        4
+     215: iload_2
+     216: ifne          225
+     219: getstatic     #56                 // Field NORMAL_SIZE:Ljava/awt/Dimension;
+     222: goto          228
+     225: getstatic     #57                 // Field SMALL_SIZE:Ljava/awt/Dimension;
+     228: astore        5
+     230: getstatic     #11                 // Field allIcons:[[[[Lcom/apple/xsr/StatusIcon;
+     233: iconst_2
+     234: iload_0
+     235: iadd
+     236: aaload
+     237: iload_1
+     238: aaload
+     239: iload_2
+     240: aaload
+     241: iload_3
+     242: new           #70                 // class com/apple/xsr/StatusIcon
+     245: dup
+     246: iload_0
+     247: iload_3
+     248: iload         4
+     250: aload         5
+     252: invokespecial #71                 // Method "<init>":(IIZLjava/awt/Dimension;)V
+     255: aastore
+     256: iinc          3, 1
+     259: goto          198
+     262: iinc          2, 1
+     265: goto          191
+     268: iinc          1, 1
+     271: goto          184
+     274: iinc          0, 1
+     277: goto          177
+     280: invokestatic  #72                 // Method syncUseShapes:()V
+     283: ldc           #51                 // String com.apple.RAIDAdmin.plist
+     285: invokestatic  #52                 // Method com/apple/util/prefs/Preferences.getPreferences:(Ljava/lang/String;)Lcom/apple/util/prefs/Preferences;
+     288: astore_0
+     289: aload_0
+     290: new           #73                 // class com/apple/xsr/StatusIcon$1
+     293: dup
+     294: invokespecial #74                 // Method com/apple/xsr/StatusIcon$1."<init>":()V
+     297: invokevirtual #75                 // Method com/apple/util/prefs/Preferences.addPreferenceChangeListener:(Lcom/apple/util/prefs/Preferences$PreferenceChangeListener;)V
+     300: return
+}
