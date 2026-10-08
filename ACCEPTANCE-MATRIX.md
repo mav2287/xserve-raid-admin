@@ -672,3 +672,9 @@ constructor native pilot did not reproduce this. Numeric-only observer fixtures
 pass ARM and Rosetta x64 fault containment/cleanup; a disposable attach passes.
 These are development diagnostics, not a new fix or hardware qualification.
 See [facts, limitations and pilot source](audit/UI-SELECTION-DIAGNOSTIC.md).
+
+Operator correction: the small automated native fixture visibly reproduced the
+highlight defect despite passing image/Java-paint checks. Its visual acceptance
+therefore fails; “did not reproduce” applies only to numeric detection. A/B/C
+image-path diagnostics are in progress; rendering/presentation is a leading
+suspect, not an established cause.

@@ -1,0 +1,33 @@
+{
+  "kind": "offline diagnostic pilot; no product patch or visual qualification",
+  "order": [
+    "C",
+    "B",
+    "A"
+  ],
+  "rounds_per_variant": 480,
+  "intended_timer_ms": 40,
+  "product_jar_sha256": "3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059",
+  "inputs_and_results": {
+    "build/native-drive-fixture/NativeDriveAB.java": "c59b2c592d10693519bb7b551c044c2dbe772de8e342e56cf9df6789d009543e",
+    "build/native-drive-fixture/compile-ab.py": "96be25a05accd02dd560b67ebb885f498d6ffa5cfda9ef8864d890e1160ccb83",
+    "build/native-drive-fixture/run-ab.py": "ecf3b332aede06494c939319226558190ff49ed0302a49060c16d7d80af8d029",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$1.class": "9ff096e0b3d27bde424929a766dea3812a2c2069f41f0c6b29012b0ee18f1500",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$2.class": "ab1a49fe700b0077f0a1c43faff0344774e0330ebac25ff0d0302a36de151991",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$3.class": "4988266c2ad7d515c0f9bd7d605af3f9d0e36008de50d077ab490118c35abf4a",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$4.class": "de7ef0434470334ab284de4ae12b2187fc1895d4ac334a5f703d8ab0f9bd4de5",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$5.class": "96a3b5657e1d34e51205e8f2b94338c1840d7a4cb33dd0429370828a62626dda",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$Panel.class": "940c64fe9d72e8070a61524fff49a7d3ae827c724c00fecc1a8f4dd4f770fdde",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$TaggedEvent.class": "58f3c28444226c651393750e49fae2d391e9510a8d247839f66ec496e987bbc3",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB$Track.class": "5d0364f398b3f1a21d18dbc45767ae7b54de25e1a7176184d79dc41e382d00c6",
+    "build/native-drive-fixture/ab-classes2/NativeDriveAB.class": "a0804bacbb33138086a7dc01bce503af3cdfca588041e4af10fbb37a5a5210e4",
+    "build/native-drive-fixture/ab-classes2/fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be",
+    "build/native-drive-fixture/ab-run2/A.stdout": "9976abb14efd15303f03ea10d62aad87e5e88b4b0dc3dc2fb26acde23de7635a",
+    "build/native-drive-fixture/ab-run2/B.stdout": "7b12aa0a44d6f4e83bf70a9898ca0939c67d9a581f85552c106e2f9e7ccc4de2",
+    "build/native-drive-fixture/ab-run2/C.stdout": "e87a7ec974ad65a3669441f1b0e217f8ba041a10e7b79b1cd485886051b39445",
+    "build/native-drive-fixture/ab-run2/A.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/native-drive-fixture/ab-run2/B.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/native-drive-fixture/ab-run2/C.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "visual_result": "awaiting operator comparison; numeric results do not qualify framebuffer"
+}

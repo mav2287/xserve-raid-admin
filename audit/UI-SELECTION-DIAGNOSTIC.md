@@ -50,7 +50,7 @@ are unmeasured.
 largest measured event-to-Java-paint interval was 36,990,041 ns. This ARM pilot
 uses interpreted execution and default graphics-transform scale 1.0. It does not
 measure framebuffer presentation or reproduce the full production hierarchy.
-It did not reproduce the operator's delay, so it does not close acceptance.
+The numeric checks did not detect the operator's delay; they do not close acceptance.
 
 ## Temporary numeric-only observer
 
@@ -99,3 +99,49 @@ and zero mouse events. Its final trailer reports no failure, dropped records or
 remaining listeners. The operator did not reproduce the symptom during this
 window; this is attachment/cleanup evidence only. The installed application was
 not modified. A new trace requires coordinated operator reproduction.
+
+## Operator correction: native pilot visibly reproduces the defect
+
+The operator subsequently clarified that missing highlights were visible in the
+small automated drive-panel fixture itself. This is visual reproduction evidence
+in an isolated synthetic view, even though the fixture's image hashes and Java
+paint counters passed. Calling that run a non-reproduction was too strong.
+The numeric checks do not measure screen pixels. This substantially narrows the
+investigation toward image rendering/presentation, but does not identify a
+specific image-cache, damage-region or compositing defect. The normal application
+observer's zero-click result remains unchanged and is a separate run.
+
+An offline A/B/C comparison now retains the same original renderer, geometry,
+tagged inputs and synthetic model. A uses original native images; B changes only
+image acceleration priority to zero; C supplies opaque TYPE_INT_RGB software
+images at priority zero. A bounded identity set proves that the tested images
+came through the override; B/C priority and C type are checked for every oracle.
+Each process uses 480 rounds at a 40-ms timer interval, with independent per-drive
+oracles. This is a diagnostic experiment, not a product change or confirmed fix.
+Opaque software images may differ in rendering details. Separate processes
+avoid retaining pipeline state between variants. No Metal property is used:
+Claude's suggested Metal switch was not established for this bundled Java 8.
+
+Claude's [A/B/C design review](ui-selection-diagnostic/claude-ab-design.json)
+and [source review](ui-selection-diagnostic/claude-ab-source.json) support this
+offline experiment, not a product fix. The source review identified robustness
+gaps: retain generated images still held by labels when pruning provenance; stop
+the timer on all terminal paths; preserve setup failures before checking paint
+coverage; measure only the first paint of a changed icon. These are corrected in
+the [second source snapshot](ui-selection-diagnostic/NativeDriveAB.java). A suggested
+System.exit was not adopted because the fixture guard prohibits process exit;
+timer stop, frame disposal and the bounded subprocess provide termination.
+The initial A/B/C run is a preliminary scratch observation; the corrected
+reverse-order run supplies the archived fixture results.
+
+The corrected reverse-order C/B/A pilot completed successfully in all three
+processes: 480 transitions, 13,510 images created through the proved override,
+6,734 Java label paints, no stale generations at timer ticks, and zero guarded
+prohibited operations each. Largest first-paint delays were C 39,292,042 ns,
+B 38,782,791 ns, A 41,518,583 ns. The recorded graphics paint scale was 1.0.
+[Receipt](ui-selection-diagnostic/image-path-receipt.json) binds the local source,
+classes and outputs; [A](ui-selection-diagnostic/image-path-A.stdout),
+[B](ui-selection-diagnostic/image-path-B.stdout), and
+[C](ui-selection-diagnostic/image-path-C.stdout) remain numeric observations.
+The operator comparison of visible missing highlights is pending. No variant is
+accepted as a fix, and no new product release is created.
