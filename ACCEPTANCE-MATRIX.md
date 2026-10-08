@@ -663,3 +663,12 @@ results; shared rows outside the information view retain 68. Both architectures
 build reproducibly and pass unsigned package checks. This refines the earlier
 latency inference; it does not establish native symptom resolution or additional
 controller acceptance. See [audit30 evidence](audit/ARRAY-CLICK.md).
+
+### Continuing native highlight investigation (2026-10-08)
+
+Audit30 remains open for native highlight acceptance: the operator still reports
+1–2 second partial highlights and a drive-6-edge case. The isolated original-
+constructor native pilot did not reproduce this. Numeric-only observer fixtures
+pass ARM and Rosetta x64 fault containment/cleanup; a disposable attach passes.
+These are development diagnostics, not a new fix or hardware qualification.
+See [facts, limitations and pilot source](audit/UI-SELECTION-DIAGNOSTIC.md).

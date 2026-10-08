@@ -1,0 +1,30 @@
+{
+  "kind": "development diagnostic pilot; not a release qualification",
+  "product_commit": "1a2ef1f35ad26dc28821ab19ba3677a2280312b9",
+  "product_jar_sha256": "3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059",
+  "observer_sha256": "b90a0dcde8e56f8ab525fdd03ee14f99655b6ff8a0d43e00c9d2eaf5b177ca5e",
+  "inputs_and_results": {
+    "build/ui-observer/src/uiprobe/SelectionObserver.java": "34310205b60c132d6574a81253b268931c21dfe4e0d905a165d5debfda08d12a",
+    "build/ui-observer/src/uiprobe/ObserverObservation.java": "433fab154738670603dca415813af70b0ae5a78054f0af78982eb33e4b19e5dc",
+    "build/ui-observer/src/uiprobe/AttachObserver.java": "49d70fa26c46c96935160aeaf4f55e9debf4b511b06eac5819d583898de458a1",
+    "build/ui-observer/src/uiprobe/AttachTarget.java": "e0954f4f05578e42a5719783d978e3537a38e7ec844d5cc14fad16c2515c6162",
+    "build/ui-observer/src/uiprobe/SinkObservation.java": "e8db30e840173951a87c3387d86485b9641453bbbe71b8b98da31f9aba46eb47",
+    "build/native-drive-fixture/NativeDriveObservation.java": "30328fa8528d3c00b5a6ff130995d5e779d4e51605889d8deb280c08688e97ab",
+    "build/ui-observer/observer8.jar": "b90a0dcde8e56f8ab525fdd03ee14f99655b6ff8a0d43e00c9d2eaf5b177ca5e",
+    "build/native-drive-fixture/run1/stdout": "361a02eda7a714cc4ca4bf362491bffd322df88b441c0f7da050abda09d2988e",
+    "build/native-drive-fixture/run1/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/ui-observer/check6/aarch64.stdout": "fb09c3c224708d2b12e88a0642b44e1099eb8c0660b20dbe048913ad823fe459",
+    "build/ui-observer/check6/x64.stdout": "fb09c3c224708d2b12e88a0642b44e1099eb8c0660b20dbe048913ad823fe459",
+    "build/ui-observer/security-check3/target.stdout": "5c2fd48c2e267872455e7ce249e666ef16661410e42d163e0cbfdd5db8ed9b48",
+    "build/ui-observer/claude-followup.json": "75eee027c669de30cbc955a2459e21dd01167a935da6d9c8808c8e96f4fd353b"
+  },
+  "limits": [
+    "No controller calls or mounted-volume tests",
+    "No full information-pane fixture or framebuffer capture",
+    "Rosetta x64 is not physical Intel",
+    "Native OS preferences outside Java guard are unmeasured",
+    "Temporary observer does not change product JAR or installed app"
+  ],
+  "live_idle_trace_sha256": "88127d56086572b465031318c1ddcb8bf909e8ca97ab4063b144cffa977aa165",
+  "live_result": "complete; no clicks, no symptom reproduction; failure/drop/remaining listeners all zero"
+}
