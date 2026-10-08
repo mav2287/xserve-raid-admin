@@ -15,6 +15,8 @@ Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS
 
 These are **unsigned, unnotarized audit builds**. Offline checks passed on native ARM and on x64 under Rosetta; physical Intel, full native interface/startup and real-controller workflows still need qualification. Successful launch is not proof that every feature works. See [completion and remaining acceptance](COMPLETION-STATUS.md).
 
+A user has reported intermittent stale drive highlights in Array & Drives. This remains under investigation; see [operator observations and offline checks](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
+
 ## Installation and use
 
 1. Download the ZIP for your Mac and extract it.
