@@ -208,3 +208,18 @@ corrected “60 selections” to “60 steps”: inert gaps, releases and post-r
 hover steps need not change selection. The README/release wording uses steps.
 Timing describes the configured one-second pacing with a 950-ms lower-bound
 assertion, not a captured minimum interval measurement.
+
+## Release synchronization
+
+The audit30 release notes were updated with the operator-observed paced fixture
+result. [Publication verification](UI-SELECTION-PUBLICATION.json) confirms the
+prepared notes are published on Latest audit30; all ten asset identities, sizes,
+digests and timestamps are unchanged; and both the annotated tag and its peeled
+target are unchanged. The documentation/evidence commit was pushed to main and
+audit/phase-0. No new binary version was generated for these diagnostic changes.
+
+Read-only archive verification, without Java or network:
+
+```sh
+/opt/homebrew/bin/python3 -I -S audit/ui-selection-diagnostic/verify.py
+```

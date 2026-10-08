@@ -475,3 +475,13 @@ known disposable macOS environment; physical Intel, signing/notarization and
 redistribution acceptance remain unverified. HTTP remains plaintext.
 See [scope](audit/PREFERENCE-IO.md), [ledger](audit/preference-final-integrity.json)
 and [archive map](audit/preference-archival-map.json).
+
+## Paced drive-selection observation (2026-10-08)
+
+The operator-observed original-renderer fixture passes 60 synthetic boundary,
+center, edge, gap and drag steps with one-second pacing on native ARM. This
+refines component-level evidence, but the earlier intermittent full information-
+view highlight lag remains unresolved: a passing unchanged-renderer fixture is
+not a causal fix. Full hierarchy and native input routing were not exercised;
+physical Intel was not used for this run. See [diagnostic evidence](audit/UI-SELECTION-DIAGNOSTIC.md).
+The published audit30 architecture packages remain unchanged.

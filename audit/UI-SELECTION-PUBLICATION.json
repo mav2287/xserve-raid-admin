@@ -1,0 +1,106 @@
+{
+  "kind": "audit30 documentation-only release update",
+  "url": "https://github.com/mav2287/xserve-raid-admin/releases/tag/v1.5.1-modern.audit.30",
+  "release_id": 406461060,
+  "evidence_commit": "619658557631fb73002454dfe3cbb99f674ed109",
+  "before_body_sha256": "85ec991959c073f4494e6fbddb635a003ca80ccc4b447487764ee02e96dd22d1",
+  "published_body_sha256": "86d91cbfa8ff6b9f1a10405d22b43aa8ddab8c1b382ada0457ceaf16cb792877",
+  "remote_refs_at_verification": {
+    "refs/heads/audit/phase-0": "619658557631fb73002454dfe3cbb99f674ed109",
+    "refs/heads/main": "619658557631fb73002454dfe3cbb99f674ed109",
+    "refs/tags/v1.5.1-modern.audit.30": "b3815d913fc0f049b2fa989412005080726a749f",
+    "refs/tags/v1.5.1-modern.audit.30^{}": "d7e16a596255b7e5d2234519ab9554079130f13e"
+  },
+  "assets_before_and_after_identical": true,
+  "assets": [
+    {
+      "id": 620862343,
+      "name": "ARRAY-CLICK-RELEASE.json",
+      "size": 4517,
+      "digest": "sha256:e6b2a192a35f96db162f4284b24e3cf1cdb4283c1576eff8ea622c1b5ce8bdf5",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/ARRAY-CLICK-RELEASE.json",
+      "updated_at": "2026-10-08T05:43:40Z"
+    },
+    {
+      "id": 620862341,
+      "name": "RAID-Admin-1.5.1-modern.audit.30-aarch64-unsigned.zip",
+      "size": 220595597,
+      "digest": "sha256:aba0f6f64fa0c5279db799598867f08d5ec760bddb2505d4e789071994d68306",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/RAID-Admin-1.5.1-modern.audit.30-aarch64-unsigned.zip",
+      "updated_at": "2026-10-08T05:43:54Z"
+    },
+    {
+      "id": 620862337,
+      "name": "RAID-Admin-1.5.1-modern.audit.30-x64-unsigned.zip",
+      "size": 217151349,
+      "digest": "sha256:4c2ead53cf0bc2a371a98ef229909e37c205513da1a2ab670d4ad54d8344deb2",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/RAID-Admin-1.5.1-modern.audit.30-x64-unsigned.zip",
+      "updated_at": "2026-10-08T05:43:55Z"
+    },
+    {
+      "id": 620862345,
+      "name": "SHA256SUMS.txt",
+      "size": 873,
+      "digest": "sha256:789daa124119e5bd1779ad75d5492d0392baa96589ac1710b6a4231846997243",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/SHA256SUMS.txt",
+      "updated_at": "2026-10-08T05:43:41Z"
+    },
+    {
+      "id": 620862340,
+      "name": "aarch64-SBOM.spdx.json",
+      "size": 3818663,
+      "digest": "sha256:b56dd5cc43894e6b3bdc676791536306ed6ee361cf4466e7eb0365df8e2f0424",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/aarch64-SBOM.spdx.json",
+      "updated_at": "2026-10-08T05:43:41Z"
+    },
+    {
+      "id": 620862361,
+      "name": "aarch64-provenance.json",
+      "size": 104459,
+      "digest": "sha256:944bc5d302e94203518f0a3f442343a05a2451d475b0cd44d0e64ffc8d3ab36b",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/aarch64-provenance.json",
+      "updated_at": "2026-10-08T05:43:41Z"
+    },
+    {
+      "id": 620862364,
+      "name": "aarch64-release-observations.json",
+      "size": 11435,
+      "digest": "sha256:9f4b77dfa89968e5d29e01b855ca6e0a6d88253f239c2f1f65c309e2ecf2d586",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/aarch64-release-observations.json",
+      "updated_at": "2026-10-08T05:43:41Z"
+    },
+    {
+      "id": 620862374,
+      "name": "x64-SBOM.spdx.json",
+      "size": 3818651,
+      "digest": "sha256:62dd82e393374965ba051a055651ac67d0e0b39764bef3a3dfe7e4b9c645412c",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/x64-SBOM.spdx.json",
+      "updated_at": "2026-10-08T05:43:42Z"
+    },
+    {
+      "id": 620862375,
+      "name": "x64-provenance.json",
+      "size": 104463,
+      "digest": "sha256:f44ba621d15570f631e47c0e276d8dd0134d3260b702880702ea636cf632c49f",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/x64-provenance.json",
+      "updated_at": "2026-10-08T05:43:41Z"
+    },
+    {
+      "id": 620862382,
+      "name": "x64-release-observations.json",
+      "size": 11431,
+      "digest": "sha256:9d17d584c0bd79fc37d942cf69598a3a1d6fc7777aea099b806d1b9cfab365f2",
+      "browser_download_url": "https://github.com/mav2287/xserve-raid-admin/releases/download/v1.5.1-modern.audit.30/x64-release-observations.json",
+      "updated_at": "2026-10-08T05:43:42Z"
+    }
+  ],
+  "latest_tag": "v1.5.1-modern.audit.30",
+  "checks": [
+    "Boundary archive bytes/60 steps verified",
+    "Existing audit30 record/Git/reference/available ZIP verifier passed",
+    "Published notes equal prepared notes",
+    "All10 asset IDs/names/sizes/digests/URLs/update times unchanged",
+    "Annotated tag and peeled target unchanged"
+  ],
+  "scope": "No new product build, renderer patch or full-app/hardware qualification"
+}
