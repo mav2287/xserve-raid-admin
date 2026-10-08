@@ -6,6 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import zipfile
 from audit_support import ROOT, JAVA_FLAGS, isolated_env, verify_jdk, verify_python, run_jdk, sha
@@ -22,6 +23,25 @@ IDENTITIES = ['com/apple/xsr/SystemInfoPane$5.class', 'com/apple/xsr/SystemInfoP
               'com/apple/xsr/SelectableStatusLabel.class', 'com/apple/xsr/ArraySelectionPanel.class',
               'com/apple/xsr/ArraySelectionPanel$ArrayLabel.class', 'com/apple/xsr/ArraySelectionPanel$2.class',
               'com/apple/xsr/ArraySelectionPanel$3.class', 'com/apple/xsr/ArraySelectionPanel$4.class']
+COMPILED_TARGETS = ['com.apple.xsr.SystemInfoPane$5::propertyChange', 'compat.ArrayInfoSelection::setArrayIndex']
+
+
+def validate_output(raw, expected, mode, fixed):
+    if mode == '-Xint':
+        if raw != expected: raise ValueError('Interpreted output differs')
+        return []
+    compiled = []; markers = []
+    for line in raw.decode('ascii').splitlines():
+        if line == expected.decode('ascii').strip():
+            markers.append(line); continue
+        if not re.match(r'^\s*\d+\s+\d+\s+.*::', line): raise ValueError('Unexpected compiler diagnostic')
+        target = next((name for name in COMPILED_TARGETS if name + ' ' in line), None)
+        if target and re.search(r'\(\d+ bytes\)\s*$', line): compiled.append(line)
+        elif not target and '(native)' not in line: raise ValueError('Unexpected Java compilation outside target scope')
+    required = COMPILED_TARGETS if fixed else COMPILED_TARGETS[:1]
+    if len(markers) != 1 or any(not any(name + ' ' in line for line in compiled) for name in required):
+        raise ValueError('Required compiled target or exact fixture marker missing')
+    return compiled
 
 
 def main():
@@ -45,7 +65,6 @@ def main():
     for label, jar in [('before', baseline), ('after', candidate)]:
         text = disassemble_entries(args.jdk, jar, [ENTRY]); (out / (label + '.javap')).write_text(text); disassemblies[label] = text
     # Independent instruction comparison: constant-pool text differs solely at pc30.
-    import re
     instructions = lambda text: [line.strip() for line in text.splitlines() if re.match(r'^\s*\d+:', line)]
     old, new = instructions(disassemblies['before']), instructions(disassemblies['after'])
     if len(old) != len(new) or [(a,b) for a,b in zip(old,new) if a != b] != [
@@ -68,23 +87,35 @@ def main():
             manifest = out / ('identity-' + arch + '-' + label + '.tsv'); manifest.write_text('\n'.join(lines) + '\n')
             fixed = 'true' if label == 'after' else 'false'
             for mode in ['-Xint', '-Xcomp']:
+                compiler_flags = (['-XX:CompileCommand=quiet',
+                    '-XX:CompileCommand=compileonly,com/apple/xsr/SystemInfoPane$5.propertyChange',
+                    '-XX:CompileCommand=compileonly,compat/ArrayInfoSelection.setArrayIndex',
+                    '-XX:+PrintCompilation'] if mode == '-Xcomp' else [])
                 flags = JAVA_FLAGS + [mode, '-Xverify:all', '-Djava.awt.headless=true', '-Dlog4j.defaultInitOverride=true',
                                      '-Dfixture.expectedArch=' + expected_arch, '-Dfixture.fixed=' + fixed,
                                      '-Dfixture.requireFixed=' + fixed,
-                                     '-Dfixture.identitymanifest=' + str(manifest), '-cp', str(probes) + ':' + str(jar)]
+                                     '-Dfixture.identitymanifest=' + str(manifest)] + compiler_flags + ['-cp', str(probes) + ':' + str(jar)]
                 command = [str(runtime / 'Contents/Home/bin/java')] + flags + ['uifixture.ArrayInfoFixObservation']
                 result = subprocess.run(command, env=isolated_env(), capture_output=True, timeout=180)
                 expected = ('PASS array info listener; fixed=' + fixed + '; valid_ids_preserved=true; raw_detail_selection_preserved=true; setter_once=true; radio_card_preserved=true; mode_transition=true; model_unchanged=true; forbidden_operations=0\n').encode()
-                if result.returncode or result.stdout != expected or result.stderr:
+                valid = result.returncode == 0 and not result.stderr
+                try: compiled = validate_output(result.stdout, expected, mode, label == 'after')
+                except (ValueError, UnicodeDecodeError): valid = False; compiled = []
+                if not valid:
                     # Fixture emits only reviewed identifiers on failure; retain diagnostics locally, never secrets.
                     (out / ('failure-' + arch + '-' + label + '.stdout')).write_bytes(result.stdout)
                     (out / ('failure-' + arch + '-' + label + '.stderr')).write_bytes(result.stderr)
                     raise ValueError('Array-info observation failed; diagnostics withheld')
-                record['runs'].append({'architecture':arch, 'mode':mode, 'jar':label, 'stdout':expected.decode().strip(), 'empty_stderr':True, 'runtime_tree_sha256':spec['tree_sha256']})
+                log = out / ('jit-' + arch + '-' + label + '.txt')
+                if mode == '-Xcomp': log.write_bytes(result.stdout)
+                record['runs'].append({'architecture':arch, 'mode':mode, 'jar':label, 'stdout':expected.decode().strip(), 'empty_stderr':True, 'runtime_tree_sha256':spec['tree_sha256'],
+                    'compiler_flags':compiler_flags, 'compiled_target_lines':compiled,
+                    'jit_log_sha256':sha(log) if mode == '-Xcomp' else None})
                 if label == 'before':
                     negative = command[:-1] + ['-Dfixture.requireFixed=true', command[-1]]
                     result = subprocess.run(negative, env=isolated_env(), capture_output=True, timeout=180)
-                    if (result.returncode != 1 or result.stdout != b'EXPECTED_NEGATIVE missing-fix\n'
+                    validate_output(result.stdout, b'EXPECTED_NEGATIVE missing-fix\n', mode, False)
+                    if (result.returncode != 1
                             or not result.stderr.startswith(b'Exception in thread "main" java.lang.AssertionError: array-info-fixture-failed\n')):
                         raise ValueError('Original fixed-oracle negative failed')
                     record['negatives'].append({'architecture':arch, 'mode':mode, 'expected_failure':'missing-fix', 'stderr_sha256':hashlib.sha256(result.stderr).hexdigest()})
