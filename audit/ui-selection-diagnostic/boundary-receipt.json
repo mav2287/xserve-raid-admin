@@ -1,0 +1,44 @@
+{
+  "kind": "operator-observed offline fixture; not full application or release qualification",
+  "product_jar_sha256": "3875edc404c7773d602fdb834bf8090dcb73b53a30d6306bc2fb09951a542059",
+  "variant": "A: unchanged original image path",
+  "architecture": "native aarch64; x64 not rerun for this native fixture",
+  "steps": 60,
+  "intended_timer_ms": 1000,
+  "guard_prohibited_operations": 0,
+  "operator_observation": "It looked fine",
+  "original_source_commit": "1a2ef1f35ad26dc28821ab19ba3677a2280312b9",
+  "scratch_inputs_and_results": {
+    "build/native-drive-fixture/NativeDriveBoundaries.java": "0e2494de8741729e9087f452e040780911ce20802b74f5e91ca7fe67b44b7175",
+    "build/native-drive-fixture/run-boundary-watch.py": "9455d9b896f53214c29142eba9da7e84c56e08af39eb0fc2a81eb7e2c311c69b",
+    "tests/java/fixture/OfflineGuard.java": "a88e123d4839842fe138c0e9913d2d785af3f8e00f095f650027565e8ddb83ec",
+    "build/native-drive-fixture/boundary-watch-1791474579222831000/A.stdout": "0765a4ebb285ee7826f0ff915ea4f5734c0b5e7c02e3790a89a3d6f1cd48df01",
+    "build/native-drive-fixture/boundary-watch-1791474579222831000/A.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$1.class": "52ccb656e75f0beb38eb93fd3c4abdc2000f2580b9c1305b014696c822d6e8b1",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$2.class": "83a601f1869edcbbfa8b2d68df05035f6ef8f92bdd1f571d69e7b7be11a2d2b3",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$3.class": "9f9b77e280ce0e1472365689949028f7fa90dce9726ad8f4095a8b9488cbb394",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$4.class": "40c3ec7d1126de99ef27fccc976951be0c37c4323e2092f38584ec538e0bdd99",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$5.class": "1493467077bbdc0a8e58deaa1d1a872c169b8e9e3dfe513079b1874d1b469f64",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$Panel.class": "eb01c4ab7801a17d50dfef893baa644232487507c2b36dedb30440ebf61dbd79",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$Step.class": "56206c60df510ae9a0a938b44d0e54aeeca167087086dcfe145cf85e61108e75",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$TaggedEvent.class": "bfeddcf4be04e46025ab19486a6cdae2a29d701cc0dbd01d3b2d919988405166",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries$Track.class": "bcfd1024fea66535a8f2c79ace5a48e1cd6292c9350c18841b352644a3035941",
+    "build/native-drive-fixture/boundary-classes2/NativeDriveBoundaries.class": "f11709598491e7410587c1c7761a22c9b5f93152c85c8f41100c704a8a12aa86",
+    "build/native-drive-fixture/boundary-classes2/fixture/OfflineGuard.class": "2a0ab5a6c20217c922349e1518425c78c543e46d2b41da7a49c7a0c784ef05be"
+  },
+  "archived_sha256": {
+    "NativeDriveBoundaries.java": "0e2494de8741729e9087f452e040780911ce20802b74f5e91ca7fe67b44b7175",
+    "boundaries-original.stdout": "0765a4ebb285ee7826f0ff915ea4f5734c0b5e7c02e3790a89a3d6f1cd48df01",
+    "NativeDriveHeld.java": "b24a2621f496e236784a645c90750f4ca55c0e22e897fa84178a15dc76452bc6",
+    "held-original.stdout": "7b3aa6c8db99b7dbd8d47ca325c58d74582c89bbd9c69434502a768f42d28724",
+    "claude-boundary-design.json": "0126c73ec12c02f5fae77115628385e996c9a1c2ff0591804e346592a8d318ca",
+    "claude-boundary-source.json": "aefcbe11b16c9bdc204fcc6137165f1dd4aa26a4ef599c86b0b58f94e877180c"
+  },
+  "limits": [
+    "No real controller, profiles or volumes",
+    "No framebuffer capture",
+    "No full information-pane constructor or native OS input routing",
+    "No new product implementation or binary release",
+    "Does not prove intermittent production-view symptom fixed"
+  ]
+}

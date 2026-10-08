@@ -678,3 +678,22 @@ highlight defect despite passing image/Java-paint checks. Its visual acceptance
 therefore fails; “did not reproduce” applies only to numeric detection. A/B/C
 image-path diagnostics are in progress; rendering/presentation is a leading
 suspect, not an established cause.
+
+
+### Operator-observed paced selection and boundary checks (2026-10-08)
+
+The unchanged audit30 renderer passes an isolated native ARM test with 60 steps
+at one-second intervals: centers, edges, shared boundaries, divider/outside points,
+and captured-release drags. Synthetic selection/icon/model assertions pass, no
+stale Java paint generations are observed at ticks, and the guard reports zero
+prohibited operations. The operator reports that it looked fine. A separate
+three-second original-path test was also visually smooth. Rapid 40-ms flashing
+was not a reliable operator comparison. See [source, results and limits](audit/UI-SELECTION-DIAGNOSTIC.md).
+
+This closes the specific paced synthetic boundary observation, not the earlier
+intermittent full-application highlight finding. Native input routing, full
+information-pane integration, physical Intel and real hardware remain outside
+this result. The next investigation, if the symptom recurs, should correlate
+normal information-view selections with typed state/icon observations. No blind
+renderer change follows from a passing unchanged-renderer fixture. Git/release
+notes are being synchronized; audit30 binaries, provenance and tag remain fixed.

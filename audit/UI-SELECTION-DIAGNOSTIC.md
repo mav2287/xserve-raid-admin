@@ -145,3 +145,66 @@ classes and outputs; [A](ui-selection-diagnostic/image-path-A.stdout),
 [C](ui-selection-diagnostic/image-path-C.stdout) remain numeric observations.
 The operator comparison of visible missing highlights is pending. No variant is
 accepted as a fix, and no new product release is created.
+
+## Operator pacing correction and held-selection test
+
+The operator could not judge the 40-ms flashing sequence and required at least
+2–3 seconds between selections. A 2.5-second attempted sequence was also reported
+as flashing and was stopped. Those visual reports are not accepted as a clean
+A/B/C comparison. Only the synthetic test JVM was stopped.
+
+A single original-image-path test was then run with a 3,000-ms one-shot timer,
+restarted after each completed transition, a visible step counter and a minimum
+interval assertion. The operator reported: “It worked and did not reproduce the
+error.” This is a clean visual observation of that paced original-path fixture;
+it does not establish resolution of the intermittent normal-application defect.
+No product patch is derived from it. Native fixture guards and synthetic inputs
+remain unchanged. Completed numeric run results are recorded below.
+
+The held-original test completed 12 transitions, 406 images and 182 Java
+paints with zero stale generations and zero guarded prohibited operations. Its
+maximum first-paint delay was 50,893,958 ns. [Source](ui-selection-diagnostic/NativeDriveHeld.java)
+and [output](ui-selection-diagnostic/held-original.stdout) preserve this pilot.
+The operator next requested one-second pacing and broader simulated hit locations;
+a separate 60-step original-path boundary fixture is prepared with fixed bounds,
+per-hit selection expectations and tagged-only drive input. Non-drive hits are
+classified but never dispatched to unwrapped components.
+
+## One-second boundary test: observed pass
+
+The final [original-path source](ui-selection-diagnostic/NativeDriveBoundaries.java)
+and [result](ui-selection-diagnostic/boundaries-original.stdout) complete all 60
+steps at one-second pacing: all 14 centers; right boundaries at drives 1, 5, 6, 7
+and 13 with -1/0/+1 offsets; drive 6–8 corners; above/below drive 6; divider gap;
+and four press/enter/captured-release/post-release-hover drag sequences. Hits,
+expected indices/membership masks, stable bounds, drag flags and unchanged
+synthetic state pass. There are 1,400 created images, 742 Java paints, no stale
+generations at ticks, and zero guarded prohibited operations. Largest recorded
+first-paint delay: 46,887,125 ns. Native ARM only; paint scale 1.0.
+
+The operator watched this run and reported “It looked fine.” This is a passing
+visual observation for this paced synthetic fixture. It supersedes any assertion
+that the one-second boundary test remains pending, but does not establish a fix
+for the earlier intermittent full-application symptom. It changes no application
+renderer. Events go directly to tagged drive-label listeners after local hit
+testing; native OS pointer dispatch and the full information-view hierarchy are
+not exercised. Non-drive hits are inert, rather than sent to unwrapped listeners.
+
+[Receipt](ui-selection-diagnostic/boundary-receipt.json) binds the pilot source,
+compiled classes and outputs. Claude's source review raised a conditional concern
+about sharing mode-4 image oracles with mode 3: original renderer bytecode had
+already established the same tint for assigned selected drives in both modes;
+all actual mode-3 oracle checks passed here. The original mouse listener implements
+drag selection on entry. Stale paint counts are observations, not framebuffer
+proof. No completed hardware operation or comprehensive application acceptance
+is inferred from this run.
+
+The released audit30 product and architecture packages remain unchanged. This
+follow-up synchronizes evidence and release notes only; it creates no fictitious new
+renderer fix or revised binary provenance.
+
+Claude's [publication review](ui-selection-diagnostic/claude-boundary-publication.json)
+corrected “60 selections” to “60 steps”: inert gaps, releases and post-release
+hover steps need not change selection. The README/release wording uses steps.
+Timing describes the configured one-second pacing with a 950-ms lower-bound
+assertion, not a captured minimum interval measurement.

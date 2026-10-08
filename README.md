@@ -15,7 +15,7 @@ Compatibility and preservation work on Apple's RAID Admin 1.5.1 for modern macOS
 
 These are **unsigned, unnotarized audit builds**. Offline checks passed on native ARM and on x64 under Rosetta; physical Intel, full native interface/startup and real-controller workflows still need qualification. Successful launch is not proof that every feature works. See [completion and remaining acceptance](COMPLETION-STATUS.md).
 
-Audit30 removes the artificial 68 ms simulated button-press pause from information-view array-row clicks and internal view switches. The original selection events and results are preserved, and shared row behavior outside the information view keeps its original delay. Audit29's cleared-selection correction remains. Before/after tests prove the wait is removed; your remaining native highlight symptom still needs confirmation with this bundle. See [responsiveness evidence and reproduction](audit/ARRAY-CLICK.md), [earlier investigation](audit/ARRAY-REFRESH.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
+Audit30 removes the artificial 68 ms simulated button-press pause from information-view array-row clicks and internal view switches. The original selection events and results are preserved, and shared row behavior outside the information view keeps its original delay. Audit29's cleared-selection correction remains. Before/after tests prove the wait is removed. A subsequent operator-observed native ARM test passed a 60-step synthetic sequence at one-second intervals covering drive centers, edges, boundaries, inert off-label hits, the divider gap and drags. It uses the original renderer and does not establish that the earlier intermittent full-application highlight delay is fixed. See [follow-up test evidence](audit/UI-SELECTION-DIAGNOSTIC.md). See [responsiveness evidence and reproduction](audit/ARRAY-CLICK.md), [earlier investigation](audit/ARRAY-REFRESH.md) and [operator observations](audit/ARRAY-HIGHLIGHT.md). Opening settings or destructive-operation dialogs does not qualify the corresponding controller operations.
 
 ## Installation and use
 
@@ -81,6 +81,7 @@ This historical verifier requires the recorded local build artifacts and origina
 - [Dependencies and licensing evidence](DEPENDENCIES.md)
 - [Acceptance matrix](ACCEPTANCE-MATRIX.md) and [documented gaps](GAPS.md)
 - [Audit30 information-view responsiveness fix and release evidence](audit/ARRAY-CLICK.md)
+- [Operator-observed selection and boundary diagnostics](audit/UI-SELECTION-DIAGNOSTIC.md)
 - [Audit29 array information fix and release evidence](audit/ARRAY-INFO-FIX.md)
 - [Audit28 implementation/release evidence](audit/SECURE-PREFERENCES.md)
 - [Credential persistence boundary evidence](audit/CREDENTIAL-PERSISTENCE.md)

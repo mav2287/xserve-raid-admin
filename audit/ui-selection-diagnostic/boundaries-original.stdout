@@ -1,0 +1,77 @@
+SETUP native_scale=1.0; labels=14; opaque=false
+BOUND drive=1 x=255 y=12 width=18 height=68
+BOUND drive=2 x=273 y=12 width=18 height=68
+BOUND drive=3 x=291 y=12 width=18 height=68
+BOUND drive=4 x=309 y=12 width=18 height=68
+BOUND drive=5 x=327 y=12 width=18 height=68
+BOUND drive=6 x=345 y=12 width=18 height=68
+BOUND drive=7 x=363 y=12 width=18 height=68
+BOUND drive=8 x=399 y=12 width=18 height=68
+BOUND drive=9 x=417 y=12 width=18 height=68
+BOUND drive=10 x=435 y=12 width=18 height=68
+BOUND drive=11 x=453 y=12 width=18 height=68
+BOUND drive=12 x=471 y=12 width=18 height=68
+BOUND drive=13 x=489 y=12 width=18 height=68
+BOUND drive=14 x=507 y=12 width=18 height=68
+SCENARIOS count=60 tick_ms=1000; original image path only; no OS pointer injection
+STEP 1 kind=center-drive-1 x=264 y=46 hit=0 mode=3 drive=0 array=2 expected_mask=1 drag=false
+STEP 2 kind=center-drive-2 x=282 y=46 hit=1 mode=4 drive=0 array=1 expected_mask=127 drag=false
+STEP 3 kind=center-drive-3 x=300 y=46 hit=2 mode=3 drive=2 array=1 expected_mask=4 drag=false
+STEP 4 kind=center-drive-4 x=318 y=46 hit=3 mode=4 drive=2 array=1 expected_mask=127 drag=false
+STEP 5 kind=center-drive-5 x=336 y=46 hit=4 mode=3 drive=4 array=1 expected_mask=16 drag=false
+STEP 6 kind=center-drive-6 x=354 y=46 hit=5 mode=4 drive=4 array=1 expected_mask=127 drag=false
+STEP 7 kind=center-drive-7 x=372 y=46 hit=6 mode=3 drive=6 array=1 expected_mask=64 drag=false
+STEP 8 kind=center-drive-8 x=408 y=46 hit=7 mode=4 drive=6 array=2 expected_mask=16256 drag=false
+STEP 9 kind=center-drive-9 x=426 y=46 hit=8 mode=3 drive=8 array=2 expected_mask=256 drag=false
+STEP 10 kind=center-drive-10 x=444 y=46 hit=9 mode=4 drive=8 array=2 expected_mask=16256 drag=false
+STEP 11 kind=center-drive-11 x=462 y=46 hit=10 mode=3 drive=10 array=2 expected_mask=1024 drag=false
+STEP 12 kind=center-drive-12 x=480 y=46 hit=11 mode=4 drive=10 array=2 expected_mask=16256 drag=false
+STEP 13 kind=center-drive-13 x=498 y=46 hit=12 mode=3 drive=12 array=2 expected_mask=4096 drag=false
+STEP 14 kind=center-drive-14 x=516 y=46 hit=13 mode=4 drive=12 array=2 expected_mask=16256 drag=false
+STEP 15 kind=drive-1-right-boundary--1 x=272 y=46 hit=0 mode=3 drive=0 array=2 expected_mask=1 drag=false
+STEP 16 kind=drive-1-right-boundary-0 x=273 y=46 hit=1 mode=4 drive=0 array=1 expected_mask=127 drag=false
+STEP 17 kind=drive-1-right-boundary-1 x=274 y=46 hit=1 mode=3 drive=1 array=1 expected_mask=2 drag=false
+STEP 18 kind=drive-5-right-boundary--1 x=344 y=46 hit=4 mode=3 drive=4 array=1 expected_mask=16 drag=false
+STEP 19 kind=drive-5-right-boundary-0 x=345 y=46 hit=5 mode=4 drive=4 array=1 expected_mask=127 drag=false
+STEP 20 kind=drive-5-right-boundary-1 x=346 y=46 hit=5 mode=3 drive=5 array=1 expected_mask=32 drag=false
+STEP 21 kind=drive-6-right-boundary--1 x=362 y=46 hit=5 mode=3 drive=5 array=1 expected_mask=32 drag=false
+STEP 22 kind=drive-6-right-boundary-0 x=363 y=46 hit=6 mode=4 drive=5 array=1 expected_mask=127 drag=false
+STEP 23 kind=drive-6-right-boundary-1 x=364 y=46 hit=6 mode=3 drive=6 array=1 expected_mask=64 drag=false
+STEP 24 kind=drive-7-right-boundary--1 x=380 y=46 hit=6 mode=3 drive=6 array=1 expected_mask=64 drag=false
+STEP 25 kind=drive-7-right-boundary-0 x=381 y=46 hit=-1 mode=4 drive=6 array=1 expected_mask=127 drag=false
+STEP 26 kind=drive-7-right-boundary-1 x=382 y=46 hit=-1 mode=3 drive=6 array=1 expected_mask=64 drag=false
+STEP 27 kind=drive-13-right-boundary--1 x=506 y=46 hit=12 mode=3 drive=12 array=1 expected_mask=4096 drag=false
+STEP 28 kind=drive-13-right-boundary-0 x=507 y=46 hit=13 mode=4 drive=12 array=2 expected_mask=16256 drag=false
+STEP 29 kind=drive-13-right-boundary-1 x=508 y=46 hit=13 mode=3 drive=13 array=2 expected_mask=8192 drag=false
+STEP 30 kind=drive-6-top-left x=345 y=12 hit=5 mode=3 drive=5 array=2 expected_mask=32 drag=false
+STEP 31 kind=drive-6-top-right x=362 y=12 hit=5 mode=4 drive=5 array=1 expected_mask=127 drag=false
+STEP 32 kind=drive-6-bottom-left x=345 y=79 hit=5 mode=3 drive=5 array=1 expected_mask=32 drag=false
+STEP 33 kind=drive-6-bottom-right x=362 y=79 hit=5 mode=4 drive=5 array=1 expected_mask=127 drag=false
+STEP 34 kind=drive-7-top-left x=363 y=12 hit=6 mode=3 drive=6 array=1 expected_mask=64 drag=false
+STEP 35 kind=drive-7-top-right x=380 y=12 hit=6 mode=4 drive=6 array=1 expected_mask=127 drag=false
+STEP 36 kind=drive-7-bottom-left x=363 y=79 hit=6 mode=3 drive=6 array=1 expected_mask=64 drag=false
+STEP 37 kind=drive-7-bottom-right x=380 y=79 hit=6 mode=4 drive=6 array=1 expected_mask=127 drag=false
+STEP 38 kind=drive-8-top-left x=399 y=12 hit=7 mode=3 drive=7 array=1 expected_mask=128 drag=false
+STEP 39 kind=drive-8-top-right x=416 y=12 hit=7 mode=4 drive=7 array=2 expected_mask=16256 drag=false
+STEP 40 kind=drive-8-bottom-left x=399 y=79 hit=7 mode=3 drive=7 array=2 expected_mask=128 drag=false
+STEP 41 kind=drive-8-bottom-right x=416 y=79 hit=7 mode=4 drive=7 array=2 expected_mask=16256 drag=false
+STEP 42 kind=above-drive-6 x=354 y=11 hit=-1 mode=3 drive=7 array=2 expected_mask=128 drag=false
+STEP 43 kind=below-drive-6 x=354 y=80 hit=-1 mode=4 drive=7 array=2 expected_mask=16256 drag=false
+STEP 44 kind=divider-gap-midpoint x=390 y=46 hit=-1 mode=3 drive=7 array=2 expected_mask=128 drag=false
+STEP 45 kind=drag-press-drive-5 x=336 y=46 hit=4 mode=3 drive=4 array=2 expected_mask=16 drag=true
+STEP 46 kind=drag-enter-drive-6 x=354 y=46 hit=5 mode=3 drive=5 array=2 expected_mask=32 drag=true
+STEP 47 kind=drag-release-captured x=354 y=46 hit=5 mode=3 drive=5 array=2 expected_mask=32 drag=false
+STEP 48 kind=hover-after-release x=336 y=46 hit=4 mode=3 drive=5 array=2 expected_mask=32 drag=false
+STEP 49 kind=drag-press-drive-6 x=354 y=46 hit=5 mode=3 drive=5 array=2 expected_mask=32 drag=true
+STEP 50 kind=drag-enter-drive-7 x=372 y=46 hit=6 mode=3 drive=6 array=2 expected_mask=64 drag=true
+STEP 51 kind=drag-release-captured x=372 y=46 hit=6 mode=3 drive=6 array=2 expected_mask=64 drag=false
+STEP 52 kind=hover-after-release x=354 y=46 hit=5 mode=3 drive=6 array=2 expected_mask=64 drag=false
+STEP 53 kind=drag-press-drive-7 x=372 y=46 hit=6 mode=4 drive=6 array=1 expected_mask=127 drag=true
+STEP 54 kind=drag-enter-drive-8 x=408 y=46 hit=7 mode=4 drive=6 array=2 expected_mask=16256 drag=true
+STEP 55 kind=drag-release-captured x=408 y=46 hit=7 mode=4 drive=6 array=2 expected_mask=16256 drag=false
+STEP 56 kind=hover-after-release x=372 y=46 hit=6 mode=4 drive=6 array=2 expected_mask=16256 drag=false
+STEP 57 kind=drag-press-drive-14 x=516 y=46 hit=13 mode=3 drive=13 array=2 expected_mask=8192 drag=true
+STEP 58 kind=drag-enter-drive-13 x=498 y=46 hit=12 mode=3 drive=12 array=2 expected_mask=4096 drag=true
+STEP 59 kind=drag-release-captured x=498 y=46 hit=12 mode=3 drive=12 array=2 expected_mask=4096 drag=false
+STEP 60 kind=hover-after-release x=516 y=46 hit=13 mode=3 drive=12 array=2 expected_mask=4096 drag=false
+PASS native variant=A paint_scale=1.0 created=1400 image_class=sun.awt.image.OffScreenImage; transitions=60; paints=742 stale_generations_at_tick=0 max_paint_after_event_ns=46887125 java_guard_prohibited_operations=0; native_OS_preferences_unmeasured; no_framebuffer_or_controller_qualification
