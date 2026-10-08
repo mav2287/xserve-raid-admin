@@ -1,0 +1,20 @@
+[
+  {
+    "entry": "com/apple/xsr/SystemInfoPane$5.class",
+    "tag": 10,
+    "member": "access$500",
+    "pool_index": 7
+  },
+  {
+    "entry": "com/apple/xsr/SystemInfoPane$ArrayDrivePanel$RadioGroupActionListener.class",
+    "tag": 10,
+    "member": "access$500",
+    "pool_index": 4
+  },
+  {
+    "entry": "com/apple/xsr/SystemInfoPane$ArrayDrivePanel.class",
+    "tag": 9,
+    "member": "drivePanel",
+    "pool_index": 3
+  }
+]
