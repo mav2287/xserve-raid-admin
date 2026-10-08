@@ -36,6 +36,7 @@ for arch,expected in [('aarch64','aarch64'),('x64','x86_64')]:
 for arch in ['aarch64','x64']:
  before,after=[r for r in rows if r['arch']==arch]
  if before['trace']!=after['trace'] or min(before['inside_ns'],before['outside_ns'],before['mode_ns'],after['outside_ns'])<68000000:raise ValueError('Event parity or default press timing differs')
-print('PASS four runs; event state order identical; wizard/default sleeps preserved')
 if state()!=initial or check_responsiveness_artifact(a.build)[0]!=identity or any(sha(root/n)!=h for n,h in inputs.items()) or {str(f.relative_to(classes)):sha(f) for f in classes.rglob('*.class')}!=probes:raise ValueError('Inputs changed')
 (out/'results.json').write_text(json.dumps({'qualification':False,'fixture_commit':initial['commit'],'fixture_dirty':False,'product_source_commit':product['source_commit'],'inputs':inputs,'probes':probes,'runs':rows,'limits':['Headless interpreted; no native presentation qualification','x64 under Rosetta, not physical Intel','Synthetic ancestor; information-pane constructor not run','No real model, Main, profiles, controller, volumes or installed app']},indent=2)+'\n')
+
+print('PASS four runs; exact listener press arguments; event order identical; outside/default sleeps preserved')

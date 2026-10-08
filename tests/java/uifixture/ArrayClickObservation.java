@@ -220,6 +220,23 @@ public final class ArrayClickObservation {
                 catch(java.lang.reflect.InvocationTargetException e){check(e.getCause() instanceof NullPointerException,"null-click");}
             }
         }
+        // Deterministic proof through each patched listener, not just direct helper calls.
+        int expectedPress=Boolean.getBoolean("fixture.responsive")?0:68;
+        ClickProbe rowProbe=new ClickProbe();put(row,rowClass,"button",rowProbe);
+        put(rowProbe,java.awt.Component.class,"parent",owner);
+        for(java.awt.event.MouseListener mouse:description.getMouseListeners())
+            mouse.mouseReleased(new java.awt.event.MouseEvent(description,java.awt.event.MouseEvent.MOUSE_RELEASED,0L,0,1,1,1,false));
+        check(rowProbe.pressTime==expectedPress,"row-listener-delay-argument");
+        put(rowProbe,java.awt.Component.class,"parent",null);rowProbe.pressTime=-1;
+        for(java.awt.event.MouseListener mouse:description.getMouseListeners())
+            mouse.mouseReleased(new java.awt.event.MouseEvent(description,java.awt.event.MouseEvent.MOUSE_RELEASED,0L,0,1,1,1,false));
+        check(rowProbe.pressTime==68,"outside-listener-delay-argument");put(row,rowClass,"button",rowButton);
+        ClickProbe arrayProbe=new ClickProbe(),driveProbe=new ClickProbe();
+        put(info,infoClass,"arraysRadioButton",arrayProbe);put(info,infoClass,"drivesRadioButton",driveProbe);
+        modeListener.propertyChange(new PropertyChangeEvent(panel,"SelectionMode",-1,4));
+        modeListener.propertyChange(new PropertyChangeEvent(panel,"SelectionMode",-1,3));
+        check(arrayProbe.pressTime==expectedPress && driveProbe.pressTime==expectedPress,"mode-listener-delay-arguments");
+        put(info,infoClass,"arraysRadioButton",radio);put(info,infoClass,"drivesRadioButton",drivesRadio);
         // Actual private offline drive selection reaches SelectionMode -> $4 -> drives.
         panel.setSelectionMode(4);states[0]=-3;select.invoke(panel,0);states[0]=initialStates[0];
         check(field(infoClass,"selectedDrive").getInt(info)==0 && drivesRadio.isSelected() && drivesCard.isVisible(),"offline-mode-path");
